@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trent Bacon — Salesforce Administrator & Consultant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F8F6F1;
+    --ink: #1C1C1A;
+    --muted: #79776F;
+    --accent: #1F6FEB;
+    --accent-soft: #EBF2FF;
+    --rule: #E2DED6;
+    --card: #F0EDE7;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    background: rgba(248,246,241,0.9);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.1rem;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    padding: 8rem 3rem 4rem;
+    gap: 5rem;
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 20px; height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.75rem, 4.5vw, 4.25rem);
+    line-height: 1.07;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .hero-bio {
+    font-size: 1.02rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 460px;
+    margin-bottom: 2.5rem;
+  }
+  .hero-cta { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-block;
+    padding: 0.7rem 1.6rem;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 0.83rem;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-block;
+    padding: 0.7rem 1.6rem;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    font-size: 0.83rem;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+  .hero-right { display: flex; flex-direction: column; gap: 1px; }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--rule);
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .stat-row:nth-child(1) { animation-delay: 0.15s; }
+  .stat-row:nth-child(2) { animation-delay: 0.25s; }
+  .stat-row:nth-child(3) { animation-delay: 0.35s; }
+  .stat-row:nth-child(4) { animation-delay: 0.45s; }
+  .stat-label { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .stat-value { font-family: 'Instrument Serif', serif; font-size: 1.4rem; font-weight: 400; text-align: right; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTIONS */
+  section { padding: 5.5rem 3rem; max-width: 1160px; margin: 0 auto; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1.1rem;
+  }
+  .section-number { font-size: 0.72rem; color: var(--accent); font-weight: 500; letter-spacing: 0.08em; }
+  h2 { font-family: 'Instrument Serif', serif; font-size: 2.1rem; font-weight: 400; }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .skill-card {
+    background: var(--bg);
+    padding: 1.75rem;
+    transition: background 0.2s;
+  }
+  .skill-card:hover { background: var(--card); }
+  .skill-icon { font-size: 1.4rem; margin-bottom: 0.85rem; }
+  .skill-card h3 {
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .skill-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.9rem; }
+  .tag {
+    font-size: 0.7rem;
+    padding: 0.18rem 0.55rem;
+    background: var(--rule);
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .skill-card.featured { background: var(--accent-soft); border-left: 3px solid var(--accent); }
+  .skill-card.featured:hover { background: #ddeeff; }
+  .skill-card.featured h3 { color: var(--accent); }
+
+  /* EXPERIENCE */
+  .exp-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .exp-item {
+    background: var(--bg);
+    padding: 2rem 2.25rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: start;
+    transition: background 0.2s;
+  }
+  .exp-item:hover { background: var(--card); }
+  .exp-role-line { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+  .exp-type {
+    font-size: 0.7rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .exp-item h3 { font-family: 'Instrument Serif', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 0.4rem; }
+  .exp-company { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.65rem; font-weight: 500; }
+  .exp-item p { font-size: 0.88rem; color: var(--muted); max-width: 580px; line-height: 1.7; }
+  .exp-date { font-size: 0.78rem; color: var(--muted); white-space: nowrap; padding-top: 0.2rem; }
+
+  /* CERTS */
+  .certs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .cert-card {
+    background: var(--bg);
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: background 0.2s;
+  }
+  .cert-card:hover { background: var(--card); }
+  .cert-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .cert-card span { font-size: 0.88rem; line-height: 1.4; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+  .about-text p { font-size: 0.97rem; color: var(--muted); line-height: 1.85; margin-bottom: 1.15rem; }
+  .about-text p strong { color: var(--ink); font-weight: 500; }
+  .about-aside { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .aside-row {
+    background: var(--bg);
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    transition: background 0.2s;
+  }
+  .aside-row:hover { background: var(--card); }
+  .aside-label { color: var(--muted); font-size: 0.76rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .aside-val { font-weight: 500; text-align: right; }
+
+  /* CONTACT */
+  .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .contact-left h2 { font-family: 'Instrument Serif', serif; font-size: 2.6rem; font-weight: 400; line-height: 1.1; margin-bottom: 1.1rem; }
+  .contact-left p { color: var(--muted); font-size: 0.97rem; line-height: 1.8; margin-bottom: 2rem; }
+  .contact-links { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .contact-link {
+    background: var(--bg);
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .contact-link:hover { background: var(--card); }
+  .contact-link span { color: var(--muted); font-size: 0.78rem; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .fade-in { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 3rem; gap: 2.5rem; }
+    section { padding: 3.5rem 1.5rem; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .certs-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .contact-inner { grid-template-columns: 1fr; gap: 2rem; }
+    footer { flex-direction: column; gap: 0.4rem; text-align: center; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">Trent Bacon</div>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#certifications">Certifications</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Salesforce Administrator & Consultant</div>
+    <h1>Turning messy<br>processes into<br><em>clean solutions.</em></h1>
+    <p class="hero-bio">I'm Trent — a Salesforce Admin and Consultant based in Kansas City. I specialize in Flow automation, process design, and org management. Six certifications, real production experience, and a background that makes me think about how things actually work — not just how they look in a sandbox.</p>
+    <div class="hero-cta">
+      <a href="#skills" class="btn-primary">See My Work</a>
+      <a href="#contact" class="btn-ghost">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="stat-row">
+      <span class="stat-label">Current Role</span>
+      <span class="stat-value">Systems Admin II, WGU</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Certifications</span>
+      <span class="stat-value">6 Salesforce Certs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Specialty</span>
+      <span class="stat-value">Flow & Process Design</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Location</span>
+      <span class="stat-value">Overland Park, KS</span>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header fade-in">
+    <span class="section-number">01</span>
+    <h2>What I Do</h2>
+  </div>
+  <div class="skills-grid fade-in">
+    <div class="skill-card featured">
+      <div class="skill-icon">⚡</div>
+      <h3>Flow Automation</h3>
+      <p>My bread and butter. Record-triggered flows, screen flows, scheduled flows — designing automation that business teams can actually understand and maintain.</p>
+      <div class="skill-tags">
+        <span class="tag">Record-Triggered</span>
+        <span class="tag">Screen Flows</span>
+        <span class="tag">Scheduled</span>
+        <span class="tag">Subflows</span>
+      </div>
+    </div>
+    <div class="skill-card featured">
+      <div class="skill-icon">🗺</div>
+      <h3>Process Design</h3>
+      <p>Translating messy business requirements into clean, documented Salesforce processes. Process mapping, requirements gathering, and stakeholder alignment.</p>
+      <div class="skill-tags">
+        <span class="tag">Process Mapping</span>
+        <span class="tag">Requirements</span>
+        <span class="tag">Diagramming</span>
+        <span class="tag">Business Analysis</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🛠</div>
+      <h3>Salesforce Administration</h3>
+      <p>Full org management — users, profiles, permission sets, validation rules, page layouts, objects, fields, and keeping everything running cleanly.</p>
+      <div class="skill-tags">
+        <span class="tag">Profiles & Perms</span>
+        <span class="tag">Validation Rules</span>
+        <span class="tag">Objects & Fields</span>
+        <span class="tag">Reports & Dashboards</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">☁️</div>
+      <h3>Experience Cloud</h3>
+      <p>Building and managing Experience Cloud sites — partner portals, community pages, and external-facing Salesforce experiences.</p>
+      <div class="skill-tags">
+        <span class="tag">Experience Cloud</span>
+        <span class="tag">Digital Experiences</span>
+        <span class="tag">Community Sites</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🚀</div>
+      <h3>Deployments</h3>
+      <p>Moving metadata between orgs — change sets, SF CLI, and GitHub Actions CI/CD pipelines. Making sure what's in dev actually makes it to production.</p>
+      <div class="skill-tags">
+        <span class="tag">Change Sets</span>
+        <span class="tag">SF CLI</span>
+        <span class="tag">GitHub Actions</span>
+        <span class="tag">Metadata API</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🔗</div>
+      <h3>Integrations & Apex</h3>
+      <p>Some Apex development and integration work — including a Salesforce-to-Tealium CDP integration. Growing this skill set intentionally.</p>
+      <div class="skill-tags">
+        <span class="tag">Apex Basics</span>
+        <span class="tag">REST APIs</span>
+        <span class="tag">Tealium CDP</span>
+        <span class="tag">Named Credentials</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-header fade-in">
+    <span class="section-number">02</span>
+    <h2>Experience</h2>
+  </div>
+  <div class="exp-list fade-in">
+    <div class="exp-item">
+      <div>
+        <div class="exp-role-line">
+          <span class="exp-type">Current</span>
+        </div>
+        <h3>Systems Administrator II</h3>
+        <div class="exp-company">Western Governors University — Remote</div>
+        <p>Managing and developing WGU's Salesforce org — Flow automation, process design, Experience Cloud, deployments via GitHub Actions CI/CD, and some Apex and integration work. Supporting partner management and enrollment operations across the platform.</p>
+        <div class="skill-tags" style="margin-top:0.9rem;">
+          <span class="tag">Flow</span><span class="tag">Experience Cloud</span><span class="tag">CI/CD</span><span class="tag">Apex</span><span class="tag">Tealium Integration</span>
+        </div>
+      </div>
+      <div class="exp-date">2021 — Present</div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="section-header fade-in">
+    <span class="section-number">03</span>
+    <h2>Certifications</h2>
+  </div>
+  <div class="certs-grid fade-in">
+    <div class="cert-card">
+      <div class="cert-dot"></div>
+      <span>Salesforce Administrator</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-dot"></div>
+      <span>Salesforce Advanced Administrator</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-dot"></div>
+      <span>Salesforce Platform App Builder</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-dot"></div>
+      <span>Salesforce Sales Cloud Consultant</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-dot"></div>
+      <span>Salesforce Service Cloud Consultant</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-dot"></div>
+      <span>Salesforce Experience Cloud Consultant</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header fade-in">
+    <span class="section-number">04</span>
+    <h2>A Bit About Me</h2>
+  </div>
+  <div class="about-grid fade-in">
+    <div class="about-text">
+      <p>I came up through automotive and diesel mechanics — earned both a bachelor's and master's degree — before pivoting into Salesforce. That background gave me something that's hard to teach: <strong>I think about how systems actually work in the real world, not just how they look on paper.</strong></p>
+      <p>At WGU, I work across Flow automation, process design, org administration, Experience Cloud, and deployments. I'm also growing into Apex development and integrations — I built a Salesforce-to-Tealium CDP integration and work within a GitHub Actions CI/CD pipeline.</p>
+      <p>I'm continuing to grow my Salesforce skill set and building toward a Solutions Engineer or Architect path. Six certifications and counting.</p>
+    </div>
+    <div class="about-aside">
+      <div class="aside-row">
+        <span class="aside-label">Based in</span>
+        <span class="aside-val">Overland Park, KS</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-label">Current Company</span>
+        <span class="aside-val">Western Governors University</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-label">Background</span>
+        <span class="aside-val">Automotive → Salesforce</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-label">Outside of Work</span>
+        <span class="aside-val">Gym, Volleyball, Pickleball</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-label">Open to</span>
+        <span class="aside-val">Remote Opportunities</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner fade-in">
+    <div class="contact-left">
+      <h2>Let's work<br><em style="font-family:'Instrument Serif',serif;font-style:italic;color:var(--accent)">together.</em></h2>
+      <p>Whether you're hiring, need Salesforce consulting help, or just want to talk process design — I'm always open to a good conversation.</p>
+      <a href="mailto:trentbacon985@gmail.com" class="btn-primary">trentbacon985@gmail.com</a>
+    </div>
+    <div class="contact-links">
+      <a href="https://github.com/858tmb20" target="_blank" class="contact-link">
+        GitHub <span>858tmb20 ↗</span>
+      </a>
+      <a href="https://linkedin.com/in/trentbacon" target="_blank" class="contact-link">
+        LinkedIn <span>Trent Bacon ↗</span>
+      </a>
+      <a href="https://858tmb20.github.io/Personal-Websites/nces_hierarchy.html" target="_blank" class="contact-link">
+        NCES Hierarchy Explorer <span>Live Demo ↗</span>
+      </a>
+      <a href="https://trailhead.salesforce.com" target="_blank" class="contact-link">
+        Trailblazer Profile <span>View ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Trent Bacon</span>
+  <span>Salesforce Administrator & Consultant — Kansas City</span>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
