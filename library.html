@@ -33,90 +33,31 @@
   }
   .header-left h1 { font-size: 1rem; font-weight: 500; }
   .header-left p { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
-  .btn-add {
-    padding: 0.6rem 1.25rem;
-    background: var(--accent);
-    color: white;
-    font-size: 0.83rem;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-  }
+  .btn-add { padding: 0.6rem 1.25rem; background: var(--accent); color: white; font-size: 0.83rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
 
   .main { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-  .tabs {
-    display: flex;
-    border: 1px solid var(--rule);
-    margin-bottom: 1.25rem;
-    background: var(--rule);
-    gap: 1px;
-  }
-  .tab {
-    flex: 1;
-    padding: 0.65rem 0.5rem;
-    font-size: 0.8rem;
-    font-weight: 500;
-    font-family: inherit;
-    border: none;
-    background: var(--card);
-    color: var(--muted);
-    cursor: pointer;
-    text-align: center;
-  }
+  .tabs { display: flex; border: 1px solid var(--rule); margin-bottom: 1.25rem; background: var(--rule); gap: 1px; }
+  .tab { flex: 1; padding: 0.65rem 0.5rem; font-size: 0.8rem; font-weight: 500; font-family: inherit; border: none; background: var(--card); color: var(--muted); cursor: pointer; text-align: center; }
   .tab.active { background: var(--accent); color: white; }
 
-  .search-bar {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.93rem;
-    font-family: inherit;
-    border: 1px solid var(--rule);
-    background: var(--card);
-    color: var(--ink);
-    outline: none;
-    margin-bottom: 1rem;
-  }
+  .search-bar { width: 100%; padding: 0.75rem 1rem; font-size: 0.93rem; font-family: inherit; border: 1px solid var(--rule); background: var(--card); color: var(--ink); outline: none; margin-bottom: 1rem; }
   .search-bar::placeholder { color: var(--muted); }
 
   .count { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
 
   .links-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
-  .link-item {
-    background: var(--card);
-    padding: 1rem 1.25rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
+  .link-item { background: var(--card); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
   .link-info { flex: 1; min-width: 0; }
   .link-title { font-size: 0.93rem; font-weight: 500; margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .link-url { font-size: 0.78rem; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; display: block; }
   .link-cat { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.2rem; }
-  .link-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
-  .btn-open {
-    padding: 0.4rem 0.9rem;
-    background: var(--accent);
-    color: white;
-    font-size: 0.78rem;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-delete {
-    padding: 0.4rem 0.7rem;
-    background: none;
-    color: var(--muted);
-    font-size: 0.78rem;
-    border: 1px solid var(--rule);
-    cursor: pointer;
-    font-family: inherit;
-  }
+  .link-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  .btn-open { padding: 0.4rem 0.9rem; background: var(--accent); color: white; font-size: 0.78rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block; }
+  .btn-edit { padding: 0.4rem 0.7rem; background: none; color: var(--muted); font-size: 0.78rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
+  .btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-delete { padding: 0.4rem 0.7rem; background: none; color: var(--muted); font-size: 0.78rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
+  .btn-delete:hover { color: var(--danger); border-color: var(--danger); }
 
   .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); background: var(--card); border: 1px solid var(--rule); }
   .empty strong { display: block; font-size: 1rem; color: var(--ink); margin-bottom: 0.4rem; }
@@ -127,16 +68,7 @@
   .modal h2 { font-size: 1rem; font-weight: 500; margin-bottom: 1.5rem; }
   .field { margin-bottom: 1rem; }
   .field label { display: block; font-size: 0.78rem; font-weight: 500; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
-  .field input, .field select {
-    width: 100%;
-    padding: 0.65rem 0.85rem;
-    font-size: 0.9rem;
-    font-family: inherit;
-    border: 1px solid var(--rule);
-    background: var(--bg);
-    color: var(--ink);
-    outline: none;
-  }
+  .field input, .field select { width: 100%; padding: 0.65rem 0.85rem; font-size: 0.9rem; font-family: inherit; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); outline: none; }
   .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
   .btn-save { flex: 1; padding: 0.65rem; background: var(--accent); color: white; font-size: 0.88rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
   .btn-cancel { padding: 0.65rem 1.25rem; background: none; color: var(--muted); font-size: 0.88rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
@@ -153,11 +85,10 @@
     <h1>Resource Library</h1>
     <p>Your personal references & links</p>
   </div>
-  <button class="btn-add" onclick="openModal()">+ Add Link</button>
+  <button class="btn-add" onclick="openModal(null)">+ Add Link</button>
 </header>
 
 <div class="main">
-
   <div class="tabs">
     <button class="tab active" id="tab-All" onclick="setTab('All')">All</button>
     <button class="tab" id="tab-Salesforce" onclick="setTab('Salesforce Knowledge')">Salesforce</button>
@@ -165,16 +96,15 @@
     <button class="tab" id="tab-Personal" onclick="setTab('Personal Websites')">Personal Sites</button>
     <button class="tab" id="tab-Auto" onclick="setTab('Automotive Knowledge')">Automotive</button>
   </div>
-
   <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL..." oninput="applyFilters()">
   <div class="count" id="count"></div>
   <div id="linksList"><div class="loading">Loading...</div></div>
-
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <h2>Add a Resource</h2>
+    <h2 id="modalTitle">Add a Resource</h2>
+    <input type="hidden" id="editId" value="">
     <div class="field">
       <label>Title</label>
       <input type="text" id="titleInput" placeholder="e.g. Salesforce Flow best practices" />
@@ -204,12 +134,7 @@
 <script>
   const SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
-
-  const H = {
-    'apikey': SB_KEY,
-    'Authorization': 'Bearer ' + SB_KEY,
-    'Content-Type': 'application/json'
-  };
+  const H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
 
   let allLinks = [];
   let activeTab = 'All';
@@ -223,8 +148,8 @@
   function setTab(tab) {
     activeTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    const tabMap = { 'All': 'tab-All', 'Salesforce Knowledge': 'tab-Salesforce', 'Work Stuff': 'tab-Work', 'Personal Websites': 'tab-Personal', 'Automotive Knowledge': 'tab-Auto' };
-    document.getElementById(tabMap[tab]).classList.add('active');
+    const map = { 'All': 'tab-All', 'Salesforce Knowledge': 'tab-Salesforce', 'Work Stuff': 'tab-Work', 'Personal Websites': 'tab-Personal', 'Automotive Knowledge': 'tab-Auto' };
+    document.getElementById(map[tab]).classList.add('active');
     document.getElementById('searchInput').value = '';
     applyFilters();
   }
@@ -253,6 +178,7 @@
         '</div>' +
         '<div class="link-actions">' +
           '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
+          '<button class="btn-edit" onclick="openModal(' + JSON.stringify(l) + ')">Edit</button>' +
           '<button class="btn-delete" onclick="deleteLink(\'' + l.id + '\')">✕</button>' +
         '</div>' +
       '</div>';
@@ -261,18 +187,42 @@
     document.getElementById('linksList').innerHTML = html;
   }
 
+  function openModal(link) {
+    document.getElementById('editId').value = link ? link.id : '';
+    document.getElementById('modalTitle').textContent = link ? 'Edit Resource' : 'Add a Resource';
+    document.getElementById('titleInput').value = link ? link.title : '';
+    document.getElementById('urlInput').value = link ? link.url : '';
+    document.getElementById('categoryInput').value = link ? (link.category || 'Salesforce Knowledge') : 'Salesforce Knowledge';
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('titleInput').focus(); }, 100);
+  }
+
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
   async function saveLink() {
     const title = document.getElementById('titleInput').value.trim();
     const url = document.getElementById('urlInput').value.trim();
     const category = document.getElementById('categoryInput').value;
+    const editId = document.getElementById('editId').value;
     if (!title || !url) { showToast('Fill in both fields'); return; }
     const fullUrl = url.startsWith('http') ? url : 'https://' + url;
-    const res = await fetch(SB_URL + '/rest/v1/links', {
-      method: 'POST',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, url: fullUrl, category: category })
-    });
-    if (res.ok) { closeModal(); showToast('Saved!'); fetchLinks(); }
+
+    let res;
+    if (editId) {
+      res = await fetch(SB_URL + '/rest/v1/links?id=eq.' + editId, {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ title: title, url: fullUrl, category: category })
+      });
+    } else {
+      res = await fetch(SB_URL + '/rest/v1/links', {
+        method: 'POST',
+        headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ title: title, url: fullUrl, category: category })
+      });
+    }
+
+    if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); }
     else { showToast('Error saving'); }
   }
 
@@ -283,22 +233,8 @@
     fetchLinks();
   }
 
-  function openModal() {
-    document.getElementById('titleInput').value = '';
-    document.getElementById('urlInput').value = '';
-    document.getElementById('modalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('titleInput').focus(); }, 100);
-  }
-
-  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-
-  document.getElementById('modalOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
-  });
+  document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
   function showToast(msg) {
     const t = document.getElementById('toast');
