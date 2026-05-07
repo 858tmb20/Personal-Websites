@@ -401,3 +401,167 @@
 </script>
 </body>
 </html>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Resource Library</h1>
+    <p>Your personal references & links</p>
+  </div>
+  <button class="btn-add" onclick="openModal()">+ Add Link</button>
+</header>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('All')">All</button>
+    <button class="tab" onclick="setTab('Salesforce Knowledge')">Salesforce</button>
+    <button class="tab" onclick="setTab('Work Stuff')">Work Stuff</button>
+    <button class="tab" onclick="setTab('Personal Websites')">Personal Websites</button>
+    <button class="tab" onclick="setTab('Automotive Knowledge')">Automotive</button>
+  </div>
+
+  <input type="text" class="search-bar" placeholder="Search by title or URL..." oninput="filterLinks(this.value)" id="searchInput">
+  <div class="count" id="count"></div>
+  <div id="linksList"><div class="loading">Loading your links...</div></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <h2>Add a Resource</h2>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="titleInput" placeholder="e.g. How to use Flow Decision elements" />
+    </div>
+    <div class="field">
+      <label>URL</label>
+      <input type="text" id="urlInput" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="categoryInput">
+        <option value="Salesforce Knowledge">Salesforce Knowledge</option>
+        <option value="Work Stuff">Work Stuff</option>
+        <option value="Personal Websites">Personal Websites</option>
+        <option value="Automotive Knowledge">Automotive Knowledge</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveLink()">Save</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
+
+  let allLinks = [];
+  let activeTab = 'All';
+
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json'
+  };
+
+  async function fetchLinks() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/links?order=created_at.desc`, { headers });
+    allLinks = await res.json();
+    applyFilters();
+  }
+
+  function setTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('searchInput').value = '';
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allLinks;
+    if (activeTab !== 'All') filtered = filtered.filter(l => l.category === activeTab);
+    if (query) filtered = filtered.filter(l => l.title.toLowerCase().includes(query) || l.url.toLowerCase().includes(query));
+    renderLinks(filtered);
+  }
+
+  function filterLinks(query) { applyFilters(); }
+
+  function renderLinks(links) {
+    const el = document.getElementById('linksList');
+    const count = document.getElementById('count');
+    count.textContent = `${links.length} resource${links.length !== 1 ? 's' : ''}`;
+    if (!links.length) {
+      el.innerHTML = `<div class="empty"><strong>No resources here yet</strong>Hit "+ Add Link" to save your first one.</div>`;
+      return;
+    }
+    el.innerHTML = `<div class="links-list">${links.map(l => `
+      <div class="link-item">
+        <div class="link-info">
+          <div class="link-title">${escHtml(l.title)}</div>
+          <a class="link-url" href="${escHtml(l.url)}" target="_blank">${escHtml(l.url)}</a>
+          <div class="link-cat">${escHtml(l.category || 'Uncategorized')}</div>
+        </div>
+        <div class="link-actions">
+          <a class="btn-open" href="${escHtml(l.url)}" target="_blank">Open ↗</a>
+          <button class="btn-delete" onclick="deleteLink('${l.id}')">✕</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  async function saveLink() {
+    const title = document.getElementById('titleInput').value.trim();
+    const url = document.getElementById('urlInput').value.trim();
+    const category = document.getElementById('categoryInput').value;
+    if (!title || !url) { showToast('Please fill in both fields'); return; }
+    const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/links`, {
+      method: 'POST',
+      headers: { ...headers, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ title, url: fullUrl, category })
+    });
+    if (res.ok) { closeModal(); showToast('Saved!'); fetchLinks(); }
+    else { showToast('Error saving'); console.error(await res.text()); }
+  }
+
+  async function deleteLink(id) {
+    if (!confirm('Delete this resource?')) return;
+    await fetch(`${SUPABASE_URL}/rest/v1/links?id=eq.${id}`, { method: 'DELETE', headers });
+    showToast('Deleted');
+    fetchLinks();
+  }
+
+  function openModal() {
+    document.getElementById('titleInput').value = '';
+    document.getElementById('urlInput').value = '';
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('titleInput').focus(), 100);
+  }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('open')) saveLink();
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  fetchLinks();
+</script>
+</body>
+</html>
