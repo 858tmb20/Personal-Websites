@@ -7,108 +7,488 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --bg: #f7f6f2; --surface: #ffffff; --surface2: #f0efe9; --surface3: #e8e6de;
-  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
-  --text: #1c1b18; --text2: #6b6960; --text3: #a8a69e;
-  --accent: #1a56a0; --accent-bg: #e8f0fb;
-  --green: #1a7a4a; --green-bg: #e8f7ef;
-  --radius: 10px; --radius-lg: 16px; --radius-xl: 20px;
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f5f7ff;
+  --surface3: #e8eeff;
+  --border: rgba(99,102,241,0.12);
+  --border2: rgba(99,102,241,0.22);
+  --text: #1e1b4b;
+  --text2: #6366a0;
+  --text3: #a5b4fc;
+  --accent: #4f46e5;
+  --accent2: #7c3aed;
+  --accent-light: #ede9fe;
+  --green: #059669;
+  --green-bg: #d1fae5;
+  --green-border: rgba(5,150,105,0.3);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow: 0 1px 3px rgba(79,70,229,0.08), 0 4px 16px rgba(79,70,229,0.06);
+  --shadow-lg: 0 4px 24px rgba(79,70,229,0.12), 0 1px 4px rgba(79,70,229,0.08);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #181714; --surface: #222118; --surface2: #2a2920; --surface3: #333128;
-    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
-    --text: #eeece5; --text2: #99978f; --text3: #55534d;
-    --accent-bg: #1a2a3e; --green-bg: #0e2a1c;
-  }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: radial-gradient(ellipse at 20% 0%, rgba(167,139,250,0.15) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 0%, rgba(99,102,241,0.1) 0%, transparent 50%);
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
-.header { background: var(--surface); border-bottom: 0.5px solid var(--border2); padding: 0 28px; height: 56px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
-.logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
-.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+/* HEADER */
+.header {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.logo-icon {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+}
+
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-.conn-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border2); background: var(--surface2); cursor: pointer; }
-.conn-pill.connected { color: var(--green); border-color: rgba(26,122,74,0.3); background: var(--green-bg); }
-.conn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
-.conn-pill.connected .conn-dot { background: var(--green); }
-.icon-btn { width: 34px; height: 34px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
-.icon-btn:hover { background: var(--surface3); color: var(--text); }
-.main { flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 36px 28px 60px; display: flex; flex-direction: column; gap: 28px; }
-.connect-card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-xl); overflow: hidden; }
-.connect-card.ok { border-color: rgba(26,122,74,0.35); }
-.card-top { padding: 20px 24px 0; }
-.eyebrow { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px; }
-.card-body { padding: 0 24px 22px; }
-.instructions { background: var(--surface2); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 16px; }
-.instructions h3 { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
-.step { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; }
+
+.conn-pill {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.conn-pill.connected { color: var(--green); border-color: var(--green-border); background: var(--green-bg); }
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
+.conn-pill.connected .conn-dot { background: var(--green); box-shadow: 0 0 0 2px rgba(5,150,105,0.2); }
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 17px;
+  box-shadow: var(--shadow);
+}
+.icon-btn:hover { background: var(--accent-light); color: var(--accent); border-color: rgba(99,102,241,0.4); }
+
+/* MAIN */
+.main {
+  flex: 1;
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 28px 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* CONNECT CARD */
+.connect-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.connect-card.ok { border-color: var(--green-border); }
+
+.card-top {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.eyebrow {
+  font-size: 11px; font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.card-title {
+  font-size: 17px; font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.card-body { padding: 20px 24px 24px; }
+
+.instructions {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.instructions h3 { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
+
+.step {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 12px; color: var(--text2); line-height: 1.6;
+  margin-bottom: 10px;
+}
 .step:last-child { margin-bottom: 0; }
-.step-num { width: 18px; height: 18px; border-radius: 50%; background: var(--surface3); color: var(--text2); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-.step code { font-family: 'SF Mono','Fira Code',monospace; font-size: 11px; background: var(--surface); border: 0.5px solid var(--border2); padding: 1px 6px; border-radius: 4px; color: var(--accent); cursor: pointer; user-select: all; }
-.fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 11px; font-weight: 500; color: var(--text2); }
-.field input, .field textarea { padding: 9px 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 13px; font-family: inherit; width: 100%; }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
-.field textarea { height: 72px; resize: none; font-size: 12px; font-family: 'SF Mono','Fira Code',monospace; line-height: 1.5; }
-.actions-row { display: flex; align-items: center; gap: 12px; }
-.primary-btn { padding: 9px 20px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-.primary-btn:hover { opacity: 0.88; }
-.primary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.step-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+
+.step code {
+  font-family: 'SF Mono','Fira Code',monospace;
+  font-size: 11px;
+  background: white;
+  border: 1px solid var(--border2);
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: var(--accent);
+  cursor: pointer;
+}
+.step code:hover { background: var(--accent-light); }
+
+.fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--text2); }
+.field input, .field textarea {
+  padding: 10px 13px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+.field textarea { height: 74px; resize: none; font-family: 'SF Mono','Fira Code',monospace; font-size: 12px; line-height: 1.5; }
+
+.actions-row { display: flex; align-items: center; gap: 14px; }
+
+.primary-btn {
+  padding: 10px 22px;
+  border-radius: var(--radius);
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  font-size: 13px; font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+  transition: opacity 0.15s, transform 0.1s;
+}
+.primary-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.primary-btn:active { transform: translateY(0); }
+.primary-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
 .hint { font-size: 12px; color: var(--text3); }
-.err { font-size: 12px; color: #a32d2d; background: #fcebeb; border: 0.5px solid rgba(163,45,45,0.25); border-radius: var(--radius); padding: 8px 12px; margin-top: 10px; }
-.connected-row { display: flex; align-items: center; gap: 14px; padding: 18px 24px; }
-.conn-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--green-bg); border: 0.5px solid rgba(26,122,74,0.3); display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 18px; flex-shrink: 0; }
-.conn-label { font-size: 14px; font-weight: 600; }
-.conn-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.disc-btn { margin-left: auto; padding: 6px 14px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: transparent; color: var(--text3); font-size: 12px; font-family: inherit; cursor: pointer; }
-.disc-btn:hover { color: #a32d2d; border-color: rgba(163,45,45,0.3); }
-.section-hdr { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
-.topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
-.topic-card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.12s, background 0.12s; }
-.topic-card:hover { border-color: var(--accent); background: var(--accent-bg); }
-.topic-card.active { border-color: var(--accent); background: var(--accent-bg); border-width: 1.5px; }
-.topic-card.locked { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
-.topic-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--text2); }
-.topic-card:hover .topic-icon, .topic-card.active .topic-icon { background: rgba(26,86,160,0.12); color: var(--accent); }
-.topic-name { font-size: 13px; font-weight: 600; }
+
+.err {
+  font-size: 12px; color: #be123c;
+  background: #fff1f2;
+  border: 1px solid rgba(190,18,60,0.2);
+  border-radius: var(--radius);
+  padding: 9px 13px;
+  margin-top: 12px;
+}
+
+/* CONNECTED STATE */
+.connected-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.conn-icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--green-bg);
+  border: 2px solid var(--green-border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--green);
+  font-size: 20px;
+}
+
+.conn-label { font-size: 15px; font-weight: 700; color: #064e3b; }
+.conn-sub { font-size: 12px; color: var(--green); margin-top: 2px; }
+
+.disc-btn {
+  margin-left: auto;
+  padding: 7px 15px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(5,150,105,0.25);
+  background: white;
+  color: #6b7280;
+  font-size: 12px; font-family: inherit;
+  cursor: pointer;
+}
+.disc-btn:hover { color: #be123c; border-color: rgba(190,18,60,0.3); }
+
+/* TOPICS */
+.section-hdr {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+  gap: 12px;
+}
+
+.topic-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.topic-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.topic-card.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  border-width: 2px;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(79,70,229,0.2);
+}
+.topic-card.locked { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+.topic-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  color: var(--text2);
+  transition: background 0.15s, color 0.15s;
+}
+.topic-card:hover .topic-icon, .topic-card.active .topic-icon {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+
+.topic-name { font-size: 13px; font-weight: 700; color: var(--text); }
 .topic-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
-.freeform-wrap { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-xl); padding: 18px 20px; display: flex; gap: 10px; align-items: flex-end; }
-.freeform-wrap textarea { flex: 1; height: 52px; resize: none; padding: 11px 13px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 14px; font-family: inherit; line-height: 1.5; }
-.freeform-wrap textarea:focus { outline: none; border-color: var(--accent); }
+
+/* FREEFORM */
+.freeform-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  padding: 18px 20px;
+  display: flex; gap: 12px; align-items: flex-end;
+  box-shadow: var(--shadow-lg);
+}
+
+.freeform-wrap textarea {
+  flex: 1; height: 54px; resize: none;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 14px; font-family: inherit; line-height: 1.5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.freeform-wrap textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
 .freeform-wrap textarea::placeholder { color: var(--text3); }
-.ask-btn { height: 40px; padding: 0 18px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.ask-btn:hover { background: var(--surface3); }
-.ask-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-.result-panel { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-xl); overflow: hidden; }
-.result-hdr { padding: 15px 22px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.result-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.live-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; background: var(--accent-bg); color: var(--accent); letter-spacing: 0.04em; }
-.result-body { padding: 22px 24px; font-size: 14px; line-height: 1.8; color: var(--text); }
-.result-body h2 { font-size: 14px; font-weight: 600; margin: 20px 0 6px; padding-bottom: 4px; border-bottom: 0.5px solid var(--border); }
+
+.ask-btn {
+  height: 42px; padding: 0 20px;
+  border-radius: var(--radius);
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  font-size: 13px; font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+  transition: opacity 0.15s, transform 0.1s;
+}
+.ask-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.ask-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; }
+
+/* RESULT */
+.result-panel {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.result-hdr {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.result-title {
+  font-size: 15px; font-weight: 700;
+  color: var(--text);
+  display: flex; align-items: center; gap: 9px;
+}
+.result-title i { color: var(--accent); }
+
+.live-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(79,70,229,0.3);
+}
+
+.result-body { padding: 24px; font-size: 14px; line-height: 1.85; color: var(--text); }
+.result-body h2 {
+  font-size: 14px; font-weight: 700;
+  color: var(--accent);
+  margin: 22px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--accent-light);
+}
 .result-body h2:first-child { margin-top: 0; }
-.result-body p { margin-bottom: 10px; }
-.result-body ul { padding-left: 18px; margin-bottom: 10px; }
-.result-body li { margin-bottom: 4px; }
-.result-body strong { font-weight: 600; }
-.result-body code { font-family: 'SF Mono','Fira Code',monospace; font-size: 12px; background: var(--surface2); border: 0.5px solid var(--border2); padding: 1px 6px; border-radius: 5px; }
-.loading-row { padding: 28px 24px; display: flex; align-items: center; gap: 12px; color: var(--text2); font-size: 14px; }
-.spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+.result-body p { margin-bottom: 10px; color: #374151; }
+.result-body ul { padding-left: 18px; margin-bottom: 12px; }
+.result-body li { margin-bottom: 5px; color: #374151; }
+.result-body strong { font-weight: 700; color: var(--text); }
+.result-body code {
+  font-family: 'SF Mono','Fira Code',monospace;
+  font-size: 12px;
+  background: var(--accent-light);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: var(--accent);
+  padding: 1px 7px;
+  border-radius: 5px;
+}
+
+.loading-row {
+  padding: 32px 24px;
+  display: flex; align-items: center; gap: 14px;
+  color: var(--text2); font-size: 14px;
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid var(--accent-light);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.modal { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-xl); padding: 28px; width: 420px; display: flex; flex-direction: column; gap: 14px; }
-.modal h2 { font-size: 16px; font-weight: 600; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(30,27,75,0.5);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 420px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 20px 60px rgba(30,27,75,0.25);
+}
+.modal h2 { font-size: 17px; font-weight: 700; color: var(--text); }
 .modal p { font-size: 13px; color: var(--text2); line-height: 1.6; }
-.modal input { padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 14px; font-family: inherit; width: 100%; }
-.modal input:focus { outline: none; border-color: var(--accent); }
+.modal input {
+  padding: 11px 13px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 14px; font-family: inherit; width: 100%;
+}
+.modal input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
 .modal-btns { display: flex; gap: 10px; }
-.modal-btns button { flex: 1; padding: 10px; border-radius: var(--radius); font-size: 14px; font-family: inherit; cursor: pointer; font-weight: 500; }
-.btn-p { background: var(--accent); color: #fff; border: none; }
-.btn-p:hover { opacity: 0.88; }
-.btn-s { background: transparent; color: var(--text2); border: 0.5px solid var(--border2); }
+.modal-btns button { flex: 1; padding: 11px; border-radius: var(--radius); font-size: 14px; font-family: inherit; cursor: pointer; font-weight: 600; }
+.btn-p { background: linear-gradient(135deg,var(--accent),var(--accent2)); color: white; border: none; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
+.btn-p:hover { opacity: 0.9; }
+.btn-s { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
 .modal-note { font-size: 11px; color: var(--text3); }
-@media (max-width: 600px) { .fields-row { grid-template-columns: 1fr; } .topics-grid { grid-template-columns: repeat(2,1fr); } .main { padding: 20px 16px 40px; } }
+
+@media (max-width: 600px) {
+  .fields-row { grid-template-columns: 1fr; }
+  .topics-grid { grid-template-columns: repeat(2,1fr); }
+  .main { padding: 20px 16px 50px; }
+}
 </style>
 </head>
 <body>
@@ -116,18 +496,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="modal-overlay" id="apiModal">
   <div class="modal">
     <h2>Anthropic API key</h2>
-    <p>Powers the AI analysis. Stored only in your browser — never sent anywhere except Anthropic's API directly.</p>
+    <p>Powers the AI analysis. Stored only in your browser — sent only to Anthropic's API directly.</p>
     <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
     <div class="modal-btns">
       <button class="btn-s" onclick="dismissApiModal()">Skip</button>
-      <button class="btn-p" onclick="saveApiKey()">Save</button>
+      <button class="btn-p" onclick="saveApiKey()">Save key</button>
     </div>
     <p class="modal-note">Get your key at console.anthropic.com → API Keys</p>
   </div>
 </div>
 
 <header class="header">
-  <div class="logo"><div class="logo-dot"></div>Org Intelligence</div>
+  <div class="logo">
+    <div class="logo-icon"><i class="ti ti-topology-star-3" aria-hidden="true"></i></div>
+    Org Intelligence
+  </div>
   <div class="header-right">
     <div class="conn-pill" id="connPill" onclick="focusConnect()">
       <div class="conn-dot"></div>
@@ -143,14 +526,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
   <div class="connect-card" id="connectCard">
     <div id="connectForm">
-      <div class="card-top"><div class="eyebrow">Connect your org</div></div>
+      <div class="card-top">
+        <div class="eyebrow">Salesforce</div>
+        <div class="card-title">Connect your org</div>
+      </div>
       <div class="card-body">
         <div class="instructions">
-          <h3>Getting your session token (SSO orgs)</h3>
+          <h3>How to get your session token (SSO orgs)</h3>
           <div class="step"><div class="step-num">1</div><span>Log into Salesforce normally through SSO</span></div>
-          <div class="step"><div class="step-num">2</div><span>Open browser dev tools — press <strong>F12</strong> (or right-click anywhere → Inspect)</span></div>
-          <div class="step"><div class="step-num">3</div><span>Click the <strong>Console</strong> tab, paste this and press Enter:<br><code onclick="copySnippet(this)">document.cookie.match(/sid=([^;]+)/)?.[1]</code> <span style="font-size:11px;color:var(--text3)">(click to copy)</span></span></div>
-          <div class="step"><div class="step-num">4</div><span>Copy the token that appears (looks like <code>00D3x000...</code>) and paste it below</span></div>
+          <div class="step"><div class="step-num">2</div><span>Open browser dev tools — press <strong>F12</strong> (or right-click → Inspect)</span></div>
+          <div class="step"><div class="step-num">3</div><span>Go to the <strong>Console</strong> tab, paste this command and press Enter:<br><code onclick="copySnippet(this)">document.cookie.match(/sid=([^;]+)/)?.[1]</code> <span style="font-size:10px;color:var(--text3);margin-left:4px">click to copy</span></span></div>
+          <div class="step"><div class="step-num">4</div><span>Copy the token that appears (starts with <code>00D...</code>) and paste it below</span></div>
         </div>
         <div class="fields-row">
           <div class="field">
@@ -184,12 +570,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <div>
-    <div class="section-hdr"><i class="ti ti-layout-grid" aria-hidden="true"></i> Explore by object</div>
+    <div class="section-hdr"><i class="ti ti-layout-grid" style="color:var(--accent)" aria-hidden="true"></i> Explore by object</div>
     <div class="topics-grid" id="topicsGrid"></div>
   </div>
 
   <div>
-    <div class="section-hdr"><i class="ti ti-message-question" aria-hidden="true"></i> Ask anything about your org</div>
+    <div class="section-hdr"><i class="ti ti-message-question" style="color:var(--accent)" aria-hidden="true"></i> Ask anything about your org</div>
     <div class="freeform-wrap">
       <textarea id="freeInput" placeholder="e.g. How does lead routing work? What happens when an opportunity is closed won?" onkeydown="handleKey(event)"></textarea>
       <button class="ask-btn" id="askBtn" onclick="askFreeform()" disabled>
@@ -242,12 +628,12 @@ function renderTopics() {
 }
 
 function setConnected(yes, label, sub) {
-  const pill = document.getElementById('connPill');
   document.getElementById('connectForm').style.display = yes ? 'none' : 'block';
   document.getElementById('connectedView').style.display = yes ? 'flex' : 'none';
   document.getElementById('connectCard').className = yes ? 'connect-card ok' : 'connect-card';
   document.querySelectorAll('.topic-card').forEach(c => c.classList.toggle('locked', !yes));
   document.getElementById('askBtn').disabled = !yes;
+  const pill = document.getElementById('connPill');
   pill.className = yes ? 'conn-pill connected' : 'conn-pill';
   document.getElementById('connPillText').textContent = yes ? (label || 'Connected') : 'Not connected';
   if (yes) {
@@ -273,9 +659,7 @@ async function connectOrg() {
     localStorage.setItem('oi_sf_url', url);
     const orgName = new URL(url).hostname.split('.')[0];
     setConnected(true, orgName, url);
-  } catch(err) {
-    errEl.innerHTML = `<div class="err">${err.message}</div>`;
-  }
+  } catch(err) { errEl.innerHTML = `<div class="err">${err.message}</div>`; }
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-plug" aria-hidden="true"></i> Connect';
 }
@@ -283,15 +667,14 @@ async function connectOrg() {
 async function restoreConnection() {
   try {
     const resp = await fetch(`${sfUrl}/services/data/v60.0/sobjects/`, { headers: { 'Authorization': `Bearer ${sfToken}` } });
-    if (resp.ok) { const n = new URL(sfUrl).hostname.split('.')[0]; setConnected(true, n, sfUrl); }
+    if (resp.ok) { setConnected(true, new URL(sfUrl).hostname.split('.')[0], sfUrl); }
     else { localStorage.removeItem('oi_sf_token'); localStorage.removeItem('oi_sf_url'); setConnected(false); }
   } catch { setConnected(false); }
 }
 
 function disconnect() {
   localStorage.removeItem('oi_sf_token'); localStorage.removeItem('oi_sf_url');
-  sfToken = ''; sfUrl = '';
-  setConnected(false);
+  sfToken = ''; sfUrl = ''; setConnected(false);
   document.getElementById('orgUrl').value = '';
   document.getElementById('sessionToken').value = '';
 }
@@ -342,8 +725,7 @@ async function gatherContext(key) {
     const desc=await sfGet(`/services/data/v60.0/sobjects/${key}/describe`);
     const interesting=['Status','StageName','LeadSource','Type','Partner_Vertical__c','Lead_Type__c','Third_Party_Partner__c','Individual_or_List__c'];
     ctx.keyFields=desc.fields?.filter(f=>f.name.endsWith('__c')||interesting.includes(f.name))
-      .map(f=>({name:f.name,label:f.label,type:f.type,picklistValues:f.picklistValues?.filter(p=>p.active).map(p=>p.value)}))
-      .slice(0,40);
+      .map(f=>({name:f.name,label:f.label,type:f.type,picklistValues:f.picklistValues?.filter(p=>p.active).map(p=>p.value)})).slice(0,40);
   } catch(e){}
   const bField={Lead:'Status',Opportunity:'StageName',Account:'Type',Contact:'LeadSource'}[key];
   if (bField) { try { const a=await sfQuery(`SELECT ${bField},COUNT(Id) cnt FROM ${key} GROUP BY ${bField} ORDER BY cnt DESC LIMIT 20`); ctx.breakdown=a.records; } catch(e){} }
@@ -381,7 +763,7 @@ async function askFreeform() {
     const results=await Promise.allSettled(toFetch.map(k=>gatherContext(k)));
     const ctx={};
     toFetch.forEach((k,i)=>{ if(results[i].status==='fulfilled') ctx[k]=results[i].value; });
-    const prompt=`You are a Salesforce org analyst with live metadata from a Salesforce org:\n\n${JSON.stringify(ctx,null,2)}\n\nUser question: "${q}"\n\nAnswer clearly and specifically. Use plain English. Reference actual field names, picklist values, record types, and counts from the data. Use headers and bullets where helpful.`;
+    const prompt=`You are a Salesforce org analyst with live metadata:\n\n${JSON.stringify(ctx,null,2)}\n\nUser question: "${q}"\n\nAnswer clearly and specifically. Reference actual field names, picklist values, record types, and counts. Use headers and bullets where helpful.`;
     const answer=await askClaude(prompt);
     showResult(q.length>55?q.slice(0,52)+'...':q, answer);
   } catch(err) { showResult('Error',err.message); }
@@ -389,9 +771,9 @@ async function askFreeform() {
 }
 
 function buildPrompt(key,name,ctx) {
-  if(key==='custom') return `You are a Salesforce org analyst. Custom objects in this org:\n\n${JSON.stringify(ctx.customObjects,null,2)}\n\nGroup them by likely purpose based on API names. For each group explain what it's probably used for. Be specific — reference actual object names.`;
-  if(key==='User') return `You are a Salesforce org analyst. User/security structure:\n\nProfiles: ${JSON.stringify(ctx.profiles)}\nRoles: ${JSON.stringify(ctx.roles)}\nPermission sets: ${JSON.stringify(ctx.permissionSets)}\n\nGive a plain-English overview of: (1) what each profile represents, (2) the role hierarchy and data visibility, (3) what the permission sets are used for.`;
-  return `You are a Salesforce org analyst with live metadata about the ${name} object:\n\n${JSON.stringify(ctx,null,2)}\n\nWrite a comprehensive plain-English overview of how ${name} works in this org. Cover:\n1. Record types and what each represents\n2. Key status/stage values and the end-to-end flow\n3. Important custom fields and what they capture\n4. How this fits into the overall business process\n\nBe specific — reference actual values. Use headers and bullets. Write for someone who understands the business but may not know Salesforce.`;
+  if(key==='custom') return `You are a Salesforce org analyst. Custom objects:\n\n${JSON.stringify(ctx.customObjects,null,2)}\n\nGroup by likely purpose. For each group explain what it's used for. Reference actual object names.`;
+  if(key==='User') return `Salesforce org analyst. User structure:\n\nProfiles: ${JSON.stringify(ctx.profiles)}\nRoles: ${JSON.stringify(ctx.roles)}\nPermission sets: ${JSON.stringify(ctx.permissionSets)}\n\nOverview of: (1) what each profile represents, (2) role hierarchy and data visibility, (3) what permission sets are used for.`;
+  return `You are a Salesforce org analyst. Live metadata for ${name}:\n\n${JSON.stringify(ctx,null,2)}\n\nWrite a comprehensive plain-English overview. Cover:\n1. Record types and what each represents\n2. Key status/stage values and the end-to-end flow\n3. Important custom fields and what they capture\n4. How this fits into the overall business process\n\nBe specific. Use headers and bullets. Write for someone who understands the business but may not know Salesforce.`;
 }
 
 async function askClaude(prompt) {
