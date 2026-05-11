@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Knowledge Base</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f9f8f5;
+    --surface: #ffffff;
+    --surface2: #f3f2ee;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text2: #6b6a65;
+    --text3: #a09f9a;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --accent: #185FA5;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1918;
+      --surface: #242320;
+      --surface2: #2e2d2a;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --text: #f0ede8;
+      --text2: #9a9890;
+      --text3: #5a5955;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 14px 20px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  header span {
+    font-size: 12px;
+    color: var(--text3);
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    border-right: 0.5px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-top {
+    padding: 12px 14px 8px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-top h2 {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .add-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .add-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .doc-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .doc-item {
+    padding: 9px 11px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 2px;
+    border: 0.5px solid transparent;
+  }
+  .doc-item:hover { background: var(--surface2); }
+  .doc-item.active { background: var(--surface2); border-color: var(--border2); }
+
+  .doc-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .doc-item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+  }
+  .tag-process   { background: #E1F5EE; color: #0F6E56; }
+  .tag-reference { background: #E6F1FB; color: #185FA5; }
+  .tag-policy    { background: #FAECE7; color: #993C1D; }
+  .tag-onboarding{ background: #FAEEDA; color: #854F0B; }
+  .tag-general   { background: #F1EFE8; color: #5F5E5A; }
+
+  .doc-delete {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: none;
+    line-height: 1;
+  }
+  .doc-item:hover .doc-delete { display: block; }
+  .doc-delete:hover { color: #A32D2D; }
+
+  .no-docs {
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* MAIN AREA */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .tabs {
+    display: flex;
+    padding: 0 20px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .tab {
+    padding: 13px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--text2);
+    font-family: inherit;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* CHAT */
+  #panel-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--text3);
+    text-align: center;
+  }
+  .empty-state i { font-size: 36px; }
+  .empty-state p { font-size: 14px; }
+  .empty-state small { font-size: 12px; }
+
+  .msg { max-width: 82%; }
+  .msg.user { align-self: flex-end; }
+  .msg.assistant { align-self: flex-start; }
+
+  .msg-bubble {
+    padding: 11px 15px;
+    border-radius: var(--radius-lg);
+    font-size: 14px;
+    line-height: 1.65;
+    border: 0.5px solid var(--border);
+    background: var(--surface);
+  }
+  .msg.user .msg-bubble { background: var(--surface2); }
+
+  .msg-sources {
+    margin-top: 7px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .source-chip {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chat-footer {
+    padding: 14px 20px;
+    border-top: 0.5px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .chat-footer textarea {
+    flex: 1;
+    height: 64px;
+    resize: none;
+    padding: 10px 13px;
+    font-size: 14px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  .chat-footer textarea:focus { outline: none; border-color: var(--accent); }
+
+  .send-btn {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .send-btn:hover { background: var(--surface2); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .typing-indicator {
+    display: flex;
+    gap: 5px;
+    padding: 10px 14px;
+    align-items: center;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ADD DOC PANEL */
+  #panel-add {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 28px;
+    display: none;
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .form-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+  }
+
+  .field input, .field select, .field textarea {
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field textarea {
+    height: 200px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text3);
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: var(--border);
+  }
+
+  .drop-zone {
+    border: 0.5px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1.8;
+  }
+  .drop-zone:hover { background: var(--surface2); }
+  .drop-zone i { font-size: 28px; display: block; margin-bottom: 6px; color: var(--text3); }
+
+  .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .primary-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .primary-btn:hover { opacity: 0.85; }
+
+  .status-msg {
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  /* API KEY MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .modal h2 { font-size: 16px; font-weight: 600; }
+  .modal p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .modal input {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
+  }
+  .modal input:focus { outline: none; border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .modal-actions .btn-primary {
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+  }
+  .modal-actions .btn-secondary {
+    background: transparent;
+    color: var(--text2);
+    border: 0.5px solid var(--border2);
+  }
+  .modal-note { font-size: 11px; color: var(--text3); }
+</style>
+</head>
+<body>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h2>Enter your Anthropic API key</h2>
+    <p>This app uses the Claude API to answer questions from your documents. Your key is stored only in your browser's local storage and never sent anywhere except Anthropic's API.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="dismissModal()">Skip for now</button>
+      <button class="btn-primary" onclick="saveApiKey()">Save key</button>
+    </div>
+    <p class="modal-note">Get your key at console.anthropic.com → API Keys</p>
+  </div>
+</div>
+
+<header>
+  <i class="ti ti-books" style="font-size:20px" aria-hidden="true"></i>
+  <h1>Knowledge Base</h1>
+  <span id="docCount">0 docs</span>
+  <div style="flex:1"></div>
+  <button class="add-btn" onclick="showApiModal()" title="Set API key">
+    <i class="ti ti-key" aria-hidden="true"></i> API key
+  </button>
+</header>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <h2>Documents</h2>
+      <button class="add-btn" onclick="switchTab('add')">
+        <i class="ti ti-plus" aria-hidden="true"></i> Add
+      </button>
+    </div>
+    <div class="doc-list" id="docList">
+      <div class="no-docs">No documents yet.<br>Click "Add" to get started.</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tabs">
+      <button class="tab active" id="tab-chat" onclick="switchTab('chat')">Chat</button>
+      <button class="tab" id="tab-add" onclick="switchTab('add')">Add document</button>
+    </div>
+
+    <div id="panel-chat" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-state" id="emptyState">
+          <i class="ti ti-message-question" aria-hidden="true"></i>
+          <p>Ask anything about your documents</p>
+          <small>Add documents first, then ask away</small>
+        </div>
+      </div>
+      <div class="chat-footer">
+        <textarea id="chatInput" placeholder="Ask a question about your docs... (Enter to send)" onkeydown="handleKey(event)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <i class="ti ti-send" aria-hidden="true"></i> Ask
+        </button>
+      </div>
+    </div>
+
+    <div id="panel-add">
+      <div class="form-card">
+        <h3>Add a document</h3>
+        <div class="form-row">
+          <div class="field" style="grid-column:1/-1">
+            <label>Document title</label>
+            <input type="text" id="docTitle" placeholder="e.g. Lead Routing Process" />
+          </div>
+          <div class="field">
+            <label>Document type</label>
+            <select id="docTag">
+              <option value="process">Process</option>
+              <option value="reference">Reference</option>
+              <option value="policy">Policy</option>
+              <option value="onboarding">Onboarding</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Paste content</label>
+          <textarea id="docContent" placeholder="Paste your documentation here..."></textarea>
+        </div>
+        <div class="divider">or upload a file</div>
+        <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
+          <i class="ti ti-file-upload" aria-hidden="true"></i>
+          Click to upload a .txt or .md file
+          <input type="file" id="fileInput" accept=".txt,.md" style="display:none" onchange="handleFile(event)" />
+        </div>
+        <div class="form-actions">
+          <button class="primary-btn" onclick="saveDoc()">
+            <i class="ti ti-check" aria-hidden="true"></i> Save document
+          </button>
+          <span class="status-msg" id="saveMsg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let docs = JSON.parse(localStorage.getItem('kb_docs') || '[]');
+  let messages = [];
+  let apiKey = localStorage.getItem('kb_api_key') || '';
+
+  const TAG_LABELS = { process:'Process', reference:'Reference', policy:'Policy', onboarding:'Onboarding', general:'General' };
+
+  function init() {
+    renderDocs();
+    if (!apiKey) showApiModal();
+    else document.getElementById('apiModal').style.display = 'none';
+  }
+
+  function showApiModal() {
+    document.getElementById('apiModal').style.display = 'flex';
+    document.getElementById('apiKeyInput').value = apiKey || '';
+  }
+
+  function saveApiKey() {
+    const val = document.getElementById('apiKeyInput').value.trim();
+    if (val) { apiKey = val; localStorage.setItem('kb_api_key', val); }
+    document.getElementById('apiModal').style.display = 'none';
+  }
+
+  function dismissModal() {
+    document.getElementById('apiModal').style.display = 'none';
+  }
+
+  function renderDocs() {
+    const list = document.getElementById('docList');
+    document.getElementById('docCount').textContent = docs.length + ' doc' + (docs.length !== 1 ? 's' : '');
+    if (!docs.length) {
+      list.innerHTML = '<div class="no-docs">No documents yet.<br>Click "Add" to get started.</div>';
+      return;
+    }
+    list.innerHTML = docs.map((d, i) => `
+      <div class="doc-item" onclick="selectDoc(${i})">
+        <div class="doc-item-title">${esc(d.title)}</div>
+        <div class="doc-item-meta">
+          <span class="tag tag-${d.tag}">${TAG_LABELS[d.tag] || d.tag}</span>
+          <button class="doc-delete" onclick="deleteDoc(event, ${i})" title="Delete">
+            <i class="ti ti-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectDoc(i) {
+    document.querySelectorAll('.doc-item').forEach((el, idx) => el.classList.toggle('active', idx === i));
+  }
+
+  function deleteDoc(e, i) {
+    e.stopPropagation();
+    if (!confirm(`Delete "${docs[i].title}"?`)) return;
+    docs.splice(i, 1);
+    localStorage.setItem('kb_docs', JSON.stringify(docs));
+    renderDocs();
+  }
+
+  function switchTab(tab) {
+    document.getElementById('panel-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+    document.getElementById('panel-add').style.display = tab === 'add' ? 'block' : 'none';
+    document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
+    document.getElementById('tab-add').classList.toggle('active', tab === 'add');
+  }
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('docContent').value = ev.target.result;
+      if (!document.getElementById('docTitle').value)
+        document.getElementById('docTitle').value = file.name.replace(/\.[^.]+$/, '');
+    };
+    reader.readAsText(file);
+  }
+
+  function saveDoc() {
+    const title = document.getElementById('docTitle').value.trim();
+    const content = document.getElementById('docContent').value.trim();
+    const tag = document.getElementById('docTag').value;
+    if (!title || !content) { showStatus('Please fill in title and content.'); return; }
+    docs.push({ title, content, tag, added: new Date().toISOString() });
+    localStorage.setItem('kb_docs', JSON.stringify(docs));
+    document.getElementById('docTitle').value = '';
+    document.getElementById('docContent').value = '';
+    document.getElementById('fileInput').value = '';
+    renderDocs();
+    showStatus('Saved!');
+    setTimeout(() => switchTab('chat'), 900);
+  }
+
+  function showStatus(msg) {
+    const el = document.getElementById('saveMsg');
+    el.textContent = msg;
+    setTimeout(() => el.textContent = '', 3000);
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function appendMsg(role, text, sources) {
+    const container = document.getElementById('chatMessages');
+    document.getElementById('emptyState')?.remove();
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = text;
+    wrap.appendChild(bubble);
+    if (sources && sources.length) {
+      const row = document.createElement('div');
+      row.className = 'msg-sources';
+      sources.forEach(s => {
+        const chip = document.createElement('span');
+        chip.className = 'source-chip';
+        chip.innerHTML = `<i class="ti ti-file-text" aria-hidden="true"></i> ${esc(s)}`;
+        row.appendChild(chip);
+      });
+      wrap.appendChild(row);
+    }
+    container.appendChild(wrap);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function showTyping() {
+    const container = document.getElementById('chatMessages');
+    document.getElementById('emptyState')?.remove();
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    wrap.id = 'typingDot';
+    wrap.innerHTML = '<div class="msg-bubble"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    container.appendChild(wrap);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const q = input.value.trim();
+    if (!q) return;
+    if (!docs.length) { appendMsg('assistant', 'No documents added yet. Use the "Add document" tab to get started.', []); return; }
+    if (!apiKey) { showApiModal(); return; }
+
+    input.value = '';
+    document.getElementById('sendBtn').disabled = true;
+    appendMsg('user', q, null);
+    messages.push({ role: 'user', content: q });
+    showTyping();
+
+    const docContext = docs.map((d, i) => `[DOC ${i+1}: "${d.title}" (${d.tag})]\n${d.content}`).join('\n\n---\n\n');
+    const docList = docs.map((d, i) => `${i+1}. "${d.title}"`).join('\n');
+
+    const system = `You are a helpful assistant for a personal knowledge base. Answer questions using ONLY the documents provided below.
+
+Rules:
+- Be concise and direct
+- Only use information from the provided documents
+- If the answer isn't in the documents, say so clearly
+- At the end of every reply (on a new line), write: SOURCES: followed by a comma-separated list of the document titles you used. Use the exact titles.
+
+Available documents:
+${docList}
+
+Document contents:
+${docContext}`;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system,
+          messages
+        })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error?.message || `HTTP ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      const raw = data.content?.map(b => b.text || '').join('') || 'No response.';
+
+      let display = raw;
+      let sources = [];
+      const match = raw.match(/SOURCES:\s*(.+)$/m);
+      if (match) {
+        display = raw.replace(/SOURCES:\s*.+$/m, '').trim();
+        sources = match[1].split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
+      }
+
+      messages.push({ role: 'assistant', content: raw });
+      document.getElementById('typingDot')?.remove();
+      appendMsg('assistant', display, sources);
+    } catch (err) {
+      document.getElementById('typingDot')?.remove();
+      appendMsg('assistant', `Error: ${err.message}. Check your API key and try again.`, []);
+    }
+
+    document.getElementById('sendBtn').disabled = false;
+  }
+
+  init();
+</script>
+</body>
+</html>
