@@ -8,155 +8,92 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f0f4ff;
-  --surface: #ffffff;
-  --surface2: #f5f7ff;
-  --surface3: #e8eeff;
-  --border: rgba(99,102,241,0.12);
-  --border2: rgba(99,102,241,0.22);
-  --text: #1e1b4b;
-  --text2: #6366a0;
-  --text3: #a5b4fc;
-  --accent: #4f46e5;
-  --accent2: #7c3aed;
-  --accent-light: #ede9fe;
-  --green: #059669;
-  --green-bg: #d1fae5;
-  --green-border: rgba(5,150,105,0.3);
-  --radius: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --bg: #f0f4ff; --surface: #ffffff; --surface2: #f5f7ff; --surface3: #e8eeff;
+  --border: rgba(99,102,241,0.12); --border2: rgba(99,102,241,0.22);
+  --text: #1e1b4b; --text2: #6366a0; --text3: #a5b4fc;
+  --accent: #4f46e5; --accent2: #7c3aed; --accent-light: #ede9fe;
+  --green: #059669; --green-bg: #d1fae5; --green-border: rgba(5,150,105,0.3);
+  --radius: 10px; --radius-lg: 16px; --radius-xl: 20px;
   --shadow: 0 1px 3px rgba(79,70,229,0.08), 0 4px 16px rgba(79,70,229,0.06);
   --shadow-lg: 0 4px 24px rgba(79,70,229,0.12), 0 1px 4px rgba(79,70,229,0.08);
 }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-image: radial-gradient(ellipse at 20% 0%, rgba(167,139,250,0.15) 0%, transparent 60%),
-                    radial-gradient(ellipse at 80% 0%, rgba(99,102,241,0.1) 0%, transparent 50%);
-}
-.header {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border2);
-  padding: 0 28px;
-  height: 60px;
-  display: flex; align-items: center; gap: 12px;
-  position: sticky; top: 0; z-index: 10;
-  box-shadow: 0 1px 0 var(--border);
-}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; background-image: radial-gradient(ellipse at 20% 0%, rgba(167,139,250,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(99,102,241,0.1) 0%, transparent 50%); }
+.header { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border2); padding: 0 28px; height: 60px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
 .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
 .logo-icon { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .conn-pill { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: var(--text2); padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface); cursor: pointer; box-shadow: var(--shadow); }
 .conn-pill.connected { color: var(--green); border-color: var(--green-border); background: var(--green-bg); }
 .conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
-.conn-pill.connected .conn-dot { background: var(--green); box-shadow: 0 0 0 2px rgba(5,150,105,0.2); }
-.icon-btn { width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; box-shadow: var(--shadow); }
-.icon-btn:hover { background: var(--accent-light); color: var(--accent); border-color: rgba(99,102,241,0.4); }
+.conn-pill.connected .conn-dot { background: var(--green); }
+.icon-btn { width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface); color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; }
+.icon-btn:hover { background: var(--accent-light); color: var(--accent); }
 .main { flex: 1; max-width: 880px; width: 100%; margin: 0 auto; padding: 40px 28px 70px; display: flex; flex-direction: column; gap: 28px; }
-
-/* CONNECT CARD */
 .connect-card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-lg); }
 .connect-card.ok { border-color: var(--green-border); }
 .card-top { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
 .eyebrow { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
-.card-title { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.card-title { font-size: 17px; font-weight: 700; color: var(--text); }
 .card-subtitle { font-size: 13px; color: var(--text2); margin-top: 4px; }
 .card-body { padding: 24px; }
-
-/* ORG TYPE SELECTOR */
 .org-type-row { display: flex; gap: 10px; margin-bottom: 18px; }
 .org-type-btn { flex: 1; padding: 10px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; text-align: center; transition: all 0.15s; }
 .org-type-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
 .org-type-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); font-weight: 600; border-width: 2px; }
-
-.sf-login-btn {
-  width: 100%;
-  padding: 14px 24px;
-  border-radius: var(--radius-lg);
-  border: none;
-  background: linear-gradient(135deg, #00a1e0, #0070d2);
-  color: white;
-  font-size: 15px; font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  box-shadow: 0 3px 12px rgba(0,112,210,0.4);
-  transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: -0.01em;
-}
+.sf-login-btn { width: 100%; padding: 14px 24px; border-radius: var(--radius-lg); border: none; background: linear-gradient(135deg, #00a1e0, #0070d2); color: white; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 3px 12px rgba(0,112,210,0.4); transition: opacity 0.15s, transform 0.1s; }
 .sf-login-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-.sf-login-btn i { font-size: 20px; }
-
 .login-note { font-size: 12px; color: var(--text3); text-align: center; margin-top: 12px; line-height: 1.6; }
-
-/* CONNECTED STATE */
 .connected-row { display: flex; align-items: center; gap: 14px; padding: 20px 24px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
 .conn-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--green-bg); border: 2px solid var(--green-border); display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 20px; }
 .conn-label { font-size: 15px; font-weight: 700; color: #064e3b; }
 .conn-sub { font-size: 12px; color: var(--green); margin-top: 2px; }
 .disc-btn { margin-left: auto; padding: 7px 15px; border-radius: var(--radius); border: 1px solid rgba(5,150,105,0.25); background: white; color: #6b7280; font-size: 12px; font-family: inherit; cursor: pointer; }
-.disc-btn:hover { color: #be123c; border-color: rgba(190,18,60,0.3); }
-
-/* TOPICS */
-.section-hdr { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 14px; letter-spacing: -0.01em; }
+.disc-btn:hover { color: #be123c; }
+.section-hdr { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
 .topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(152px, 1fr)); gap: 12px; }
-.topic-card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 18px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s; }
-.topic-card:hover { border-color: var(--accent); background: var(--accent-light); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-.topic-card.active { border-color: var(--accent); background: var(--accent-light); border-width: 2px; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(79,70,229,0.2); }
+.topic-card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 18px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); transition: all 0.15s; }
+.topic-card:hover { border-color: var(--accent); background: var(--accent-light); transform: translateY(-2px); }
+.topic-card.active { border-color: var(--accent); background: var(--accent-light); border-width: 2px; }
 .topic-card.locked { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-.topic-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text2); transition: background 0.15s, color 0.15s; }
+.topic-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text2); }
 .topic-card:hover .topic-icon, .topic-card.active .topic-icon { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
-.topic-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.topic-name { font-size: 13px; font-weight: 700; }
 .topic-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
-
-/* FREEFORM */
 .freeform-wrap { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-xl); padding: 18px 20px; display: flex; gap: 12px; align-items: flex-end; box-shadow: var(--shadow-lg); }
-.freeform-wrap textarea { flex: 1; height: 54px; resize: none; padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 14px; font-family: inherit; line-height: 1.5; transition: border-color 0.15s, box-shadow 0.15s; }
+.freeform-wrap textarea { flex: 1; height: 54px; resize: none; padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 14px; font-family: inherit; line-height: 1.5; }
 .freeform-wrap textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
 .freeform-wrap textarea::placeholder { color: var(--text3); }
-.ask-btn { height: 42px; padding: 0 20px; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 7px; white-space: nowrap; box-shadow: 0 2px 8px rgba(79,70,229,0.35); transition: opacity 0.15s, transform 0.1s; }
-.ask-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.ask-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; }
-
-/* RESULT */
+.ask-btn { height: 42px; padding: 0 20px; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 7px; white-space: nowrap; box-shadow: 0 2px 8px rgba(79,70,229,0.35); }
+.ask-btn:hover { opacity: 0.9; }
+.ask-btn:disabled { opacity: 0.38; cursor: not-allowed; }
 .result-panel { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-lg); }
 .result-hdr { background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .result-title { font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 9px; }
 .result-title i { color: var(--accent); }
-.live-badge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; letter-spacing: 0.04em; box-shadow: 0 2px 6px rgba(79,70,229,0.3); }
-.result-body { padding: 24px; font-size: 14px; line-height: 1.85; color: var(--text); }
+.live-badge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
+.result-body { padding: 24px; font-size: 14px; line-height: 1.85; }
 .result-body h2 { font-size: 14px; font-weight: 700; color: var(--accent); margin: 22px 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-light); }
 .result-body h2:first-child { margin-top: 0; }
 .result-body p { margin-bottom: 10px; color: #374151; }
 .result-body ul { padding-left: 18px; margin-bottom: 12px; }
 .result-body li { margin-bottom: 5px; color: #374151; }
-.result-body strong { font-weight: 700; color: var(--text); }
+.result-body strong { font-weight: 700; }
 .result-body code { font-family: 'SF Mono','Fira Code',monospace; font-size: 12px; background: var(--accent-light); border: 1px solid rgba(99,102,241,0.2); color: var(--accent); padding: 1px 7px; border-radius: 5px; }
 .loading-row { padding: 32px 24px; display: flex; align-items: center; gap: 14px; color: var(--text2); font-size: 14px; }
 .spinner { width: 20px; height: 20px; border: 2.5px solid var(--accent-light); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* API MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(30,27,75,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; }
 .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-xl); padding: 28px; width: 420px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 20px 60px rgba(30,27,75,0.25); }
-.modal h2 { font-size: 17px; font-weight: 700; color: var(--text); }
+.modal h2 { font-size: 17px; font-weight: 700; }
 .modal p { font-size: 13px; color: var(--text2); line-height: 1.6; }
 .modal input { padding: 11px 13px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-size: 14px; font-family: inherit; width: 100%; }
-.modal input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+.modal input:focus { outline: none; border-color: var(--accent); }
 .modal-btns { display: flex; gap: 10px; }
 .modal-btns button { flex: 1; padding: 11px; border-radius: var(--radius); font-size: 14px; font-family: inherit; cursor: pointer; font-weight: 600; }
-.btn-p { background: linear-gradient(135deg,var(--accent),var(--accent2)); color: white; border: none; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
-.btn-p:hover { opacity: 0.9; }
+.btn-p { background: linear-gradient(135deg,var(--accent),var(--accent2)); color: white; border: none; }
 .btn-s { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
 .modal-note { font-size: 11px; color: var(--text3); }
-
-@media (max-width: 600px) { .topics-grid { grid-template-columns: repeat(2,1fr); } .main { padding: 20px 16px 50px; } }
+.err { font-size: 12px; color: #be123c; background: #fff1f2; border: 1px solid rgba(190,18,60,0.2); border-radius: var(--radius); padding: 9px 13px; margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -164,7 +101,7 @@ body {
 <div class="modal-overlay" id="apiModal">
   <div class="modal">
     <h2>Anthropic API key</h2>
-    <p>Powers the AI analysis. Stored only in your browser — sent only to Anthropic's API.</p>
+    <p>Powers the AI analysis. Stored only in your browser.</p>
     <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
     <div class="modal-btns">
       <button class="btn-s" onclick="dismissApiModal()">Skip</button>
@@ -184,7 +121,7 @@ body {
       <div class="conn-dot"></div>
       <span id="connPillText">Not connected</span>
     </div>
-    <div class="icon-btn" onclick="showApiModal()" title="Anthropic API key">
+    <div class="icon-btn" onclick="showApiModal()" title="API key">
       <i class="ti ti-key" aria-hidden="true"></i>
     </div>
   </div>
@@ -192,28 +129,26 @@ body {
 
 <div class="main">
 
-  <!-- CONNECT CARD -->
   <div class="connect-card" id="connectCard">
-
     <div id="connectForm">
       <div class="card-top">
         <div class="eyebrow">Salesforce</div>
         <div class="card-title">Connect your org</div>
-        <div class="card-subtitle">Sign in with your Salesforce credentials — works with SSO.</div>
+        <div class="card-subtitle">Sign in with Salesforce — works with SSO.</div>
       </div>
       <div class="card-body">
         <div class="org-type-row">
           <button class="org-type-btn active" id="btnProd" onclick="setOrgType('production')">Production / Developer</button>
           <button class="org-type-btn" id="btnSandbox" onclick="setOrgType('sandbox')">Sandbox</button>
         </div>
-        <button class="sf-login-btn" onclick="startOAuth()">
+        <button class="sf-login-btn" id="connectBtn" onclick="startOAuth()">
           <i class="ti ti-cloud" aria-hidden="true"></i>
           Connect to Salesforce
         </button>
-        <p class="login-note">Clicking Connect will open the Salesforce login page.<br>Your credentials are never stored by this app.</p>
+        <p class="login-note">Opens the Salesforce login page. Your credentials are never stored by this app.</p>
+        <div id="connectErr"></div>
       </div>
     </div>
-
     <div id="connectedView" style="display:none">
       <div class="connected-row">
         <div class="conn-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
@@ -224,30 +159,26 @@ body {
         <button class="disc-btn" onclick="disconnect()">Disconnect</button>
       </div>
     </div>
-
   </div>
 
-  <!-- TOPICS -->
   <div>
-    <div class="section-hdr"><i class="ti ti-layout-grid" style="color:var(--accent)" aria-hidden="true"></i> Explore by object</div>
+    <div class="section-hdr"><i class="ti ti-layout-grid" style="color:var(--accent)"></i> Explore by object</div>
     <div class="topics-grid" id="topicsGrid"></div>
   </div>
 
-  <!-- FREE FORM -->
   <div>
-    <div class="section-hdr"><i class="ti ti-message-question" style="color:var(--accent)" aria-hidden="true"></i> Ask anything about your org</div>
+    <div class="section-hdr"><i class="ti ti-message-question" style="color:var(--accent)"></i> Ask anything about your org</div>
     <div class="freeform-wrap">
       <textarea id="freeInput" placeholder="e.g. How does lead routing work? What happens when an opportunity is closed won?" onkeydown="handleKey(event)"></textarea>
       <button class="ask-btn" id="askBtn" onclick="askFreeform()" disabled>
-        <i class="ti ti-send" aria-hidden="true"></i> Ask
+        <i class="ti ti-send"></i> Ask
       </button>
     </div>
   </div>
 
-  <!-- RESULT -->
   <div class="result-panel" id="resultPanel" style="display:none">
     <div class="result-hdr">
-      <div class="result-title"><i class="ti ti-sparkles" aria-hidden="true"></i><span id="resultTitle">Analysis</span></div>
+      <div class="result-title"><i class="ti ti-sparkles"></i><span id="resultTitle">Analysis</span></div>
       <span class="live-badge">LIVE ORG DATA</span>
     </div>
     <div id="resultBody"></div>
@@ -256,9 +187,10 @@ body {
 </div>
 
 <script>
-// ── CONFIG ──
 const CLIENT_ID = '3MVG9.NSlnJa6holWnTYEC8UgAEA3xiW0QaN.mzSTzNWnLl3nzWdkh4k0QQsQxpAz42LEBMzfcfCah.UmHpOF';
-const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+const API_BASE = 'https://org-intel-api.vercel.app';
+const REDIRECT_URI = 'https://858tmb20.github.io/Personal-Websites/org-intelligence.html';
+
 const TOPICS = [
   { key:'Lead',        icon:'ti-user-plus',       name:'Lead',             desc:'Statuses, sources, routing & conversion' },
   { key:'Opportunity', icon:'ti-currency-dollar',  name:'Opportunity',      desc:'Stages, record types & pipeline' },
@@ -276,29 +208,21 @@ let anthropicKey = localStorage.getItem('oi_api_key') || '';
 let orgType = 'production';
 let isLoading = false;
 
-// ── PKCE HELPERS ──
 function base64url(buffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
-    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  return btoa(String.fromCharCode(...new Uint8Array(buffer))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
 }
 
 async function generatePKCE() {
   const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
   const hashed = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
-  const challenge = base64url(hashed);
-  return { verifier, challenge };
+  return { verifier, challenge: base64url(hashed) };
 }
 
-// ── OAUTH ──
 async function startOAuth() {
   const { verifier, challenge } = await generatePKCE();
   sessionStorage.setItem('pkce_verifier', verifier);
   sessionStorage.setItem('org_type', orgType);
-
-  const loginBase = orgType === 'sandbox'
-    ? 'https://test.salesforce.com'
-    : 'https://login.salesforce.com';
-
+  const loginBase = orgType === 'sandbox' ? 'https://test.salesforce.com' : 'https://login.salesforce.com';
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: CLIENT_ID,
@@ -307,7 +231,6 @@ async function startOAuth() {
     code_challenge_method: 'S256',
     scope: 'api refresh_token'
   });
-
   window.location.href = `${loginBase}/services/oauth2/authorize?${params}`;
 }
 
@@ -315,55 +238,38 @@ async function handleOAuthCallback() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   if (!code) return false;
-
-  // Clean URL
   window.history.replaceState({}, document.title, window.location.pathname);
 
   const verifier = sessionStorage.getItem('pkce_verifier');
   const savedOrgType = sessionStorage.getItem('org_type') || 'production';
-  const loginBase = savedOrgType === 'sandbox'
-    ? 'https://test.salesforce.com'
-    : 'https://login.salesforce.com';
 
   try {
-    const body = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      client_id: CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
-      code_verifier: verifier
-    });
-
-    const resp = await fetch(`${loginBase}/services/oauth2/token`, {
+    // Use Vercel API to do the token exchange (avoids CORS)
+    const resp = await fetch(`${API_BASE}/api/token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, redirect_uri: REDIRECT_URI, code_verifier: verifier, org_type: savedOrgType })
     });
-
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error_description || `Token exchange failed (${resp.status})`);
-    }
 
     const data = await resp.json();
+    if (!data.access_token) throw new Error(data.error_description || 'Token exchange failed');
+
     sfToken = data.access_token;
     sfUrl = data.instance_url;
     sessionStorage.setItem('oi_sf_token', sfToken);
     sessionStorage.setItem('oi_sf_url', sfUrl);
-
-    const orgName = new URL(sfUrl).hostname.split('.')[0];
-    setConnected(true, orgName, sfUrl);
+    setConnected(true, new URL(sfUrl).hostname.split('.')[0], sfUrl);
     return true;
   } catch(err) {
-    alert(`Login failed: ${err.message}`);
+    document.getElementById('connectErr').innerHTML = `<div class="err">Login failed: ${err.message}</div>`;
     return false;
   }
 }
 
-function setOrgType(type) {
-  orgType = type;
-  document.getElementById('btnProd').classList.toggle('active', type === 'production');
-  document.getElementById('btnSandbox').classList.toggle('active', type === 'sandbox');
+function setOrgType(t) {
+  orgType = t;
+  document.getElementById('btnProd').classList.toggle('active', t==='production');
+  document.getElementById('btnSandbox').classList.toggle('active', t==='sandbox');
 }
 
 function setConnected(yes, label, sub) {
@@ -374,102 +280,69 @@ function setConnected(yes, label, sub) {
   document.getElementById('askBtn').disabled = !yes;
   const pill = document.getElementById('connPill');
   pill.className = yes ? 'conn-pill connected' : 'conn-pill';
-  document.getElementById('connPillText').textContent = yes ? (label || 'Connected') : 'Not connected';
-  if (yes) {
-    document.getElementById('connLabel').textContent = label || 'Connected';
-    document.getElementById('connSub').textContent = sub || sfUrl;
-  }
+  document.getElementById('connPillText').textContent = yes ? (label||'Connected') : 'Not connected';
+  if (yes) { document.getElementById('connLabel').textContent = label||'Connected'; document.getElementById('connSub').textContent = sub||sfUrl; }
 }
 
 function disconnect() {
-  sessionStorage.removeItem('oi_sf_token');
-  sessionStorage.removeItem('oi_sf_url');
-  sfToken = ''; sfUrl = '';
-  setConnected(false);
+  sessionStorage.removeItem('oi_sf_token'); sessionStorage.removeItem('oi_sf_url');
+  sfToken=''; sfUrl=''; setConnected(false);
 }
 
 function focusConnect() {
   if (sfToken) return;
-  document.getElementById('connectCard').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('connectCard').scrollIntoView({behavior:'smooth'});
 }
 
-// ── TOPICS ──
 function renderTopics() {
   document.getElementById('topicsGrid').innerHTML = TOPICS.map(t => `
     <div class="topic-card locked" id="topic-${t.key}" onclick="selectTopic('${t.key}','${t.name}')">
-      <div class="topic-icon"><i class="ti ${t.icon}" aria-hidden="true"></i></div>
+      <div class="topic-icon"><i class="ti ${t.icon}"></i></div>
       <div><div class="topic-name">${t.name}</div><div class="topic-desc">${t.desc}</div></div>
     </div>`).join('');
 }
 
-// ── SF API ──
 async function sfQuery(soql) {
-  const resp = await fetch(`${sfUrl}/services/data/v60.0/query?q=${encodeURIComponent(soql)}`, {
-    headers: { 'Authorization': `Bearer ${sfToken}` }
-  });
-  if (resp.status === 401) { disconnect(); throw new Error('Session expired. Please reconnect.'); }
+  const resp = await fetch(`${sfUrl}/services/data/v60.0/query?q=${encodeURIComponent(soql)}`, { headers: {'Authorization':`Bearer ${sfToken}`} });
+  if (resp.status===401) { disconnect(); throw new Error('Session expired. Please reconnect.'); }
   if (!resp.ok) throw new Error(`SOQL error ${resp.status}`);
   return resp.json();
 }
 
 async function sfGet(path) {
-  const resp = await fetch(`${sfUrl}${path}`, {
-    headers: { 'Authorization': `Bearer ${sfToken}` }
-  });
-  if (resp.status === 401) { disconnect(); throw new Error('Session expired. Please reconnect.'); }
+  const resp = await fetch(`${sfUrl}${path}`, { headers: {'Authorization':`Bearer ${sfToken}`} });
+  if (resp.status===401) { disconnect(); throw new Error('Session expired. Please reconnect.'); }
   if (!resp.ok) throw new Error(`API error ${resp.status}`);
   return resp.json();
 }
 
 async function gatherContext(key) {
   const ctx = {};
-  if (key === 'custom') {
-    const data = await sfGet('/services/data/v60.0/sobjects');
-    ctx.customObjects = (data.sobjects||[]).filter(s=>s.custom&&s.queryable).map(s=>({name:s.name,label:s.label})).slice(0,80);
-    return ctx;
-  }
-  if (key === 'User') {
-    const [p,r,ps] = await Promise.all([
-      sfQuery('SELECT Id,Name FROM Profile LIMIT 25'),
-      sfQuery('SELECT Id,Name,DeveloperName FROM UserRole LIMIT 25'),
-      sfQuery('SELECT Id,Name,Label FROM PermissionSet WHERE IsCustom=true LIMIT 25'),
-    ]);
-    ctx.profiles=p.records; ctx.roles=r.records; ctx.permissionSets=ps.records;
-    return ctx;
-  }
+  if (key==='custom') { const d=await sfGet('/services/data/v60.0/sobjects'); ctx.customObjects=(d.sobjects||[]).filter(s=>s.custom&&s.queryable).map(s=>({name:s.name,label:s.label})).slice(0,80); return ctx; }
+  if (key==='User') { const [p,r,ps]=await Promise.all([sfQuery('SELECT Id,Name FROM Profile LIMIT 25'),sfQuery('SELECT Id,Name,DeveloperName FROM UserRole LIMIT 25'),sfQuery('SELECT Id,Name,Label FROM PermissionSet WHERE IsCustom=true LIMIT 25')]); ctx.profiles=p.records; ctx.roles=r.records; ctx.permissionSets=ps.records; return ctx; }
   try { const rt=await sfQuery(`SELECT Id,Name,DeveloperName FROM RecordType WHERE SObjectType='${key}'`); ctx.recordTypes=rt.records; } catch(e){}
-  try {
-    const desc=await sfGet(`/services/data/v60.0/sobjects/${key}/describe`);
-    const interesting=['Status','StageName','LeadSource','Type','Partner_Vertical__c','Lead_Type__c','Third_Party_Partner__c','Individual_or_List__c'];
-    ctx.keyFields=desc.fields?.filter(f=>f.name.endsWith('__c')||interesting.includes(f.name))
-      .map(f=>({name:f.name,label:f.label,type:f.type,picklistValues:f.picklistValues?.filter(p=>p.active).map(p=>p.value)})).slice(0,40);
-  } catch(e){}
+  try { const desc=await sfGet(`/services/data/v60.0/sobjects/${key}/describe`); const interesting=['Status','StageName','LeadSource','Type','Partner_Vertical__c','Lead_Type__c','Third_Party_Partner__c','Individual_or_List__c']; ctx.keyFields=desc.fields?.filter(f=>f.name.endsWith('__c')||interesting.includes(f.name)).map(f=>({name:f.name,label:f.label,type:f.type,picklistValues:f.picklistValues?.filter(p=>p.active).map(p=>p.value)})).slice(0,40); } catch(e){}
   const bField={Lead:'Status',Opportunity:'StageName',Account:'Type',Contact:'LeadSource'}[key];
   if(bField){try{const a=await sfQuery(`SELECT ${bField},COUNT(Id) cnt FROM ${key} GROUP BY ${bField} ORDER BY cnt DESC LIMIT 20`);ctx.breakdown=a.records;}catch(e){}}
   try{const s=await sfQuery(`SELECT Id,Name${bField?','+bField:''} FROM ${key} ORDER BY CreatedDate DESC LIMIT 5`);ctx.recentSample=s.records;}catch(e){}
   return ctx;
 }
 
-async function selectTopic(key, name) {
-  if (!sfToken||isLoading) return;
+async function selectTopic(key,name) {
+  if(!sfToken||isLoading) return;
   document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('active'));
   document.getElementById(`topic-${key}`)?.classList.add('active');
-  showLoading(`Pulling ${name} data from your org...`, name);
-  isLoading=true;
-  try { const ctx=await gatherContext(key); const answer=await askClaude(buildPrompt(key,name,ctx)); showResult(name,answer); }
-  catch(err) { showResult(name,`**Error:** ${err.message}`); }
+  showLoading(`Pulling ${name} data...`,name); isLoading=true;
+  try { const ctx=await gatherContext(key); showResult(name,await askClaude(buildPrompt(key,name,ctx))); } catch(err){showResult(name,`**Error:** ${err.message}`);}
   isLoading=false;
 }
 
 async function askFreeform() {
-  if (!sfToken||isLoading) return;
-  const q=document.getElementById('freeInput').value.trim();
-  if (!q) return;
-  showLoading('Analyzing your org...', q.length>55?q.slice(0,52)+'...':q);
-  isLoading=true;
+  if(!sfToken||isLoading) return;
+  const q=document.getElementById('freeInput').value.trim(); if(!q) return;
+  showLoading('Analyzing your org...',q.length>55?q.slice(0,52)+'...':q); isLoading=true;
   try {
-    const lower=q.toLowerCase();
-    const toFetch=[];
+    const lower=q.toLowerCase(), toFetch=[];
     if(lower.includes('lead')) toFetch.push('Lead');
     if(lower.includes('opportunit')) toFetch.push('Opportunity');
     if(lower.includes('account')) toFetch.push('Account');
@@ -478,28 +351,21 @@ async function askFreeform() {
     if(lower.includes('user')||lower.includes('role')||lower.includes('profile')) toFetch.push('User');
     if(!toFetch.length) toFetch.push('Lead','Opportunity','Account');
     const results=await Promise.allSettled(toFetch.map(k=>gatherContext(k)));
-    const ctx={};
-    toFetch.forEach((k,i)=>{ if(results[i].status==='fulfilled') ctx[k]=results[i].value; });
-    const prompt=`You are a Salesforce org analyst with live metadata:\n\n${JSON.stringify(ctx,null,2)}\n\nUser question: "${q}"\n\nAnswer clearly and specifically. Reference actual field names, picklist values, record types, and counts. Use headers and bullets where helpful.`;
-    const answer=await askClaude(prompt);
-    showResult(q.length>55?q.slice(0,52)+'...':q, answer);
-  } catch(err) { showResult('Error',err.message); }
+    const ctx={}; toFetch.forEach((k,i)=>{if(results[i].status==='fulfilled') ctx[k]=results[i].value;});
+    showResult(q.length>55?q.slice(0,52)+'...':q, await askClaude(`You are a Salesforce org analyst with live metadata:\n\n${JSON.stringify(ctx,null,2)}\n\nUser question: "${q}"\n\nAnswer clearly. Reference actual field names, picklist values, record types. Use headers and bullets.`));
+  } catch(err){showResult('Error',err.message);}
   isLoading=false;
 }
 
 function buildPrompt(key,name,ctx) {
-  if(key==='custom') return `You are a Salesforce org analyst. Custom objects:\n\n${JSON.stringify(ctx.customObjects,null,2)}\n\nGroup by likely purpose. For each group explain what it's used for. Reference actual object names.`;
-  if(key==='User') return `Salesforce org analyst. User structure:\n\nProfiles: ${JSON.stringify(ctx.profiles)}\nRoles: ${JSON.stringify(ctx.roles)}\nPermission sets: ${JSON.stringify(ctx.permissionSets)}\n\nOverview of: (1) what each profile represents, (2) role hierarchy and data visibility, (3) what permission sets are used for.`;
-  return `You are a Salesforce org analyst. Live metadata for ${name}:\n\n${JSON.stringify(ctx,null,2)}\n\nWrite a comprehensive plain-English overview. Cover:\n1. Record types and what each represents\n2. Key status/stage values and the end-to-end flow\n3. Important custom fields and what they capture\n4. How this fits into the overall business process\n\nBe specific. Use headers and bullets. Write for someone who understands the business but may not know Salesforce.`;
+  if(key==='custom') return `Salesforce org analyst. Custom objects:\n\n${JSON.stringify(ctx.customObjects,null,2)}\n\nGroup by purpose. Reference actual object names.`;
+  if(key==='User') return `Salesforce org analyst.\n\nProfiles: ${JSON.stringify(ctx.profiles)}\nRoles: ${JSON.stringify(ctx.roles)}\nPermission sets: ${JSON.stringify(ctx.permissionSets)}\n\nOverview of profiles, role hierarchy, and permission sets.`;
+  return `Salesforce org analyst. Live metadata for ${name}:\n\n${JSON.stringify(ctx,null,2)}\n\nComprehensive plain-English overview covering: record types, status/stage flow, custom fields, business process. Be specific. Use headers and bullets.`;
 }
 
 async function askClaude(prompt) {
-  if(!anthropicKey) throw new Error('No Anthropic API key. Click the key icon in the top right.');
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':anthropicKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
-  });
+  if(!anthropicKey) throw new Error('No Anthropic API key. Click the key icon.');
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':anthropicKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
   if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||`Claude API error ${resp.status}`);}
   const data=await resp.json();
   return data.content?.map(b=>b.text||'').join('')||'No response.';
@@ -518,18 +384,7 @@ function showResult(title,md) {
 }
 
 function md2html(t) {
-  return t
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/^#{1,3} (.+)$/gm,'<h2>$1</h2>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
-    .replace(/^\d+\. (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>[^]*?<\/li>\n?)+/g,m=>`<ul>${m}</ul>`)
-    .replace(/\n\n+/g,'</p><p>')
-    .replace(/(<\/ul>)\s*<\/p>/g,'$1')
-    .replace(/<p>(<[hu])/g,'$1')
-    .replace(/(<\/[hu][^>]*>)<\/p>/g,'$1');
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/^#{1,3} (.+)$/gm,'<h2>$1</h2>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^[-*] (.+)$/gm,'<li>$1</li>').replace(/^\d+\. (.+)$/gm,'<li>$1</li>').replace(/(<li>[^]*?<\/li>\n?)+/g,m=>`<ul>${m}</ul>`).replace(/\n\n+/g,'</p><p>').replace(/(<\/ul>)\s*<\/p>/g,'$1').replace(/<p>(<[hu])/g,'$1').replace(/(<\/[hu][^>]*>)<\/p>/g,'$1');
 }
 
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();askFreeform();}}
@@ -539,16 +394,11 @@ function saveApiKey(){const v=document.getElementById('apiKeyInput').value.trim(
 
 async function init() {
   renderTopics();
-  if (!anthropicKey) showApiModal();
-  else dismissApiModal();
-
-  // Handle OAuth callback
-  if (window.location.search.includes('code=')) {
+  if(!anthropicKey) showApiModal(); else dismissApiModal();
+  if(window.location.search.includes('code=')) {
     await handleOAuthCallback();
-  } else if (sfToken && sfUrl) {
-    // Restore existing session
-    const orgName = new URL(sfUrl).hostname.split('.')[0];
-    setConnected(true, orgName, sfUrl);
+  } else if(sfToken&&sfUrl) {
+    setConnected(true, new URL(sfUrl).hostname.split('.')[0], sfUrl);
   } else {
     setConnected(false);
   }
