@@ -21,7 +21,6 @@
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-  /* SCREENS */
   .screen { display: none; }
   .screen.active { display: block; }
 
@@ -30,11 +29,16 @@
   .gate-box { background: var(--card); border: 1px solid var(--rule); padding: 2.5rem; width: 100%; max-width: 400px; }
   .gate-box h1 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.4rem; }
   .gate-box p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.75rem; }
-  .gate-box input { width: 100%; padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: inherit; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); outline: none; margin-bottom: 0.75rem; }
-  .gate-box input:focus { border-color: var(--accent); }
+  .gate-box input, .gate-box textarea { width: 100%; padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: inherit; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); outline: none; margin-bottom: 0.75rem; }
+  .gate-box textarea { resize: vertical; min-height: 70px; }
+  .gate-box input:focus, .gate-box textarea:focus { border-color: var(--accent); }
   .gate-btn { width: 100%; padding: 0.7rem; background: var(--accent); color: white; font-size: 0.88rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
   .gate-error { font-size: 0.8rem; color: var(--danger); margin-top: 0.6rem; display: none; }
   .gate-error.show { display: block; }
+  .gate-success { font-size: 0.85rem; color: var(--green); margin-top: 0.75rem; display: none; padding: 0.65rem; background: #ECFDF5; border: 1px solid #A7F3D0; }
+  .gate-success.show { display: block; }
+  .gate-link { display: block; text-align: center; margin-top: 1rem; font-size: 0.82rem; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; width: 100%; }
+  .gate-link:hover { color: var(--accent); }
 
   /* MAIN APP */
   header { background: var(--card); border-bottom: 1px solid var(--rule); padding: 1.1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
@@ -42,13 +46,25 @@
   .header-left p { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
   .header-right { display: flex; gap: 0.5rem; }
   .btn-add { padding: 0.55rem 1.1rem; background: var(--accent); color: white; font-size: 0.82rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
-  .btn-admin { padding: 0.55rem 1.1rem; background: none; color: var(--muted); font-size: 0.82rem; font-weight: 500; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
+  .btn-admin { padding: 0.55rem 1.1rem; background: none; color: var(--muted); font-size: 0.82rem; font-weight: 500; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; position: relative; }
+  .btn-admin .badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; font-size: 0.65rem; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
   .btn-signout { padding: 0.55rem 1.1rem; background: none; color: var(--muted); font-size: 0.82rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
 
   .main { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .tabs { display: flex; border: 1px solid var(--rule); margin-bottom: 1.25rem; background: var(--rule); gap: 1px; }
-  .tab { flex: 1; padding: 0.65rem 0.5rem; font-size: 0.8rem; font-weight: 500; font-family: inherit; border: none; background: var(--card); color: var(--muted); cursor: pointer; text-align: center; }
+
+  .tabs-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; align-items: stretch; }
+  .tabs { flex: 1; display: flex; border: 1px solid var(--rule); background: var(--rule); gap: 1px; overflow-x: auto; }
+  .tab { flex: 1; min-width: 80px; padding: 0.65rem 1.5rem 0.65rem 0.5rem; font-size: 0.8rem; font-weight: 500; font-family: inherit; border: none; background: var(--card); color: var(--muted); cursor: pointer; text-align: center; white-space: nowrap; position: relative; }
   .tab.active { background: var(--accent); color: white; }
+  .tab:hover:not(.active) { background: #FAF8F3; }
+  .tab .x-btn { display: none; position: absolute; top: 50%; right: 4px; transform: translateY(-50%); width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.1); color: var(--muted); font-size: 0.65rem; line-height: 16px; text-align: center; border: none; cursor: pointer; font-family: inherit; padding: 0; }
+  .tab:hover .x-btn { display: block; }
+  .tab.active .x-btn { background: rgba(255,255,255,0.25); color: white; }
+  .tab .x-btn:hover { background: var(--danger); color: white; }
+  .tab.tab-all { padding-right: 0.5rem; }
+  .btn-add-cat { padding: 0.65rem 0.9rem; background: var(--card); border: 1px solid var(--rule); color: var(--muted); font-size: 0.82rem; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .btn-add-cat:hover { color: var(--accent); border-color: var(--accent); }
+
   .search-bar { width: 100%; padding: 0.75rem 1rem; font-size: 0.93rem; font-family: inherit; border: 1px solid var(--rule); background: var(--card); color: var(--ink); outline: none; margin-bottom: 1rem; }
   .search-bar::placeholder { color: var(--muted); }
   .count { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
@@ -68,20 +84,27 @@
   .empty strong { display: block; font-size: 1rem; color: var(--ink); margin-bottom: 0.4rem; }
 
   /* ADMIN PANEL */
-  .admin-wrap { max-width: 600px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .admin-wrap h2 { font-size: 1rem; font-weight: 500; margin-bottom: 0.4rem; }
-  .admin-wrap p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; }
-  .admin-add { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .admin-section { margin-bottom: 2.5rem; }
+  .admin-section h2 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.4rem; }
+  .admin-section p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.25rem; }
+  .admin-add { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
   .admin-add input { flex: 1; padding: 0.65rem 0.85rem; font-size: 0.88rem; font-family: inherit; border: 1px solid var(--rule); background: var(--card); color: var(--ink); outline: none; }
   .admin-add input:focus { border-color: var(--accent); }
   .admin-add button { padding: 0.65rem 1.1rem; background: var(--accent); color: white; font-size: 0.82rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .email-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
-  .email-row { background: var(--card); padding: 0.9rem 1.25rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
-  .email-row .you { font-size: 0.72rem; color: var(--green); font-weight: 500; margin-left: 0.5rem; }
+  .row-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .row { background: var(--card); padding: 0.9rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.88rem; }
+  .row .you { font-size: 0.72rem; color: var(--green); font-weight: 500; margin-left: 0.5rem; }
+  .row-info { flex: 1; min-width: 0; }
+  .row-email { font-weight: 500; }
+  .row-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+  .row-date { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+  .row-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  .btn-approve { padding: 0.4rem 0.85rem; background: var(--green); color: white; font-size: 0.78rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
+  .btn-deny { padding: 0.4rem 0.85rem; background: none; color: var(--danger); font-size: 0.78rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
+  .btn-deny:hover { border-color: var(--danger); }
   .btn-remove-email { padding: 0.3rem 0.6rem; background: none; color: var(--muted); font-size: 0.75rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
   .btn-remove-email:hover { color: var(--danger); border-color: var(--danger); }
-  .back-btn { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; margin-bottom: 1.5rem; padding: 0; }
-  .back-btn:hover { color: var(--ink); }
 
   /* MODALS */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
@@ -90,7 +113,8 @@
   .modal h2 { font-size: 1rem; font-weight: 500; margin-bottom: 1.5rem; }
   .field { margin-bottom: 1rem; }
   .field label { display: block; font-size: 0.78rem; font-weight: 500; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
-  .field input, .field select { width: 100%; padding: 0.65rem 0.85rem; font-size: 0.9rem; font-family: inherit; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); outline: none; }
+  .field input, .field select, .field textarea { width: 100%; padding: 0.65rem 0.85rem; font-size: 0.9rem; font-family: inherit; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); outline: none; }
+  .field textarea { resize: vertical; min-height: 70px; }
   .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
   .btn-save { flex: 1; padding: 0.65rem; background: var(--accent); color: white; font-size: 0.88rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
   .btn-cancel { padding: 0.65rem 1.25rem; background: none; color: var(--muted); font-size: 0.88rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
@@ -107,10 +131,27 @@
   <div class="gate-wrap">
     <div class="gate-box">
       <h1>Resource Library</h1>
-      <p>Enter your email to access. You must be on the approved list.</p>
+      <p>Enter your approved email to access.</p>
       <input type="email" id="loginEmail" placeholder="your@email.com" />
       <button class="gate-btn" onclick="checkEmail()">Access Library</button>
-      <div class="gate-error" id="loginError">That email isn't on the approved list.</div>
+      <div class="gate-error" id="loginError">That email isn't on the approved list yet.</div>
+      <button class="gate-link" onclick="showScreen('screen-request')">Don't have access? Request it →</button>
+    </div>
+  </div>
+</div>
+
+<!-- REQUEST ACCESS SCREEN -->
+<div class="screen" id="screen-request">
+  <div class="gate-wrap">
+    <div class="gate-box">
+      <h1>Request Access</h1>
+      <p>Send a request to the owner. You'll be notified when approved.</p>
+      <input type="email" id="requestEmail" placeholder="your@email.com" />
+      <textarea id="requestNote" placeholder="Optional: who you are / why you want access"></textarea>
+      <button class="gate-btn" onclick="submitRequest()">Submit Request</button>
+      <div class="gate-error" id="requestError">Something went wrong. Try again.</div>
+      <div class="gate-success" id="requestSuccess">✓ Request submitted! You'll get access once approved.</div>
+      <button class="gate-link" onclick="showScreen('screen-login')">← Back to login</button>
     </div>
   </div>
 </div>
@@ -120,12 +161,11 @@
   <div class="gate-wrap">
     <div class="gate-box">
       <h1>Admin Access</h1>
-      <p>Enter your admin password to manage approved emails.</p>
+      <p>Enter your admin password.</p>
       <input type="password" id="adminPassInput" placeholder="Password" />
       <button class="gate-btn" onclick="checkAdminPass()">Enter</button>
       <div class="gate-error" id="adminPassError">Incorrect password.</div>
-      <br><br>
-      <button onclick="showScreen('screen-login')" style="background:none;border:none;color:var(--muted);font-size:0.82rem;cursor:pointer;font-family:inherit;">← Back to login</button>
+      <button class="gate-link" onclick="showScreen('screen-library')">← Back to library</button>
     </div>
   </div>
 </div>
@@ -138,18 +178,20 @@
       <p id="loggedInAs"></p>
     </div>
     <div class="header-right">
-      <button class="btn-admin" id="adminBtn" onclick="goAdmin()" style="display:none;">Manage Access</button>
+      <button class="btn-admin" id="adminBtn" onclick="goAdmin()" style="display:none;">
+        Manage Access
+        <span class="badge" id="pendingBadge" style="display:none;">0</span>
+      </button>
       <button class="btn-add" onclick="openModal(null)">+ Add Link</button>
       <button class="btn-signout" onclick="signOut()">Sign Out</button>
     </div>
   </header>
   <div class="main">
-    <div class="tabs">
-      <button class="tab active" id="tab-All" onclick="setTab('All')">All</button>
-      <button class="tab" id="tab-Salesforce" onclick="setTab('Salesforce Knowledge')">Salesforce</button>
-      <button class="tab" id="tab-Work" onclick="setTab('Work Stuff')">Work Stuff</button>
-      <button class="tab" id="tab-Personal" onclick="setTab('Personal Websites')">Personal Sites</button>
-      <button class="tab" id="tab-Auto" onclick="setTab('Automotive Knowledge')">Automotive</button>
+    <div class="tabs-row">
+      <div class="tabs" id="tabsContainer">
+        <div class="loading" style="padding: 0.65rem;">Loading...</div>
+      </div>
+      <button class="btn-add-cat" onclick="openCategoryModal()">+ Category</button>
     </div>
     <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL..." oninput="applyFilters()">
     <div class="count" id="count"></div>
@@ -162,18 +204,30 @@
   <header>
     <div class="header-left">
       <h1>Manage Access</h1>
-      <p>Add or remove approved emails</p>
+      <p>Approve requests and manage approved emails</p>
     </div>
     <div class="header-right">
       <button class="btn-signout" onclick="showScreen('screen-library')">← Back to Library</button>
     </div>
   </header>
   <div class="admin-wrap">
-    <div class="admin-add">
-      <input type="email" id="newEmailInput" placeholder="Add email address..." />
-      <button onclick="addEmail()">Add Email</button>
+
+    <div class="admin-section">
+      <h2>Pending Requests</h2>
+      <p>People who want access. Approve to add them to the approved list.</p>
+      <div id="requestList"><div class="loading">Loading...</div></div>
     </div>
-    <div id="emailList"><div class="loading">Loading...</div></div>
+
+    <div class="admin-section">
+      <h2>Approved Emails</h2>
+      <p>Add manually or remove access.</p>
+      <div class="admin-add">
+        <input type="email" id="newEmailInput" placeholder="Add email address..." />
+        <button onclick="addEmail()">Add Email</button>
+      </div>
+      <div id="emailList"><div class="loading">Loading...</div></div>
+    </div>
+
   </div>
 </div>
 
@@ -192,16 +246,26 @@
     </div>
     <div class="field">
       <label>Category</label>
-      <select id="categoryInput">
-        <option value="Salesforce Knowledge">Salesforce Knowledge</option>
-        <option value="Work Stuff">Work Stuff</option>
-        <option value="Personal Websites">Personal Websites</option>
-        <option value="Automotive Knowledge">Automotive Knowledge</option>
-      </select>
+      <select id="categoryInput"></select>
     </div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveLink()">Save</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="categoryModalOverlay">
+  <div class="modal">
+    <h2>Add a Category</h2>
+    <div class="field">
+      <label>Category Name</label>
+      <input type="text" id="newCategoryInput" placeholder="e.g. AI Tools" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveCategory()">Save</button>
+      <button class="btn-cancel" onclick="closeCategoryModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -216,13 +280,15 @@
   var OWNER_EMAIL = 'trentbacon985@gmail.com';
 
   var allLinks = [];
-  var activeTab = 'All';
+  var allCategories = [];
+  var activeTabId = 'All';
   var linkMap = {};
+  var catMap = {};
   var currentEmail = '';
 
-  // Check if already logged in via sessionStorage
+  // Auto-login: localStorage (persists forever) instead of sessionStorage
   window.onload = function() {
-    var saved = sessionStorage.getItem('lib_email');
+    var saved = localStorage.getItem('lib_email');
     if (saved) {
       currentEmail = saved;
       enterLibrary();
@@ -242,7 +308,7 @@
       .then(function(data) {
         if (data && data.length > 0) {
           currentEmail = email;
-          sessionStorage.setItem('lib_email', email);
+          localStorage.setItem('lib_email', email);
           document.getElementById('loginError').classList.remove('show');
           enterLibrary();
         } else {
@@ -255,16 +321,39 @@
     document.getElementById('loggedInAs').textContent = currentEmail;
     if (currentEmail === OWNER_EMAIL.toLowerCase()) {
       document.getElementById('adminBtn').style.display = 'inline-block';
+      checkPendingCount();
     }
     showScreen('screen-library');
-    fetchLinks();
+    fetchCategories(function() { fetchLinks(); });
   }
 
   function signOut() {
-    sessionStorage.removeItem('lib_email');
+    localStorage.removeItem('lib_email');
     currentEmail = '';
     document.getElementById('loginEmail').value = '';
     showScreen('screen-login');
+  }
+
+  // REQUEST ACCESS
+  function submitRequest() {
+    var email = document.getElementById('requestEmail').value.trim().toLowerCase();
+    var note = document.getElementById('requestNote').value.trim();
+    if (!email) return;
+    document.getElementById('requestError').classList.remove('show');
+    document.getElementById('requestSuccess').classList.remove('show');
+    fetch(SB_URL + '/rest/v1/access_requests', {
+      method: 'POST',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ email: email, note: note || null, status: 'pending' })
+    }).then(function(res) {
+      if (res.ok) {
+        document.getElementById('requestEmail').value = '';
+        document.getElementById('requestNote').value = '';
+        document.getElementById('requestSuccess').classList.add('show');
+      } else {
+        document.getElementById('requestError').classList.add('show');
+      }
+    });
   }
 
   function checkAdminPass() {
@@ -273,14 +362,102 @@
       document.getElementById('adminPassError').classList.remove('show');
       document.getElementById('adminPassInput').value = '';
       showScreen('screen-admin');
+      fetchRequests();
       fetchEmails();
     } else {
       document.getElementById('adminPassError').classList.add('show');
     }
   }
 
-  function goAdmin() {
-    showScreen('screen-adminlogin');
+  function goAdmin() { showScreen('screen-adminlogin'); }
+
+  // PENDING COUNT BADGE
+  function checkPendingCount() {
+    fetch(SB_URL + '/rest/v1/access_requests?status=eq.pending&select=id', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var badge = document.getElementById('pendingBadge');
+        if (data && data.length > 0) {
+          badge.textContent = data.length;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      });
+  }
+
+  // ACCESS REQUESTS
+  function fetchRequests() {
+    fetch(SB_URL + '/rest/v1/access_requests?status=eq.pending&order=created_at.desc', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.length) {
+          document.getElementById('requestList').innerHTML = '<div class="empty"><strong>No pending requests</strong>You\'ll see new requests here.</div>';
+          return;
+        }
+        var html = '<div class="row-list">';
+        for (var i = 0; i < data.length; i++) {
+          var r = data[i];
+          var dateStr = new Date(r.created_at).toLocaleDateString();
+          html += '<div class="row">' +
+            '<div class="row-info">' +
+              '<div class="row-email">' + esc(r.email) + '</div>' +
+              (r.note ? '<div class="row-note">"' + esc(r.note) + '"</div>' : '') +
+              '<div class="row-date">' + dateStr + '</div>' +
+            '</div>' +
+            '<div class="row-actions">' +
+              '<button class="btn-approve" data-id="' + esc(r.id) + '" data-email="' + esc(r.email) + '">Approve</button>' +
+              '<button class="btn-deny" data-id="' + esc(r.id) + '">Deny</button>' +
+            '</div>' +
+          '</div>';
+        }
+        html += '</div>';
+        document.getElementById('requestList').innerHTML = html;
+        document.querySelectorAll('.btn-approve').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            approveRequest(this.getAttribute('data-id'), this.getAttribute('data-email'));
+          });
+        });
+        document.querySelectorAll('.btn-deny').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            denyRequest(this.getAttribute('data-id'));
+          });
+        });
+      });
+  }
+
+  function approveRequest(id, email) {
+    // Step 1: add to approved_emails
+    fetch(SB_URL + '/rest/v1/approved_emails', {
+      method: 'POST',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ email: email })
+    }).then(function(res) {
+      // Step 2: mark request as approved (regardless of whether email insert succeeded — they may already be approved)
+      fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, {
+        method: 'PATCH',
+        headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+        body: JSON.stringify({ status: 'approved' })
+      }).then(function() {
+        showToast('Approved ' + email);
+        fetchRequests();
+        fetchEmails();
+        checkPendingCount();
+      });
+    });
+  }
+
+  function denyRequest(id) {
+    if (!confirm('Deny this request?')) return;
+    fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, {
+      method: 'PATCH',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ status: 'denied' })
+    }).then(function() {
+      showToast('Denied');
+      fetchRequests();
+      checkPendingCount();
+    });
   }
 
   // EMAILS
@@ -292,19 +469,17 @@
           document.getElementById('emailList').innerHTML = '<div class="empty"><strong>No approved emails yet</strong></div>';
           return;
         }
-        var html = '<div class="email-list">';
+        var html = '<div class="row-list">';
         for (var i = 0; i < data.length; i++) {
           var e = data[i];
           var youTag = e.email === OWNER_EMAIL.toLowerCase() ? '<span class="you">you</span>' : '';
-          html += '<div class="email-row"><span>' + esc(e.email) + youTag + '</span>' +
+          html += '<div class="row"><span>' + esc(e.email) + youTag + '</span>' +
             '<button class="btn-remove-email" data-id="' + esc(e.id) + '">Remove</button></div>';
         }
         html += '</div>';
         document.getElementById('emailList').innerHTML = html;
         document.querySelectorAll('.btn-remove-email').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            removeEmail(this.getAttribute('data-id'));
-          });
+          btn.addEventListener('click', function() { removeEmail(this.getAttribute('data-id')); });
         });
       });
   }
@@ -331,6 +506,89 @@
       .then(function() { showToast('Removed'); fetchEmails(); });
   }
 
+  // CATEGORIES
+  function fetchCategories(callback) {
+    fetch(SB_URL + '/rest/v1/categories?order=name.asc', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        allCategories = data || [];
+        catMap = {};
+        for (var i = 0; i < allCategories.length; i++) { catMap[allCategories[i].id] = allCategories[i].name; }
+        renderTabs();
+        renderCategoryDropdown();
+        if (callback) callback();
+      });
+  }
+
+  function renderTabs() {
+    var html = '<button class="tab tab-all ' + (activeTabId === 'All' ? 'active' : '') + '" data-tab="All">All</button>';
+    for (var i = 0; i < allCategories.length; i++) {
+      var c = allCategories[i];
+      var isActive = activeTabId === c.id;
+      html += '<button class="tab ' + (isActive ? 'active' : '') + '" data-tab="' + esc(c.id) + '">' +
+                esc(c.name) +
+                '<span class="x-btn" data-del-cat="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '">✕</span>' +
+              '</button>';
+    }
+    document.getElementById('tabsContainer').innerHTML = html;
+    document.querySelectorAll('#tabsContainer .tab').forEach(function(t) {
+      t.addEventListener('click', function(e) {
+        if (e.target.classList.contains('x-btn')) return;
+        setTab(this.getAttribute('data-tab'));
+      });
+    });
+    document.querySelectorAll('#tabsContainer .x-btn').forEach(function(x) {
+      x.addEventListener('click', function(e) {
+        e.stopPropagation();
+        deleteCategory(this.getAttribute('data-del-cat'), this.getAttribute('data-cat-name'));
+      });
+    });
+  }
+
+  function renderCategoryDropdown() {
+    var sel = document.getElementById('categoryInput');
+    var html = '';
+    for (var i = 0; i < allCategories.length; i++) {
+      html += '<option value="' + esc(allCategories[i].id) + '">' + esc(allCategories[i].name) + '</option>';
+    }
+    sel.innerHTML = html;
+  }
+
+  function openCategoryModal() {
+    document.getElementById('newCategoryInput').value = '';
+    document.getElementById('categoryModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('newCategoryInput').focus(); }, 100);
+  }
+  function closeCategoryModal() { document.getElementById('categoryModalOverlay').classList.remove('open'); }
+
+  function saveCategory() {
+    var name = document.getElementById('newCategoryInput').value.trim();
+    if (!name) { showToast('Enter a name'); return; }
+    fetch(SB_URL + '/rest/v1/categories', {
+      method: 'POST',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ name: name })
+    }).then(function(res) {
+      if (res.ok) {
+        closeCategoryModal();
+        showToast('Category added!');
+        fetchCategories();
+      } else { showToast('Error — name may already exist'); }
+    });
+  }
+
+  function deleteCategory(id, name) {
+    if (!confirm('Delete category "' + name + '"? Links in this category will become uncategorized.')) return;
+    fetch(SB_URL + '/rest/v1/categories?id=eq.' + id, { method: 'DELETE', headers: H })
+      .then(function(res) {
+        if (res.ok) {
+          if (activeTabId === id) activeTabId = 'All';
+          showToast('Category deleted');
+          fetchCategories(function() { fetchLinks(); });
+        } else { showToast('Error deleting'); }
+      });
+  }
+
   // LINKS
   function fetchLinks() {
     fetch(SB_URL + '/rest/v1/links?order=created_at.desc', { headers: H })
@@ -343,11 +601,9 @@
       });
   }
 
-  function setTab(tab) {
-    activeTab = tab;
-    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-    var map = { 'All': 'tab-All', 'Salesforce Knowledge': 'tab-Salesforce', 'Work Stuff': 'tab-Work', 'Personal Websites': 'tab-Personal', 'Automotive Knowledge': 'tab-Auto' };
-    document.getElementById(map[tab]).classList.add('active');
+  function setTab(tabId) {
+    activeTabId = tabId;
+    renderTabs();
     document.getElementById('searchInput').value = '';
     applyFilters();
   }
@@ -355,7 +611,9 @@
   function applyFilters() {
     var q = document.getElementById('searchInput').value.toLowerCase();
     var filtered = allLinks.slice();
-    if (activeTab !== 'All') filtered = filtered.filter(function(l) { return l.category === activeTab; });
+    if (activeTabId !== 'All') {
+      filtered = filtered.filter(function(l) { return l.category_id === activeTabId; });
+    }
     if (q) filtered = filtered.filter(function(l) { return (l.title||'').toLowerCase().indexOf(q) > -1 || (l.url||'').toLowerCase().indexOf(q) > -1; });
     renderLinks(filtered);
   }
@@ -369,11 +627,12 @@
     var html = '<div class="links-list">';
     for (var i = 0; i < links.length; i++) {
       var l = links[i];
+      var catName = l.category_id ? (catMap[l.category_id] || '') : '';
       html += '<div class="link-item">' +
         '<div class="link-info">' +
           '<div class="link-title">' + esc(l.title) + '</div>' +
           '<a class="link-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
-          '<div class="link-cat">' + esc(l.category || '') + '</div>' +
+          '<div class="link-cat">' + esc(catName) + '</div>' +
         '</div>' +
         '<div class="link-actions">' +
           '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
@@ -397,7 +656,12 @@
     document.getElementById('modalTitle').textContent = link ? 'Edit Resource' : 'Add a Resource';
     document.getElementById('titleInput').value = link ? link.title : '';
     document.getElementById('urlInput').value = link ? link.url : '';
-    document.getElementById('categoryInput').value = link ? (link.category || 'Salesforce Knowledge') : 'Salesforce Knowledge';
+    var sel = document.getElementById('categoryInput');
+    if (link && link.category_id) {
+      sel.value = link.category_id;
+    } else if (allCategories.length) {
+      sel.value = allCategories[0].id;
+    }
     document.getElementById('modalOverlay').classList.add('open');
     setTimeout(function() { document.getElementById('titleInput').focus(); }, 100);
   }
@@ -407,7 +671,7 @@
   function saveLink() {
     var title = document.getElementById('titleInput').value.trim();
     var url = document.getElementById('urlInput').value.trim();
-    var category = document.getElementById('categoryInput').value;
+    var category_id = document.getElementById('categoryInput').value || null;
     var editId = document.getElementById('editId').value;
     if (!title || !url) { showToast('Fill in both fields'); return; }
     var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
@@ -416,7 +680,7 @@
     fetch(endpoint, {
       method: method,
       headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, url: fullUrl, category: category })
+      body: JSON.stringify({ title: title, url: fullUrl, category_id: category_id })
     }).then(function(res) {
       if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); }
       else { showToast('Error saving'); }
@@ -430,11 +694,13 @@
   }
 
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+  document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); }
     if (e.key === 'Enter') {
       if (document.getElementById('screen-login').classList.contains('active')) checkEmail();
       if (document.getElementById('screen-adminlogin').classList.contains('active')) checkAdminPass();
+      if (document.getElementById('categoryModalOverlay').classList.contains('open')) saveCategory();
     }
   });
 
