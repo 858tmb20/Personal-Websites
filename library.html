@@ -52,20 +52,28 @@
 
   .main { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-  .tabs-row { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; align-items: stretch; }
-  .tabs { flex: 1; display: flex; border: 1px solid var(--rule); background: var(--rule); gap: 1px; overflow-x: auto; }
-  .tab { flex: 1; min-width: 80px; padding: 0.65rem 1.5rem 0.65rem 0.5rem; font-size: 0.8rem; font-weight: 500; font-family: inherit; border: none; background: var(--card); color: var(--muted); cursor: pointer; text-align: center; white-space: nowrap; position: relative; }
-  .tab.active { background: var(--accent); color: white; }
-  .tab:hover:not(.active) { background: #FAF8F3; }
-  .tab .x-btn { display: none; position: absolute; top: 50%; right: 4px; transform: translateY(-50%); width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.1); color: var(--muted); font-size: 0.65rem; line-height: 16px; text-align: center; border: none; cursor: pointer; font-family: inherit; padding: 0; }
-  .tab:hover .x-btn { display: block; }
-  .tab.active .x-btn { background: rgba(255,255,255,0.25); color: white; }
-  .tab .x-btn:hover { background: var(--danger); color: white; }
-  .tab.tab-all { padding-right: 0.5rem; }
-  .tab.tab-add { padding: 0.65rem 0.9rem; color: var(--muted); font-weight: 500; flex: 0 0 auto; }
-  .tab.tab-add:hover { color: var(--accent); background: #FAF8F3; }
-  .btn-add-cat { padding: 0.65rem 0.9rem; background: var(--card); border: 1px solid var(--rule); color: var(--muted); font-size: 0.82rem; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .btn-add-cat:hover { color: var(--accent); border-color: var(--accent); }
+  /* FILTER DROPDOWN */
+  .filter-row { margin-bottom: 1.25rem; }
+  .filter-wrap { position: relative; display: inline-block; }
+  .filter-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1rem; background: var(--card); border: 1px solid var(--rule); color: var(--ink); font-size: 0.88rem; font-weight: 500; cursor: pointer; font-family: inherit; min-width: 220px; justify-content: space-between; }
+  .filter-btn:hover { border-color: var(--accent); }
+  .filter-btn .caret { color: var(--muted); font-size: 0.75rem; }
+  .filter-menu { display: none; position: absolute; top: calc(100% + 4px); left: 0; min-width: 280px; background: var(--card); border: 1px solid var(--rule); box-shadow: 0 4px 12px rgba(0,0,0,0.08); z-index: 50; }
+  .filter-menu.open { display: block; }
+  .filter-menu-inner { max-height: 400px; overflow-y: auto; }
+  .filter-option { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.85rem; font-size: 0.88rem; cursor: pointer; border-bottom: 1px solid var(--rule); gap: 0.5rem; }
+  .filter-option:hover { background: #FAF8F3; }
+  .filter-option.active { background: var(--accent); color: white; }
+  .filter-option-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filter-option-actions { display: none; gap: 0.3rem; flex-shrink: 0; }
+  .filter-option:hover .filter-option-actions { display: flex; }
+  .filter-option.active .filter-option-actions { display: flex; }
+  .filter-icon-btn { width: 22px; height: 22px; padding: 0; background: none; border: 1px solid transparent; color: inherit; font-size: 0.7rem; cursor: pointer; font-family: inherit; border-radius: 3px; opacity: 0.7; }
+  .filter-icon-btn:hover { opacity: 1; background: rgba(0,0,0,0.08); }
+  .filter-option.active .filter-icon-btn:hover { background: rgba(255,255,255,0.2); }
+  .filter-add-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.85rem; font-size: 0.85rem; color: var(--accent); cursor: pointer; font-weight: 500; background: #F4F7FE; }
+  .filter-add-row:hover { background: #E9F0FD; }
+  .filter-edit-input { width: 100%; padding: 0.4rem 0.5rem; font-size: 0.85rem; font-family: inherit; border: 1px solid var(--accent); background: white; color: var(--ink); outline: none; }
 
   .search-bar { width: 100%; padding: 0.75rem 1rem; font-size: 0.93rem; font-family: inherit; border: 1px solid var(--rule); background: var(--card); color: var(--ink); outline: none; margin-bottom: 1rem; }
   .search-bar::placeholder { color: var(--muted); }
@@ -189,9 +197,17 @@
     </div>
   </header>
   <div class="main">
-    <div class="tabs-row">
-      <div class="tabs" id="tabsContainer">
-        <div class="loading" style="padding: 0.65rem;">Loading...</div>
+    <div class="filter-row">
+      <div class="filter-wrap">
+        <button class="filter-btn" id="filterBtn" onclick="toggleFilterMenu(event)">
+          <span id="filterLabel">All Categories</span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="filter-menu" id="filterMenu">
+          <div class="filter-menu-inner" id="filterMenuInner">
+            <div class="loading" style="padding: 1rem;">Loading...</div>
+          </div>
+        </div>
       </div>
     </div>
     <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL..." oninput="applyFilters()">
@@ -522,31 +538,115 @@
   }
 
   function renderTabs() {
-    var html = '<button class="tab tab-all ' + (activeTabId === 'All' ? 'active' : '') + '" data-tab="All">All</button>';
+    // Update the filter button label
+    var label = 'All Categories';
+    if (activeTabId !== 'All' && catMap[activeTabId]) {
+      label = catMap[activeTabId];
+    }
+    document.getElementById('filterLabel').textContent = label;
+
+    // Build the menu
+    var html = '';
+    // All option
+    html += '<div class="filter-option ' + (activeTabId === 'All' ? 'active' : '') + '" data-tab="All">' +
+              '<span class="filter-option-name">All Categories</span>' +
+            '</div>';
+    // Each category
     for (var i = 0; i < allCategories.length; i++) {
       var c = allCategories[i];
       var isActive = activeTabId === c.id;
-      html += '<button class="tab ' + (isActive ? 'active' : '') + '" data-tab="' + esc(c.id) + '">' +
-                esc(c.name) +
-                '<span class="x-btn" data-del-cat="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '">✕</span>' +
-              '</button>';
+      html += '<div class="filter-option ' + (isActive ? 'active' : '') + '" data-tab="' + esc(c.id) + '" data-cat-id="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '">' +
+                '<span class="filter-option-name">' + esc(c.name) + '</span>' +
+                '<span class="filter-option-actions">' +
+                  '<button class="filter-icon-btn" data-action="edit" title="Rename">✎</button>' +
+                  '<button class="filter-icon-btn" data-action="delete" title="Delete">✕</button>' +
+                '</span>' +
+              '</div>';
     }
-    html += '<button class="tab tab-add" id="tabAddBtn">+ Category</button>';
-    document.getElementById('tabsContainer').innerHTML = html;
-    document.querySelectorAll('#tabsContainer .tab:not(.tab-add)').forEach(function(t) {
-      t.addEventListener('click', function(e) {
-        if (e.target.classList.contains('x-btn')) return;
+    // Add category row
+    html += '<div class="filter-add-row" id="filterAddRow">+ Add Category</div>';
+
+    document.getElementById('filterMenuInner').innerHTML = html;
+
+    // Wire up option clicks (filtering)
+    document.querySelectorAll('#filterMenuInner .filter-option').forEach(function(opt) {
+      opt.addEventListener('click', function(e) {
+        if (e.target.classList.contains('filter-icon-btn')) return;
         setTab(this.getAttribute('data-tab'));
+        closeFilterMenu();
       });
     });
-    document.getElementById('tabAddBtn').addEventListener('click', function() {
-      openCategoryModal();
-    });
-    document.querySelectorAll('#tabsContainer .x-btn').forEach(function(x) {
-      x.addEventListener('click', function(e) {
+
+    // Wire up edit / delete icons
+    document.querySelectorAll('#filterMenuInner .filter-icon-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        deleteCategory(this.getAttribute('data-del-cat'), this.getAttribute('data-cat-name'));
+        var row = this.closest('.filter-option');
+        var catId = row.getAttribute('data-cat-id');
+        var catName = row.getAttribute('data-cat-name');
+        var action = this.getAttribute('data-action');
+        if (action === 'edit') startEditCategory(row, catId, catName);
+        else if (action === 'delete') deleteCategory(catId, catName);
       });
+    });
+
+    // Wire up add category row
+    document.getElementById('filterAddRow').addEventListener('click', function(e) {
+      e.stopPropagation();
+      openCategoryModal();
+      closeFilterMenu();
+    });
+  }
+
+  function toggleFilterMenu(e) {
+    if (e) e.stopPropagation();
+    var menu = document.getElementById('filterMenu');
+    menu.classList.toggle('open');
+  }
+
+  function closeFilterMenu() {
+    document.getElementById('filterMenu').classList.remove('open');
+  }
+
+  function startEditCategory(rowEl, catId, currentName) {
+    var nameSpan = rowEl.querySelector('.filter-option-name');
+    var actions = rowEl.querySelector('.filter-option-actions');
+    nameSpan.innerHTML = '<input type="text" class="filter-edit-input" value="' + esc(currentName) + '" />';
+    actions.style.display = 'none';
+    var input = nameSpan.querySelector('input');
+    input.focus();
+    input.select();
+    input.addEventListener('click', function(e) { e.stopPropagation(); });
+    input.addEventListener('keydown', function(e) {
+      e.stopPropagation();
+      if (e.key === 'Enter') saveEditCategory(catId, input.value.trim(), currentName);
+      else if (e.key === 'Escape') { fetchCategories(); }
+    });
+    input.addEventListener('blur', function() {
+      var newName = input.value.trim();
+      if (newName && newName !== currentName) {
+        saveEditCategory(catId, newName, currentName);
+      } else {
+        fetchCategories();
+      }
+    });
+  }
+
+  function saveEditCategory(catId, newName, oldName) {
+    if (!newName) { showToast('Name cannot be empty'); fetchCategories(); return; }
+    if (newName === oldName) { fetchCategories(); return; }
+    fetch(SB_URL + '/rest/v1/categories?id=eq.' + catId, {
+      method: 'PATCH',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ name: newName })
+    }).then(function(res) {
+      if (res.ok) {
+        showToast('Renamed');
+        fetchCategories(function() { fetchLinks(); });
+      } else {
+        showToast('Error — name may already exist');
+        fetchCategories();
+      }
     });
   }
 
@@ -700,8 +800,12 @@
 
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
+  document.addEventListener('click', function(e) {
+    var wrap = document.querySelector('.filter-wrap');
+    if (wrap && !wrap.contains(e.target)) closeFilterMenu();
+  });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); }
     if (e.key === 'Enter') {
       if (document.getElementById('screen-login').classList.contains('active')) checkEmail();
       if (document.getElementById('screen-adminlogin').classList.contains('active')) checkAdminPass();
