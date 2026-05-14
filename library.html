@@ -62,6 +62,8 @@
   .tab.active .x-btn { background: rgba(255,255,255,0.25); color: white; }
   .tab .x-btn:hover { background: var(--danger); color: white; }
   .tab.tab-all { padding-right: 0.5rem; }
+  .tab.tab-add { padding: 0.65rem 0.9rem; color: var(--muted); font-weight: 500; flex: 0 0 auto; }
+  .tab.tab-add:hover { color: var(--accent); background: #FAF8F3; }
   .btn-add-cat { padding: 0.65rem 0.9rem; background: var(--card); border: 1px solid var(--rule); color: var(--muted); font-size: 0.82rem; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
   .btn-add-cat:hover { color: var(--accent); border-color: var(--accent); }
 
@@ -191,7 +193,6 @@
       <div class="tabs" id="tabsContainer">
         <div class="loading" style="padding: 0.65rem;">Loading...</div>
       </div>
-      <button class="btn-add-cat" onclick="openCategoryModal()">+ Category</button>
     </div>
     <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL..." oninput="applyFilters()">
     <div class="count" id="count"></div>
@@ -530,12 +531,16 @@
                 '<span class="x-btn" data-del-cat="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '">✕</span>' +
               '</button>';
     }
+    html += '<button class="tab tab-add" id="tabAddBtn">+ Category</button>';
     document.getElementById('tabsContainer').innerHTML = html;
-    document.querySelectorAll('#tabsContainer .tab').forEach(function(t) {
+    document.querySelectorAll('#tabsContainer .tab:not(.tab-add)').forEach(function(t) {
       t.addEventListener('click', function(e) {
         if (e.target.classList.contains('x-btn')) return;
         setTab(this.getAttribute('data-tab'));
       });
+    });
+    document.getElementById('tabAddBtn').addEventListener('click', function() {
+      openCategoryModal();
     });
     document.querySelectorAll('#tabsContainer .x-btn').forEach(function(x) {
       x.addEventListener('click', function(e) {
