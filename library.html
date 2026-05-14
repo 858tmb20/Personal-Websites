@@ -50,6 +50,25 @@
   .btn-admin .badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; font-size: 0.65rem; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
   .btn-signout { padding: 0.55rem 1.1rem; background: none; color: var(--muted); font-size: 0.82rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
 
+  /* VIEW TOGGLE */
+  .view-toggle { display: inline-flex; border: 1px solid var(--rule); }
+  .view-btn { padding: 0.5rem 0.75rem; background: var(--card); border: none; color: var(--muted); font-size: 0.95rem; cursor: pointer; font-family: inherit; line-height: 1; }
+  .view-btn + .view-btn { border-left: 1px solid var(--rule); }
+  .view-btn:hover { color: var(--ink); }
+  .view-btn.active { background: var(--ink); color: white; }
+
+  /* TILE VIEW */
+  .tiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; }
+  .tile { background: var(--card); border: 1px solid var(--rule); padding: 1rem; display: flex; flex-direction: column; min-height: 130px; transition: border-color 0.15s; }
+  .tile:hover { border-color: var(--accent); }
+  .tile-title { font-size: 0.92rem; font-weight: 500; margin-bottom: 0.35rem; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tile-url { font-size: 0.74rem; color: var(--accent); margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; display: block; }
+  .tile-cat { font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: auto; padding-bottom: 0.75rem; }
+  .tile-actions { display: flex; gap: 0.35rem; padding-top: 0.5rem; border-top: 1px solid var(--rule); margin-top: 0.5rem; }
+  .tile-actions .btn-open { flex: 1; text-align: center; padding: 0.35rem; font-size: 0.74rem; }
+  .tile-actions .btn-edit, .tile-actions .btn-delete { padding: 0.35rem 0.55rem; font-size: 0.72rem; }
+  @media (max-width: 600px) { .tiles-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+
   .main { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
 
   /* FILTER DROPDOWN */
@@ -188,6 +207,10 @@
       <p id="loggedInAs"></p>
     </div>
     <div class="header-right">
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewBtnList" onclick="setView('list')" title="List view">☰</button>
+        <button class="view-btn" id="viewBtnTile" onclick="setView('tile')" title="Tile view">▦</button>
+      </div>
       <button class="btn-admin" id="adminBtn" onclick="goAdmin()" style="display:none;">
         Manage Access
         <span class="badge" id="pendingBadge" style="display:none;">0</span>
@@ -302,6 +325,7 @@
   var linkMap = {};
   var catMap = {};
   var currentEmail = '';
+  var currentView = localStorage.getItem('lib_view') || 'list'; // 'list' or 'tile'
 
   // Auto-login: localStorage (persists forever) instead of sessionStorage
   window.onload = function() {
@@ -341,7 +365,20 @@
       checkPendingCount();
     }
     showScreen('screen-library');
+    applyViewButtons();
     fetchCategories(function() { fetchLinks(); });
+  }
+
+  function setView(view) {
+    currentView = view;
+    localStorage.setItem('lib_view', view);
+    applyViewButtons();
+    applyFilters();
+  }
+
+  function applyViewButtons() {
+    document.getElementById('viewBtnList').classList.toggle('active', currentView === 'list');
+    document.getElementById('viewBtnTile').classList.toggle('active', currentView === 'tile');
   }
 
   function signOut() {
@@ -729,24 +766,44 @@
       document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
       return;
     }
-    var html = '<div class="links-list">';
-    for (var i = 0; i < links.length; i++) {
-      var l = links[i];
-      var catName = l.category_id ? (catMap[l.category_id] || '') : '';
-      html += '<div class="link-item">' +
-        '<div class="link-info">' +
-          '<div class="link-title">' + esc(l.title) + '</div>' +
-          '<a class="link-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
-          '<div class="link-cat">' + esc(catName) + '</div>' +
-        '</div>' +
-        '<div class="link-actions">' +
-          '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
-          '<button class="btn-edit" data-id="' + esc(l.id) + '">Edit</button>' +
-          '<button class="btn-delete" data-id="' + esc(l.id) + '">✕</button>' +
-        '</div>' +
-      '</div>';
+    var html;
+    if (currentView === 'tile') {
+      html = '<div class="tiles-grid">';
+      for (var i = 0; i < links.length; i++) {
+        var l = links[i];
+        var catName = l.category_id ? (catMap[l.category_id] || '') : '';
+        html += '<div class="tile">' +
+          '<div class="tile-title">' + esc(l.title) + '</div>' +
+          '<a class="tile-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
+          '<div class="tile-cat">' + esc(catName) + '</div>' +
+          '<div class="tile-actions">' +
+            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
+            '<button class="btn-edit" data-id="' + esc(l.id) + '">✎</button>' +
+            '<button class="btn-delete" data-id="' + esc(l.id) + '">✕</button>' +
+          '</div>' +
+        '</div>';
+      }
+      html += '</div>';
+    } else {
+      html = '<div class="links-list">';
+      for (var i = 0; i < links.length; i++) {
+        var l = links[i];
+        var catName = l.category_id ? (catMap[l.category_id] || '') : '';
+        html += '<div class="link-item">' +
+          '<div class="link-info">' +
+            '<div class="link-title">' + esc(l.title) + '</div>' +
+            '<a class="link-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
+            '<div class="link-cat">' + esc(catName) + '</div>' +
+          '</div>' +
+          '<div class="link-actions">' +
+            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
+            '<button class="btn-edit" data-id="' + esc(l.id) + '">Edit</button>' +
+            '<button class="btn-delete" data-id="' + esc(l.id) + '">✕</button>' +
+          '</div>' +
+        '</div>';
+      }
+      html += '</div>';
     }
-    html += '</div>';
     document.getElementById('linksList').innerHTML = html;
     document.querySelectorAll('.btn-edit').forEach(function(btn) {
       btn.addEventListener('click', function() { openModal(linkMap[this.getAttribute('data-id')]); });
