@@ -449,6 +449,8 @@
 
   // Deployment status: only shown on tiles whose category is named exactly this.
   var DEPLOY_CATEGORY_NAME = 'Deployment Status';
+  // Home "All tools" grid pulls only from the category named exactly this.
+  var TOOLS_CATEGORY_NAME = 'Tools';
   // Ordered cycle. status value stored on the link; click advances to next.
   var STATUS_STAGES = [
     { key: 'needs',    label: 'Needs deployed', cls: 'st-needs' },
@@ -961,11 +963,7 @@
   }
 
   function ownerFirstName() {
-    // Use the part of the owner email before any dot/number, capitalized. Falls back to "there".
-    var base = (currentEmail || '').split('@')[0] || '';
-    base = base.replace(/[0-9]+$/, '').split(/[._-]/)[0];
-    if (!base) return 'there';
-    return base.charAt(0).toUpperCase() + base.slice(1);
+    return 'Trent';
   }
 
   function timeAgo(iso) {
@@ -1042,42 +1040,18 @@
         recentInner +
       '</div>';
 
-    // Tool grid (his "All tools" style), newest first, with category eyebrow + description
-    var toolsInner = '';
-    for (var j = 0; j < links.length; j++) {
-      var l = links[j];
-      var color = colorForCategory(l.category_id);
-      var catName = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Uncategorized';
-      var fav2 = faviconFor(l.url);
-      var chipInner = fav2
-        ? '<img src="' + esc(fav2) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />'
-        : '<span>' + esc(firstLetter(l.title)) + '</span>';
-      var desc = l.description ? esc(l.description) : esc(l.url);
-      toolsInner += '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
-          '<span class="tool-edit">' +
-            '<button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button>' +
-            '<button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button>' +
-          '</span>' +
-          '<span class="tool-eyebrow"><span class="tool-chip">' + chipInner + '</span>' + esc(catName) + '</span>' +
-          '<span class="tool-name">' + esc(l.title) + '</span>' +
-          '<span class="tool-desc">' + desc + '</span>' +
-        '</a>';
-    }
-    var toolsSection = '<div class="home-tools-head"><span class="home-tools-bar"></span><span class="home-tools-title">All tools</span></div>' +
-      (links.length ? ('<div class="tools-grid">' + toolsInner + '</div>') : '');
+    // Everything below the hero = the dashboard's grouped-by-category sections,
+    // so the home page shows all items grouped by category for fast navigation.
+    var dashHTML = buildDashboardHTML(links, false); // pinned strip already represented by hero
+    var allToolsHeader = '<div class="home-tools-head"><span class="home-tools-bar"></span><span class="home-tools-title">All tools</span></div>';
 
     document.getElementById('linksList').innerHTML =
       greet + statusLine +
       '<div class="home-top">' + hero + recentCard + '</div>' +
-      toolsSection;
+      allToolsHeader +
+      dashHTML;
 
-    // Wire edit/delete on tool cards
-    document.querySelectorAll('.tool-edit .launch-mini[data-edit]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openModal(linkMap[this.getAttribute('data-edit')]); });
-    });
-    document.querySelectorAll('.tool-edit .launch-mini[data-del]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); deleteLink(this.getAttribute('data-del')); });
-    });
+    wireDashButtons();
   }
 
   function launchTileHTML(it, pinned) {
@@ -1104,7 +1078,7 @@
       '</a>';
   }
 
-  function renderDashboard(links) {
+  function buildDashboardHTML(links, includePinned) {
     var pinned = links.filter(function(l) { return l.pinned; });
 
     // Group by category, in the order categories appear, then uncategorized last.
@@ -1126,16 +1100,15 @@
     }
     if (uncat.items.length) groups.push(uncat);
 
-    var anyShown = pinned.length || groups.some(function(g) { return g.items.length; });
+    var anyShown = (includePinned && pinned.length) || groups.some(function(g) { return g.items.length; });
     if (!anyShown) {
-      document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
-      return;
+      return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
     }
 
     var html = '';
 
-    // Pinned strip first
-    if (pinned.length) {
+    // Pinned strip first (optional — home shows it, dashboard shows it)
+    if (includePinned && pinned.length) {
       html += '<div class="dash-section pin-section">' +
                 '<div class="dash-head">' +
                   '<span class="dash-dot"></span>' +
@@ -1161,8 +1134,11 @@
       for (var k = 0; k < grp.items.length; k++) { html += launchTileHTML(grp.items[k], !!grp.items[k].pinned); }
       html += '</div></div>';
     }
+    return html;
+  }
 
-    document.getElementById('linksList').innerHTML = html;
+  function renderDashboard(links) {
+    document.getElementById('linksList').innerHTML = buildDashboardHTML(links, true);
     wireDashButtons();
   }
 
