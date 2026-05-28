@@ -266,6 +266,33 @@
   .pday-add { margin-top: 0.5rem; padding: 0.4rem; background: none; border: 1px dashed var(--rule); border-radius: 6px; color: var(--muted); font-size: 0.74rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.12s; }
   .pday-add:hover { border-color: var(--link); color: var(--link); }
 
+  /* ANALYZE / CLEANUP */
+  .home-status-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+  .home-status-row .home-status { margin-bottom: 0; }
+  .analyze-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; background: linear-gradient(135deg, #7C3AED, #1F6FEB); color: #fff; border: none; border-radius: 30px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: transform 0.12s, box-shadow 0.15s; }
+  .analyze-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(124,58,237,0.3); }
+  .analyze-modal { max-width: 640px; max-height: 85vh; display: flex; flex-direction: column; }
+  .analyze-scroll { overflow-y: auto; flex: 1; margin: 0 -0.5rem; padding: 0 0.5rem; }
+  .sug { border: 1px solid var(--rule); border-radius: 9px; padding: 0.85rem; margin-bottom: 0.7rem; }
+  .sug.applied { opacity: 0.5; }
+  .sug.skipped { opacity: 0.4; }
+  .sug-field { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--link); margin-bottom: 0.4rem; }
+  .sug-item-title { font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
+  .sug-change { font-size: 0.8rem; line-height: 1.5; }
+  .sug-old { color: var(--muted); text-decoration: line-through; }
+  .sug-new { color: var(--green); font-weight: 500; }
+  .sug-arrow { color: var(--muted-soft); margin: 0 0.3rem; }
+  .sug-actions { display: flex; gap: 0.4rem; margin-top: 0.7rem; }
+  .sug-apply { padding: 0.35rem 0.9rem; background: var(--green); color: #fff; border: none; border-radius: 5px; font-size: 0.76rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .sug-skip { padding: 0.35rem 0.9rem; background: var(--card); color: var(--muted); border: 1px solid var(--rule); border-radius: 5px; font-size: 0.76rem; cursor: pointer; font-family: inherit; }
+  .sug-skip:hover { color: var(--ink); }
+  .sug-status { font-size: 0.76rem; font-weight: 600; padding: 0.35rem 0; }
+  .sug-status.ok { color: var(--green); }
+  .sug-status.no { color: var(--muted); }
+  .analyze-summary { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
+  .analyze-bulk { display: flex; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--rule); }
+  .analyze-spin { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: 0.9rem; }
+
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
   .admin-section { margin-bottom: 2.5rem; }
@@ -557,6 +584,22 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="savePlan()">Save</button>
       <button class="btn-cancel" onclick="closePlanModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYZE / CLEANUP MODAL -->
+<div class="modal-overlay" id="analyzeModalOverlay">
+  <div class="modal analyze-modal">
+    <h2>&#10024; Analyze &amp; Clean Up</h2>
+    <div id="analyzeBody">
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;">
+        This scans all your links and suggests fixes for blank descriptions, messy names, inconsistent capitalization, Work/Personal tags, and duplicate-looking categories. Nothing changes until you approve it.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="runAnalyze()">Scan my links</button>
+        <button class="btn-cancel" onclick="closeAnalyze()">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1195,8 +1238,11 @@
     var recent = links.slice(0, 5);
 
     var greet = '<div class="home-greet">' + greetingWord() + ', <span class="acc">' + esc(ownerFirstName()) + '.</span></div>';
-    var statusLine = '<div class="home-status"><span class="live"></span>' +
-      (total ? ('all ' + total + ' tool' + (total !== 1 ? 's' : '') + ' operational') : 'ready when you are') + '</div>';
+    var statusLine = '<div class="home-status-row">' +
+      '<div class="home-status"><span class="live"></span>' +
+      (total ? ('all ' + total + ' tool' + (total !== 1 ? 's' : '') + ' operational') : 'ready when you are') + '</div>' +
+      '<button class="analyze-btn" onclick="openAnalyze()">&#10024; Analyze &amp; Clean Up</button>' +
+      '</div>';
 
     // Hero card
     var hero;
@@ -1558,12 +1604,13 @@
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('docModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDocModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
+  document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
   document.addEventListener('click', function(e) {
     var wrap = document.querySelector('.filter-wrap');
     if (wrap && !wrap.contains(e.target)) closeFilterMenu();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); closePlanModal(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); closePlanModal(); closeAnalyze(); }
     // Press "/" to jump to search — but not while typing in a field or a modal is open.
     if (e.key === '/' &&
         document.getElementById('screen-library').classList.contains('active') &&
@@ -1581,6 +1628,180 @@
       if (document.getElementById('categoryModalOverlay').classList.contains('open')) saveCategory();
     }
   });
+
+  // ===== ANALYZE / CLEANUP =====
+  var analyzeSuggestions = [];
+
+  function openAnalyze() {
+    document.getElementById('analyzeBody').innerHTML =
+      '<p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;">' +
+        'This scans all your links and suggests fixes for blank descriptions, messy names, inconsistent capitalization, Work/Personal tags, and duplicate-looking categories. Nothing changes until you approve it.' +
+      '</p>' +
+      '<div class="modal-actions">' +
+        '<button class="btn-save" onclick="runAnalyze()">Scan my links</button>' +
+        '<button class="btn-cancel" onclick="closeAnalyze()">Cancel</button>' +
+      '</div>';
+    document.getElementById('analyzeModalOverlay').classList.add('open');
+  }
+  function closeAnalyze() { document.getElementById('analyzeModalOverlay').classList.remove('open'); fetchLinks(); }
+
+  function runAnalyze() {
+    if (!allLinks.length) { showToast('No links to analyze yet'); return; }
+    document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">&#10024; Analyzing your ' + allLinks.length + ' links… this can take a moment.</div>';
+
+    // Compact payload — only what the model needs.
+    var catList = allCategories.map(function(c) { return c.name; });
+    var linkData = allLinks.map(function(l) {
+      return {
+        id: l.id,
+        title: l.title || '',
+        url: l.url || '',
+        description: l.description || '',
+        category: (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : '',
+        type: l.link_type || 'personal'
+      };
+    });
+
+    var prompt =
+      'You are cleaning up a personal link library. Below are the links as JSON, plus the list of existing categories.\n\n' +
+      'EXISTING CATEGORIES: ' + JSON.stringify(catList) + '\n\n' +
+      'LINKS: ' + JSON.stringify(linkData) + '\n\n' +
+      'Suggest cleanup changes. For each change, output an object with: ' +
+      '"id" (the link id), "field" (one of: description, title, category, type), ' +
+      '"old" (current value), "new" (suggested value), and "why" (a short reason).\n' +
+      'Rules:\n' +
+      '- Fill blank descriptions with a concise one-line description inferred from the title and URL. Do not invent specifics you cannot know from the title/URL.\n' +
+      '- Fix messy or inconsistent titles (capitalization, "salesforce" -> "Salesforce", trailing junk). Keep them recognizable.\n' +
+      '- Suggest a better category ONLY if the current one is clearly wrong or blank; prefer existing categories.\n' +
+      '- Suggest type (work or personal) only if clearly mismatched.\n' +
+      '- Do NOT suggest a change if the current value is already fine. Only include real improvements.\n' +
+      '- Never change a URL.\n' +
+      'Respond with ONLY a JSON array of change objects, no preamble, no markdown, no code fences. If nothing needs changing, respond with [].';
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var text = (data.content || []).filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('\n');
+      var clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      var arr;
+      try { arr = JSON.parse(clean); } catch (e) { arr = null; }
+      if (!Array.isArray(arr)) {
+        document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t read the suggestions. This feature needs the Claude API, which works in the in-app preview but not on the deployed site without an API key set up. <br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
+        return;
+      }
+      analyzeSuggestions = arr.map(function(s, i) { s._i = i; s._state = 'pending'; return s; });
+      renderSuggestions();
+    })
+    .catch(function() {
+      document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t reach the analysis service. On the live Vercel site this needs an API key; it works here in the preview. <br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
+    });
+  }
+
+  function renderSuggestions() {
+    if (!analyzeSuggestions.length) {
+      document.getElementById('analyzeBody').innerHTML =
+        '<div class="analyze-summary">&#10003; Everything looks clean — no changes suggested.</div>' +
+        '<div class="modal-actions"><button class="btn-cancel" onclick="closeAnalyze()">Close</button></div>';
+      return;
+    }
+    var pending = analyzeSuggestions.filter(function(s) { return s._state === 'pending'; }).length;
+    var html = '<div class="analyze-summary">Found ' + analyzeSuggestions.length + ' suggestion' + (analyzeSuggestions.length !== 1 ? 's' : '') + '. ' + pending + ' pending. Review each below.</div>';
+    html += '<div class="analyze-bulk">' +
+              '<button class="sug-apply" onclick="applyAllSuggestions()">Apply all pending</button>' +
+              '<button class="sug-skip" onclick="closeAnalyze()">Done</button>' +
+            '</div>';
+    html += '<div class="analyze-scroll">';
+    for (var i = 0; i < analyzeSuggestions.length; i++) {
+      var s = analyzeSuggestions[i];
+      var link = linkMap[s.id];
+      var itemName = link ? esc(link.title || link.url) : 'Unknown link';
+      html += '<div class="sug ' + (s._state === 'applied' ? 'applied' : s._state === 'skipped' ? 'skipped' : '') + '">' +
+                '<div class="sug-field">' + esc(s.field || 'change') + '</div>' +
+                '<div class="sug-item-title">' + itemName + '</div>' +
+                '<div class="sug-change">' +
+                  (s.old ? '<span class="sug-old">' + esc(String(s.old)) + '</span><span class="sug-arrow">&rarr;</span>' : '<span class="sug-arrow">Set to:</span> ') +
+                  '<span class="sug-new">' + esc(String(s.new || '')) + '</span>' +
+                '</div>';
+      if (s._state === 'pending') {
+        html += '<div class="sug-actions">' +
+                  '<button class="sug-apply" data-apply="' + s._i + '">Apply</button>' +
+                  '<button class="sug-skip" data-skip="' + s._i + '">Skip</button>' +
+                '</div>';
+      } else {
+        html += '<div class="sug-status ' + (s._state === 'applied' ? 'ok' : 'no') + '">' + (s._state === 'applied' ? '&#10003; Applied' : 'Skipped') + '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    document.getElementById('analyzeBody').innerHTML = html;
+
+    document.querySelectorAll('[data-apply]').forEach(function(b) {
+      b.addEventListener('click', function() { applySuggestion(parseInt(this.getAttribute('data-apply'), 10)); });
+    });
+    document.querySelectorAll('[data-skip]').forEach(function(b) {
+      b.addEventListener('click', function() {
+        var idx = parseInt(this.getAttribute('data-skip'), 10);
+        var s = findSug(idx); if (s) s._state = 'skipped';
+        renderSuggestions();
+      });
+    });
+  }
+
+  function findSug(i) { for (var k = 0; k < analyzeSuggestions.length; k++) { if (analyzeSuggestions[k]._i === i) return analyzeSuggestions[k]; } return null; }
+
+  function suggestionToBody(s) {
+    var body = {};
+    if (s.field === 'description') body.description = s.new || null;
+    else if (s.field === 'title') body.title = s.new;
+    else if (s.field === 'type') body.link_type = (s.new === 'work') ? 'work' : 'personal';
+    else if (s.field === 'category') {
+      // Map category name to id; if it doesn't exist, skip the category change.
+      var id = null;
+      for (var i = 0; i < allCategories.length; i++) { if (allCategories[i].name === s.new) { id = allCategories[i].id; break; } }
+      if (id) body.category_id = id; else return null;
+    } else return null;
+    return body;
+  }
+
+  function applySuggestion(idx, silent, done) {
+    var s = findSug(idx);
+    if (!s || s._state !== 'pending') { if (done) done(); return; }
+    var body = suggestionToBody(s);
+    if (!body) { s._state = 'skipped'; if (!silent) renderSuggestions(); if (done) done(); return; }
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + s.id, {
+      method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify(body)
+    }).then(function(res) {
+      s._state = res.ok ? 'applied' : 'pending';
+      if (!res.ok && !silent) showToast('Could not apply that one');
+      if (!silent) renderSuggestions();
+      if (done) done();
+    }).catch(function() { if (done) done(); });
+  }
+
+  function applyAllSuggestions() {
+    var pendingIdx = analyzeSuggestions.filter(function(s) { return s._state === 'pending'; }).map(function(s) { return s._i; });
+    if (!pendingIdx.length) return;
+    var i = 0;
+    function next() {
+      if (i >= pendingIdx.length) {
+        renderSuggestions();
+        showToast('Applied ' + pendingIdx.length + ' change' + (pendingIdx.length !== 1 ? 's' : ''));
+        fetchLinks(); // refresh underlying data
+        return;
+      }
+      applySuggestion(pendingIdx[i++], true, next);
+    }
+    next();
+  }
 
   // ===== PLANNER =====
   var allPlans = [];
