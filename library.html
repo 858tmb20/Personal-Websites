@@ -1223,13 +1223,21 @@
       '</a>';
 
     // Special in-app card: Documentation (opens the docs list, not a URL).
-    var docsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs();" style="--tc:#0891B2;--tc-soft:#0891B222;">' +
+    var docsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'work\');" style="--tc:#0891B2;--tc-soft:#0891B222;">' +
         '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Work</span>' +
         '<span class="tool-name">Documentation</span>' +
         '<span class="tool-desc">Links to your docs, specs, and references.</span>' +
       '</a>';
 
     var leadCards = trackerCard + docsCard;
+
+    // Special in-app card: Personal Documentation (separate list from work docs).
+    var personalDocsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'personal\');" style="--tc:#9333EA;--tc-soft:#9333EA22;">' +
+        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Personal</span>' +
+        '<span class="tool-name">Documentation</span>' +
+        '<span class="tool-desc">Links to your personal docs, notes, and references.</span>' +
+      '</a>';
+    var personalLeadCards = personalDocsCard;
 
     function column(title, color, items, leadCardsHTML, leadCount) {
       leadCount = leadCount || 0;
@@ -1250,7 +1258,7 @@
 
     return '<div class="cols-2">' +
              column('Work Tools', '#1F6FEB', workLinks, leadCards, 2) +
-             column('Personal Tools', '#9333EA', personalLinks, null, 0) +
+             column('Personal Tools and Links', '#9333EA', personalLinks, personalLeadCards, 1) +
            '</div>';
   }
 
@@ -1503,17 +1511,24 @@
 
   // ===== DOCUMENTATION =====
   var allDocs = [];
+  var currentDocType = 'work';
 
-  function openDocs() {
+  function openDocs(type) {
+    currentDocType = (type === 'personal') ? 'personal' : 'work';
+    document.querySelector('#screen-docs .header-left h1').textContent =
+      (currentDocType === 'personal') ? 'Personal Documentation' : 'Documentation';
+    document.getElementById('docSearchInput').value = '';
     showScreen('screen-docs');
     fetchDocs();
   }
 
   function fetchDocs() {
+    // Filter by doc_type. Older rows without a type default to 'work'.
     fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        allDocs = Array.isArray(data) ? data : [];
+        var all = Array.isArray(data) ? data : [];
+        allDocs = all.filter(function(d) { return (d.doc_type || 'work') === currentDocType; });
         renderDocs();
       })
       .catch(function() {
@@ -1539,10 +1554,6 @@
     var html = '<div class="links-list">';
     for (var i = 0; i < list.length; i++) {
       var d = list[i];
-      var fav = faviconFor(d.url);
-      var favInner = fav
-        ? '<img src="' + esc(fav) + '" alt="" style="width:16px;height:16px;" onerror="this.style.display=\'none\';" />'
-        : '';
       html += '<div class="link-item">' +
                 '<div class="link-info">' +
                   '<div class="link-title">' + esc(d.title) + '</div>' +
@@ -1588,9 +1599,12 @@
     var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/documents?id=eq.' + editId : SB_URL + '/rest/v1/documents';
+    // New docs get the type of whichever page you're on; edits keep their existing type.
+    var body = { title: title, url: fullUrl, note: note || null };
+    if (!editId) body.doc_type = currentDocType;
     fetch(endpoint, {
       method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, url: fullUrl, note: note || null })
+      body: JSON.stringify(body)
     }).then(function(res) {
       if (res.ok) { closeDocModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchDocs(); }
       else { showToast('Error saving — is the "documents" table created?'); }
