@@ -126,6 +126,26 @@
   .tile-actions .btn-edit, .tile-actions .btn-delete { padding: 0.4rem 0.6rem; font-size: 0.72rem; }
   @media (max-width: 600px) { .tiles-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
 
+  /* DASHBOARD VIEW (app launcher) */
+  .dash-section { margin-bottom: 2rem; }
+  .dash-section:last-child { margin-bottom: 0; }
+  .dash-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; padding-bottom: 0.55rem; border-bottom: 2px solid var(--sec); }
+  .dash-dot { width: 10px; height: 10px; border-radius: 3px; background: var(--sec); flex-shrink: 0; }
+  .dash-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); }
+  .dash-count { font-size: 0.72rem; font-weight: 600; color: #fff; background: var(--sec); padding: 1px 8px; border-radius: 10px; }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.7rem; }
+  .launch { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--sec); border-radius: var(--radius); padding: 0.95rem; min-height: 116px; display: flex; flex-direction: column; cursor: pointer; text-decoration: none; transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s; }
+  .launch:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,31,61,0.12); border-color: var(--muted-soft); border-left-color: var(--sec); }
+  .launch-ico { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 700; color: #fff; background: var(--sec); margin-bottom: 0.7rem; flex-shrink: 0; overflow: hidden; }
+  .launch-ico img { width: 24px; height: 24px; display: block; }
+  .launch-name { font-size: 0.83rem; font-weight: 600; color: var(--ink); line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .launch-edit { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
+  .launch:hover .launch-edit { opacity: 1; }
+  .launch-mini { width: 22px; height: 22px; padding: 0; border: 1px solid var(--rule); background: var(--card); color: var(--muted); border-radius: 5px; font-size: 0.66rem; cursor: pointer; font-family: inherit; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .launch-mini:hover { color: var(--link); border-color: var(--link); }
+  .launch-mini.del:hover { color: var(--danger); border-color: var(--danger); }
+  @media (max-width: 600px) { .dash-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } }
+
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
   .admin-section { margin-bottom: 2.5rem; }
@@ -178,7 +198,7 @@
       <input type="email" id="loginEmail" placeholder="your@email.com" />
       <button class="gate-btn" onclick="checkEmail()">Access Library</button>
       <div class="gate-error" id="loginError">That email isn't on the approved list yet.</div>
-      <button class="gate-link" onclick="showScreen('screen-request')">Don't have access? Request it →</button>
+      <button class="gate-link" onclick="showScreen('screen-request')">Don't have access? Request it &rarr;</button>
     </div>
   </div>
 </div>
@@ -193,8 +213,8 @@
       <textarea id="requestNote" placeholder="Optional: who you are / why you want access"></textarea>
       <button class="gate-btn" onclick="submitRequest()">Submit Request</button>
       <div class="gate-error" id="requestError">Something went wrong. Try again.</div>
-      <div class="gate-success" id="requestSuccess">✓ Request submitted! You'll get access once approved.</div>
-      <button class="gate-link" onclick="showScreen('screen-login')">← Back to login</button>
+      <div class="gate-success" id="requestSuccess">&#10003; Request submitted! You'll get access once approved.</div>
+      <button class="gate-link" onclick="showScreen('screen-login')">&larr; Back to login</button>
     </div>
   </div>
 </div>
@@ -208,7 +228,7 @@
       <input type="password" id="adminPassInput" placeholder="Password" />
       <button class="gate-btn" onclick="checkAdminPass()">Enter</button>
       <div class="gate-error" id="adminPassError">Incorrect password.</div>
-      <button class="gate-link" onclick="showScreen('screen-library')">← Back to library</button>
+      <button class="gate-link" onclick="showScreen('screen-library')">&larr; Back to library</button>
     </div>
   </div>
 </div>
@@ -222,8 +242,9 @@
     </div>
     <div class="header-right">
       <div class="view-toggle">
-        <button class="view-btn active" id="viewBtnList" onclick="setView('list')" title="List view">☰</button>
-        <button class="view-btn" id="viewBtnTile" onclick="setView('tile')" title="Tile view">▦</button>
+        <button class="view-btn active" id="viewBtnDash" onclick="setView('dash')" title="Dashboard view">&#9783;</button>
+        <button class="view-btn" id="viewBtnList" onclick="setView('list')" title="List view">&#9776;</button>
+        <button class="view-btn" id="viewBtnTile" onclick="setView('tile')" title="Tile view">&#9638;</button>
       </div>
       <button class="btn-admin" id="adminBtn" onclick="goAdmin()" style="display:none;">
         Manage Access
@@ -234,11 +255,11 @@
     </div>
   </header>
   <div class="main">
-    <div class="filter-row">
+    <div class="filter-row" id="filterRow">
       <div class="filter-wrap">
         <button class="filter-btn" id="filterBtn" onclick="toggleFilterMenu(event)">
           <span id="filterLabel">All Categories</span>
-          <span class="caret">▾</span>
+          <span class="caret">&#9662;</span>
         </button>
         <div class="filter-menu" id="filterMenu">
           <div class="filter-menu-inner" id="filterMenuInner">
@@ -261,7 +282,7 @@
       <p>Approve requests and manage approved emails</p>
     </div>
     <div class="header-right">
-      <button class="btn-signout" onclick="showScreen('screen-library')">← Back to Library</button>
+      <button class="btn-signout" onclick="showScreen('screen-library')">&larr; Back to Library</button>
     </div>
   </header>
   <div class="admin-wrap">
@@ -339,9 +360,26 @@
   var linkMap = {};
   var catMap = {};
   var currentEmail = '';
-  var currentView = localStorage.getItem('lib_view') || 'list'; // 'list' or 'tile'
+  var currentView = localStorage.getItem('lib_view') || 'dash'; // 'dash' | 'list' | 'tile'
 
-  // Auto-login: localStorage (persists forever) instead of sessionStorage
+  // Section accent palette — assigned by category position, stays consistent per category.
+  var SECTION_COLORS = ['#1F6FEB','#16A34A','#9333EA','#EA580C','#0891B2','#DB2777','#CA8A04','#4F46E5','#059669','#DC2626','#7C3AED','#0D9488'];
+  function colorForCategory(catId) {
+    if (!catId) return '#6B7A99'; // uncategorized = muted slate
+    var idx = -1;
+    for (var i = 0; i < allCategories.length; i++) { if (allCategories[i].id === catId) { idx = i; break; } }
+    if (idx < 0) return '#6B7A99';
+    return SECTION_COLORS[idx % SECTION_COLORS.length];
+  }
+  function faviconFor(url) {
+    try { var h = new URL(url).hostname; return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(h) + '&sz=64'; }
+    catch (e) { return ''; }
+  }
+  function firstLetter(title) {
+    var t = (title || '').trim();
+    return t ? t.charAt(0).toUpperCase() : '#';
+  }
+
   window.onload = function() {
     var saved = localStorage.getItem('lib_email');
     if (saved) {
@@ -391,8 +429,13 @@
   }
 
   function applyViewButtons() {
+    document.getElementById('viewBtnDash').classList.toggle('active', currentView === 'dash');
     document.getElementById('viewBtnList').classList.toggle('active', currentView === 'list');
     document.getElementById('viewBtnTile').classList.toggle('active', currentView === 'tile');
+    // The category dropdown is a single-category filter; in the dashboard every
+    // category is already shown as its own section, so the dropdown is hidden there.
+    var fr = document.getElementById('filterRow');
+    if (fr) fr.style.display = (currentView === 'dash') ? 'none' : 'block';
   }
 
   function signOut() {
@@ -402,7 +445,6 @@
     showScreen('screen-login');
   }
 
-  // REQUEST ACCESS
   function submitRequest() {
     var email = document.getElementById('requestEmail').value.trim().toLowerCase();
     var note = document.getElementById('requestNote').value.trim();
@@ -439,7 +481,6 @@
 
   function goAdmin() { showScreen('screen-adminlogin'); }
 
-  // PENDING COUNT BADGE
   function checkPendingCount() {
     fetch(SB_URL + '/rest/v1/access_requests?status=eq.pending&select=id', { headers: H })
       .then(function(r) { return r.json(); })
@@ -454,7 +495,6 @@
       });
   }
 
-  // ACCESS REQUESTS
   function fetchRequests() {
     fetch(SB_URL + '/rest/v1/access_requests?status=eq.pending&order=created_at.desc', { headers: H })
       .then(function(r) { return r.json(); })
@@ -495,13 +535,11 @@
   }
 
   function approveRequest(id, email) {
-    // Step 1: add to approved_emails
     fetch(SB_URL + '/rest/v1/approved_emails', {
       method: 'POST',
       headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
       body: JSON.stringify({ email: email })
     }).then(function(res) {
-      // Step 2: mark request as approved (regardless of whether email insert succeeded — they may already be approved)
       fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, {
         method: 'PATCH',
         headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
@@ -528,7 +566,6 @@
     });
   }
 
-  // EMAILS
   function fetchEmails() {
     fetch(SB_URL + '/rest/v1/approved_emails?order=created_at.asc', { headers: H })
       .then(function(r) { return r.json(); })
@@ -574,7 +611,6 @@
       .then(function() { showToast('Removed'); fetchEmails(); });
   }
 
-  // CATEGORIES
   function fetchCategories(callback) {
     fetch(SB_URL + '/rest/v1/categories?order=name.asc', { headers: H })
       .then(function(r) { return r.json(); })
@@ -589,37 +625,31 @@
   }
 
   function renderTabs() {
-    // Update the filter button label
     var label = 'All Categories';
     if (activeTabId !== 'All' && catMap[activeTabId]) {
       label = catMap[activeTabId];
     }
     document.getElementById('filterLabel').textContent = label;
 
-    // Build the menu
     var html = '';
-    // All option
     html += '<div class="filter-option ' + (activeTabId === 'All' ? 'active' : '') + '" data-tab="All">' +
               '<span class="filter-option-name">All Categories</span>' +
             '</div>';
-    // Each category
     for (var i = 0; i < allCategories.length; i++) {
       var c = allCategories[i];
       var isActive = activeTabId === c.id;
       html += '<div class="filter-option ' + (isActive ? 'active' : '') + '" data-tab="' + esc(c.id) + '" data-cat-id="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '">' +
                 '<span class="filter-option-name">' + esc(c.name) + '</span>' +
                 '<span class="filter-option-actions">' +
-                  '<button class="filter-icon-btn" data-action="edit" title="Rename">✎</button>' +
-                  '<button class="filter-icon-btn" data-action="delete" title="Delete">✕</button>' +
+                  '<button class="filter-icon-btn" data-action="edit" title="Rename">&#9998;</button>' +
+                  '<button class="filter-icon-btn" data-action="delete" title="Delete">&#10005;</button>' +
                 '</span>' +
               '</div>';
     }
-    // Add category row
     html += '<div class="filter-add-row" id="filterAddRow">+ Add Category</div>';
 
     document.getElementById('filterMenuInner').innerHTML = html;
 
-    // Wire up option clicks (filtering)
     document.querySelectorAll('#filterMenuInner .filter-option').forEach(function(opt) {
       opt.addEventListener('click', function(e) {
         if (e.target.classList.contains('filter-icon-btn')) return;
@@ -628,7 +658,6 @@
       });
     });
 
-    // Wire up edit / delete icons
     document.querySelectorAll('#filterMenuInner .filter-icon-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -641,7 +670,6 @@
       });
     });
 
-    // Wire up add category row
     document.getElementById('filterAddRow').addEventListener('click', function(e) {
       e.stopPropagation();
       openCategoryModal();
@@ -745,7 +773,6 @@
       });
   }
 
-  // LINKS
   function fetchLinks() {
     fetch(SB_URL + '/rest/v1/links?order=created_at.desc', { headers: H })
       .then(function(r) { return r.json(); })
@@ -767,7 +794,8 @@
   function applyFilters() {
     var q = document.getElementById('searchInput').value.toLowerCase();
     var filtered = allLinks.slice();
-    if (activeTabId !== 'All') {
+    // Dashboard shows every category as its own section, so the dropdown filter is bypassed there.
+    if (activeTabId !== 'All' && currentView !== 'dash') {
       filtered = filtered.filter(function(l) { return l.category_id === activeTabId; });
     }
     if (q) filtered = filtered.filter(function(l) { return (l.title||'').toLowerCase().indexOf(q) > -1 || (l.url||'').toLowerCase().indexOf(q) > -1; });
@@ -781,6 +809,10 @@
       return;
     }
     var html;
+    if (currentView === 'dash') {
+      renderDashboard(links);
+      return;
+    }
     if (currentView === 'tile') {
       html = '<div class="tiles-grid">';
       for (var i = 0; i < links.length; i++) {
@@ -791,9 +823,9 @@
           '<a class="tile-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
           '<div class="tile-cat">' + esc(catName) + '</div>' +
           '<div class="tile-actions">' +
-            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
-            '<button class="btn-edit" data-id="' + esc(l.id) + '">✎</button>' +
-            '<button class="btn-delete" data-id="' + esc(l.id) + '">✕</button>' +
+            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open &#8599;</a>' +
+            '<button class="btn-edit" data-id="' + esc(l.id) + '">&#9998;</button>' +
+            '<button class="btn-delete" data-id="' + esc(l.id) + '">&#10005;</button>' +
           '</div>' +
         '</div>';
       }
@@ -810,9 +842,9 @@
             '<div class="link-cat">' + esc(catName) + '</div>' +
           '</div>' +
           '<div class="link-actions">' +
-            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open ↗</a>' +
+            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open &#8599;</a>' +
             '<button class="btn-edit" data-id="' + esc(l.id) + '">Edit</button>' +
-            '<button class="btn-delete" data-id="' + esc(l.id) + '">✕</button>' +
+            '<button class="btn-delete" data-id="' + esc(l.id) + '">&#10005;</button>' +
           '</div>' +
         '</div>';
       }
@@ -824,6 +856,77 @@
     });
     document.querySelectorAll('.btn-delete').forEach(function(btn) {
       btn.addEventListener('click', function() { deleteLink(this.getAttribute('data-id')); });
+    });
+  }
+
+  function renderDashboard(links) {
+    // Group by category, in the same order categories appear in allCategories, then uncategorized last.
+    var groups = [];      // [{id, name, color, items:[]}]
+    var groupIndex = {};  // catId -> position in groups
+    for (var i = 0; i < allCategories.length; i++) {
+      var c = allCategories[i];
+      groupIndex[c.id] = groups.length;
+      groups.push({ id: c.id, name: c.name, color: colorForCategory(c.id), items: [] });
+    }
+    var uncat = { id: null, name: 'Uncategorized', color: '#6B7A99', items: [] };
+    for (var j = 0; j < links.length; j++) {
+      var l = links[j];
+      if (l.category_id && groupIndex.hasOwnProperty(l.category_id)) {
+        groups[groupIndex[l.category_id]].items.push(l);
+      } else {
+        uncat.items.push(l);
+      }
+    }
+    if (uncat.items.length) groups.push(uncat);
+
+    var anyShown = groups.some(function(g) { return g.items.length; });
+    if (!anyShown) {
+      document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
+      return;
+    }
+
+    var html = '';
+    for (var g = 0; g < groups.length; g++) {
+      var grp = groups[g];
+      if (!grp.items.length) continue; // hide empty sections (e.g. when searching)
+      html += '<div class="dash-section" style="--sec:' + grp.color + ';">' +
+                '<div class="dash-head">' +
+                  '<span class="dash-dot"></span>' +
+                  '<span class="dash-title">' + esc(grp.name) + '</span>' +
+                  '<span class="dash-count">' + grp.items.length + '</span>' +
+                '</div>' +
+                '<div class="dash-grid">';
+      for (var k = 0; k < grp.items.length; k++) {
+        var it = grp.items[k];
+        var fav = faviconFor(it.url);
+        var icoInner = fav
+          ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(it.title)) + '\';" />'
+          : esc(firstLetter(it.title));
+        html += '<a class="launch" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+                  '<span class="launch-edit">' +
+                    '<button class="launch-mini" data-edit="' + esc(it.id) + '" title="Edit">&#9998;</button>' +
+                    '<button class="launch-mini del" data-del="' + esc(it.id) + '" title="Delete">&#10005;</button>' +
+                  '</span>' +
+                  '<span class="launch-ico">' + icoInner + '</span>' +
+                  '<span class="launch-name">' + esc(it.title) + '</span>' +
+                '</a>';
+      }
+      html += '</div></div>';
+    }
+    document.getElementById('linksList').innerHTML = html;
+
+    // Mini edit/delete buttons sit inside the <a>; stop navigation.
+    document.querySelectorAll('.launch-mini[data-edit]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        openModal(linkMap[this.getAttribute('data-edit')]);
+      });
+    });
+    document.querySelectorAll('.launch-mini[data-del]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        deleteLink(this.getAttribute('data-del'));
+      });
     });
   }
 
