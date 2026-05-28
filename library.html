@@ -214,6 +214,7 @@
   .group-title { font-size: 1.2rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
   .group-count { font-size: 0.72rem; font-weight: 600; color: #fff; background: var(--gc); padding: 2px 9px; border-radius: 11px; }
   .subcat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 0.7rem; }
+  .tool-col .subcat-label:first-of-type { margin-top: 0.25rem; }
   .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
   .cols-2 .group-head { margin-top: 0.5rem; }
   .cols-2 .tools-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
@@ -1364,12 +1365,20 @@
                    '<span class="group-title">' + title + '</span>' +
                    '<span class="group-count">' + (items.length + leadCount) + '</span>' +
                  '</div>';
-      var body = '<div class="tools-grid">';
-      if (leadCardsHTML) body += leadCardsHTML;
-      for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
-      body += '</div>';
-      if (!items.length && !leadCardsHTML) {
-        body = '<div class="recent-empty" style="padding:0.5rem 0;">Nothing tagged ' + title.split(' ')[0].toLowerCase() + ' yet.</div>';
+      var body = '';
+      // Tools section (the in-app feature cards)
+      if (leadCardsHTML) {
+        body += '<div class="subcat-label">Tools</div>' +
+                '<div class="tools-grid">' + leadCardsHTML + '</div>';
+      }
+      // Links section (saved external links)
+      body += '<div class="subcat-label">Links</div>';
+      if (items.length) {
+        body += '<div class="tools-grid">';
+        for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
+        body += '</div>';
+      } else {
+        body += '<div class="recent-empty" style="padding:0.5rem 0;">No links here yet.</div>';
       }
       return '<div class="tool-col">' + head + body + '</div>';
     }
