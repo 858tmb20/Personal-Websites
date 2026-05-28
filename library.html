@@ -454,6 +454,49 @@
   </div>
 </div>
 
+<!-- DOCUMENTATION SCREEN -->
+<div class="screen" id="screen-docs">
+  <header>
+    <div class="header-left">
+      <h1>Documentation</h1>
+      <p>Links to your docs, specs, and references</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" onclick="openDocModal(null)">+ Add Doc</button>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <input type="text" class="search-bar" id="docSearchInput" placeholder="Search documentation..." oninput="renderDocs()">
+    <div class="count" id="docCount"></div>
+    <div id="docsList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- DOCUMENTATION MODAL -->
+<div class="modal-overlay" id="docModalOverlay">
+  <div class="modal">
+    <h2 id="docModalTitle">Add Document</h2>
+    <input type="hidden" id="docEditId" value="">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="docTitleInput" placeholder="e.g. Tealium Integration Spec" />
+    </div>
+    <div class="field">
+      <label>Link</label>
+      <input type="text" id="docUrlInput" placeholder="https://docs.google.com/..." />
+    </div>
+    <div class="field">
+      <label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
+      <input type="text" id="docNoteInput" placeholder="Short description" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveDoc()">Save</button>
+      <button class="btn-cancel" onclick="closeDocModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- LINK MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -1179,25 +1222,35 @@
         '<span class="tool-desc">Track what needs deploying, what\'s in progress, and what\'s done.</span>' +
       '</a>';
 
-    function column(title, color, items, leadCard) {
+    // Special in-app card: Documentation (opens the docs list, not a URL).
+    var docsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs();" style="--tc:#0891B2;--tc-soft:#0891B222;">' +
+        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Work</span>' +
+        '<span class="tool-name">Documentation</span>' +
+        '<span class="tool-desc">Links to your docs, specs, and references.</span>' +
+      '</a>';
+
+    var leadCards = trackerCard + docsCard;
+
+    function column(title, color, items, leadCardsHTML, leadCount) {
+      leadCount = leadCount || 0;
       var head = '<div class="group-head" style="--gc:' + color + ';">' +
                    '<span class="group-bar"></span>' +
                    '<span class="group-title">' + title + '</span>' +
-                   '<span class="group-count">' + (items.length + (leadCard ? 1 : 0)) + '</span>' +
+                   '<span class="group-count">' + (items.length + leadCount) + '</span>' +
                  '</div>';
       var body = '<div class="tools-grid">';
-      if (leadCard) body += leadCard;
+      if (leadCardsHTML) body += leadCardsHTML;
       for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
       body += '</div>';
-      if (!items.length && !leadCard) {
+      if (!items.length && !leadCardsHTML) {
         body = '<div class="recent-empty" style="padding:0.5rem 0;">Nothing tagged ' + title.split(' ')[0].toLowerCase() + ' yet.</div>';
       }
       return '<div class="tool-col">' + head + body + '</div>';
     }
 
     return '<div class="cols-2">' +
-             column('Work Tools', '#1F6FEB', workLinks, trackerCard) +
-             column('Personal Tools', '#9333EA', personalLinks, null) +
+             column('Work Tools', '#1F6FEB', workLinks, leadCards, 2) +
+             column('Personal Tools', '#9333EA', personalLinks, null, 0) +
            '</div>';
   }
 
@@ -1423,12 +1476,13 @@
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
+  document.getElementById('docModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDocModal(); });
   document.addEventListener('click', function(e) {
     var wrap = document.querySelector('.filter-wrap');
     if (wrap && !wrap.contains(e.target)) closeFilterMenu();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); }
     // Press "/" to jump to search — but not while typing in a field or a modal is open.
     if (e.key === '/' &&
         document.getElementById('screen-library').classList.contains('active') &&
@@ -1446,6 +1500,108 @@
       if (document.getElementById('categoryModalOverlay').classList.contains('open')) saveCategory();
     }
   });
+
+  // ===== DOCUMENTATION =====
+  var allDocs = [];
+
+  function openDocs() {
+    showScreen('screen-docs');
+    fetchDocs();
+  }
+
+  function fetchDocs() {
+    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        allDocs = Array.isArray(data) ? data : [];
+        renderDocs();
+      })
+      .catch(function() {
+        document.getElementById('docsList').innerHTML = '<div class="board-empty">Could not load. Is the "documents" table created?</div>';
+      });
+  }
+
+  function renderDocs() {
+    var q = (document.getElementById('docSearchInput').value || '').toLowerCase();
+    var list = allDocs.filter(function(d) {
+      if (!q) return true;
+      return (d.title || '').toLowerCase().indexOf(q) > -1 ||
+             (d.url || '').toLowerCase().indexOf(q) > -1 ||
+             (d.note || '').toLowerCase().indexOf(q) > -1;
+    });
+    document.getElementById('docCount').textContent = list.length + ' document' + (list.length !== 1 ? 's' : '');
+    if (!list.length) {
+      document.getElementById('docsList').innerHTML = allDocs.length
+        ? '<div class="empty"><strong>No matches</strong>Try a different search.</div>'
+        : '<div class="empty"><strong>No documents yet</strong>Hit "+ Add Doc" to save your first one.</div>';
+      return;
+    }
+    var html = '<div class="links-list">';
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      var fav = faviconFor(d.url);
+      var favInner = fav
+        ? '<img src="' + esc(fav) + '" alt="" style="width:16px;height:16px;" onerror="this.style.display=\'none\';" />'
+        : '';
+      html += '<div class="link-item">' +
+                '<div class="link-info">' +
+                  '<div class="link-title">' + esc(d.title) + '</div>' +
+                  '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.url) + '</a>' +
+                  (d.note ? '<div class="link-cat" style="text-transform:none;letter-spacing:0;">' + esc(d.note) + '</div>' : '') +
+                '</div>' +
+                '<div class="link-actions">' +
+                  '<a class="btn-open" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' +
+                  '<button class="btn-edit" data-docedit="' + esc(d.id) + '">Edit</button>' +
+                  '<button class="btn-delete" data-docdel="' + esc(d.id) + '">&#10005;</button>' +
+                '</div>' +
+              '</div>';
+    }
+    html += '</div>';
+    document.getElementById('docsList').innerHTML = html;
+    document.querySelectorAll('.btn-edit[data-docedit]').forEach(function(b) {
+      b.addEventListener('click', function() { openDocModal(findDoc(this.getAttribute('data-docedit'))); });
+    });
+    document.querySelectorAll('.btn-delete[data-docdel]').forEach(function(b) {
+      b.addEventListener('click', function() { deleteDoc(this.getAttribute('data-docdel')); });
+    });
+  }
+
+  function findDoc(id) { for (var i = 0; i < allDocs.length; i++) { if (allDocs[i].id === id) return allDocs[i]; } return null; }
+
+  function openDocModal(d) {
+    document.getElementById('docEditId').value = d ? d.id : '';
+    document.getElementById('docModalTitle').textContent = d ? 'Edit Document' : 'Add Document';
+    document.getElementById('docTitleInput').value = d ? d.title : '';
+    document.getElementById('docUrlInput').value = d ? d.url : '';
+    document.getElementById('docNoteInput').value = (d && d.note) ? d.note : '';
+    document.getElementById('docModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('docTitleInput').focus(); }, 100);
+  }
+  function closeDocModal() { document.getElementById('docModalOverlay').classList.remove('open'); }
+
+  function saveDoc() {
+    var title = document.getElementById('docTitleInput').value.trim();
+    var url = document.getElementById('docUrlInput').value.trim();
+    var note = document.getElementById('docNoteInput').value.trim();
+    var editId = document.getElementById('docEditId').value;
+    if (!title || !url) { showToast('Fill in title and link'); return; }
+    var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/documents?id=eq.' + editId : SB_URL + '/rest/v1/documents';
+    fetch(endpoint, {
+      method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ title: title, url: fullUrl, note: note || null })
+    }).then(function(res) {
+      if (res.ok) { closeDocModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchDocs(); }
+      else { showToast('Error saving — is the "documents" table created?'); }
+    });
+  }
+
+  function deleteDoc(id) {
+    if (!confirm('Delete this document?')) return;
+    fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H })
+      .then(function() { showToast('Deleted'); fetchDocs(); });
+  }
 
   // ===== DEPLOYMENT TRACKER =====
   var DEPLOY_COLS = [
