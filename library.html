@@ -163,6 +163,51 @@
   .st-deployed { background: #E7F6EC; color: #15803D; border-color: #BBE6C7; }
   .st-blocked { background: #FBE9E9; color: #C0322B; border-color: #F3C9C7; }
 
+  /* HOME VIEW */
+  .home-greet { font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.5rem; }
+  .home-greet .acc { color: var(--link); }
+  .home-status { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--muted); margin-bottom: 1.75rem; }
+  .home-status .live { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(22,163,74,0.15); }
+  .home-top { display: grid; grid-template-columns: 1.9fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+  @media (max-width: 760px) { .home-top { grid-template-columns: 1fr; } }
+
+  .hero { position: relative; border-radius: 14px; padding: 2rem; min-height: 230px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; text-decoration: none; background: linear-gradient(135deg, #0F1F3D 0%, #16335E 55%, #1E4A86 100%); box-shadow: 0 10px 30px rgba(15,31,61,0.18); }
+  .hero::after { content: ''; position: absolute; top: -40%; right: -10%; width: 60%; height: 140%; background: radial-gradient(circle, rgba(63,131,248,0.35) 0%, rgba(63,131,248,0) 70%); pointer-events: none; }
+  .hero-eyebrow { position: relative; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8FB6F0; margin-bottom: 0.6rem; }
+  .hero-title { position: relative; font-size: 2rem; font-weight: 800; line-height: 1.05; color: #fff; margin-bottom: 0.7rem; }
+  .hero-sub { position: relative; font-size: 0.9rem; color: #C5D6F0; margin-bottom: 1.3rem; max-width: 90%; }
+  .hero-cta { position: relative; display: inline-flex; align-items: center; gap: 0.5rem; align-self: flex-start; background: #fff; color: var(--ink); font-size: 0.85rem; font-weight: 600; padding: 0.7rem 1.2rem; border-radius: 30px; transition: transform 0.12s, box-shadow 0.15s; }
+  .hero:hover .hero-cta { transform: translateX(3px); box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+  .hero-empty { color: #C5D6F0; }
+
+  .recent-card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 1.3rem; display: flex; flex-direction: column; }
+  .recent-head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
+  .recent-head .rdot { width: 16px; height: 16px; border-radius: 5px; background: #E9F0FD; display: flex; align-items: center; justify-content: center; color: var(--link); font-size: 0.6rem; }
+  .recent-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0; border-bottom: 1px solid var(--rule-soft); text-decoration: none; }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-fav { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); font-size: 0.7rem; font-weight: 700; color: var(--muted); overflow: hidden; }
+  .recent-fav img { width: 16px; height: 16px; }
+  .recent-info { min-width: 0; flex: 1; }
+  .recent-title { font-size: 0.82rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recent-meta { font-size: 0.7rem; color: var(--muted-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recent-empty { font-size: 0.83rem; color: var(--muted); padding: 0.5rem 0; }
+
+  .home-tools-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+  .home-tools-bar { width: 4px; height: 18px; border-radius: 2px; background: var(--link); }
+  .home-tools-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 0.85rem; }
+  .tool-card { position: relative; background: var(--card); border: 1px solid var(--rule); border-top: 3px solid var(--tc); border-radius: 10px; padding: 1.1rem; text-decoration: none; display: flex; flex-direction: column; min-height: 132px; transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s; }
+  .tool-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,31,61,0.1); }
+  .tool-eyebrow { display: flex; align-items: center; gap: 0.45rem; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--tc); margin-bottom: 0.7rem; }
+  .tool-chip { width: 26px; height: 26px; border-radius: 7px; background: var(--tc-soft); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .tool-chip img { width: 16px; height: 16px; }
+  .tool-chip span { font-size: 0.72rem; font-weight: 700; color: var(--tc); }
+  .tool-name { font-size: 0.92rem; font-weight: 700; color: var(--ink); margin-bottom: 0.35rem; line-height: 1.25; }
+  .tool-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.45; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tool-edit { position: absolute; top: 0.55rem; right: 0.55rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
+  .tool-card:hover .tool-edit { opacity: 1; }
+  @media (max-width: 600px) { .tools-grid { grid-template-columns: 1fr; } }
+
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
   .admin-section { margin-bottom: 2.5rem; }
@@ -259,7 +304,8 @@
     </div>
     <div class="header-right">
       <div class="view-toggle">
-        <button class="view-btn active" id="viewBtnDash" onclick="setView('dash')" title="Dashboard view">&#9783;</button>
+        <button class="view-btn active" id="viewBtnHome" onclick="setView('home')" title="Home">&#8962;</button>
+        <button class="view-btn" id="viewBtnDash" onclick="setView('dash')" title="Dashboard view">&#9783;</button>
         <button class="view-btn" id="viewBtnList" onclick="setView('list')" title="List view">&#9776;</button>
         <button class="view-btn" id="viewBtnTile" onclick="setView('tile')" title="Tile view">&#9638;</button>
       </div>
@@ -337,6 +383,10 @@
       <input type="text" id="urlInput" placeholder="https://..." />
     </div>
     <div class="field">
+      <label>Description <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
+      <textarea id="descInput" placeholder="A short line about what this is..."></textarea>
+    </div>
+    <div class="field">
       <label>Category</label>
       <select id="categoryInput"></select>
     </div>
@@ -377,7 +427,7 @@
   var linkMap = {};
   var catMap = {};
   var currentEmail = '';
-  var currentView = localStorage.getItem('lib_view') || 'dash'; // 'dash' | 'list' | 'tile'
+  var currentView = localStorage.getItem('lib_view') || 'home'; // 'home' | 'dash' | 'list' | 'tile'
 
   // Section accent palette — assigned by category position, stays consistent per category.
   var SECTION_COLORS = ['#1F6FEB','#16A34A','#9333EA','#EA580C','#0891B2','#DB2777','#CA8A04','#4F46E5','#059669','#DC2626','#7C3AED','#0D9488'];
@@ -469,13 +519,18 @@
   }
 
   function applyViewButtons() {
+    document.getElementById('viewBtnHome').classList.toggle('active', currentView === 'home');
     document.getElementById('viewBtnDash').classList.toggle('active', currentView === 'dash');
     document.getElementById('viewBtnList').classList.toggle('active', currentView === 'list');
     document.getElementById('viewBtnTile').classList.toggle('active', currentView === 'tile');
-    // The category dropdown is a single-category filter; in the dashboard every
-    // category is already shown as its own section, so the dropdown is hidden there.
+    // The category dropdown is a single-category filter; hidden where every category shows at once.
     var fr = document.getElementById('filterRow');
-    if (fr) fr.style.display = (currentView === 'dash') ? 'none' : 'block';
+    if (fr) fr.style.display = (currentView === 'dash' || currentView === 'home') ? 'none' : 'block';
+    // Search and count are irrelevant on the home landing view.
+    var sb = document.getElementById('searchInput');
+    var ct = document.getElementById('count');
+    if (sb) sb.style.display = (currentView === 'home') ? 'none' : 'block';
+    if (ct) ct.style.display = (currentView === 'home') ? 'none' : 'block';
   }
 
   function signOut() {
@@ -844,15 +899,14 @@
 
   function renderLinks(links) {
     document.getElementById('count').textContent = links.length + ' resource' + (links.length !== 1 ? 's' : '');
+    // Home and dashboard render their own structure (and their own empty states).
+    if (currentView === 'home') { renderHome(links); return; }
+    if (currentView === 'dash') { renderDashboard(links); return; }
     if (!links.length) {
       document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
       return;
     }
     var html;
-    if (currentView === 'dash') {
-      renderDashboard(links);
-      return;
-    }
     if (currentView === 'tile') {
       html = '<div class="tiles-grid">';
       for (var i = 0; i < links.length; i++) {
@@ -896,6 +950,133 @@
     });
     document.querySelectorAll('.btn-delete').forEach(function(btn) {
       btn.addEventListener('click', function() { deleteLink(this.getAttribute('data-id')); });
+    });
+  }
+
+  function greetingWord() {
+    var h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  function ownerFirstName() {
+    // Use the part of the owner email before any dot/number, capitalized. Falls back to "there".
+    var base = (currentEmail || '').split('@')[0] || '';
+    base = base.replace(/[0-9]+$/, '').split(/[._-]/)[0];
+    if (!base) return 'there';
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return '';
+    var then = new Date(iso).getTime();
+    if (isNaN(then)) return '';
+    var s = Math.floor((Date.now() - then) / 1000);
+    if (s < 60) return 'just now';
+    var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+    var hr = Math.floor(m / 60); if (hr < 24) return hr + 'h ago';
+    var d = Math.floor(hr / 24); if (d < 7) return d + 'd ago';
+    var w = Math.floor(d / 7); if (w < 5) return w + 'w ago';
+    return new Date(iso).toLocaleDateString();
+  }
+
+  function renderHome(allLinksArg) {
+    // Home always reflects the whole library, not the dropdown filter.
+    var links = allLinks.slice();
+    var total = links.length;
+
+    // Hero target: top pinned, else most recent (links are fetched newest-first).
+    var pinned = links.filter(function(l) { return l.pinned; });
+    var heroLink = pinned.length ? pinned[0] : (links.length ? links[0] : null);
+
+    // Recent activity: newest 5.
+    var recent = links.slice(0, 5);
+
+    var greet = '<div class="home-greet">' + greetingWord() + ', <span class="acc">' + esc(ownerFirstName()) + '.</span></div>';
+    var statusLine = '<div class="home-status"><span class="live"></span>' +
+      (total ? ('all ' + total + ' tool' + (total !== 1 ? 's' : '') + ' operational') : 'ready when you are') + '</div>';
+
+    // Hero card
+    var hero;
+    if (heroLink) {
+      hero = '<a class="hero" href="' + esc(heroLink.url) + '" target="_blank" rel="noopener">' +
+               '<div class="hero-eyebrow">' + (pinned.length ? 'Pick up where you left off' : 'Most recent') + '</div>' +
+               '<div class="hero-title">' + esc(heroLink.title) + '</div>' +
+               (heroLink.description ? '<div class="hero-sub">' + esc(heroLink.description) + '</div>' : '<div class="hero-sub">' + esc(heroLink.url) + '</div>') +
+               '<span class="hero-cta">Open ' + (pinned.length ? '' : 'latest ') + '&rarr;</span>' +
+             '</a>';
+    } else {
+      hero = '<div class="hero">' +
+               '<div class="hero-eyebrow">Welcome</div>' +
+               '<div class="hero-title">Your library is empty</div>' +
+               '<div class="hero-sub hero-empty">Hit &ldquo;+ Add Link&rdquo; up top to save your first resource. Pin one and it shows up right here.</div>' +
+             '</div>';
+    }
+
+    // Recent activity card
+    var recentInner = '';
+    if (recent.length) {
+      for (var i = 0; i < recent.length; i++) {
+        var r = recent[i];
+        var fav = faviconFor(r.url);
+        var favInner = fav
+          ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(r.title)) + '\';" />'
+          : esc(firstLetter(r.title));
+        var meta = (r.category_id && catMap[r.category_id]) ? catMap[r.category_id] : '';
+        var ago = timeAgo(r.created_at);
+        if (ago) meta = meta ? (meta + ' · ' + ago) : ago;
+        recentInner += '<a class="recent-item" href="' + esc(r.url) + '" target="_blank" rel="noopener">' +
+                         '<span class="recent-fav">' + favInner + '</span>' +
+                         '<span class="recent-info">' +
+                           '<span class="recent-title">' + esc(r.title) + '</span>' +
+                           '<span class="recent-meta">' + esc(meta) + '</span>' +
+                         '</span>' +
+                       '</a>';
+      }
+    } else {
+      recentInner = '<div class="recent-empty">Nothing added yet.</div>';
+    }
+    var recentCard = '<div class="recent-card">' +
+        '<div class="recent-head"><span class="rdot">&#9737;</span> Recent activity</div>' +
+        recentInner +
+      '</div>';
+
+    // Tool grid (his "All tools" style), newest first, with category eyebrow + description
+    var toolsInner = '';
+    for (var j = 0; j < links.length; j++) {
+      var l = links[j];
+      var color = colorForCategory(l.category_id);
+      var catName = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Uncategorized';
+      var fav2 = faviconFor(l.url);
+      var chipInner = fav2
+        ? '<img src="' + esc(fav2) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />'
+        : '<span>' + esc(firstLetter(l.title)) + '</span>';
+      var desc = l.description ? esc(l.description) : esc(l.url);
+      toolsInner += '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
+          '<span class="tool-edit">' +
+            '<button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button>' +
+            '<button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button>' +
+          '</span>' +
+          '<span class="tool-eyebrow"><span class="tool-chip">' + chipInner + '</span>' + esc(catName) + '</span>' +
+          '<span class="tool-name">' + esc(l.title) + '</span>' +
+          '<span class="tool-desc">' + desc + '</span>' +
+        '</a>';
+    }
+    var toolsSection = '<div class="home-tools-head"><span class="home-tools-bar"></span><span class="home-tools-title">All tools</span></div>' +
+      (links.length ? ('<div class="tools-grid">' + toolsInner + '</div>') : '');
+
+    document.getElementById('linksList').innerHTML =
+      greet + statusLine +
+      '<div class="home-top">' + hero + recentCard + '</div>' +
+      toolsSection;
+
+    // Wire edit/delete on tool cards
+    document.querySelectorAll('.tool-edit .launch-mini[data-edit]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openModal(linkMap[this.getAttribute('data-edit')]); });
+    });
+    document.querySelectorAll('.tool-edit .launch-mini[data-del]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); deleteLink(this.getAttribute('data-del')); });
     });
   }
 
@@ -1069,6 +1250,7 @@
     document.getElementById('modalTitle').textContent = link ? 'Edit Resource' : 'Add a Resource';
     document.getElementById('titleInput').value = link ? link.title : '';
     document.getElementById('urlInput').value = link ? link.url : '';
+    document.getElementById('descInput').value = (link && link.description) ? link.description : '';
     var sel = document.getElementById('categoryInput');
     if (link && link.category_id) {
       sel.value = link.category_id;
@@ -1084,6 +1266,7 @@
   function saveLink() {
     var title = document.getElementById('titleInput').value.trim();
     var url = document.getElementById('urlInput').value.trim();
+    var description = document.getElementById('descInput').value.trim();
     var category_id = document.getElementById('categoryInput').value || null;
     var editId = document.getElementById('editId').value;
     if (!title || !url) { showToast('Fill in both fields'); return; }
@@ -1093,7 +1276,7 @@
     fetch(endpoint, {
       method: method,
       headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, url: fullUrl, category_id: category_id })
+      body: JSON.stringify({ title: title, url: fullUrl, description: description || null, category_id: category_id })
     }).then(function(res) {
       if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); }
       else { showToast('Error saving'); }
