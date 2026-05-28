@@ -244,6 +244,28 @@
   .dcard-mini.del:hover { color: var(--danger); border-color: var(--danger); }
   .board-empty { font-size: 0.78rem; color: var(--muted-soft); text-align: center; padding: 1.5rem 0.5rem; }
 
+  /* PLANNER */
+  .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; align-items: start; }
+  @media (max-width: 1100px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .planner-grid { grid-template-columns: 1fr; } }
+  .pday { background: var(--card); border: 1px solid var(--rule); border-radius: 11px; padding: 0.85rem; min-height: 180px; display: flex; flex-direction: column; }
+  .pday.is-today { border-color: var(--link); box-shadow: 0 0 0 2px rgba(31,111,235,0.15); }
+  .pday.is-weekend { background: #FBFCFE; }
+  .pday-head { display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 0.7rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--rule-soft); }
+  .pday-num { font-size: 1.25rem; font-weight: 800; color: var(--ink); line-height: 1; }
+  .pday.is-today .pday-num { color: var(--link); }
+  .pday-dow { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .pday-items { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; }
+  .pitem { position: relative; background: var(--bg); border-radius: 7px; padding: 0.5rem 0.6rem; padding-right: 1.6rem; cursor: pointer; transition: background 0.12s; }
+  .pitem:hover { background: #E9F0FD; }
+  .pitem-time { font-size: 0.68rem; font-weight: 700; color: var(--link); margin-bottom: 0.1rem; }
+  .pitem-title { font-size: 0.78rem; color: var(--ink); line-height: 1.3; word-break: break-word; }
+  .pitem-del { position: absolute; top: 0.35rem; right: 0.35rem; width: 18px; height: 18px; padding: 0; border: none; background: none; color: var(--muted-soft); font-size: 0.7rem; cursor: pointer; line-height: 1; opacity: 0; border-radius: 4px; }
+  .pitem:hover .pitem-del { opacity: 1; }
+  .pitem-del:hover { color: var(--danger); }
+  .pday-add { margin-top: 0.5rem; padding: 0.4rem; background: none; border: 1px dashed var(--rule); border-radius: 6px; color: var(--muted); font-size: 0.74rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+  .pday-add:hover { border-color: var(--link); color: var(--link); }
+
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
   .admin-section { margin-bottom: 2.5rem; }
@@ -493,6 +515,48 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDoc()">Save</button>
       <button class="btn-cancel" onclick="closeDocModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLANNER SCREEN -->
+<div class="screen" id="screen-planner">
+  <header>
+    <div class="header-left">
+      <h1 id="plannerMonthLabel">Planner</h1>
+      <p id="plannerWeekLabel"></p>
+    </div>
+    <div class="header-right">
+      <div class="view-toggle">
+        <button class="view-btn" onclick="plannerShift(-1)" title="Previous week">&larr;</button>
+        <button class="view-btn" onclick="plannerToday()" title="This week">Today</button>
+        <button class="view-btn" onclick="plannerShift(1)" title="Next week">&rarr;</button>
+      </div>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <div id="plannerGrid"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- PLANNER ITEM MODAL -->
+<div class="modal-overlay" id="planModalOverlay">
+  <div class="modal">
+    <h2 id="planModalTitle">Add to Planner</h2>
+    <input type="hidden" id="planEditId" value="">
+    <input type="hidden" id="planDate" value="">
+    <div class="field">
+      <label id="planDateLabel">Item</label>
+      <input type="text" id="planTitleInput" placeholder="e.g. Volleyball at the gym" />
+    </div>
+    <div class="field">
+      <label>Time <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
+      <input type="time" id="planTimeInput" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="savePlan()">Save</button>
+      <button class="btn-cancel" onclick="closePlanModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1239,6 +1303,14 @@
       '</a>';
     var personalLeadCards = personalDocsCard;
 
+    // Special in-app card: Planner (weekly view).
+    var plannerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openPlanner();" style="--tc:#DB2777;--tc-soft:#DB277722;">' +
+        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128197;</span></span>Personal</span>' +
+        '<span class="tool-name">Planner</span>' +
+        '<span class="tool-desc">Plan your week. Add items to any day.</span>' +
+      '</a>';
+    personalLeadCards = plannerCard + personalDocsCard;
+
     function column(title, color, items, leadCardsHTML, leadCount) {
       leadCount = leadCount || 0;
       var head = '<div class="group-head" style="--gc:' + color + ';">' +
@@ -1258,7 +1330,7 @@
 
     return '<div class="cols-2">' +
              column('Work Tools', '#1F6FEB', workLinks, leadCards, 2) +
-             column('Personal Tools and Links', '#9333EA', personalLinks, personalLeadCards, 1) +
+             column('Personal Tools and Links', '#9333EA', personalLinks, personalLeadCards, 2) +
            '</div>';
   }
 
@@ -1485,12 +1557,13 @@
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('docModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDocModal(); });
+  document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.addEventListener('click', function(e) {
     var wrap = document.querySelector('.filter-wrap');
     if (wrap && !wrap.contains(e.target)) closeFilterMenu();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); closePlanModal(); }
     // Press "/" to jump to search — but not while typing in a field or a modal is open.
     if (e.key === '/' &&
         document.getElementById('screen-library').classList.contains('active') &&
@@ -1508,6 +1581,162 @@
       if (document.getElementById('categoryModalOverlay').classList.contains('open')) saveCategory();
     }
   });
+
+  // ===== PLANNER =====
+  var allPlans = [];
+  var plannerWeekStart = null; // Date object = Monday of current week
+
+  function startOfWeek(d) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = (x.getDay() + 6) % 7; // Monday = 0
+    x.setDate(x.getDate() - day);
+    return x;
+  }
+  function ymd(d) {
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+  function fmtTime(t) {
+    if (!t) return '';
+    var parts = t.split(':');
+    if (parts.length < 2) return t;
+    var h = parseInt(parts[0], 10), min = parts[1];
+    var ap = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ':' + min + ' ' + ap;
+  }
+
+  function openPlanner() {
+    if (!plannerWeekStart) plannerWeekStart = startOfWeek(new Date());
+    showScreen('screen-planner');
+    fetchPlans();
+  }
+  function plannerShift(weeks) {
+    plannerWeekStart.setDate(plannerWeekStart.getDate() + weeks * 7);
+    plannerWeekStart = new Date(plannerWeekStart);
+    fetchPlans();
+  }
+  function plannerToday() {
+    plannerWeekStart = startOfWeek(new Date());
+    fetchPlans();
+  }
+
+  function fetchPlans() {
+    var start = ymd(plannerWeekStart);
+    var endD = new Date(plannerWeekStart); endD.setDate(endD.getDate() + 6);
+    var end = ymd(endD);
+    fetch(SB_URL + '/rest/v1/planner?day=gte.' + start + '&day=lte.' + end + '&order=time.asc', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        allPlans = Array.isArray(data) ? data : [];
+        renderPlanner();
+      })
+      .catch(function() {
+        document.getElementById('plannerGrid').innerHTML = '<div class="board-empty">Could not load. Is the "planner" table created?</div>';
+      });
+  }
+
+  function renderPlanner() {
+    var DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var todayStr = ymd(new Date());
+    var endD = new Date(plannerWeekStart); endD.setDate(endD.getDate() + 6);
+
+    // Header labels
+    var startMonth = MON[plannerWeekStart.getMonth()];
+    var endMonth = MON[endD.getMonth()];
+    var label = startMonth + ' ' + plannerWeekStart.getFullYear();
+    document.getElementById('plannerMonthLabel').textContent = label;
+    var range = (startMonth === endMonth)
+      ? (startMonth + ' ' + plannerWeekStart.getDate() + '–' + endD.getDate())
+      : (startMonth + ' ' + plannerWeekStart.getDate() + ' – ' + endMonth + ' ' + endD.getDate());
+    document.getElementById('plannerWeekLabel').textContent = range;
+
+    var html = '<div class="planner-grid">';
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(plannerWeekStart); d.setDate(d.getDate() + i);
+      var ds = ymd(d);
+      var items = allPlans.filter(function(p) { return p.day === ds; });
+      var isToday = ds === todayStr;
+      var isWeekend = (i >= 5);
+      html += '<div class="pday' + (isToday ? ' is-today' : '') + (isWeekend ? ' is-weekend' : '') + '">' +
+                '<div class="pday-head">' +
+                  '<span class="pday-num">' + d.getDate() + '</span>' +
+                  '<span class="pday-dow">' + DOW[i] + '</span>' +
+                '</div>' +
+                '<div class="pday-items">';
+      for (var k = 0; k < items.length; k++) {
+        var it = items[k];
+        html += '<div class="pitem" data-pedit="' + esc(it.id) + '">' +
+                  (it.time ? '<div class="pitem-time">' + esc(fmtTime(it.time)) + '</div>' : '') +
+                  '<div class="pitem-title">' + esc(it.title) + '</div>' +
+                  '<button class="pitem-del" data-pdel="' + esc(it.id) + '" title="Delete">&#10005;</button>' +
+                '</div>';
+      }
+      html += '</div>' +
+              '<button class="pday-add" data-padd="' + ds + '">+ Add</button>' +
+            '</div>';
+    }
+    html += '</div>';
+    document.getElementById('plannerGrid').innerHTML = html;
+
+    document.querySelectorAll('.pday-add[data-padd]').forEach(function(b) {
+      b.addEventListener('click', function() { openPlanModal(null, this.getAttribute('data-padd')); });
+    });
+    document.querySelectorAll('.pitem[data-pedit]').forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        if (e.target.classList.contains('pitem-del')) return;
+        openPlanModal(findPlan(this.getAttribute('data-pedit')), null);
+      });
+    });
+    document.querySelectorAll('.pitem-del[data-pdel]').forEach(function(b) {
+      b.addEventListener('click', function(e) { e.stopPropagation(); deletePlan(this.getAttribute('data-pdel')); });
+    });
+  }
+
+  function findPlan(id) { for (var i = 0; i < allPlans.length; i++) { if (allPlans[i].id === id) return allPlans[i]; } return null; }
+
+  function openPlanModal(p, dateStr) {
+    document.getElementById('planEditId').value = p ? p.id : '';
+    document.getElementById('planDate').value = p ? p.day : (dateStr || '');
+    document.getElementById('planModalTitle').textContent = p ? 'Edit Planner Item' : 'Add to Planner';
+    document.getElementById('planTitleInput').value = p ? p.title : '';
+    document.getElementById('planTimeInput').value = (p && p.time) ? p.time.slice(0,5) : '';
+    // Friendly date label
+    var dParts = (p ? p.day : dateStr).split('-');
+    var dObj = new Date(parseInt(dParts[0],10), parseInt(dParts[1],10)-1, parseInt(dParts[2],10));
+    var DOWf = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var MONf = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('planDateLabel').textContent = DOWf[dObj.getDay()] + ', ' + MONf[dObj.getMonth()] + ' ' + dObj.getDate();
+    document.getElementById('planModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('planTitleInput').focus(); }, 100);
+  }
+  function closePlanModal() { document.getElementById('planModalOverlay').classList.remove('open'); }
+
+  function savePlan() {
+    var title = document.getElementById('planTitleInput').value.trim();
+    var time = document.getElementById('planTimeInput').value || null;
+    var day = document.getElementById('planDate').value;
+    var editId = document.getElementById('planEditId').value;
+    if (!title) { showToast('Enter something'); return; }
+    if (!day) { showToast('No date set'); return; }
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/planner?id=eq.' + editId : SB_URL + '/rest/v1/planner';
+    fetch(endpoint, {
+      method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ title: title, time: time, day: day })
+    }).then(function(res) {
+      if (res.ok) { closePlanModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchPlans(); }
+      else { showToast('Error saving — is the "planner" table created?'); }
+    });
+  }
+
+  function deletePlan(id) {
+    if (!confirm('Delete this item?')) return;
+    fetch(SB_URL + '/rest/v1/planner?id=eq.' + id, { method: 'DELETE', headers: H })
+      .then(function() { showToast('Deleted'); fetchPlans(); });
+  }
 
   // ===== DOCUMENTATION =====
   var allDocs = [];
