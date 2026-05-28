@@ -134,17 +134,34 @@
   .dash-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); }
   .dash-count { font-size: 0.72rem; font-weight: 600; color: #fff; background: var(--sec); padding: 1px 8px; border-radius: 10px; }
   .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.7rem; }
-  .launch { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--sec); border-radius: var(--radius); padding: 0.95rem; min-height: 116px; display: flex; flex-direction: column; cursor: pointer; text-decoration: none; transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s; }
+  .launch { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--sec); border-radius: var(--radius); padding: 0.95rem; padding-top: 2.1rem; min-height: 124px; display: flex; flex-direction: column; cursor: pointer; text-decoration: none; transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s; }
   .launch:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,31,61,0.12); border-color: var(--muted-soft); border-left-color: var(--sec); }
   .launch-ico { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 700; color: #fff; background: var(--sec); margin-bottom: 0.7rem; flex-shrink: 0; overflow: hidden; }
   .launch-ico img { width: 24px; height: 24px; display: block; }
   .launch-name { font-size: 0.83rem; font-weight: 600; color: var(--ink); line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .launch-edit { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
+  .launch-edit { position: absolute; top: 0.55rem; right: 0.55rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
   .launch:hover .launch-edit { opacity: 1; }
   .launch-mini { width: 22px; height: 22px; padding: 0; border: 1px solid var(--rule); background: var(--card); color: var(--muted); border-radius: 5px; font-size: 0.66rem; cursor: pointer; font-family: inherit; line-height: 1; display: flex; align-items: center; justify-content: center; }
   .launch-mini:hover { color: var(--link); border-color: var(--link); }
   .launch-mini.del:hover { color: var(--danger); border-color: var(--danger); }
   @media (max-width: 600px) { .dash-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } }
+
+  /* PINNED STRIP */
+  .pin-section { margin-bottom: 2rem; --sec: #F59E0B; }
+  .launch-star { position: absolute; top: 0.5rem; left: 0.6rem; width: 24px; height: 24px; padding: 0; border: none; background: none; color: var(--muted-soft); font-size: 1.05rem; cursor: pointer; line-height: 1; opacity: 0; transition: opacity 0.12s, color 0.12s; display: flex; align-items: center; justify-content: center; }
+  .launch:hover .launch-star { opacity: 1; }
+  .launch-star.pinned { opacity: 1; color: #F59E0B; }
+  .launch-star:hover { color: #F59E0B; }
+
+  /* DEPLOYMENT STATUS PILL */
+  .launch-status { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.55rem; padding: 0.22rem 0.6rem; border-radius: 20px; font-size: 0.68rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; align-self: flex-start; max-width: 100%; transition: filter 0.12s; user-select: none; }
+  .launch-status:hover { filter: brightness(0.96); }
+  .launch-status .sdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: currentColor; }
+  .launch-status .slabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .st-needs { background: #F1F3F7; color: #6B7A99; border-color: #E3E7EE; }
+  .st-progress { background: #FEF6E0; color: #B7791F; border-color: #FBE6B0; }
+  .st-deployed { background: #E7F6EC; color: #15803D; border-color: #BBE6C7; }
+  .st-blocked { background: #FBE9E9; color: #C0322B; border-color: #F3C9C7; }
 
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
@@ -268,7 +285,7 @@
         </div>
       </div>
     </div>
-    <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL..." oninput="applyFilters()">
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL...  (press / to jump here)" oninput="applyFilters()">
     <div class="count" id="count"></div>
     <div id="linksList"><div class="loading">Loading...</div></div>
   </div>
@@ -378,6 +395,29 @@
   function firstLetter(title) {
     var t = (title || '').trim();
     return t ? t.charAt(0).toUpperCase() : '#';
+  }
+
+  // Deployment status: only shown on tiles whose category is named exactly this.
+  var DEPLOY_CATEGORY_NAME = 'Deployment Status';
+  // Ordered cycle. status value stored on the link; click advances to next.
+  var STATUS_STAGES = [
+    { key: 'needs',    label: 'Needs deployed', cls: 'st-needs' },
+    { key: 'progress', label: 'In progress',    cls: 'st-progress' },
+    { key: 'deployed', label: 'Deployed',       cls: 'st-deployed' },
+    { key: 'blocked',  label: 'Blocked',        cls: 'st-blocked' }
+  ];
+  function statusByKey(key) {
+    for (var i = 0; i < STATUS_STAGES.length; i++) { if (STATUS_STAGES[i].key === key) return STATUS_STAGES[i]; }
+    return STATUS_STAGES[0]; // default = needs deployed
+  }
+  function nextStatusKey(key) {
+    for (var i = 0; i < STATUS_STAGES.length; i++) {
+      if (STATUS_STAGES[i].key === key) return STATUS_STAGES[(i + 1) % STATUS_STAGES.length].key;
+    }
+    return STATUS_STAGES[0].key;
+  }
+  function isDeployCategory(catId) {
+    return catId && catMap[catId] === DEPLOY_CATEGORY_NAME;
   }
 
   window.onload = function() {
@@ -859,10 +899,36 @@
     });
   }
 
+  function launchTileHTML(it, pinned) {
+    var fav = faviconFor(it.url);
+    var icoInner = fav
+      ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(it.title)) + '\';" />'
+      : esc(firstLetter(it.title));
+    var statusHTML = '';
+    if (isDeployCategory(it.category_id)) {
+      var st = statusByKey(it.status);
+      statusHTML = '<span class="launch-status ' + st.cls + '" data-status="' + esc(it.id) + '" title="Click to change status">' +
+                     '<span class="sdot"></span><span class="slabel">' + esc(st.label) + '</span>' +
+                   '</span>';
+    }
+    return '<a class="launch" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+        '<button class="launch-star ' + (pinned ? 'pinned' : '') + '" data-pin="' + esc(it.id) + '" title="' + (pinned ? 'Unpin' : 'Pin to top') + '">' + (pinned ? '&#9733;' : '&#9734;') + '</button>' +
+        '<span class="launch-edit">' +
+          '<button class="launch-mini" data-edit="' + esc(it.id) + '" title="Edit">&#9998;</button>' +
+          '<button class="launch-mini del" data-del="' + esc(it.id) + '" title="Delete">&#10005;</button>' +
+        '</span>' +
+        '<span class="launch-ico">' + icoInner + '</span>' +
+        '<span class="launch-name">' + esc(it.title) + '</span>' +
+        statusHTML +
+      '</a>';
+  }
+
   function renderDashboard(links) {
-    // Group by category, in the same order categories appear in allCategories, then uncategorized last.
-    var groups = [];      // [{id, name, color, items:[]}]
-    var groupIndex = {};  // catId -> position in groups
+    var pinned = links.filter(function(l) { return l.pinned; });
+
+    // Group by category, in the order categories appear, then uncategorized last.
+    var groups = [];
+    var groupIndex = {};
     for (var i = 0; i < allCategories.length; i++) {
       var c = allCategories[i];
       groupIndex[c.id] = groups.length;
@@ -879,16 +945,31 @@
     }
     if (uncat.items.length) groups.push(uncat);
 
-    var anyShown = groups.some(function(g) { return g.items.length; });
+    var anyShown = pinned.length || groups.some(function(g) { return g.items.length; });
     if (!anyShown) {
       document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
       return;
     }
 
     var html = '';
+
+    // Pinned strip first
+    if (pinned.length) {
+      html += '<div class="dash-section pin-section">' +
+                '<div class="dash-head">' +
+                  '<span class="dash-dot"></span>' +
+                  '<span class="dash-title">&#9733; Pinned</span>' +
+                  '<span class="dash-count">' + pinned.length + '</span>' +
+                '</div>' +
+                '<div class="dash-grid">';
+      for (var p = 0; p < pinned.length; p++) { html += launchTileHTML(pinned[p], true); }
+      html += '</div></div>';
+    }
+
+    // Category sections (each item shows its own pin state)
     for (var g = 0; g < groups.length; g++) {
       var grp = groups[g];
-      if (!grp.items.length) continue; // hide empty sections (e.g. when searching)
+      if (!grp.items.length) continue;
       html += '<div class="dash-section" style="--sec:' + grp.color + ';">' +
                 '<div class="dash-head">' +
                   '<span class="dash-dot"></span>' +
@@ -896,26 +977,15 @@
                   '<span class="dash-count">' + grp.items.length + '</span>' +
                 '</div>' +
                 '<div class="dash-grid">';
-      for (var k = 0; k < grp.items.length; k++) {
-        var it = grp.items[k];
-        var fav = faviconFor(it.url);
-        var icoInner = fav
-          ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(it.title)) + '\';" />'
-          : esc(firstLetter(it.title));
-        html += '<a class="launch" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
-                  '<span class="launch-edit">' +
-                    '<button class="launch-mini" data-edit="' + esc(it.id) + '" title="Edit">&#9998;</button>' +
-                    '<button class="launch-mini del" data-del="' + esc(it.id) + '" title="Delete">&#10005;</button>' +
-                  '</span>' +
-                  '<span class="launch-ico">' + icoInner + '</span>' +
-                  '<span class="launch-name">' + esc(it.title) + '</span>' +
-                '</a>';
-      }
+      for (var k = 0; k < grp.items.length; k++) { html += launchTileHTML(grp.items[k], !!grp.items[k].pinned); }
       html += '</div></div>';
     }
-    document.getElementById('linksList').innerHTML = html;
 
-    // Mini edit/delete buttons sit inside the <a>; stop navigation.
+    document.getElementById('linksList').innerHTML = html;
+    wireDashButtons();
+  }
+
+  function wireDashButtons() {
     document.querySelectorAll('.launch-mini[data-edit]').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.preventDefault(); e.stopPropagation();
@@ -927,6 +997,70 @@
         e.preventDefault(); e.stopPropagation();
         deleteLink(this.getAttribute('data-del'));
       });
+    });
+    document.querySelectorAll('.launch-star[data-pin]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        togglePin(this.getAttribute('data-pin'));
+      });
+    });
+    document.querySelectorAll('.launch-status[data-status]').forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        cycleStatus(this.getAttribute('data-status'));
+      });
+    });
+  }
+
+  function cycleStatus(id) {
+    var link = linkMap[id];
+    if (!link) return;
+    var prev = link.status || 'needs';
+    var next = nextStatusKey(prev);
+    link.status = next; // optimistic
+    applyFilters();
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, {
+      method: 'PATCH',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ status: next })
+    }).then(function(res) {
+      if (!res.ok) {
+        link.status = prev;
+        applyFilters();
+        showToast('Could not save status — is the "status" column added?');
+      } else {
+        showToast(statusByKey(next).label);
+      }
+    }).catch(function() {
+      link.status = prev;
+      applyFilters();
+      showToast('Could not save status');
+    });
+  }
+
+  function togglePin(id) {
+    var link = linkMap[id];
+    if (!link) return;
+    var newVal = !link.pinned;
+    // Optimistic update so it feels instant
+    link.pinned = newVal;
+    applyFilters();
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, {
+      method: 'PATCH',
+      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ pinned: newVal })
+    }).then(function(res) {
+      if (!res.ok) {
+        link.pinned = !newVal; // revert on failure
+        applyFilters();
+        showToast('Could not save pin — is the "pinned" column added?');
+      } else {
+        showToast(newVal ? 'Pinned to top' : 'Unpinned');
+      }
+    }).catch(function() {
+      link.pinned = !newVal;
+      applyFilters();
+      showToast('Could not save pin');
     });
   }
 
@@ -980,6 +1114,17 @@
   });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); }
+    // Press "/" to jump to search — but not while typing in a field or a modal is open.
+    if (e.key === '/' &&
+        document.getElementById('screen-library').classList.contains('active') &&
+        !document.getElementById('modalOverlay').classList.contains('open') &&
+        !document.getElementById('categoryModalOverlay').classList.contains('open')) {
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+      }
+    }
     if (e.key === 'Enter') {
       if (document.getElementById('screen-login').classList.contains('active')) checkEmail();
       if (document.getElementById('screen-adminlogin').classList.contains('active')) checkAdminPass();
