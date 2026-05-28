@@ -70,6 +70,7 @@
   .view-btn.active { background: var(--accent); color: white; }
 
   .main { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .main.wide { max-width: 1400px; }
 
   /* FILTER DROPDOWN */
   .filter-row { margin-bottom: 1rem; }
@@ -207,6 +208,16 @@
   .tool-edit { position: absolute; top: 0.55rem; right: 0.55rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
   .tool-card:hover .tool-edit { opacity: 1; }
   @media (max-width: 600px) { .tools-grid { grid-template-columns: 1fr; } }
+  .group-head { display: flex; align-items: center; gap: 0.6rem; margin: 2rem 0 1.1rem; }
+  .group-head:first-of-type { margin-top: 0.5rem; }
+  .group-bar { width: 5px; height: 22px; border-radius: 3px; background: var(--gc); }
+  .group-title { font-size: 1.2rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+  .group-count { font-size: 0.72rem; font-weight: 600; color: #fff; background: var(--gc); padding: 2px 9px; border-radius: 11px; }
+  .subcat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 0.7rem; }
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+  .cols-2 .group-head { margin-top: 0.5rem; }
+  .cols-2 .tools-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  @media (max-width: 900px) { .cols-2 { grid-template-columns: 1fr; gap: 1rem; } }
 
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
@@ -240,6 +251,10 @@
   .field label { display: block; font-size: 0.78rem; font-weight: 500; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
   .field input, .field select, .field textarea { width: 100%; padding: 0.65rem 0.85rem; font-size: 0.9rem; font-family: inherit; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); outline: none; }
   .field textarea { resize: vertical; min-height: 70px; }
+  .seg-toggle { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--radius-sm); overflow: hidden; }
+  .seg-btn { padding: 0.55rem 1.4rem; background: var(--bg); border: none; color: var(--muted); font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .seg-btn + .seg-btn { border-left: 1px solid var(--rule); }
+  .seg-btn.active { background: var(--accent); color: #fff; }
   .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
   .btn-save { flex: 1; padding: 0.65rem; background: var(--accent); color: white; font-size: 0.88rem; font-weight: 500; border: none; cursor: pointer; font-family: inherit; }
   .btn-cancel { padding: 0.65rem 1.25rem; background: none; color: var(--muted); font-size: 0.88rem; border: 1px solid var(--rule); cursor: pointer; font-family: inherit; }
@@ -390,6 +405,14 @@
       <label>Category</label>
       <select id="categoryInput"></select>
     </div>
+    <div class="field">
+      <label>Type</label>
+      <div class="seg-toggle">
+        <button type="button" class="seg-btn active" id="segWork" onclick="setLinkType('work')">Work</button>
+        <button type="button" class="seg-btn" id="segPersonal" onclick="setLinkType('personal')">Personal</button>
+      </div>
+      <input type="hidden" id="linkTypeInput" value="work">
+    </div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveLink()">Save</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -533,6 +556,9 @@
     var ct = document.getElementById('count');
     if (sb) sb.style.display = (currentView === 'home') ? 'none' : 'block';
     if (ct) ct.style.display = (currentView === 'home') ? 'none' : 'block';
+    // Home view fills the page; other views keep the comfortable reading width.
+    var mainEl = document.querySelector('#screen-library .main');
+    if (mainEl) mainEl.classList.toggle('wide', currentView === 'home');
   }
 
   function signOut() {
@@ -1040,18 +1066,67 @@
         recentInner +
       '</div>';
 
-    // Everything below the hero = the dashboard's grouped-by-category sections,
-    // so the home page shows all items grouped by category for fast navigation.
-    var dashHTML = buildDashboardHTML(links, false); // pinned strip already represented by hero
-    var allToolsHeader = '<div class="home-tools-head"><span class="home-tools-bar"></span><span class="home-tools-title">All tools</span></div>';
+    // Below the hero: his-style cards, split into Personal Tools and Work Tools,
+    // with each of your categories as a labeled sub-group inside.
+    var toolsHTML = buildGroupedToolCards(links);
 
     document.getElementById('linksList').innerHTML =
       greet + statusLine +
       '<div class="home-top">' + hero + recentCard + '</div>' +
-      allToolsHeader +
-      dashHTML;
+      toolsHTML;
 
     wireDashButtons();
+  }
+
+  function toolCardHTML(l) {
+    var color = colorForCategory(l.category_id);
+    var catName = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Uncategorized';
+    var fav = faviconFor(l.url);
+    var chipInner = fav
+      ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />'
+      : '<span>' + esc(firstLetter(l.title)) + '</span>';
+    var desc = l.description ? esc(l.description) : esc(l.url);
+    return '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
+        '<span class="tool-edit">' +
+          '<button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button>' +
+          '<button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button>' +
+        '</span>' +
+        '<span class="tool-eyebrow"><span class="tool-chip">' + chipInner + '</span>' + esc(catName) + '</span>' +
+        '<span class="tool-name">' + esc(l.title) + '</span>' +
+        '<span class="tool-desc">' + desc + '</span>' +
+      '</a>';
+  }
+
+  function buildGroupedToolCards(links) {
+    // Split by the per-link tag. Untagged defaults to personal.
+    var workLinks = links.filter(function(l) { return (l.link_type || 'personal') === 'work'; });
+    var personalLinks = links.filter(function(l) { return (l.link_type || 'personal') !== 'work'; });
+
+    function column(title, color, items) {
+      var head = '<div class="group-head" style="--gc:' + color + ';">' +
+                   '<span class="group-bar"></span>' +
+                   '<span class="group-title">' + title + '</span>' +
+                   '<span class="group-count">' + items.length + '</span>' +
+                 '</div>';
+      var body;
+      if (!items.length) {
+        body = '<div class="recent-empty" style="padding:0.5rem 0;">Nothing tagged ' + title.split(' ')[0].toLowerCase() + ' yet.</div>';
+      } else {
+        body = '<div class="tools-grid">';
+        for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
+        body += '</div>';
+      }
+      return '<div class="tool-col">' + head + body + '</div>';
+    }
+
+    if (!workLinks.length && !personalLinks.length) {
+      return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
+    }
+
+    return '<div class="cols-2">' +
+             column('Work Tools', '#1F6FEB', workLinks) +
+             column('Personal Tools', '#9333EA', personalLinks) +
+           '</div>';
   }
 
   function launchTileHTML(it, pinned) {
@@ -1221,12 +1296,19 @@
     });
   }
 
+  function setLinkType(t) {
+    document.getElementById('linkTypeInput').value = t;
+    document.getElementById('segWork').classList.toggle('active', t === 'work');
+    document.getElementById('segPersonal').classList.toggle('active', t === 'personal');
+  }
+
   function openModal(link) {
     document.getElementById('editId').value = link ? link.id : '';
     document.getElementById('modalTitle').textContent = link ? 'Edit Resource' : 'Add a Resource';
     document.getElementById('titleInput').value = link ? link.title : '';
     document.getElementById('urlInput').value = link ? link.url : '';
     document.getElementById('descInput').value = (link && link.description) ? link.description : '';
+    setLinkType((link && link.link_type === 'personal') ? 'personal' : 'work');
     var sel = document.getElementById('categoryInput');
     if (link && link.category_id) {
       sel.value = link.category_id;
@@ -1244,6 +1326,7 @@
     var url = document.getElementById('urlInput').value.trim();
     var description = document.getElementById('descInput').value.trim();
     var category_id = document.getElementById('categoryInput').value || null;
+    var link_type = document.getElementById('linkTypeInput').value || 'work';
     var editId = document.getElementById('editId').value;
     if (!title || !url) { showToast('Fill in both fields'); return; }
     var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
@@ -1252,7 +1335,7 @@
     fetch(endpoint, {
       method: method,
       headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, url: fullUrl, description: description || null, category_id: category_id })
+      body: JSON.stringify({ title: title, url: fullUrl, description: description || null, category_id: category_id, link_type: link_type })
     }).then(function(res) {
       if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); }
       else { showToast('Error saving'); }
