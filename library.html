@@ -219,6 +219,31 @@
   .cols-2 .tools-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
   @media (max-width: 900px) { .cols-2 { grid-template-columns: 1fr; gap: 1rem; } }
 
+  /* DEPLOYMENT BOARD */
+  .board-wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 800px) { .board { grid-template-columns: 1fr; } }
+  .board-col { background: #EEF1F6; border-radius: 12px; padding: 0.9rem; min-height: 200px; }
+  .board-col-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; padding: 0 0.2rem; }
+  .board-col-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bc); flex-shrink: 0; }
+  .board-col-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink); }
+  .board-col-count { font-size: 0.7rem; font-weight: 600; color: #fff; background: var(--bc); padding: 1px 8px; border-radius: 10px; }
+  .dcard { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--bc); border-radius: 9px; padding: 0.85rem; margin-bottom: 0.7rem; }
+  .dcard:last-child { margin-bottom: 0; }
+  .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
+  .dcard-pr { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--link); text-decoration: none; margin-bottom: 0.6rem; }
+  .dcard-pr:hover { text-decoration: underline; }
+  .dcard-actions { display: flex; align-items: center; gap: 0.35rem; padding-top: 0.55rem; border-top: 1px solid var(--rule-soft); }
+  .dcard-move { padding: 0.3rem 0.55rem; background: var(--bg); border: 1px solid var(--rule); border-radius: 5px; font-size: 0.72rem; cursor: pointer; font-family: inherit; color: var(--ink); }
+  .dcard-move:hover:not(:disabled) { border-color: var(--link); color: var(--link); }
+  .dcard-move:disabled { opacity: 0.3; cursor: default; }
+  .dcard-move.fill { flex: 1; text-align: center; }
+  .dcard-edit { position: absolute; top: 0.6rem; right: 0.6rem; display: flex; gap: 0.25rem; }
+  .dcard-mini { width: 22px; height: 22px; padding: 0; border: 1px solid var(--rule); background: var(--card); color: var(--muted); border-radius: 5px; font-size: 0.66rem; cursor: pointer; font-family: inherit; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+  .dcard-mini:hover { color: var(--link); border-color: var(--link); }
+  .dcard-mini.del:hover { color: var(--danger); border-color: var(--danger); }
+  .board-empty { font-size: 0.78rem; color: var(--muted-soft); text-align: center; padding: 1.5rem 0.5rem; }
+
   /* ADMIN PANEL */
   .admin-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
   .admin-section { margin-bottom: 2.5rem; }
@@ -381,6 +406,51 @@
       <div id="emailList"><div class="loading">Loading...</div></div>
     </div>
 
+  </div>
+</div>
+
+<!-- DEPLOYMENT TRACKER SCREEN -->
+<div class="screen" id="screen-tracker">
+  <header>
+    <div class="header-left">
+      <h1>Deployment Tracker</h1>
+      <p>Track what needs deploying, what's in progress, and what's done</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" onclick="openDeployModal(null)">+ Add Item</button>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <div id="board"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- DEPLOYMENT ITEM MODAL -->
+<div class="modal-overlay" id="deployModalOverlay">
+  <div class="modal">
+    <h2 id="deployModalTitle">Add Deployment Item</h2>
+    <input type="hidden" id="deployEditId" value="">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" />
+    </div>
+    <div class="field">
+      <label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
+      <input type="text" id="deployUrlInput" placeholder="https://github.com/..." />
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <select id="deployStatusInput">
+        <option value="needs">Needs deployed</option>
+        <option value="progress">In progress</option>
+        <option value="deployed">Deployed</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveDeploy()">Save</button>
+      <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -1102,30 +1172,32 @@
     var workLinks = links.filter(function(l) { return (l.link_type || 'personal') === 'work'; });
     var personalLinks = links.filter(function(l) { return (l.link_type || 'personal') !== 'work'; });
 
-    function column(title, color, items) {
+    // Special in-app card: Deployment Tracker (opens the board, not a URL).
+    var trackerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openTracker();" style="--tc:#1F6FEB;--tc-soft:#1F6FEB22;">' +
+        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#9783;</span></span>Work</span>' +
+        '<span class="tool-name">Deployment Tracker</span>' +
+        '<span class="tool-desc">Track what needs deploying, what\'s in progress, and what\'s done.</span>' +
+      '</a>';
+
+    function column(title, color, items, leadCard) {
       var head = '<div class="group-head" style="--gc:' + color + ';">' +
                    '<span class="group-bar"></span>' +
                    '<span class="group-title">' + title + '</span>' +
-                   '<span class="group-count">' + items.length + '</span>' +
+                   '<span class="group-count">' + (items.length + (leadCard ? 1 : 0)) + '</span>' +
                  '</div>';
-      var body;
-      if (!items.length) {
+      var body = '<div class="tools-grid">';
+      if (leadCard) body += leadCard;
+      for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
+      body += '</div>';
+      if (!items.length && !leadCard) {
         body = '<div class="recent-empty" style="padding:0.5rem 0;">Nothing tagged ' + title.split(' ')[0].toLowerCase() + ' yet.</div>';
-      } else {
-        body = '<div class="tools-grid">';
-        for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
-        body += '</div>';
       }
       return '<div class="tool-col">' + head + body + '</div>';
     }
 
-    if (!workLinks.length && !personalLinks.length) {
-      return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
-    }
-
     return '<div class="cols-2">' +
-             column('Work Tools', '#1F6FEB', workLinks) +
-             column('Personal Tools', '#9333EA', personalLinks) +
+             column('Work Tools', '#1F6FEB', workLinks, trackerCard) +
+             column('Personal Tools', '#9333EA', personalLinks, null) +
            '</div>';
   }
 
@@ -1350,12 +1422,13 @@
 
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
+  document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.addEventListener('click', function(e) {
     var wrap = document.querySelector('.filter-wrap');
     if (wrap && !wrap.contains(e.target)) closeFilterMenu();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); }
     // Press "/" to jump to search — but not while typing in a field or a modal is open.
     if (e.key === '/' &&
         document.getElementById('screen-library').classList.contains('active') &&
@@ -1373,6 +1446,133 @@
       if (document.getElementById('categoryModalOverlay').classList.contains('open')) saveCategory();
     }
   });
+
+  // ===== DEPLOYMENT TRACKER =====
+  var DEPLOY_COLS = [
+    { key: 'needs',    title: 'Needs deployed', color: '#6B7A99' },
+    { key: 'progress', title: 'In progress',    color: '#B7791F' },
+    { key: 'deployed', title: 'Deployed',       color: '#15803D' }
+  ];
+  var allDeploys = [];
+
+  function openTracker() {
+    showScreen('screen-tracker');
+    fetchDeploys();
+  }
+
+  function fetchDeploys() {
+    fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        allDeploys = Array.isArray(data) ? data : [];
+        renderBoard();
+      })
+      .catch(function() {
+        document.getElementById('board').innerHTML = '<div class="board-empty">Could not load. Is the "deployments" table created?</div>';
+      });
+  }
+
+  function renderBoard() {
+    var html = '<div class="board">';
+    for (var c = 0; c < DEPLOY_COLS.length; c++) {
+      var col = DEPLOY_COLS[c];
+      var items = allDeploys.filter(function(d) { return (d.status || 'needs') === col.key; });
+      html += '<div class="board-col" style="--bc:' + col.color + ';">' +
+                '<div class="board-col-head">' +
+                  '<span class="board-col-dot"></span>' +
+                  '<span class="board-col-title">' + col.title + '</span>' +
+                  '<span class="board-col-count">' + items.length + '</span>' +
+                '</div>';
+      if (!items.length) {
+        html += '<div class="board-empty">Nothing here</div>';
+      } else {
+        for (var i = 0; i < items.length; i++) {
+          var d = items[i];
+          var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
+          html += '<div class="dcard" style="--bc:' + col.color + ';">' +
+                    '<div class="dcard-edit">' +
+                      '<button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button>' +
+                      '<button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button>' +
+                    '</div>' +
+                    '<div class="dcard-title">' + esc(d.title) + '</div>' +
+                    (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') +
+                    '<div class="dcard-actions">' +
+                      '<button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button>' +
+                      '<button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button>' +
+                    '</div>' +
+                  '</div>';
+        }
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    document.getElementById('board').innerHTML = html;
+
+    document.querySelectorAll('.dcard-move[data-dmove]').forEach(function(b) {
+      b.addEventListener('click', function() { moveDeploy(this.getAttribute('data-dmove'), parseInt(this.getAttribute('data-dir'), 10)); });
+    });
+    document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) {
+      b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); });
+    });
+    document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) {
+      b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); });
+    });
+  }
+
+  function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
+  function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
+
+  function moveDeploy(id, dir) {
+    var d = findDeploy(id);
+    if (!d) return;
+    var idx = colIndex(d.status || 'needs') + dir;
+    if (idx < 0 || idx >= DEPLOY_COLS.length) return;
+    var newKey = DEPLOY_COLS[idx].key;
+    var prev = d.status;
+    d.status = newKey;
+    renderBoard();
+    fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, {
+      method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ status: newKey })
+    }).then(function(res) {
+      if (!res.ok) { d.status = prev; renderBoard(); showToast('Could not save move'); }
+    }).catch(function() { d.status = prev; renderBoard(); showToast('Could not save move'); });
+  }
+
+  function openDeployModal(d) {
+    document.getElementById('deployEditId').value = d ? d.id : '';
+    document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item';
+    document.getElementById('deployTitleInput').value = d ? d.title : '';
+    document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : '';
+    document.getElementById('deployStatusInput').value = (d && d.status) ? d.status : 'needs';
+    document.getElementById('deployModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100);
+  }
+  function closeDeployModal() { document.getElementById('deployModalOverlay').classList.remove('open'); }
+
+  function saveDeploy() {
+    var title = document.getElementById('deployTitleInput').value.trim();
+    var url = document.getElementById('deployUrlInput').value.trim();
+    var status = document.getElementById('deployStatusInput').value || 'needs';
+    var editId = document.getElementById('deployEditId').value;
+    if (!title) { showToast('Enter a title'); return; }
+    var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null;
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments';
+    fetch(endpoint, {
+      method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ title: title, pr_url: pr_url, status: status })
+    }).then(function(res) {
+      if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); }
+      else { showToast('Error saving — is the "deployments" table created?'); }
+    });
+  }
+
+  function deleteDeploy(id) {
+    if (!confirm('Delete this deployment item?')) return;
+    fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H })
+      .then(function() { showToast('Deleted'); fetchDeploys(); });
+  }
 
   function showToast(msg) {
     var t = document.getElementById('toast');
