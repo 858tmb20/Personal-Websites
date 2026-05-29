@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Google API client -->
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -127,7 +130,7 @@
   .tile-actions .btn-edit, .tile-actions .btn-delete { padding: 0.4rem 0.6rem; font-size: 0.72rem; }
   @media (max-width: 600px) { .tiles-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
 
-  /* DASHBOARD VIEW (app launcher) */
+  /* DASHBOARD VIEW */
   .dash-section { margin-bottom: 2rem; }
   .dash-section:last-child { margin-bottom: 0; }
   .dash-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; padding-bottom: 0.55rem; border-bottom: 2px solid var(--sec); }
@@ -179,7 +182,6 @@
   .hero-sub { position: relative; font-size: 0.9rem; color: #C5D6F0; margin-bottom: 1.3rem; max-width: 90%; }
   .hero-cta { position: relative; display: inline-flex; align-items: center; gap: 0.5rem; align-self: flex-start; background: #fff; color: var(--ink); font-size: 0.85rem; font-weight: 600; padding: 0.7rem 1.2rem; border-radius: 30px; transition: transform 0.12s, box-shadow 0.15s; }
   .hero:hover .hero-cta { transform: translateX(3px); box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
-  .hero-empty { color: #C5D6F0; }
 
   /* HERO CALENDAR EMBED */
   .hero-cal { padding: 0; cursor: pointer; overflow: hidden; min-height: 280px; display: block; }
@@ -195,17 +197,40 @@
   .cal-frame { width: 100%; height: calc(100vh - 130px); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; background: var(--card); }
   .cal-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
 
-  .recent-card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 1.3rem; display: flex; flex-direction: column; }
-  .recent-head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
-  .recent-head .rdot { width: 16px; height: 16px; border-radius: 5px; background: #E9F0FD; display: flex; align-items: center; justify-content: center; color: var(--link); font-size: 0.6rem; }
-  .recent-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0; border-bottom: 1px solid var(--rule-soft); text-decoration: none; }
-  .recent-item:last-child { border-bottom: none; }
-  .recent-fav { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); font-size: 0.7rem; font-weight: 700; color: var(--muted); overflow: hidden; }
-  .recent-fav img { width: 16px; height: 16px; }
-  .recent-info { min-width: 0; flex: 1; }
-  .recent-title { font-size: 0.82rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .recent-meta { font-size: 0.7rem; color: var(--muted-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .recent-empty { font-size: 0.83rem; color: var(--muted); padding: 0.5rem 0; }
+  /* ===== GMAIL WIDGET ===== */
+  .gmail-card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 1.3rem; display: flex; flex-direction: column; }
+  .gmail-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+  .gmail-head-left { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+  .gmail-gdot { width: 16px; height: 16px; border-radius: 5px; background: #E8F0FE; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; }
+  .gmail-unread-badge { font-size: 0.64rem; font-weight: 700; color: #fff; background: var(--link); padding: 1px 6px; border-radius: 10px; }
+  .gmail-refresh { width: 24px; height: 24px; border: none; background: none; border-radius: 5px; font-size: 0.8rem; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: color 0.15s; padding: 0; }
+  .gmail-refresh:hover { color: var(--link); }
+  .gmail-refresh.spinning { animation: gspin 0.65s linear infinite; }
+  @keyframes gspin { to { transform: rotate(360deg); } }
+  .gmail-connect { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.5rem; gap: 0.9rem; }
+  .gmail-connect p { font-size: 0.79rem; color: var(--muted); text-align: center; line-height: 1.5; }
+  .gmail-connect-btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.6rem 1.1rem; background: #fff; border: 1px solid #dadce0; border-radius: 4px; font-size: 0.82rem; font-weight: 500; color: #3c4043; cursor: pointer; font-family: inherit; box-shadow: 0 1px 3px rgba(60,64,67,0.12); transition: box-shadow 0.15s; }
+  .gmail-connect-btn:hover { box-shadow: 0 2px 8px rgba(60,64,67,0.22); }
+  .gmail-item { display: flex; align-items: flex-start; gap: 0.55rem; padding: 0.5rem 0; border-bottom: 1px solid var(--rule-soft); text-decoration: none; }
+  .gmail-item:last-child { border-bottom: none; }
+  .gmail-item:hover .gmail-subject { color: var(--link); }
+  .gmail-avatar { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; color: #fff; margin-top: 1px; }
+  .gmail-info { min-width: 0; flex: 1; }
+  .gmail-from { font-size: 0.77rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gmail-from.unread { font-weight: 700; }
+  .gmail-subject { font-size: 0.74rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.05rem; transition: color 0.1s; }
+  .gmail-subject.unread { color: var(--ink); font-weight: 500; }
+  .gmail-snippet { font-size: 0.69rem; color: var(--muted-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.04rem; }
+  .gmail-time { font-size: 0.67rem; color: var(--muted-soft); flex-shrink: 0; white-space: nowrap; margin-top: 3px; }
+  .gmail-empty { font-size: 0.8rem; color: var(--muted); padding: 1.2rem 0; text-align: center; }
+  .gmail-error { font-size: 0.76rem; color: var(--danger); padding: 0.5rem 0; line-height: 1.4; }
+  .gmail-footer { margin-top: 0.75rem; padding-top: 0.55rem; border-top: 1px solid var(--rule-soft); display: flex; align-items: center; justify-content: space-between; }
+  .gmail-open-link { font-size: 0.74rem; color: var(--link); text-decoration: none; font-weight: 500; }
+  .gmail-open-link:hover { text-decoration: underline; }
+  .gmail-signout-btn { font-size: 0.71rem; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; }
+  .gmail-signout-btn:hover { color: var(--danger); }
+  .gmail-loading { font-size: 0.79rem; color: var(--muted); text-align: center; padding: 1.5rem 0; }
+  /* ===== END GMAIL WIDGET ===== */
 
   .home-tools-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
   .home-tools-bar { width: 4px; height: 18px; border-radius: 2px; background: var(--link); }
@@ -453,13 +478,11 @@
     </div>
   </header>
   <div class="admin-wrap">
-
     <div class="admin-section">
       <h2>Pending Requests</h2>
       <p>People who want access. Approve to add them to the approved list.</p>
       <div id="requestList"><div class="loading">Loading...</div></div>
     </div>
-
     <div class="admin-section">
       <h2>Approved Emails</h2>
       <p>Add manually or remove access.</p>
@@ -469,7 +492,6 @@
       </div>
       <div id="emailList"><div class="loading">Loading...</div></div>
     </div>
-
   </div>
 </div>
 
@@ -495,22 +517,9 @@
   <div class="modal">
     <h2 id="deployModalTitle">Add Deployment Item</h2>
     <input type="hidden" id="deployEditId" value="">
-    <div class="field">
-      <label>Title</label>
-      <input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" />
-    </div>
-    <div class="field">
-      <label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
-      <input type="text" id="deployUrlInput" placeholder="https://github.com/..." />
-    </div>
-    <div class="field">
-      <label>Status</label>
-      <select id="deployStatusInput">
-        <option value="needs">Needs deployed</option>
-        <option value="progress">In progress</option>
-        <option value="deployed">Deployed</option>
-      </select>
-    </div>
+    <div class="field"><label>Title</label><input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" /></div>
+    <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="needs">Needs deployed</option><option value="progress">In progress</option><option value="deployed">Deployed</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -542,18 +551,9 @@
   <div class="modal">
     <h2 id="docModalTitle">Add Document</h2>
     <input type="hidden" id="docEditId" value="">
-    <div class="field">
-      <label>Title</label>
-      <input type="text" id="docTitleInput" placeholder="e.g. Tealium Integration Spec" />
-    </div>
-    <div class="field">
-      <label>Link</label>
-      <input type="text" id="docUrlInput" placeholder="https://docs.google.com/..." />
-    </div>
-    <div class="field">
-      <label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
-      <input type="text" id="docNoteInput" placeholder="Short description" />
-    </div>
+    <div class="field"><label>Title</label><input type="text" id="docTitleInput" placeholder="e.g. Tealium Integration Spec" /></div>
+    <div class="field"><label>Link</label><input type="text" id="docUrlInput" placeholder="https://docs.google.com/..." /></div>
+    <div class="field"><label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="docNoteInput" placeholder="Short description" /></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDoc()">Save</button>
       <button class="btn-cancel" onclick="closeDocModal()">Cancel</button>
@@ -588,14 +588,8 @@
     <h2 id="planModalTitle">Add to Planner</h2>
     <input type="hidden" id="planEditId" value="">
     <input type="hidden" id="planDate" value="">
-    <div class="field">
-      <label id="planDateLabel">Item</label>
-      <input type="text" id="planTitleInput" placeholder="e.g. Volleyball at the gym" />
-    </div>
-    <div class="field">
-      <label>Time <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
-      <input type="time" id="planTimeInput" />
-    </div>
+    <div class="field"><label id="planDateLabel">Item</label><input type="text" id="planTitleInput" placeholder="e.g. Volleyball at the gym" /></div>
+    <div class="field"><label>Time <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="time" id="planTimeInput" /></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="savePlan()">Save</button>
       <button class="btn-cancel" onclick="closePlanModal()">Cancel</button>
@@ -622,10 +616,7 @@
 <!-- FULL CALENDAR SCREEN -->
 <div class="screen" id="screen-calendar">
   <header>
-    <div class="header-left">
-      <h1>Calendar</h1>
-      <p>Your Google Calendar</p>
-    </div>
+    <div class="header-left"><h1>Calendar</h1><p>Your Google Calendar</p></div>
     <div class="header-right">
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
@@ -642,22 +633,10 @@
   <div class="modal">
     <h2 id="modalTitle">Add a Resource</h2>
     <input type="hidden" id="editId" value="">
-    <div class="field">
-      <label>Title</label>
-      <input type="text" id="titleInput" placeholder="e.g. Salesforce Flow best practices" />
-    </div>
-    <div class="field">
-      <label>URL</label>
-      <input type="text" id="urlInput" placeholder="https://..." />
-    </div>
-    <div class="field">
-      <label>Description <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label>
-      <textarea id="descInput" placeholder="A short line about what this is..."></textarea>
-    </div>
-    <div class="field">
-      <label>Category</label>
-      <select id="categoryInput"></select>
-    </div>
+    <div class="field"><label>Title</label><input type="text" id="titleInput" placeholder="e.g. Salesforce Flow best practices" /></div>
+    <div class="field"><label>URL</label><input type="text" id="urlInput" placeholder="https://..." /></div>
+    <div class="field"><label>Description <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="descInput" placeholder="A short line about what this is..."></textarea></div>
+    <div class="field"><label>Category</label><select id="categoryInput"></select></div>
     <div class="field">
       <label>Type</label>
       <div class="seg-toggle">
@@ -678,10 +657,7 @@
 <div class="modal-overlay" id="categoryModalOverlay">
   <div class="modal">
     <h2>Add a Category</h2>
-    <div class="field">
-      <label>Category Name</label>
-      <input type="text" id="newCategoryInput" placeholder="e.g. AI Tools" />
-    </div>
+    <div class="field"><label>Category Name</label><input type="text" id="newCategoryInput" placeholder="e.g. AI Tools" /></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveCategory()">Save</button>
       <button class="btn-cancel" onclick="closeCategoryModal()">Cancel</button>
@@ -692,6 +668,15 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  // =====================================================================
+  // CONFIGURATION — paste your Google OAuth Client ID here
+  // Create one at: https://console.cloud.google.com → APIs & Services → Credentials
+  // Authorized JS origins: your domain (or http://localhost for local dev)
+  // =====================================================================
+  var GMAIL_CLIENT_ID = ''; // e.g. '123456789-abc.apps.googleusercontent.com'
+  var GMAIL_SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+  // =====================================================================
   var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
   var H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
@@ -704,12 +689,11 @@
   var linkMap = {};
   var catMap = {};
   var currentEmail = '';
-  var currentView = localStorage.getItem('lib_view') || 'home'; // 'home' | 'dash' | 'list' | 'tile'
+  var currentView = localStorage.getItem('lib_view') || 'home';
 
-  // Section accent palette — assigned by category position, stays consistent per category.
   var SECTION_COLORS = ['#1F6FEB','#16A34A','#9333EA','#EA580C','#0891B2','#DB2777','#CA8A04','#4F46E5','#059669','#DC2626','#7C3AED','#0D9488'];
   function colorForCategory(catId) {
-    if (!catId) return '#6B7A99'; // uncategorized = muted slate
+    if (!catId) return '#6B7A99';
     var idx = -1;
     for (var i = 0; i < allCategories.length; i++) { if (allCategories[i].id === catId) { idx = i; break; } }
     if (idx < 0) return '#6B7A99';
@@ -724,11 +708,8 @@
     return t ? t.charAt(0).toUpperCase() : '#';
   }
 
-  // Deployment status: only shown on tiles whose category is named exactly this.
   var DEPLOY_CATEGORY_NAME = 'Deployment Status';
-  // Home "All tools" grid pulls only from the category named exactly this.
   var TOOLS_CATEGORY_NAME = 'Tools';
-  // Ordered cycle. status value stored on the link; click advances to next.
   var STATUS_STAGES = [
     { key: 'needs',    label: 'Needs deployed', cls: 'st-needs' },
     { key: 'progress', label: 'In progress',    cls: 'st-progress' },
@@ -737,7 +718,7 @@
   ];
   function statusByKey(key) {
     for (var i = 0; i < STATUS_STAGES.length; i++) { if (STATUS_STAGES[i].key === key) return STATUS_STAGES[i]; }
-    return STATUS_STAGES[0]; // default = needs deployed
+    return STATUS_STAGES[0];
   }
   function nextStatusKey(key) {
     for (var i = 0; i < STATUS_STAGES.length; i++) {
@@ -745,16 +726,231 @@
     }
     return STATUS_STAGES[0].key;
   }
-  function isDeployCategory(catId) {
-    return catId && catMap[catId] === DEPLOY_CATEGORY_NAME;
+  function isDeployCategory(catId) { return catId && catMap[catId] === DEPLOY_CATEGORY_NAME; }
+
+  // =====================================================================
+  // GMAIL WIDGET STATE
+  // =====================================================================
+  var gmailToken = null;       // access token once signed in
+  var gmailEmails = [];        // fetched messages
+  var gmailUnreadCount = 0;
+  var gmailLoading = false;
+
+  // Avatar colours for consistent sender colours
+  var AVATAR_COLORS = ['#1F6FEB','#9333EA','#EA580C','#16A34A','#0891B2','#DB2777','#CA8A04'];
+  function avatarColor(str) {
+    var h = 0;
+    for (var i = 0; i < (str||'').length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xFFFFFF;
+    return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
   }
+
+  function gmailTimeLabel(internalDate) {
+    var d = new Date(parseInt(internalDate, 10));
+    var now = new Date();
+    var diff = now - d;
+    if (diff < 60000) return 'now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+    var days = Math.floor(diff / 86400000);
+    if (days < 7) return days + 'd';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function gmailHeader(msg, name) {
+    var hdrs = (msg.payload && msg.payload.headers) || [];
+    for (var i = 0; i < hdrs.length; i++) {
+      if (hdrs[i].name.toLowerCase() === name.toLowerCase()) return hdrs[i].value;
+    }
+    return '';
+  }
+
+  function gmailFromDisplay(fromHeader) {
+    // "John Doe <john@example.com>" → "John Doe"
+    var m = fromHeader.match(/^"?([^"<]+)"?\s*</);
+    if (m) return m[1].trim();
+    var angle = fromHeader.match(/<([^>]+)>/);
+    if (angle) return angle[1];
+    return fromHeader.split('@')[0];
+  }
+
+  // ---- OAuth via Google Identity Services (GIS) token model ----
+  var _tokenClient = null;
+
+  function gmailSignIn() {
+    if (!GMAIL_CLIENT_ID) {
+      alert('Add your Google OAuth Client ID to the GMAIL_CLIENT_ID variable at the top of the script. See: https://console.cloud.google.com');
+      return;
+    }
+    if (!window.google || !window.google.accounts) {
+      showToast('Google Sign-In library not loaded yet. Try again in a moment.');
+      return;
+    }
+    if (!_tokenClient) {
+      _tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GMAIL_CLIENT_ID,
+        scope: GMAIL_SCOPES,
+        callback: function(tokenResponse) {
+          if (tokenResponse && tokenResponse.access_token) {
+            gmailToken = tokenResponse.access_token;
+            gmailFetchInbox();
+          } else {
+            gmailRenderError('Sign-in was cancelled or failed.');
+          }
+        }
+      });
+    }
+    _tokenClient.requestAccessToken({ prompt: 'consent' });
+  }
+
+  function gmailSignOut() {
+    if (gmailToken && window.google && window.google.accounts) {
+      google.accounts.oauth2.revoke(gmailToken);
+    }
+    gmailToken = null;
+    gmailEmails = [];
+    gmailUnreadCount = 0;
+    gmailRenderConnect();
+  }
+
+  function gmailFetchInbox() {
+    if (!gmailToken) return;
+    gmailLoading = true;
+    gmailRenderLoading();
+
+    // Fetch up to 8 inbox messages
+    fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=8&labelIds=INBOX', {
+      headers: { 'Authorization': 'Bearer ' + gmailToken }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) { gmailRenderError(data.error.message || 'API error'); return; }
+      var messages = data.messages || [];
+      if (!messages.length) { gmailEmails = []; gmailUnreadCount = 0; gmailRenderEmails(); return; }
+
+      // Fetch each message in parallel (metadata only for speed)
+      var fetched = [];
+      var done = 0;
+      messages.forEach(function(m) {
+        fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + m.id + '?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date', {
+          headers: { 'Authorization': 'Bearer ' + gmailToken }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(msg) {
+          fetched.push(msg);
+          done++;
+          if (done === messages.length) {
+            // Sort by internalDate desc
+            fetched.sort(function(a, b) { return parseInt(b.internalDate||0,10) - parseInt(a.internalDate||0,10); });
+            gmailEmails = fetched;
+            gmailUnreadCount = fetched.filter(function(m) { return (m.labelIds||[]).indexOf('UNREAD') > -1; }).length;
+            gmailLoading = false;
+            gmailRenderEmails();
+          }
+        })
+        .catch(function() { done++; if (done === messages.length) { gmailLoading = false; gmailRenderEmails(); } });
+      });
+    })
+    .catch(function(err) {
+      gmailLoading = false;
+      gmailRenderError('Could not reach Gmail API. Check your Client ID and OAuth scope.');
+    });
+  }
+
+  function gmailRenderConnect() {
+    var el = document.getElementById('gmailWidget');
+    if (!el) return;
+    el.innerHTML =
+      '<div class="gmail-head">' +
+        '<div class="gmail-head-left"><span class="gmail-gdot">&#9993;</span> Gmail Inbox</div>' +
+      '</div>' +
+      '<div class="gmail-connect">' +
+        '<p>Connect your Gmail to see your inbox here.</p>' +
+        '<button class="gmail-connect-btn" onclick="gmailSignIn()">' +
+          '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>' +
+          'Sign in with Google' +
+        '</button>' +
+      '</div>';
+  }
+
+  function gmailRenderLoading() {
+    var el = document.getElementById('gmailWidget');
+    if (!el) return;
+    el.innerHTML =
+      '<div class="gmail-head">' +
+        '<div class="gmail-head-left"><span class="gmail-gdot">&#9993;</span> Gmail Inbox</div>' +
+      '</div>' +
+      '<div class="gmail-loading">Loading inbox\u2026</div>';
+  }
+
+  function gmailRenderError(msg) {
+    var el = document.getElementById('gmailWidget');
+    if (!el) return;
+    el.innerHTML =
+      '<div class="gmail-head">' +
+        '<div class="gmail-head-left"><span class="gmail-gdot">&#9993;</span> Gmail Inbox</div>' +
+      '</div>' +
+      '<div class="gmail-error">' + esc(msg) + '</div>' +
+      '<div class="gmail-footer">' +
+        '<button class="gmail-signout-btn" onclick="gmailSignOut()">Disconnect</button>' +
+      '</div>';
+  }
+
+  function gmailRenderEmails() {
+    var el = document.getElementById('gmailWidget');
+    if (!el) return;
+    var unreadBadge = gmailUnreadCount > 0
+      ? '<span class="gmail-unread-badge">' + gmailUnreadCount + '</span>'
+      : '';
+    var html =
+      '<div class="gmail-head">' +
+        '<div class="gmail-head-left"><span class="gmail-gdot">&#9993;</span> Gmail Inbox ' + unreadBadge + '</div>' +
+        '<button class="gmail-refresh" id="gmailRefreshBtn" onclick="gmailFetchInbox()" title="Refresh">&#8635;</button>' +
+      '</div>';
+
+    if (!gmailEmails.length) {
+      html += '<div class="gmail-empty">Inbox is empty.</div>';
+    } else {
+      for (var i = 0; i < gmailEmails.length; i++) {
+        var m = gmailEmails[i];
+        var isUnread = (m.labelIds || []).indexOf('UNREAD') > -1;
+        var from = gmailHeader(m, 'From');
+        var subject = gmailHeader(m, 'Subject') || '(no subject)';
+        var snippet = m.snippet || '';
+        var fromDisplay = gmailFromDisplay(from);
+        var initial = (fromDisplay || '?').charAt(0).toUpperCase();
+        var color = avatarColor(fromDisplay);
+        var timeLabel = gmailTimeLabel(m.internalDate);
+        var gmailLink = 'https://mail.google.com/mail/u/0/#inbox/' + m.id;
+
+        html +=
+          '<a class="gmail-item" href="' + esc(gmailLink) + '" target="_blank" rel="noopener">' +
+            '<span class="gmail-avatar" style="background:' + color + '">' + esc(initial) + '</span>' +
+            '<span class="gmail-info">' +
+              '<span class="gmail-from' + (isUnread ? ' unread' : '') + '">' + esc(fromDisplay) + '</span>' +
+              '<span class="gmail-subject' + (isUnread ? ' unread' : '') + '">' + esc(subject) + '</span>' +
+              '<span class="gmail-snippet">' + esc(snippet) + '</span>' +
+            '</span>' +
+            '<span class="gmail-time">' + esc(timeLabel) + '</span>' +
+          '</a>';
+      }
+    }
+
+    html +=
+      '<div class="gmail-footer">' +
+        '<a class="gmail-open-link" href="https://mail.google.com" target="_blank" rel="noopener">Open Gmail &#8599;</a>' +
+        '<button class="gmail-signout-btn" onclick="gmailSignOut()">Disconnect</button>' +
+      '</div>';
+
+    el.innerHTML = html;
+  }
+
+  // =====================================================================
+  // EXISTING APP CODE (unchanged from original)
+  // =====================================================================
 
   window.onload = function() {
     var saved = localStorage.getItem('lib_email');
-    if (saved) {
-      currentEmail = saved;
-      enterLibrary();
-    }
+    if (saved) { currentEmail = saved; enterLibrary(); }
   };
 
   function showScreen(id) {
@@ -790,27 +986,19 @@
     fetchCategories(function() { fetchLinks(); });
   }
 
-  function setView(view) {
-    currentView = view;
-    localStorage.setItem('lib_view', view);
-    applyViewButtons();
-    applyFilters();
-  }
+  function setView(view) { currentView = view; localStorage.setItem('lib_view', view); applyViewButtons(); applyFilters(); }
 
   function applyViewButtons() {
     document.getElementById('viewBtnHome').classList.toggle('active', currentView === 'home');
     document.getElementById('viewBtnDash').classList.toggle('active', currentView === 'dash');
     document.getElementById('viewBtnList').classList.toggle('active', currentView === 'list');
     document.getElementById('viewBtnTile').classList.toggle('active', currentView === 'tile');
-    // The category dropdown is a single-category filter; hidden where every category shows at once.
     var fr = document.getElementById('filterRow');
     if (fr) fr.style.display = (currentView === 'dash' || currentView === 'home') ? 'none' : 'block';
-    // Search and count are irrelevant on the home landing view.
     var sb = document.getElementById('searchInput');
     var ct = document.getElementById('count');
     if (sb) sb.style.display = (currentView === 'home') ? 'none' : 'block';
     if (ct) ct.style.display = (currentView === 'home') ? 'none' : 'block';
-    // Home view fills the page; other views keep the comfortable reading width.
     var mainEl = document.querySelector('#screen-library .main');
     if (mainEl) mainEl.classList.toggle('wide', currentView === 'home');
   }
@@ -829,17 +1017,14 @@
     document.getElementById('requestError').classList.remove('show');
     document.getElementById('requestSuccess').classList.remove('show');
     fetch(SB_URL + '/rest/v1/access_requests', {
-      method: 'POST',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
+      method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
       body: JSON.stringify({ email: email, note: note || null, status: 'pending' })
     }).then(function(res) {
       if (res.ok) {
         document.getElementById('requestEmail').value = '';
         document.getElementById('requestNote').value = '';
         document.getElementById('requestSuccess').classList.add('show');
-      } else {
-        document.getElementById('requestError').classList.add('show');
-      }
+      } else { document.getElementById('requestError').classList.add('show'); }
     });
   }
 
@@ -851,9 +1036,7 @@
       showScreen('screen-admin');
       fetchRequests();
       fetchEmails();
-    } else {
-      document.getElementById('adminPassError').classList.add('show');
-    }
+    } else { document.getElementById('adminPassError').classList.add('show'); }
   }
 
   function goAdmin() { showScreen('screen-adminlogin'); }
@@ -863,12 +1046,8 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var badge = document.getElementById('pendingBadge');
-        if (data && data.length > 0) {
-          badge.textContent = data.length;
-          badge.style.display = 'inline-block';
-        } else {
-          badge.style.display = 'none';
-        }
+        if (data && data.length > 0) { badge.textContent = data.length; badge.style.display = 'inline-block'; }
+        else { badge.style.display = 'none'; }
       });
   }
 
@@ -876,116 +1055,59 @@
     fetch(SB_URL + '/rest/v1/access_requests?status=eq.pending&order=created_at.desc', { headers: H })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (!data.length) {
-          document.getElementById('requestList').innerHTML = '<div class="empty"><strong>No pending requests</strong>You\'ll see new requests here.</div>';
-          return;
-        }
+        if (!data.length) { document.getElementById('requestList').innerHTML = '<div class="empty"><strong>No pending requests</strong>You\'ll see new requests here.</div>'; return; }
         var html = '<div class="row-list">';
         for (var i = 0; i < data.length; i++) {
           var r = data[i];
           var dateStr = new Date(r.created_at).toLocaleDateString();
-          html += '<div class="row">' +
-            '<div class="row-info">' +
-              '<div class="row-email">' + esc(r.email) + '</div>' +
-              (r.note ? '<div class="row-note">"' + esc(r.note) + '"</div>' : '') +
-              '<div class="row-date">' + dateStr + '</div>' +
-            '</div>' +
-            '<div class="row-actions">' +
-              '<button class="btn-approve" data-id="' + esc(r.id) + '" data-email="' + esc(r.email) + '">Approve</button>' +
-              '<button class="btn-deny" data-id="' + esc(r.id) + '">Deny</button>' +
-            '</div>' +
-          '</div>';
+          html += '<div class="row"><div class="row-info"><div class="row-email">' + esc(r.email) + '</div>' + (r.note ? '<div class="row-note">"' + esc(r.note) + '"</div>' : '') + '<div class="row-date">' + dateStr + '</div></div><div class="row-actions"><button class="btn-approve" data-id="' + esc(r.id) + '" data-email="' + esc(r.email) + '">Approve</button><button class="btn-deny" data-id="' + esc(r.id) + '">Deny</button></div></div>';
         }
         html += '</div>';
         document.getElementById('requestList').innerHTML = html;
-        document.querySelectorAll('.btn-approve').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            approveRequest(this.getAttribute('data-id'), this.getAttribute('data-email'));
-          });
-        });
-        document.querySelectorAll('.btn-deny').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            denyRequest(this.getAttribute('data-id'));
-          });
-        });
+        document.querySelectorAll('.btn-approve').forEach(function(btn) { btn.addEventListener('click', function() { approveRequest(this.getAttribute('data-id'), this.getAttribute('data-email')); }); });
+        document.querySelectorAll('.btn-deny').forEach(function(btn) { btn.addEventListener('click', function() { denyRequest(this.getAttribute('data-id')); }); });
       });
   }
 
   function approveRequest(id, email) {
-    fetch(SB_URL + '/rest/v1/approved_emails', {
-      method: 'POST',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ email: email })
-    }).then(function(res) {
-      fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, {
-        method: 'PATCH',
-        headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-        body: JSON.stringify({ status: 'approved' })
-      }).then(function() {
-        showToast('Approved ' + email);
-        fetchRequests();
-        fetchEmails();
-        checkPendingCount();
-      });
+    fetch(SB_URL + '/rest/v1/approved_emails', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ email: email }) }).then(function() {
+      fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: 'approved' }) }).then(function() { showToast('Approved ' + email); fetchRequests(); fetchEmails(); checkPendingCount(); });
     });
   }
 
   function denyRequest(id) {
     if (!confirm('Deny this request?')) return;
-    fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, {
-      method: 'PATCH',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ status: 'denied' })
-    }).then(function() {
-      showToast('Denied');
-      fetchRequests();
-      checkPendingCount();
-    });
+    fetch(SB_URL + '/rest/v1/access_requests?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: 'denied' }) }).then(function() { showToast('Denied'); fetchRequests(); checkPendingCount(); });
   }
 
   function fetchEmails() {
     fetch(SB_URL + '/rest/v1/approved_emails?order=created_at.asc', { headers: H })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (!data.length) {
-          document.getElementById('emailList').innerHTML = '<div class="empty"><strong>No approved emails yet</strong></div>';
-          return;
-        }
+        if (!data.length) { document.getElementById('emailList').innerHTML = '<div class="empty"><strong>No approved emails yet</strong></div>'; return; }
         var html = '<div class="row-list">';
         for (var i = 0; i < data.length; i++) {
           var e = data[i];
           var youTag = e.email === OWNER_EMAIL.toLowerCase() ? '<span class="you">you</span>' : '';
-          html += '<div class="row"><span>' + esc(e.email) + youTag + '</span>' +
-            '<button class="btn-remove-email" data-id="' + esc(e.id) + '">Remove</button></div>';
+          html += '<div class="row"><span>' + esc(e.email) + youTag + '</span><button class="btn-remove-email" data-id="' + esc(e.id) + '">Remove</button></div>';
         }
         html += '</div>';
         document.getElementById('emailList').innerHTML = html;
-        document.querySelectorAll('.btn-remove-email').forEach(function(btn) {
-          btn.addEventListener('click', function() { removeEmail(this.getAttribute('data-id')); });
-        });
+        document.querySelectorAll('.btn-remove-email').forEach(function(btn) { btn.addEventListener('click', function() { removeEmail(this.getAttribute('data-id')); }); });
       });
   }
 
   function addEmail() {
     var email = document.getElementById('newEmailInput').value.trim().toLowerCase();
     if (!email) return;
-    fetch(SB_URL + '/rest/v1/approved_emails', {
-      method: 'POST',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ email: email })
-    }).then(function(res) {
-      if (res.ok) {
-        document.getElementById('newEmailInput').value = '';
-        showToast('Email added!');
-        fetchEmails();
-      } else { showToast('Error — email may already exist'); }
+    fetch(SB_URL + '/rest/v1/approved_emails', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ email: email }) }).then(function(res) {
+      if (res.ok) { document.getElementById('newEmailInput').value = ''; showToast('Email added!'); fetchEmails(); } else { showToast('Error — email may already exist'); }
     });
   }
 
   function removeEmail(id) {
     if (!confirm('Remove this email?')) return;
-    fetch(SB_URL + '/rest/v1/approved_emails?id=eq.' + id, { method: 'DELETE', headers: H })
-      .then(function() { showToast('Removed'); fetchEmails(); });
+    fetch(SB_URL + '/rest/v1/approved_emails?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchEmails(); });
   }
 
   function fetchCategories(callback) {
@@ -1003,66 +1125,34 @@
 
   function renderTabs() {
     var label = 'All Categories';
-    if (activeTabId !== 'All' && catMap[activeTabId]) {
-      label = catMap[activeTabId];
-    }
+    if (activeTabId !== 'All' && catMap[activeTabId]) label = catMap[activeTabId];
     document.getElementById('filterLabel').textContent = label;
-
-    var html = '';
-    html += '<div class="filter-option ' + (activeTabId === 'All' ? 'active' : '') + '" data-tab="All">' +
-              '<span class="filter-option-name">All Categories</span>' +
-            '</div>';
+    var html = '<div class="filter-option ' + (activeTabId === 'All' ? 'active' : '') + '" data-tab="All"><span class="filter-option-name">All Categories</span></div>';
     for (var i = 0; i < allCategories.length; i++) {
       var c = allCategories[i];
       var isActive = activeTabId === c.id;
-      html += '<div class="filter-option ' + (isActive ? 'active' : '') + '" data-tab="' + esc(c.id) + '" data-cat-id="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '">' +
-                '<span class="filter-option-name">' + esc(c.name) + '</span>' +
-                '<span class="filter-option-actions">' +
-                  '<button class="filter-icon-btn" data-action="edit" title="Rename">&#9998;</button>' +
-                  '<button class="filter-icon-btn" data-action="delete" title="Delete">&#10005;</button>' +
-                '</span>' +
-              '</div>';
+      html += '<div class="filter-option ' + (isActive ? 'active' : '') + '" data-tab="' + esc(c.id) + '" data-cat-id="' + esc(c.id) + '" data-cat-name="' + esc(c.name) + '"><span class="filter-option-name">' + esc(c.name) + '</span><span class="filter-option-actions"><button class="filter-icon-btn" data-action="edit" title="Rename">&#9998;</button><button class="filter-icon-btn" data-action="delete" title="Delete">&#10005;</button></span></div>';
     }
     html += '<div class="filter-add-row" id="filterAddRow">+ Add Category</div>';
-
     document.getElementById('filterMenuInner').innerHTML = html;
-
     document.querySelectorAll('#filterMenuInner .filter-option').forEach(function(opt) {
-      opt.addEventListener('click', function(e) {
-        if (e.target.classList.contains('filter-icon-btn')) return;
-        setTab(this.getAttribute('data-tab'));
-        closeFilterMenu();
-      });
+      opt.addEventListener('click', function(e) { if (e.target.classList.contains('filter-icon-btn')) return; setTab(this.getAttribute('data-tab')); closeFilterMenu(); });
     });
-
     document.querySelectorAll('#filterMenuInner .filter-icon-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
         var row = this.closest('.filter-option');
         var catId = row.getAttribute('data-cat-id');
         var catName = row.getAttribute('data-cat-name');
-        var action = this.getAttribute('data-action');
-        if (action === 'edit') startEditCategory(row, catId, catName);
-        else if (action === 'delete') deleteCategory(catId, catName);
+        if (this.getAttribute('data-action') === 'edit') startEditCategory(row, catId, catName);
+        else deleteCategory(catId, catName);
       });
     });
-
-    document.getElementById('filterAddRow').addEventListener('click', function(e) {
-      e.stopPropagation();
-      openCategoryModal();
-      closeFilterMenu();
-    });
+    document.getElementById('filterAddRow').addEventListener('click', function(e) { e.stopPropagation(); openCategoryModal(); closeFilterMenu(); });
   }
 
-  function toggleFilterMenu(e) {
-    if (e) e.stopPropagation();
-    var menu = document.getElementById('filterMenu');
-    menu.classList.toggle('open');
-  }
-
-  function closeFilterMenu() {
-    document.getElementById('filterMenu').classList.remove('open');
-  }
+  function toggleFilterMenu(e) { if (e) e.stopPropagation(); document.getElementById('filterMenu').classList.toggle('open'); }
+  function closeFilterMenu() { document.getElementById('filterMenu').classList.remove('open'); }
 
   function startEditCategory(rowEl, catId, currentName) {
     var nameSpan = rowEl.querySelector('.filter-option-name');
@@ -1070,140 +1160,80 @@
     nameSpan.innerHTML = '<input type="text" class="filter-edit-input" value="' + esc(currentName) + '" />';
     actions.style.display = 'none';
     var input = nameSpan.querySelector('input');
-    input.focus();
-    input.select();
+    input.focus(); input.select();
     input.addEventListener('click', function(e) { e.stopPropagation(); });
     input.addEventListener('keydown', function(e) {
       e.stopPropagation();
       if (e.key === 'Enter') saveEditCategory(catId, input.value.trim(), currentName);
-      else if (e.key === 'Escape') { fetchCategories(); }
+      else if (e.key === 'Escape') fetchCategories();
     });
     input.addEventListener('blur', function() {
       var newName = input.value.trim();
-      if (newName && newName !== currentName) {
-        saveEditCategory(catId, newName, currentName);
-      } else {
-        fetchCategories();
-      }
+      if (newName && newName !== currentName) saveEditCategory(catId, newName, currentName); else fetchCategories();
     });
   }
 
   function saveEditCategory(catId, newName, oldName) {
     if (!newName) { showToast('Name cannot be empty'); fetchCategories(); return; }
     if (newName === oldName) { fetchCategories(); return; }
-    fetch(SB_URL + '/rest/v1/categories?id=eq.' + catId, {
-      method: 'PATCH',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ name: newName })
-    }).then(function(res) {
-      if (res.ok) {
-        showToast('Renamed');
-        fetchCategories(function() { fetchLinks(); });
-      } else {
-        showToast('Error — name may already exist');
-        fetchCategories();
-      }
+    fetch(SB_URL + '/rest/v1/categories?id=eq.' + catId, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ name: newName }) }).then(function(res) {
+      if (res.ok) { showToast('Renamed'); fetchCategories(function() { fetchLinks(); }); } else { showToast('Error — name may already exist'); fetchCategories(); }
     });
   }
 
   function renderCategoryDropdown() {
     var sel = document.getElementById('categoryInput');
     var html = '';
-    for (var i = 0; i < allCategories.length; i++) {
-      html += '<option value="' + esc(allCategories[i].id) + '">' + esc(allCategories[i].name) + '</option>';
-    }
+    for (var i = 0; i < allCategories.length; i++) { html += '<option value="' + esc(allCategories[i].id) + '">' + esc(allCategories[i].name) + '</option>'; }
     sel.innerHTML = html;
   }
 
-  function openCategoryModal() {
-    document.getElementById('newCategoryInput').value = '';
-    document.getElementById('categoryModalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('newCategoryInput').focus(); }, 100);
-  }
+  function openCategoryModal() { document.getElementById('newCategoryInput').value = ''; document.getElementById('categoryModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('newCategoryInput').focus(); }, 100); }
   function closeCategoryModal() { document.getElementById('categoryModalOverlay').classList.remove('open'); }
 
   function saveCategory() {
     var name = document.getElementById('newCategoryInput').value.trim();
     if (!name) { showToast('Enter a name'); return; }
-    fetch(SB_URL + '/rest/v1/categories', {
-      method: 'POST',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ name: name })
-    }).then(function(res) {
-      if (res.ok) {
-        closeCategoryModal();
-        showToast('Category added!');
-        fetchCategories();
-      } else { showToast('Error — name may already exist'); }
+    fetch(SB_URL + '/rest/v1/categories', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ name: name }) }).then(function(res) {
+      if (res.ok) { closeCategoryModal(); showToast('Category added!'); fetchCategories(); } else { showToast('Error — name may already exist'); }
     });
   }
 
   function deleteCategory(id, name) {
     if (!confirm('Delete category "' + name + '"? Links in this category will become uncategorized.')) return;
-    fetch(SB_URL + '/rest/v1/categories?id=eq.' + id, { method: 'DELETE', headers: H })
-      .then(function(res) {
-        if (res.ok) {
-          if (activeTabId === id) activeTabId = 'All';
-          showToast('Category deleted');
-          fetchCategories(function() { fetchLinks(); });
-        } else { showToast('Error deleting'); }
-      });
+    fetch(SB_URL + '/rest/v1/categories?id=eq.' + id, { method: 'DELETE', headers: H }).then(function(res) {
+      if (res.ok) { if (activeTabId === id) activeTabId = 'All'; showToast('Category deleted'); fetchCategories(function() { fetchLinks(); }); } else { showToast('Error deleting'); }
+    });
   }
 
   function fetchLinks() {
     fetch(SB_URL + '/rest/v1/links?order=created_at.desc', { headers: H })
       .then(function(r) { return r.json(); })
-      .then(function(data) {
-        allLinks = data;
-        linkMap = {};
-        for (var i = 0; i < data.length; i++) { linkMap[data[i].id] = data[i]; }
-        applyFilters();
-      });
+      .then(function(data) { allLinks = data; linkMap = {}; for (var i = 0; i < data.length; i++) { linkMap[data[i].id] = data[i]; } applyFilters(); });
   }
 
-  function setTab(tabId) {
-    activeTabId = tabId;
-    renderTabs();
-    document.getElementById('searchInput').value = '';
-    applyFilters();
-  }
+  function setTab(tabId) { activeTabId = tabId; renderTabs(); document.getElementById('searchInput').value = ''; applyFilters(); }
 
   function applyFilters() {
     var q = document.getElementById('searchInput').value.toLowerCase();
     var filtered = allLinks.slice();
-    // Dashboard shows every category as its own section, so the dropdown filter is bypassed there.
-    if (activeTabId !== 'All' && currentView !== 'dash') {
-      filtered = filtered.filter(function(l) { return l.category_id === activeTabId; });
-    }
+    if (activeTabId !== 'All' && currentView !== 'dash') { filtered = filtered.filter(function(l) { return l.category_id === activeTabId; }); }
     if (q) filtered = filtered.filter(function(l) { return (l.title||'').toLowerCase().indexOf(q) > -1 || (l.url||'').toLowerCase().indexOf(q) > -1; });
     renderLinks(filtered);
   }
 
   function renderLinks(links) {
     document.getElementById('count').textContent = links.length + ' resource' + (links.length !== 1 ? 's' : '');
-    // Home and dashboard render their own structure (and their own empty states).
     if (currentView === 'home') { renderHome(links); return; }
     if (currentView === 'dash') { renderDashboard(links); return; }
-    if (!links.length) {
-      document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
-      return;
-    }
+    if (!links.length) { document.getElementById('linksList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; return; }
     var html;
     if (currentView === 'tile') {
       html = '<div class="tiles-grid">';
       for (var i = 0; i < links.length; i++) {
         var l = links[i];
         var catName = l.category_id ? (catMap[l.category_id] || '') : '';
-        html += '<div class="tile">' +
-          '<div class="tile-title">' + esc(l.title) + '</div>' +
-          '<a class="tile-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
-          '<div class="tile-cat">' + esc(catName) + '</div>' +
-          '<div class="tile-actions">' +
-            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open &#8599;</a>' +
-            '<button class="btn-edit" data-id="' + esc(l.id) + '">&#9998;</button>' +
-            '<button class="btn-delete" data-id="' + esc(l.id) + '">&#10005;</button>' +
-          '</div>' +
-        '</div>';
+        html += '<div class="tile"><div class="tile-title">' + esc(l.title) + '</div><a class="tile-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a><div class="tile-cat">' + esc(catName) + '</div><div class="tile-actions"><a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open &#8599;</a><button class="btn-edit" data-id="' + esc(l.id) + '">&#9998;</button><button class="btn-delete" data-id="' + esc(l.id) + '">&#10005;</button></div></div>';
       }
       html += '</div>';
     } else {
@@ -1211,41 +1241,17 @@
       for (var i = 0; i < links.length; i++) {
         var l = links[i];
         var catName = l.category_id ? (catMap[l.category_id] || '') : '';
-        html += '<div class="link-item">' +
-          '<div class="link-info">' +
-            '<div class="link-title">' + esc(l.title) + '</div>' +
-            '<a class="link-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a>' +
-            '<div class="link-cat">' + esc(catName) + '</div>' +
-          '</div>' +
-          '<div class="link-actions">' +
-            '<a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open &#8599;</a>' +
-            '<button class="btn-edit" data-id="' + esc(l.id) + '">Edit</button>' +
-            '<button class="btn-delete" data-id="' + esc(l.id) + '">&#10005;</button>' +
-          '</div>' +
-        '</div>';
+        html += '<div class="link-item"><div class="link-info"><div class="link-title">' + esc(l.title) + '</div><a class="link-url" href="' + esc(l.url) + '" target="_blank">' + esc(l.url) + '</a><div class="link-cat">' + esc(catName) + '</div></div><div class="link-actions"><a class="btn-open" href="' + esc(l.url) + '" target="_blank">Open &#8599;</a><button class="btn-edit" data-id="' + esc(l.id) + '">Edit</button><button class="btn-delete" data-id="' + esc(l.id) + '">&#10005;</button></div></div>';
       }
       html += '</div>';
     }
     document.getElementById('linksList').innerHTML = html;
-    document.querySelectorAll('.btn-edit').forEach(function(btn) {
-      btn.addEventListener('click', function() { openModal(linkMap[this.getAttribute('data-id')]); });
-    });
-    document.querySelectorAll('.btn-delete').forEach(function(btn) {
-      btn.addEventListener('click', function() { deleteLink(this.getAttribute('data-id')); });
-    });
+    document.querySelectorAll('.btn-edit').forEach(function(btn) { btn.addEventListener('click', function() { openModal(linkMap[this.getAttribute('data-id')]); }); });
+    document.querySelectorAll('.btn-delete').forEach(function(btn) { btn.addEventListener('click', function() { deleteLink(this.getAttribute('data-id')); }); });
   }
 
-  function greetingWord() {
-    var h = new Date().getHours();
-    if (h < 12) return 'Good morning';
-    if (h < 18) return 'Good afternoon';
-    return 'Good evening';
-  }
-
-  function ownerFirstName() {
-    return 'Trent';
-  }
-
+  function greetingWord() { var h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 18) return 'Good afternoon'; return 'Good evening'; }
+  function ownerFirstName() { return 'Trent'; }
   function timeAgo(iso) {
     if (!iso) return '';
     var then = new Date(iso).getTime();
@@ -1260,89 +1266,53 @@
   }
 
   function renderHome(allLinksArg) {
-    // Home always reflects the whole library, not the dropdown filter.
     var links = allLinks.slice();
     var total = links.length;
 
-    // Hero target: top pinned, else most recent (links are fetched newest-first).
-    var pinned = links.filter(function(l) { return l.pinned; });
-    var heroLink = pinned.length ? pinned[0] : (links.length ? links[0] : null);
-
-    // Recent activity: newest 5.
-    var recent = links.slice(0, 5);
-
     var greet = '<div class="home-greet">' + greetingWord() + ', <span class="acc">' + esc(ownerFirstName()) + '.</span></div>';
     var statusLine = '<div class="home-status-row">' +
-      '<div class="home-status"><span class="live"></span>' +
-      (total ? ('all ' + total + ' tool' + (total !== 1 ? 's' : '') + ' operational') : 'ready when you are') + '</div>' +
+      '<div class="home-status"><span class="live"></span>' + (total ? ('all ' + total + ' tool' + (total !== 1 ? 's' : '') + ' operational') : 'ready when you are') + '</div>' +
       '<button class="analyze-btn" onclick="openAnalyze()">&#10024; Analyze &amp; Clean Up</button>' +
       '</div>';
 
-    // Hero: embedded Google Calendar. Click expands to a full-page calendar view.
     var calEmbed = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago';
     var hero = '<div class="hero hero-cal" onclick="openCalendar()">' +
-                 '<div class="hero-cal-frame">' +
-                   '<iframe src="' + calEmbed + '" frameborder="0" scrolling="no"></iframe>' +
-                 '</div>' +
-                 '<div class="hero-cal-overlay">' +
-                   '<div class="hero-eyebrow">Your Week</div>' +
-                   '<div class="hero-cal-cta">Expand calendar &rarr;</div>' +
-                 '</div>' +
+                 '<div class="hero-cal-frame"><iframe src="' + calEmbed + '" frameborder="0" scrolling="no"></iframe></div>' +
+                 '<div class="hero-cal-overlay"><div class="hero-eyebrow">Your Week</div><div class="hero-cal-cta">Expand calendar &rarr;</div></div>' +
                '</div>';
 
-    // Recent activity card
-    var recentInner = '';
-    if (recent.length) {
-      for (var i = 0; i < recent.length; i++) {
-        var r = recent[i];
-        var fav = faviconFor(r.url);
-        var favInner = fav
-          ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(r.title)) + '\';" />'
-          : esc(firstLetter(r.title));
-        var meta = (r.category_id && catMap[r.category_id]) ? catMap[r.category_id] : '';
-        var ago = timeAgo(r.created_at);
-        if (ago) meta = meta ? (meta + ' · ' + ago) : ago;
-        recentInner += '<a class="recent-item" href="' + esc(r.url) + '" target="_blank" rel="noopener">' +
-                         '<span class="recent-fav">' + favInner + '</span>' +
-                         '<span class="recent-info">' +
-                           '<span class="recent-title">' + esc(r.title) + '</span>' +
-                           '<span class="recent-meta">' + esc(meta) + '</span>' +
-                         '</span>' +
-                       '</a>';
-      }
-    } else {
-      recentInner = '<div class="recent-empty">Nothing added yet.</div>';
-    }
-    var recentCard = '<div class="recent-card">' +
-        '<div class="recent-head"><span class="rdot">&#9737;</span> Recent activity</div>' +
-        recentInner +
-      '</div>';
+    // Gmail inbox widget (replaces "Recent Activity")
+    var gmailCard = '<div class="gmail-card" id="gmailWidget"></div>';
 
-    // Below the hero: his-style cards, split into Personal Tools and Work Tools,
-    // with each of your categories as a labeled sub-group inside.
     var toolsHTML = buildGroupedToolCards(links);
 
     document.getElementById('linksList').innerHTML =
       greet + statusLine +
-      '<div class="home-top">' + hero + recentCard + '</div>' +
+      '<div class="home-top">' + hero + gmailCard + '</div>' +
       toolsHTML;
 
     wireDashButtons();
+
+    // Initialise Gmail widget state
+    if (gmailToken) {
+      if (gmailEmails.length > 0) {
+        gmailRenderEmails();
+      } else {
+        gmailFetchInbox();
+      }
+    } else {
+      gmailRenderConnect();
+    }
   }
 
   function toolCardHTML(l) {
     var color = colorForCategory(l.category_id);
     var catName = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Uncategorized';
     var fav = faviconFor(l.url);
-    var chipInner = fav
-      ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />'
-      : '<span>' + esc(firstLetter(l.title)) + '</span>';
+    var chipInner = fav ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />' : '<span>' + esc(firstLetter(l.title)) + '</span>';
     var desc = l.description ? esc(l.description) : esc(l.url);
     return '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
-        '<span class="tool-edit">' +
-          '<button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button>' +
-          '<button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button>' +
-        '</span>' +
+        '<span class="tool-edit"><button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button></span>' +
         '<span class="tool-eyebrow"><span class="tool-chip">' + chipInner + '</span>' + esc(catName) + '</span>' +
         '<span class="tool-name">' + esc(l.title) + '</span>' +
         '<span class="tool-desc">' + desc + '</span>' +
@@ -1350,71 +1320,26 @@
   }
 
   function buildGroupedToolCards(links) {
-    // Split by the per-link tag. "both" appears in both columns. Untagged defaults to personal.
     var workLinks = links.filter(function(l) { var t = l.link_type || 'personal'; return t === 'work' || t === 'both'; });
     var personalLinks = links.filter(function(l) { var t = l.link_type || 'personal'; return t === 'personal' || t === 'both'; });
 
-    // Special in-app card: Deployment Tracker (opens the board, not a URL).
-    var trackerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openTracker();" style="--tc:#1F6FEB;--tc-soft:#1F6FEB22;">' +
-        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#9783;</span></span>Work</span>' +
-        '<span class="tool-name">Deployment Tracker</span>' +
-        '<span class="tool-desc">Track what needs deploying, what\'s in progress, and what\'s done.</span>' +
-      '</a>';
-
-    // Special in-app card: Documentation (opens the docs list, not a URL).
-    var docsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'work\');" style="--tc:#0891B2;--tc-soft:#0891B222;">' +
-        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Work</span>' +
-        '<span class="tool-name">Documentation</span>' +
-        '<span class="tool-desc">Links to your docs, specs, and references.</span>' +
-      '</a>';
-
-    // Special in-app card: Integration Helper
-    var integrationCard = '<a class="tool-card" href="integration-helper.html" target="_blank" style="--tc:#00897B;--tc-soft:#00897B22;">' +
-        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#8747;x</span></span>Work</span>' +
-        '<span class="tool-name">Integration Helper</span>' +
-        '<span class="tool-desc">AI-powered step-by-step Salesforce integration builder.</span>' +
-      '</a>';
-
+    var trackerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openTracker();" style="--tc:#1F6FEB;--tc-soft:#1F6FEB22;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#9783;</span></span>Work</span><span class="tool-name">Deployment Tracker</span><span class="tool-desc">Track what needs deploying, what\'s in progress, and what\'s done.</span></a>';
+    var docsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'work\');" style="--tc:#0891B2;--tc-soft:#0891B222;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Work</span><span class="tool-name">Documentation</span><span class="tool-desc">Links to your docs, specs, and references.</span></a>';
+    var integrationCard = '<a class="tool-card" href="integration-helper.html" target="_blank" style="--tc:#00897B;--tc-soft:#00897B22;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#8747;x</span></span>Work</span><span class="tool-name">Integration Helper</span><span class="tool-desc">AI-powered step-by-step Salesforce integration builder.</span></a>';
     var leadCards = trackerCard + docsCard + integrationCard;
 
-    // Special in-app card: Personal Documentation (separate list from work docs).
-    var personalDocsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'personal\');" style="--tc:#9333EA;--tc-soft:#9333EA22;">' +
-        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Personal</span>' +
-        '<span class="tool-name">Documentation</span>' +
-        '<span class="tool-desc">Links to your personal docs, notes, and references.</span>' +
-      '</a>';
-    var personalLeadCards = personalDocsCard;
-
-    // Special in-app card: Planner (weekly view).
-    var plannerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openPlanner();" style="--tc:#DB2777;--tc-soft:#DB277722;">' +
-        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#128197;</span></span>Personal</span>' +
-        '<span class="tool-name">Planner</span>' +
-        '<span class="tool-desc">Plan your week. Add items to any day.</span>' +
-      '</a>';
-    personalLeadCards = plannerCard + personalDocsCard;
+    var personalDocsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'personal\');" style="--tc:#9333EA;--tc-soft:#9333EA22;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Personal</span><span class="tool-name">Documentation</span><span class="tool-desc">Links to your personal docs, notes, and references.</span></a>';
+    var plannerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openPlanner();" style="--tc:#DB2777;--tc-soft:#DB277722;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#128197;</span></span>Personal</span><span class="tool-name">Planner</span><span class="tool-desc">Plan your week. Add items to any day.</span></a>';
+    var personalLeadCards = plannerCard + personalDocsCard;
 
     function column(title, color, items, leadCardsHTML, leadCount) {
       leadCount = leadCount || 0;
-      var head = '<div class="group-head" style="--gc:' + color + ';">' +
-                   '<span class="group-bar"></span>' +
-                   '<span class="group-title">' + title + '</span>' +
-                   '<span class="group-count">' + (items.length + leadCount) + '</span>' +
-                 '</div>';
+      var head = '<div class="group-head" style="--gc:' + color + ';"><span class="group-bar"></span><span class="group-title">' + title + '</span><span class="group-count">' + (items.length + leadCount) + '</span></div>';
       var body = '';
-      // Tools section (the in-app feature cards)
-      if (leadCardsHTML) {
-        body += '<div class="subcat-label">Tools</div>' +
-                '<div class="tools-grid">' + leadCardsHTML + '</div>';
-      }
-      // Links section (saved external links)
+      if (leadCardsHTML) { body += '<div class="subcat-label">Tools</div><div class="tools-grid">' + leadCardsHTML + '</div>'; }
       body += '<div class="subcat-label">Links</div>';
-      if (items.length) {
-        body += '<div class="tools-grid">';
-        for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]);
-        body += '</div>';
-      } else {
-        body += '<div class="recent-empty" style="padding:0.5rem 0;">No links here yet.</div>';
-      }
+      if (items.length) { body += '<div class="tools-grid">'; for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]); body += '</div>'; }
+      else { body += '<div class="recent-empty" style="padding:0.5rem 0;">No links here yet.</div>'; }
       return '<div class="tool-col">' + head + body + '</div>';
     }
 
@@ -1426,169 +1351,63 @@
 
   function launchTileHTML(it, pinned) {
     var fav = faviconFor(it.url);
-    var icoInner = fav
-      ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(it.title)) + '\';" />'
-      : esc(firstLetter(it.title));
+    var icoInner = fav ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(firstLetter(it.title)) + '\';" />' : esc(firstLetter(it.title));
     var statusHTML = '';
     if (isDeployCategory(it.category_id)) {
       var st = statusByKey(it.status);
-      statusHTML = '<span class="launch-status ' + st.cls + '" data-status="' + esc(it.id) + '" title="Click to change status">' +
-                     '<span class="sdot"></span><span class="slabel">' + esc(st.label) + '</span>' +
-                   '</span>';
+      statusHTML = '<span class="launch-status ' + st.cls + '" data-status="' + esc(it.id) + '" title="Click to change status"><span class="sdot"></span><span class="slabel">' + esc(st.label) + '</span></span>';
     }
     return '<a class="launch" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
         '<button class="launch-star ' + (pinned ? 'pinned' : '') + '" data-pin="' + esc(it.id) + '" title="' + (pinned ? 'Unpin' : 'Pin to top') + '">' + (pinned ? '&#9733;' : '&#9734;') + '</button>' +
-        '<span class="launch-edit">' +
-          '<button class="launch-mini" data-edit="' + esc(it.id) + '" title="Edit">&#9998;</button>' +
-          '<button class="launch-mini del" data-del="' + esc(it.id) + '" title="Delete">&#10005;</button>' +
-        '</span>' +
-        '<span class="launch-ico">' + icoInner + '</span>' +
-        '<span class="launch-name">' + esc(it.title) + '</span>' +
-        statusHTML +
-      '</a>';
+        '<span class="launch-edit"><button class="launch-mini" data-edit="' + esc(it.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(it.id) + '" title="Delete">&#10005;</button></span>' +
+        '<span class="launch-ico">' + icoInner + '</span><span class="launch-name">' + esc(it.title) + '</span>' + statusHTML + '</a>';
   }
 
   function buildDashboardHTML(links, includePinned) {
     var pinned = links.filter(function(l) { return l.pinned; });
-
-    // Group by category, in the order categories appear, then uncategorized last.
     var groups = [];
     var groupIndex = {};
-    for (var i = 0; i < allCategories.length; i++) {
-      var c = allCategories[i];
-      groupIndex[c.id] = groups.length;
-      groups.push({ id: c.id, name: c.name, color: colorForCategory(c.id), items: [] });
-    }
+    for (var i = 0; i < allCategories.length; i++) { var c = allCategories[i]; groupIndex[c.id] = groups.length; groups.push({ id: c.id, name: c.name, color: colorForCategory(c.id), items: [] }); }
     var uncat = { id: null, name: 'Uncategorized', color: '#6B7A99', items: [] };
-    for (var j = 0; j < links.length; j++) {
-      var l = links[j];
-      if (l.category_id && groupIndex.hasOwnProperty(l.category_id)) {
-        groups[groupIndex[l.category_id]].items.push(l);
-      } else {
-        uncat.items.push(l);
-      }
-    }
+    for (var j = 0; j < links.length; j++) { var l = links[j]; if (l.category_id && groupIndex.hasOwnProperty(l.category_id)) { groups[groupIndex[l.category_id]].items.push(l); } else { uncat.items.push(l); } }
     if (uncat.items.length) groups.push(uncat);
-
     var anyShown = (includePinned && pinned.length) || groups.some(function(g) { return g.items.length; });
-    if (!anyShown) {
-      return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
-    }
-
+    if (!anyShown) return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>';
     var html = '';
-
-    // Pinned strip first (optional — home shows it, dashboard shows it)
     if (includePinned && pinned.length) {
-      html += '<div class="dash-section pin-section">' +
-                '<div class="dash-head">' +
-                  '<span class="dash-dot"></span>' +
-                  '<span class="dash-title">&#9733; Pinned</span>' +
-                  '<span class="dash-count">' + pinned.length + '</span>' +
-                '</div>' +
-                '<div class="dash-grid">';
+      html += '<div class="dash-section pin-section"><div class="dash-head"><span class="dash-dot"></span><span class="dash-title">&#9733; Pinned</span><span class="dash-count">' + pinned.length + '</span></div><div class="dash-grid">';
       for (var p = 0; p < pinned.length; p++) { html += launchTileHTML(pinned[p], true); }
       html += '</div></div>';
     }
-
-    // Category sections (each item shows its own pin state)
     for (var g = 0; g < groups.length; g++) {
       var grp = groups[g];
       if (!grp.items.length) continue;
-      html += '<div class="dash-section" style="--sec:' + grp.color + ';">' +
-                '<div class="dash-head">' +
-                  '<span class="dash-dot"></span>' +
-                  '<span class="dash-title">' + esc(grp.name) + '</span>' +
-                  '<span class="dash-count">' + grp.items.length + '</span>' +
-                '</div>' +
-                '<div class="dash-grid">';
+      html += '<div class="dash-section" style="--sec:' + grp.color + ';"><div class="dash-head"><span class="dash-dot"></span><span class="dash-title">' + esc(grp.name) + '</span><span class="dash-count">' + grp.items.length + '</span></div><div class="dash-grid">';
       for (var k = 0; k < grp.items.length; k++) { html += launchTileHTML(grp.items[k], !!grp.items[k].pinned); }
       html += '</div></div>';
     }
     return html;
   }
 
-  function renderDashboard(links) {
-    document.getElementById('linksList').innerHTML = buildDashboardHTML(links, true);
-    wireDashButtons();
-  }
+  function renderDashboard(links) { document.getElementById('linksList').innerHTML = buildDashboardHTML(links, true); wireDashButtons(); }
 
   function wireDashButtons() {
-    document.querySelectorAll('.launch-mini[data-edit]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        openModal(linkMap[this.getAttribute('data-edit')]);
-      });
-    });
-    document.querySelectorAll('.launch-mini[data-del]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        deleteLink(this.getAttribute('data-del'));
-      });
-    });
-    document.querySelectorAll('.launch-star[data-pin]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        togglePin(this.getAttribute('data-pin'));
-      });
-    });
-    document.querySelectorAll('.launch-status[data-status]').forEach(function(el) {
-      el.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        cycleStatus(this.getAttribute('data-status'));
-      });
-    });
+    document.querySelectorAll('.launch-mini[data-edit]').forEach(function(btn) { btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openModal(linkMap[this.getAttribute('data-edit')]); }); });
+    document.querySelectorAll('.launch-mini[data-del]').forEach(function(btn) { btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); deleteLink(this.getAttribute('data-del')); }); });
+    document.querySelectorAll('.launch-star[data-pin]').forEach(function(btn) { btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); togglePin(this.getAttribute('data-pin')); }); });
+    document.querySelectorAll('.launch-status[data-status]').forEach(function(el) { el.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); cycleStatus(this.getAttribute('data-status')); }); });
   }
 
   function cycleStatus(id) {
-    var link = linkMap[id];
-    if (!link) return;
-    var prev = link.status || 'needs';
-    var next = nextStatusKey(prev);
-    link.status = next; // optimistic
-    applyFilters();
-    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, {
-      method: 'PATCH',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ status: next })
-    }).then(function(res) {
-      if (!res.ok) {
-        link.status = prev;
-        applyFilters();
-        showToast('Could not save status — is the "status" column added?');
-      } else {
-        showToast(statusByKey(next).label);
-      }
-    }).catch(function() {
-      link.status = prev;
-      applyFilters();
-      showToast('Could not save status');
-    });
+    var link = linkMap[id]; if (!link) return;
+    var prev = link.status || 'needs'; var next = nextStatusKey(prev); link.status = next; applyFilters();
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: next }) }).then(function(res) { if (!res.ok) { link.status = prev; applyFilters(); showToast('Could not save status'); } else { showToast(statusByKey(next).label); } }).catch(function() { link.status = prev; applyFilters(); });
   }
 
   function togglePin(id) {
-    var link = linkMap[id];
-    if (!link) return;
-    var newVal = !link.pinned;
-    // Optimistic update so it feels instant
-    link.pinned = newVal;
-    applyFilters();
-    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, {
-      method: 'PATCH',
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ pinned: newVal })
-    }).then(function(res) {
-      if (!res.ok) {
-        link.pinned = !newVal; // revert on failure
-        applyFilters();
-        showToast('Could not save pin — is the "pinned" column added?');
-      } else {
-        showToast(newVal ? 'Pinned to top' : 'Unpinned');
-      }
-    }).catch(function() {
-      link.pinned = !newVal;
-      applyFilters();
-      showToast('Could not save pin');
-    });
+    var link = linkMap[id]; if (!link) return;
+    var newVal = !link.pinned; link.pinned = newVal; applyFilters();
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ pinned: newVal }) }).then(function(res) { if (!res.ok) { link.pinned = !newVal; applyFilters(); showToast('Could not save pin'); } else { showToast(newVal ? 'Pinned to top' : 'Unpinned'); } }).catch(function() { link.pinned = !newVal; applyFilters(); });
   }
 
   function setLinkType(t) {
@@ -1607,15 +1426,11 @@
     document.getElementById('descInput').value = (link && link.description) ? link.description : '';
     setLinkType(link ? (link.link_type || 'work') : 'work');
     var sel = document.getElementById('categoryInput');
-    if (link && link.category_id) {
-      sel.value = link.category_id;
-    } else if (allCategories.length) {
-      sel.value = allCategories[0].id;
-    }
+    if (link && link.category_id) sel.value = link.category_id;
+    else if (allCategories.length) sel.value = allCategories[0].id;
     document.getElementById('modalOverlay').classList.add('open');
     setTimeout(function() { document.getElementById('titleInput').focus(); }, 100);
   }
-
   function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 
   function saveLink() {
@@ -1629,20 +1444,12 @@
     var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/links?id=eq.' + editId : SB_URL + '/rest/v1/links';
-    fetch(endpoint, {
-      method: method,
-      headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, url: fullUrl, description: description || null, category_id: category_id, link_type: link_type })
-    }).then(function(res) {
-      if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); }
-      else { showToast('Error saving'); }
-    });
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, url: fullUrl, description: description || null, category_id: category_id, link_type: link_type }) }).then(function(res) { if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); } else { showToast('Error saving'); } });
   }
 
   function deleteLink(id) {
     if (!confirm('Delete this?')) return;
-    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, { method: 'DELETE', headers: H })
-      .then(function() { showToast('Deleted'); fetchLinks(); });
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchLinks(); });
   }
 
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
@@ -1651,22 +1458,12 @@
   document.getElementById('docModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDocModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
-  document.addEventListener('click', function(e) {
-    var wrap = document.querySelector('.filter-wrap');
-    if (wrap && !wrap.contains(e.target)) closeFilterMenu();
-  });
+  document.addEventListener('click', function(e) { var wrap = document.querySelector('.filter-wrap'); if (wrap && !wrap.contains(e.target)) closeFilterMenu(); });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); closePlanModal(); closeAnalyze(); }
-    // Press "/" to jump to search — but not while typing in a field or a modal is open.
-    if (e.key === '/' &&
-        document.getElementById('screen-library').classList.contains('active') &&
-        !document.getElementById('modalOverlay').classList.contains('open') &&
-        !document.getElementById('categoryModalOverlay').classList.contains('open')) {
+    if (e.key === '/' && document.getElementById('screen-library').classList.contains('active') && !document.getElementById('modalOverlay').classList.contains('open') && !document.getElementById('categoryModalOverlay').classList.contains('open')) {
       var tag = (e.target.tagName || '').toLowerCase();
-      if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
-        e.preventDefault();
-        document.getElementById('searchInput').focus();
-      }
+      if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') { e.preventDefault(); document.getElementById('searchInput').focus(); }
     }
     if (e.key === 'Enter') {
       if (document.getElementById('screen-login').classList.contains('active')) checkEmail();
@@ -1677,304 +1474,122 @@
 
   // ===== ANALYZE / CLEANUP =====
   var analyzeSuggestions = [];
-
   function openAnalyze() {
-    document.getElementById('analyzeBody').innerHTML =
-      '<p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;">' +
-        'This scans all your links and suggests fixes for blank descriptions, messy names, inconsistent capitalization, Work/Personal tags, and duplicate-looking categories. Nothing changes until you approve it.' +
-      '</p>' +
-      '<div class="modal-actions">' +
-        '<button class="btn-save" onclick="runAnalyze()">Scan my links</button>' +
-        '<button class="btn-cancel" onclick="closeAnalyze()">Cancel</button>' +
-      '</div>';
+    document.getElementById('analyzeBody').innerHTML = '<p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;">This scans all your links and suggests fixes for blank descriptions, messy names, inconsistent capitalization, Work/Personal tags, and duplicate-looking categories. Nothing changes until you approve it.</p><div class="modal-actions"><button class="btn-save" onclick="runAnalyze()">Scan my links</button><button class="btn-cancel" onclick="closeAnalyze()">Cancel</button></div>';
     document.getElementById('analyzeModalOverlay').classList.add('open');
   }
   function closeAnalyze() { document.getElementById('analyzeModalOverlay').classList.remove('open'); fetchLinks(); }
 
   function runAnalyze() {
     if (!allLinks.length) { showToast('No links to analyze yet'); return; }
-    document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">&#10024; Analyzing your ' + allLinks.length + ' links… this can take a moment.</div>';
-
-    // Compact payload — only what the model needs.
+    document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">&#10024; Analyzing your ' + allLinks.length + ' links\u2026 this can take a moment.</div>';
     var catList = allCategories.map(function(c) { return c.name; });
-    var linkData = allLinks.map(function(l) {
-      return {
-        id: l.id,
-        title: l.title || '',
-        url: l.url || '',
-        description: l.description || '',
-        category: (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : '',
-        type: l.link_type || 'personal'
-      };
-    });
-
-    var prompt =
-      'You are cleaning up a personal link library. Below are the links as JSON, plus the list of existing categories.\n\n' +
-      'EXISTING CATEGORIES: ' + JSON.stringify(catList) + '\n\n' +
-      'LINKS: ' + JSON.stringify(linkData) + '\n\n' +
-      'Suggest cleanup changes. For each change, output an object with: ' +
-      '"id" (the link id), "field" (one of: description, title, category, type), ' +
-      '"old" (current value), "new" (suggested value), and "why" (a short reason).\n' +
-      'Rules:\n' +
-      '- Fill blank descriptions with a concise one-line description inferred from the title and URL. Do not invent specifics you cannot know from the title/URL.\n' +
-      '- Fix messy or inconsistent titles (capitalization, "salesforce" -> "Salesforce", trailing junk). Keep them recognizable.\n' +
-      '- Suggest a better category ONLY if the current one is clearly wrong or blank; prefer existing categories.\n' +
-      '- Suggest type (work or personal) only if clearly mismatched.\n' +
-      '- Do NOT suggest a change if the current value is already fine. Only include real improvements.\n' +
-      '- Never change a URL.\n' +
-      'Respond with ONLY a JSON array of change objects, no preamble, no markdown, no code fences. If nothing needs changing, respond with [].';
-
-    fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    })
+    var linkData = allLinks.map(function(l) { return { id: l.id, title: l.title || '', url: l.url || '', description: l.description || '', category: (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : '', type: l.link_type || 'personal' }; });
+    var prompt = 'You are cleaning up a personal link library. Below are the links as JSON, plus the list of existing categories.\n\nEXISTING CATEGORIES: ' + JSON.stringify(catList) + '\n\nLINKS: ' + JSON.stringify(linkData) + '\n\nSuggest cleanup changes. For each change, output an object with: "id" (the link id), "field" (one of: description, title, category, type), "old" (current value), "new" (suggested value), and "why" (a short reason).\nRules:\n- Fill blank descriptions with a concise one-line description inferred from the title and URL.\n- Fix messy or inconsistent titles.\n- Suggest a better category ONLY if clearly wrong or blank.\n- Suggest type only if clearly mismatched.\n- Do NOT suggest a change if the current value is already fine.\n- Never change a URL.\nRespond with ONLY a JSON array of change objects, no preamble, no markdown, no code fences.';
+    fetch('/api/claude', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }) })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (data && data.error) {
-        document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">' + esc(typeof data.error === 'string' ? data.error : (data.error.message || 'Service error')) + '<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
-        return;
-      }
+      if (data && data.error) { document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">' + esc(typeof data.error === 'string' ? data.error : (data.error.message || 'Service error')) + '<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>'; return; }
       var text = (data.content || []).filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('\n');
       var clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      var arr;
-      try { arr = JSON.parse(clean); } catch (e) { arr = null; }
-      if (!Array.isArray(arr)) {
-        document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t read the suggestions returned by the service.<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
-        return;
-      }
+      var arr; try { arr = JSON.parse(clean); } catch(e) { arr = null; }
+      if (!Array.isArray(arr)) { document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t read the suggestions.<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>'; return; }
       analyzeSuggestions = arr.map(function(s, i) { s._i = i; s._state = 'pending'; return s; });
       renderSuggestions();
     })
-    .catch(function() {
-      document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t reach the analysis service. Make sure the /api/claude function is deployed and ANTHROPIC_API_KEY is set in Vercel.<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
-    });
+    .catch(function() { document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t reach the analysis service.<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>'; });
   }
 
   function renderSuggestions() {
-    if (!analyzeSuggestions.length) {
-      document.getElementById('analyzeBody').innerHTML =
-        '<div class="analyze-summary">&#10003; Everything looks clean — no changes suggested.</div>' +
-        '<div class="modal-actions"><button class="btn-cancel" onclick="closeAnalyze()">Close</button></div>';
-      return;
-    }
+    if (!analyzeSuggestions.length) { document.getElementById('analyzeBody').innerHTML = '<div class="analyze-summary">&#10003; Everything looks clean.</div><div class="modal-actions"><button class="btn-cancel" onclick="closeAnalyze()">Close</button></div>'; return; }
     var pending = analyzeSuggestions.filter(function(s) { return s._state === 'pending'; }).length;
-    var html = '<div class="analyze-summary">Found ' + analyzeSuggestions.length + ' suggestion' + (analyzeSuggestions.length !== 1 ? 's' : '') + '. ' + pending + ' pending. Review each below.</div>';
-    html += '<div class="analyze-bulk">' +
-              '<button class="sug-apply" onclick="applyAllSuggestions()">Apply all pending</button>' +
-              '<button class="sug-skip" onclick="closeAnalyze()">Done</button>' +
-            '</div>';
-    html += '<div class="analyze-scroll">';
+    var html = '<div class="analyze-summary">Found ' + analyzeSuggestions.length + ' suggestion' + (analyzeSuggestions.length !== 1 ? 's' : '') + '. ' + pending + ' pending.</div>';
+    html += '<div class="analyze-bulk"><button class="sug-apply" onclick="applyAllSuggestions()">Apply all pending</button><button class="sug-skip" onclick="closeAnalyze()">Done</button></div><div class="analyze-scroll">';
     for (var i = 0; i < analyzeSuggestions.length; i++) {
       var s = analyzeSuggestions[i];
       var link = linkMap[s.id];
-      var itemName = link ? esc(link.title || link.url) : 'Unknown link';
-      html += '<div class="sug ' + (s._state === 'applied' ? 'applied' : s._state === 'skipped' ? 'skipped' : '') + '">' +
-                '<div class="sug-field">' + esc(s.field || 'change') + '</div>' +
-                '<div class="sug-item-title">' + itemName + '</div>' +
-                '<div class="sug-change">' +
-                  (s.old ? '<span class="sug-old">' + esc(String(s.old)) + '</span><span class="sug-arrow">&rarr;</span>' : '<span class="sug-arrow">Set to:</span> ') +
-                  '<span class="sug-new">' + esc(String(s.new || '')) + '</span>' +
-                '</div>';
-      if (s._state === 'pending') {
-        html += '<div class="sug-actions">' +
-                  '<button class="sug-apply" data-apply="' + s._i + '">Apply</button>' +
-                  '<button class="sug-skip" data-skip="' + s._i + '">Skip</button>' +
-                '</div>';
-      } else {
-        html += '<div class="sug-status ' + (s._state === 'applied' ? 'ok' : 'no') + '">' + (s._state === 'applied' ? '&#10003; Applied' : 'Skipped') + '</div>';
-      }
+      var itemName = link ? esc(link.title || link.url) : 'Unknown';
+      html += '<div class="sug ' + (s._state === 'applied' ? 'applied' : s._state === 'skipped' ? 'skipped' : '') + '"><div class="sug-field">' + esc(s.field || 'change') + '</div><div class="sug-item-title">' + itemName + '</div><div class="sug-change">' + (s.old ? '<span class="sug-old">' + esc(String(s.old)) + '</span><span class="sug-arrow">&rarr;</span>' : '<span class="sug-arrow">Set to:</span> ') + '<span class="sug-new">' + esc(String(s.new || '')) + '</span></div>';
+      if (s._state === 'pending') { html += '<div class="sug-actions"><button class="sug-apply" data-apply="' + s._i + '">Apply</button><button class="sug-skip" data-skip="' + s._i + '">Skip</button></div>'; }
+      else { html += '<div class="sug-status ' + (s._state === 'applied' ? 'ok' : 'no') + '">' + (s._state === 'applied' ? '&#10003; Applied' : 'Skipped') + '</div>'; }
       html += '</div>';
     }
     html += '</div>';
     document.getElementById('analyzeBody').innerHTML = html;
-
-    document.querySelectorAll('[data-apply]').forEach(function(b) {
-      b.addEventListener('click', function() { applySuggestion(parseInt(this.getAttribute('data-apply'), 10)); });
-    });
-    document.querySelectorAll('[data-skip]').forEach(function(b) {
-      b.addEventListener('click', function() {
-        var idx = parseInt(this.getAttribute('data-skip'), 10);
-        var s = findSug(idx); if (s) s._state = 'skipped';
-        renderSuggestions();
-      });
-    });
+    document.querySelectorAll('[data-apply]').forEach(function(b) { b.addEventListener('click', function() { applySuggestion(parseInt(this.getAttribute('data-apply'), 10)); }); });
+    document.querySelectorAll('[data-skip]').forEach(function(b) { b.addEventListener('click', function() { var s = findSug(parseInt(this.getAttribute('data-skip'), 10)); if (s) s._state = 'skipped'; renderSuggestions(); }); });
   }
 
   function findSug(i) { for (var k = 0; k < analyzeSuggestions.length; k++) { if (analyzeSuggestions[k]._i === i) return analyzeSuggestions[k]; } return null; }
-
   function suggestionToBody(s) {
     var body = {};
     if (s.field === 'description') body.description = s.new || null;
     else if (s.field === 'title') body.title = s.new;
     else if (s.field === 'type') body.link_type = (s.new === 'work') ? 'work' : 'personal';
-    else if (s.field === 'category') {
-      // Map category name to id; if it doesn't exist, skip the category change.
-      var id = null;
-      for (var i = 0; i < allCategories.length; i++) { if (allCategories[i].name === s.new) { id = allCategories[i].id; break; } }
-      if (id) body.category_id = id; else return null;
-    } else return null;
+    else if (s.field === 'category') { var id = null; for (var i = 0; i < allCategories.length; i++) { if (allCategories[i].name === s.new) { id = allCategories[i].id; break; } } if (id) body.category_id = id; else return null; }
+    else return null;
     return body;
   }
-
   function applySuggestion(idx, silent, done) {
-    var s = findSug(idx);
-    if (!s || s._state !== 'pending') { if (done) done(); return; }
-    var body = suggestionToBody(s);
-    if (!body) { s._state = 'skipped'; if (!silent) renderSuggestions(); if (done) done(); return; }
-    fetch(SB_URL + '/rest/v1/links?id=eq.' + s.id, {
-      method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify(body)
-    }).then(function(res) {
-      s._state = res.ok ? 'applied' : 'pending';
-      if (!res.ok && !silent) showToast('Could not apply that one');
-      if (!silent) renderSuggestions();
-      if (done) done();
-    }).catch(function() { if (done) done(); });
+    var s = findSug(idx); if (!s || s._state !== 'pending') { if (done) done(); return; }
+    var body = suggestionToBody(s); if (!body) { s._state = 'skipped'; if (!silent) renderSuggestions(); if (done) done(); return; }
+    fetch(SB_URL + '/rest/v1/links?id=eq.' + s.id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { s._state = res.ok ? 'applied' : 'pending'; if (!res.ok && !silent) showToast('Could not apply that one'); if (!silent) renderSuggestions(); if (done) done(); }).catch(function() { if (done) done(); });
   }
-
   function applyAllSuggestions() {
     var pendingIdx = analyzeSuggestions.filter(function(s) { return s._state === 'pending'; }).map(function(s) { return s._i; });
     if (!pendingIdx.length) return;
     var i = 0;
-    function next() {
-      if (i >= pendingIdx.length) {
-        renderSuggestions();
-        showToast('Applied ' + pendingIdx.length + ' change' + (pendingIdx.length !== 1 ? 's' : ''));
-        fetchLinks(); // refresh underlying data
-        return;
-      }
-      applySuggestion(pendingIdx[i++], true, next);
-    }
+    function next() { if (i >= pendingIdx.length) { renderSuggestions(); showToast('Applied ' + pendingIdx.length + ' change' + (pendingIdx.length !== 1 ? 's' : '')); fetchLinks(); return; } applySuggestion(pendingIdx[i++], true, next); }
     next();
   }
 
   // ===== PLANNER =====
   var allPlans = [];
-  var plannerWeekStart = null; // Date object = Monday of current week
-
-  function startOfWeek(d) {
-    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    var day = (x.getDay() + 6) % 7; // Monday = 0
-    x.setDate(x.getDate() - day);
-    return x;
-  }
-  function ymd(d) {
-    var m = ('0' + (d.getMonth() + 1)).slice(-2);
-    var day = ('0' + d.getDate()).slice(-2);
-    return d.getFullYear() + '-' + m + '-' + day;
-  }
-  function fmtTime(t) {
-    if (!t) return '';
-    var parts = t.split(':');
-    if (parts.length < 2) return t;
-    var h = parseInt(parts[0], 10), min = parts[1];
-    var ap = h >= 12 ? 'PM' : 'AM';
-    var h12 = h % 12; if (h12 === 0) h12 = 12;
-    return h12 + ':' + min + ' ' + ap;
-  }
-
-  function openPlanner() {
-    if (!plannerWeekStart) plannerWeekStart = startOfWeek(new Date());
-    showScreen('screen-planner');
-    fetchPlans();
-  }
-  function plannerShift(weeks) {
-    plannerWeekStart.setDate(plannerWeekStart.getDate() + weeks * 7);
-    plannerWeekStart = new Date(plannerWeekStart);
-    fetchPlans();
-  }
-  function plannerToday() {
-    plannerWeekStart = startOfWeek(new Date());
-    fetchPlans();
-  }
-
+  var plannerWeekStart = null;
+  function startOfWeek(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); var day = (x.getDay() + 6) % 7; x.setDate(x.getDate() - day); return x; }
+  function ymd(d) { var m = ('0' + (d.getMonth() + 1)).slice(-2); var day = ('0' + d.getDate()).slice(-2); return d.getFullYear() + '-' + m + '-' + day; }
+  function fmtTime(t) { if (!t) return ''; var parts = t.split(':'); if (parts.length < 2) return t; var h = parseInt(parts[0], 10), min = parts[1]; var ap = h >= 12 ? 'PM' : 'AM'; var h12 = h % 12; if (h12 === 0) h12 = 12; return h12 + ':' + min + ' ' + ap; }
+  function openPlanner() { if (!plannerWeekStart) plannerWeekStart = startOfWeek(new Date()); showScreen('screen-planner'); fetchPlans(); }
+  function plannerShift(weeks) { plannerWeekStart.setDate(plannerWeekStart.getDate() + weeks * 7); plannerWeekStart = new Date(plannerWeekStart); fetchPlans(); }
+  function plannerToday() { plannerWeekStart = startOfWeek(new Date()); fetchPlans(); }
   function fetchPlans() {
     var start = ymd(plannerWeekStart);
     var endD = new Date(plannerWeekStart); endD.setDate(endD.getDate() + 6);
     var end = ymd(endD);
-    fetch(SB_URL + '/rest/v1/planner?day=gte.' + start + '&day=lte.' + end + '&order=time.asc', { headers: H })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        allPlans = Array.isArray(data) ? data : [];
-        renderPlanner();
-      })
-      .catch(function() {
-        document.getElementById('plannerGrid').innerHTML = '<div class="board-empty">Could not load. Is the "planner" table created?</div>';
-      });
+    fetch(SB_URL + '/rest/v1/planner?day=gte.' + start + '&day=lte.' + end + '&order=time.asc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allPlans = Array.isArray(data) ? data : []; renderPlanner(); }).catch(function() { document.getElementById('plannerGrid').innerHTML = '<div class="board-empty">Could not load. Is the "planner" table created?</div>'; });
   }
-
   function renderPlanner() {
     var DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     var todayStr = ymd(new Date());
     var endD = new Date(plannerWeekStart); endD.setDate(endD.getDate() + 6);
-
-    // Header labels
     var startMonth = MON[plannerWeekStart.getMonth()];
     var endMonth = MON[endD.getMonth()];
-    var label = startMonth + ' ' + plannerWeekStart.getFullYear();
-    document.getElementById('plannerMonthLabel').textContent = label;
-    var range = (startMonth === endMonth)
-      ? (startMonth + ' ' + plannerWeekStart.getDate() + '–' + endD.getDate())
-      : (startMonth + ' ' + plannerWeekStart.getDate() + ' – ' + endMonth + ' ' + endD.getDate());
+    document.getElementById('plannerMonthLabel').textContent = startMonth + ' ' + plannerWeekStart.getFullYear();
+    var range = (startMonth === endMonth) ? (startMonth + ' ' + plannerWeekStart.getDate() + '\u2013' + endD.getDate()) : (startMonth + ' ' + plannerWeekStart.getDate() + ' \u2013 ' + endMonth + ' ' + endD.getDate());
     document.getElementById('plannerWeekLabel').textContent = range;
-
     var html = '<div class="planner-grid">';
     for (var i = 0; i < 7; i++) {
       var d = new Date(plannerWeekStart); d.setDate(d.getDate() + i);
       var ds = ymd(d);
       var items = allPlans.filter(function(p) { return p.day === ds; });
-      var isToday = ds === todayStr;
-      var isWeekend = (i >= 5);
-      html += '<div class="pday' + (isToday ? ' is-today' : '') + (isWeekend ? ' is-weekend' : '') + '">' +
-                '<div class="pday-head">' +
-                  '<span class="pday-num">' + d.getDate() + '</span>' +
-                  '<span class="pday-dow">' + DOW[i] + '</span>' +
-                '</div>' +
-                '<div class="pday-items">';
-      for (var k = 0; k < items.length; k++) {
-        var it = items[k];
-        html += '<div class="pitem" data-pedit="' + esc(it.id) + '">' +
-                  (it.time ? '<div class="pitem-time">' + esc(fmtTime(it.time)) + '</div>' : '') +
-                  '<div class="pitem-title">' + esc(it.title) + '</div>' +
-                  '<button class="pitem-del" data-pdel="' + esc(it.id) + '" title="Delete">&#10005;</button>' +
-                '</div>';
-      }
-      html += '</div>' +
-              '<button class="pday-add" data-padd="' + ds + '">+ Add</button>' +
-            '</div>';
+      html += '<div class="pday' + (ds === todayStr ? ' is-today' : '') + (i >= 5 ? ' is-weekend' : '') + '"><div class="pday-head"><span class="pday-num">' + d.getDate() + '</span><span class="pday-dow">' + DOW[i] + '</span></div><div class="pday-items">';
+      for (var k = 0; k < items.length; k++) { var it = items[k]; html += '<div class="pitem" data-pedit="' + esc(it.id) + '">' + (it.time ? '<div class="pitem-time">' + esc(fmtTime(it.time)) + '</div>' : '') + '<div class="pitem-title">' + esc(it.title) + '</div><button class="pitem-del" data-pdel="' + esc(it.id) + '" title="Delete">&#10005;</button></div>'; }
+      html += '</div><button class="pday-add" data-padd="' + ds + '">+ Add</button></div>';
     }
     html += '</div>';
     document.getElementById('plannerGrid').innerHTML = html;
-
-    document.querySelectorAll('.pday-add[data-padd]').forEach(function(b) {
-      b.addEventListener('click', function() { openPlanModal(null, this.getAttribute('data-padd')); });
-    });
-    document.querySelectorAll('.pitem[data-pedit]').forEach(function(el) {
-      el.addEventListener('click', function(e) {
-        if (e.target.classList.contains('pitem-del')) return;
-        openPlanModal(findPlan(this.getAttribute('data-pedit')), null);
-      });
-    });
-    document.querySelectorAll('.pitem-del[data-pdel]').forEach(function(b) {
-      b.addEventListener('click', function(e) { e.stopPropagation(); deletePlan(this.getAttribute('data-pdel')); });
-    });
+    document.querySelectorAll('.pday-add[data-padd]').forEach(function(b) { b.addEventListener('click', function() { openPlanModal(null, this.getAttribute('data-padd')); }); });
+    document.querySelectorAll('.pitem[data-pedit]').forEach(function(el) { el.addEventListener('click', function(e) { if (e.target.classList.contains('pitem-del')) return; openPlanModal(findPlan(this.getAttribute('data-pedit')), null); }); });
+    document.querySelectorAll('.pitem-del[data-pdel]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); deletePlan(this.getAttribute('data-pdel')); }); });
   }
-
   function findPlan(id) { for (var i = 0; i < allPlans.length; i++) { if (allPlans[i].id === id) return allPlans[i]; } return null; }
-
   function openPlanModal(p, dateStr) {
     document.getElementById('planEditId').value = p ? p.id : '';
     document.getElementById('planDate').value = p ? p.day : (dateStr || '');
     document.getElementById('planModalTitle').textContent = p ? 'Edit Planner Item' : 'Add to Planner';
     document.getElementById('planTitleInput').value = p ? p.title : '';
     document.getElementById('planTimeInput').value = (p && p.time) ? p.time.slice(0,5) : '';
-    // Friendly date label
     var dParts = (p ? p.day : dateStr).split('-');
     var dObj = new Date(parseInt(dParts[0],10), parseInt(dParts[1],10)-1, parseInt(dParts[2],10));
     var DOWf = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1984,7 +1599,6 @@
     setTimeout(function() { document.getElementById('planTitleInput').focus(); }, 100);
   }
   function closePlanModal() { document.getElementById('planModalOverlay').classList.remove('open'); }
-
   function savePlan() {
     var title = document.getElementById('planTitleInput').value.trim();
     var time = document.getElementById('planTimeInput').value || null;
@@ -1994,102 +1608,32 @@
     if (!day) { showToast('No date set'); return; }
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/planner?id=eq.' + editId : SB_URL + '/rest/v1/planner';
-    fetch(endpoint, {
-      method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, time: time, day: day })
-    }).then(function(res) {
-      if (res.ok) { closePlanModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchPlans(); }
-      else { showToast('Error saving — is the "planner" table created?'); }
-    });
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, time: time, day: day }) }).then(function(res) { if (res.ok) { closePlanModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchPlans(); } else { showToast('Error saving'); } });
   }
-
-  function deletePlan(id) {
-    if (!confirm('Delete this item?')) return;
-    fetch(SB_URL + '/rest/v1/planner?id=eq.' + id, { method: 'DELETE', headers: H })
-      .then(function() { showToast('Deleted'); fetchPlans(); });
-  }
+  function deletePlan(id) { if (!confirm('Delete this item?')) return; fetch(SB_URL + '/rest/v1/planner?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchPlans(); }); }
 
   // ===== DOCUMENTATION =====
   var allDocs = [];
   var currentDocType = 'work';
-
-  function openDocs(type) {
-    currentDocType = (type === 'personal') ? 'personal' : 'work';
-    document.querySelector('#screen-docs .header-left h1').textContent =
-      (currentDocType === 'personal') ? 'Personal Documentation' : 'Documentation';
-    document.getElementById('docSearchInput').value = '';
-    showScreen('screen-docs');
-    fetchDocs();
-  }
-
+  function openDocs(type) { currentDocType = (type === 'personal') ? 'personal' : 'work'; document.querySelector('#screen-docs .header-left h1').textContent = (currentDocType === 'personal') ? 'Personal Documentation' : 'Documentation'; document.getElementById('docSearchInput').value = ''; showScreen('screen-docs'); fetchDocs(); }
   function fetchDocs() {
-    // Filter by doc_type. Older rows without a type default to 'work'.
-    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var all = Array.isArray(data) ? data : [];
-        allDocs = all.filter(function(d) { return (d.doc_type || 'work') === currentDocType; });
-        renderDocs();
-      })
-      .catch(function() {
-        document.getElementById('docsList').innerHTML = '<div class="board-empty">Could not load. Is the "documents" table created?</div>';
-      });
+    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { var all = Array.isArray(data) ? data : []; allDocs = all.filter(function(d) { return (d.doc_type || 'work') === currentDocType; }); renderDocs(); }).catch(function() { document.getElementById('docsList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
   }
-
   function renderDocs() {
     var q = (document.getElementById('docSearchInput').value || '').toLowerCase();
-    var list = allDocs.filter(function(d) {
-      if (!q) return true;
-      return (d.title || '').toLowerCase().indexOf(q) > -1 ||
-             (d.url || '').toLowerCase().indexOf(q) > -1 ||
-             (d.note || '').toLowerCase().indexOf(q) > -1;
-    });
+    var list = allDocs.filter(function(d) { if (!q) return true; return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.url || '').toLowerCase().indexOf(q) > -1 || (d.note || '').toLowerCase().indexOf(q) > -1; });
     document.getElementById('docCount').textContent = list.length + ' document' + (list.length !== 1 ? 's' : '');
-    if (!list.length) {
-      document.getElementById('docsList').innerHTML = allDocs.length
-        ? '<div class="empty"><strong>No matches</strong>Try a different search.</div>'
-        : '<div class="empty"><strong>No documents yet</strong>Hit "+ Add Doc" to save your first one.</div>';
-      return;
-    }
+    if (!list.length) { document.getElementById('docsList').innerHTML = allDocs.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No documents yet</strong>Hit "+ Add Doc".</div>'; return; }
     var html = '<div class="links-list">';
-    for (var i = 0; i < list.length; i++) {
-      var d = list[i];
-      html += '<div class="link-item">' +
-                '<div class="link-info">' +
-                  '<div class="link-title">' + esc(d.title) + '</div>' +
-                  '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.url) + '</a>' +
-                  (d.note ? '<div class="link-cat" style="text-transform:none;letter-spacing:0;">' + esc(d.note) + '</div>' : '') +
-                '</div>' +
-                '<div class="link-actions">' +
-                  '<a class="btn-open" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' +
-                  '<button class="btn-edit" data-docedit="' + esc(d.id) + '">Edit</button>' +
-                  '<button class="btn-delete" data-docdel="' + esc(d.id) + '">&#10005;</button>' +
-                '</div>' +
-              '</div>';
-    }
+    for (var i = 0; i < list.length; i++) { var d = list[i]; html += '<div class="link-item"><div class="link-info"><div class="link-title">' + esc(d.title) + '</div><a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.url) + '</a>' + (d.note ? '<div class="link-cat" style="text-transform:none;letter-spacing:0;">' + esc(d.note) + '</div>' : '') + '</div><div class="link-actions"><a class="btn-open" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a><button class="btn-edit" data-docedit="' + esc(d.id) + '">Edit</button><button class="btn-delete" data-docdel="' + esc(d.id) + '">&#10005;</button></div></div>'; }
     html += '</div>';
     document.getElementById('docsList').innerHTML = html;
-    document.querySelectorAll('.btn-edit[data-docedit]').forEach(function(b) {
-      b.addEventListener('click', function() { openDocModal(findDoc(this.getAttribute('data-docedit'))); });
-    });
-    document.querySelectorAll('.btn-delete[data-docdel]').forEach(function(b) {
-      b.addEventListener('click', function() { deleteDoc(this.getAttribute('data-docdel')); });
-    });
+    document.querySelectorAll('.btn-edit[data-docedit]').forEach(function(b) { b.addEventListener('click', function() { openDocModal(findDoc(this.getAttribute('data-docedit'))); }); });
+    document.querySelectorAll('.btn-delete[data-docdel]').forEach(function(b) { b.addEventListener('click', function() { deleteDoc(this.getAttribute('data-docdel')); }); });
   }
-
   function findDoc(id) { for (var i = 0; i < allDocs.length; i++) { if (allDocs[i].id === id) return allDocs[i]; } return null; }
-
-  function openDocModal(d) {
-    document.getElementById('docEditId').value = d ? d.id : '';
-    document.getElementById('docModalTitle').textContent = d ? 'Edit Document' : 'Add Document';
-    document.getElementById('docTitleInput').value = d ? d.title : '';
-    document.getElementById('docUrlInput').value = d ? d.url : '';
-    document.getElementById('docNoteInput').value = (d && d.note) ? d.note : '';
-    document.getElementById('docModalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('docTitleInput').focus(); }, 100);
-  }
+  function openDocModal(d) { document.getElementById('docEditId').value = d ? d.id : ''; document.getElementById('docModalTitle').textContent = d ? 'Edit Document' : 'Add Document'; document.getElementById('docTitleInput').value = d ? d.title : ''; document.getElementById('docUrlInput').value = d ? d.url : ''; document.getElementById('docNoteInput').value = (d && d.note) ? d.note : ''; document.getElementById('docModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('docTitleInput').focus(); }, 100); }
   function closeDocModal() { document.getElementById('docModalOverlay').classList.remove('open'); }
-
   function saveDoc() {
     var title = document.getElementById('docTitleInput').value.trim();
     var url = document.getElementById('docUrlInput').value.trim();
@@ -2099,167 +1643,44 @@
     var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/documents?id=eq.' + editId : SB_URL + '/rest/v1/documents';
-    // New docs get the type of whichever page you're on; edits keep their existing type.
     var body = { title: title, url: fullUrl, note: note || null };
     if (!editId) body.doc_type = currentDocType;
-    fetch(endpoint, {
-      method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify(body)
-    }).then(function(res) {
-      if (res.ok) { closeDocModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchDocs(); }
-      else { showToast('Error saving — is the "documents" table created?'); }
-    });
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeDocModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchDocs(); } else { showToast('Error saving'); } });
   }
-
-  function deleteDoc(id) {
-    if (!confirm('Delete this document?')) return;
-    fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H })
-      .then(function() { showToast('Deleted'); fetchDocs(); });
-  }
+  function deleteDoc(id) { if (!confirm('Delete this document?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDocs(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
-  var DEPLOY_COLS = [
-    { key: 'needs',    title: 'Needs deployed', color: '#6B7A99' },
-    { key: 'progress', title: 'In progress',    color: '#B7791F' },
-    { key: 'deployed', title: 'Deployed',       color: '#15803D' }
-  ];
+  var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
   var allDeploys = [];
-
-  function openCalendar() {
-    var src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK';
-    document.getElementById('calFullFrame').src = src;
-    showScreen('screen-calendar');
-  }
-
-  function openTracker() {
-    showScreen('screen-tracker');
-    fetchDeploys();
-  }
-
-  function fetchDeploys() {
-    fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        allDeploys = Array.isArray(data) ? data : [];
-        renderBoard();
-      })
-      .catch(function() {
-        document.getElementById('board').innerHTML = '<div class="board-empty">Could not load. Is the "deployments" table created?</div>';
-      });
-  }
-
+  function openCalendar() { document.getElementById('calFullFrame').src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK'; showScreen('screen-calendar'); }
+  function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
+  function fetchDeploys() { fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allDeploys = Array.isArray(data) ? data : []; renderBoard(); }).catch(function() { document.getElementById('board').innerHTML = '<div class="board-empty">Could not load.</div>'; }); }
   function renderBoard() {
     var html = '<div class="board">';
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
       var items = allDeploys.filter(function(d) { return (d.status || 'needs') === col.key; });
-      html += '<div class="board-col" style="--bc:' + col.color + ';">' +
-                '<div class="board-col-head">' +
-                  '<span class="board-col-dot"></span>' +
-                  '<span class="board-col-title">' + col.title + '</span>' +
-                  '<span class="board-col-count">' + items.length + '</span>' +
-                '</div>';
-      if (!items.length) {
-        html += '<div class="board-empty">Nothing here</div>';
-      } else {
-        for (var i = 0; i < items.length; i++) {
-          var d = items[i];
-          var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
-          html += '<div class="dcard" style="--bc:' + col.color + ';">' +
-                    '<div class="dcard-edit">' +
-                      '<button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button>' +
-                      '<button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button>' +
-                    '</div>' +
-                    '<div class="dcard-title">' + esc(d.title) + '</div>' +
-                    (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') +
-                    '<div class="dcard-actions">' +
-                      '<button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button>' +
-                      '<button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button>' +
-                    '</div>' +
-                  '</div>';
-        }
-      }
+      html += '<div class="board-col" style="--bc:' + col.color + ';"><div class="board-col-head"><span class="board-col-dot"></span><span class="board-col-title">' + col.title + '</span><span class="board-col-count">' + items.length + '</span></div>';
+      if (!items.length) { html += '<div class="board-empty">Nothing here</div>'; }
+      else { for (var i = 0; i < items.length; i++) { var d = items[i]; var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1; html += '<div class="dcard" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>'; } }
       html += '</div>';
     }
     html += '</div>';
     document.getElementById('board').innerHTML = html;
-
-    document.querySelectorAll('.dcard-move[data-dmove]').forEach(function(b) {
-      b.addEventListener('click', function() { moveDeploy(this.getAttribute('data-dmove'), parseInt(this.getAttribute('data-dir'), 10)); });
-    });
-    document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) {
-      b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); });
-    });
-    document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) {
-      b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); });
-    });
+    document.querySelectorAll('.dcard-move[data-dmove]').forEach(function(b) { b.addEventListener('click', function() { moveDeploy(this.getAttribute('data-dmove'), parseInt(this.getAttribute('data-dir'), 10)); }); });
+    document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
+    document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
   }
-
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
-
-  function moveDeploy(id, dir) {
-    var d = findDeploy(id);
-    if (!d) return;
-    var idx = colIndex(d.status || 'needs') + dir;
-    if (idx < 0 || idx >= DEPLOY_COLS.length) return;
-    var newKey = DEPLOY_COLS[idx].key;
-    var prev = d.status;
-    d.status = newKey;
-    renderBoard();
-    fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, {
-      method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ status: newKey })
-    }).then(function(res) {
-      if (!res.ok) { d.status = prev; renderBoard(); showToast('Could not save move'); }
-    }).catch(function() { d.status = prev; renderBoard(); showToast('Could not save move'); });
-  }
-
-  function openDeployModal(d) {
-    document.getElementById('deployEditId').value = d ? d.id : '';
-    document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item';
-    document.getElementById('deployTitleInput').value = d ? d.title : '';
-    document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : '';
-    document.getElementById('deployStatusInput').value = (d && d.status) ? d.status : 'needs';
-    document.getElementById('deployModalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100);
-  }
+  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(d.status || 'needs') + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key; var prev = d.status; d.status = newKey; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey }) }).then(function(res) { if (!res.ok) { d.status = prev; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; renderBoard(); }); }
+  function openDeployModal(d) { document.getElementById('deployEditId').value = d ? d.id : ''; document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item'; document.getElementById('deployTitleInput').value = d ? d.title : ''; document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : ''; document.getElementById('deployStatusInput').value = (d && d.status) ? d.status : 'needs'; document.getElementById('deployModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100); }
   function closeDeployModal() { document.getElementById('deployModalOverlay').classList.remove('open'); }
+  function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, pr_url: pr_url, status: status }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
+  function deleteDeploy(id) { if (!confirm('Delete this deployment item?')) return; fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDeploys(); }); }
 
-  function saveDeploy() {
-    var title = document.getElementById('deployTitleInput').value.trim();
-    var url = document.getElementById('deployUrlInput').value.trim();
-    var status = document.getElementById('deployStatusInput').value || 'needs';
-    var editId = document.getElementById('deployEditId').value;
-    if (!title) { showToast('Enter a title'); return; }
-    var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null;
-    var method = editId ? 'PATCH' : 'POST';
-    var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments';
-    fetch(endpoint, {
-      method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }),
-      body: JSON.stringify({ title: title, pr_url: pr_url, status: status })
-    }).then(function(res) {
-      if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); }
-      else { showToast('Error saving — is the "deployments" table created?'); }
-    });
-  }
-
-  function deleteDeploy(id) {
-    if (!confirm('Delete this deployment item?')) return;
-    fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H })
-      .then(function() { showToast('Deleted'); fetchDeploys(); });
-  }
-
-  function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2500);
-  }
-
-  function esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 2500); }
+  function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
