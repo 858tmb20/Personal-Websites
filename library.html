@@ -1368,7 +1368,14 @@
         '<span class="tool-desc">Links to your docs, specs, and references.</span>' +
       '</a>';
 
-    var leadCards = trackerCard + docsCard;
+    // Special in-app card: Integration Helper
+    var integrationCard = '<a class="tool-card" href="integration-helper.html" target="_blank" style="--tc:#00897B;--tc-soft:#00897B22;">' +
+        '<span class="tool-eyebrow"><span class="tool-chip"><span>&#8747;x</span></span>Work</span>' +
+        '<span class="tool-name">Integration Helper</span>' +
+        '<span class="tool-desc">AI-powered step-by-step Salesforce integration builder.</span>' +
+      '</a>';
+
+    var leadCards = trackerCard + docsCard + integrationCard;
 
     // Special in-app card: Personal Documentation (separate list from work docs).
     var personalDocsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'personal\');" style="--tc:#9333EA;--tc-soft:#9333EA22;">' +
