@@ -1690,7 +1690,7 @@
       '- Never change a URL.\n' +
       'Respond with ONLY a JSON array of change objects, no preamble, no markdown, no code fences. If nothing needs changing, respond with [].';
 
-    fetch('https://api.anthropic.com/v1/messages', {
+    fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1701,19 +1701,23 @@
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
+      if (data && data.error) {
+        document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">' + esc(typeof data.error === 'string' ? data.error : (data.error.message || 'Service error')) + '<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
+        return;
+      }
       var text = (data.content || []).filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('\n');
       var clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
       var arr;
       try { arr = JSON.parse(clean); } catch (e) { arr = null; }
       if (!Array.isArray(arr)) {
-        document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t read the suggestions. This feature needs the Claude API, which works in the in-app preview but not on the deployed site without an API key set up. <br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
+        document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t read the suggestions returned by the service.<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
         return;
       }
       analyzeSuggestions = arr.map(function(s, i) { s._i = i; s._state = 'pending'; return s; });
       renderSuggestions();
     })
     .catch(function() {
-      document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t reach the analysis service. On the live Vercel site this needs an API key; it works here in the preview. <br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
+      document.getElementById('analyzeBody').innerHTML = '<div class="analyze-spin">Couldn\'t reach the analysis service. Make sure the /api/claude function is deployed and ANTHROPIC_API_KEY is set in Vercel.<br><br><button class="btn-cancel" onclick="closeAnalyze()" style="margin-top:1rem;">Close</button></div>';
     });
   }
 
