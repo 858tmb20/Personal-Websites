@@ -181,6 +181,20 @@
   .hero:hover .hero-cta { transform: translateX(3px); box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
   .hero-empty { color: #C5D6F0; }
 
+  /* HERO CALENDAR EMBED */
+  .hero-cal { padding: 0; cursor: pointer; overflow: hidden; min-height: 280px; display: block; }
+  .hero-cal-frame { position: absolute; inset: 0; }
+  .hero-cal-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .hero-cal-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 1rem 1.4rem; background: linear-gradient(to top, rgba(15,31,61,0.92) 0%, rgba(15,31,61,0.7) 60%, rgba(15,31,61,0) 100%); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .hero-cal-overlay .hero-eyebrow { margin: 0; color: #8FB6F0; }
+  .hero-cal-cta { font-size: 0.85rem; font-weight: 600; color: #fff; }
+  .hero-cal:hover .hero-cal-cta { color: #C5D6F0; }
+
+  /* FULL CALENDAR SCREEN */
+  .cal-wrap { padding: 0 1.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+  .cal-frame { width: 100%; height: calc(100vh - 130px); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; background: var(--card); }
+  .cal-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+
   .recent-card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 1.3rem; display: flex; flex-direction: column; }
   .recent-head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
   .recent-head .rdot { width: 16px; height: 16px; border-radius: 5px; background: #E9F0FD; display: flex; align-items: center; justify-content: center; color: var(--link); font-size: 0.6rem; }
@@ -601,6 +615,24 @@
         <button class="btn-save" onclick="runAnalyze()">Scan my links</button>
         <button class="btn-cancel" onclick="closeAnalyze()">Cancel</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL CALENDAR SCREEN -->
+<div class="screen" id="screen-calendar">
+  <header>
+    <div class="header-left">
+      <h1>Calendar</h1>
+      <p>Your Google Calendar</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="cal-wrap">
+    <div class="cal-frame">
+      <iframe id="calFullFrame" src="" frameborder="0" scrolling="no"></iframe>
     </div>
   </div>
 </div>
@@ -1246,22 +1278,17 @@
       '<button class="analyze-btn" onclick="openAnalyze()">&#10024; Analyze &amp; Clean Up</button>' +
       '</div>';
 
-    // Hero card
-    var hero;
-    if (heroLink) {
-      hero = '<a class="hero" href="' + esc(heroLink.url) + '" target="_blank" rel="noopener">' +
-               '<div class="hero-eyebrow">' + (pinned.length ? 'Pick up where you left off' : 'Most recent') + '</div>' +
-               '<div class="hero-title">' + esc(heroLink.title) + '</div>' +
-               (heroLink.description ? '<div class="hero-sub">' + esc(heroLink.description) + '</div>' : '<div class="hero-sub">' + esc(heroLink.url) + '</div>') +
-               '<span class="hero-cta">Open ' + (pinned.length ? '' : 'latest ') + '&rarr;</span>' +
-             '</a>';
-    } else {
-      hero = '<div class="hero">' +
-               '<div class="hero-eyebrow">Welcome</div>' +
-               '<div class="hero-title">Your library is empty</div>' +
-               '<div class="hero-sub hero-empty">Hit &ldquo;+ Add Link&rdquo; up top to save your first resource. Pin one and it shows up right here.</div>' +
-             '</div>';
-    }
+    // Hero: embedded Google Calendar. Click expands to a full-page calendar view.
+    var calEmbed = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago';
+    var hero = '<div class="hero hero-cal" onclick="openCalendar()">' +
+                 '<div class="hero-cal-frame">' +
+                   '<iframe src="' + calEmbed + '" frameborder="0" scrolling="no"></iframe>' +
+                 '</div>' +
+                 '<div class="hero-cal-overlay">' +
+                   '<div class="hero-eyebrow">Your Week</div>' +
+                   '<div class="hero-cal-cta">Expand calendar &rarr;</div>' +
+                 '</div>' +
+               '</div>';
 
     // Recent activity card
     var recentInner = '';
@@ -2090,6 +2117,12 @@
     { key: 'deployed', title: 'Deployed',       color: '#15803D' }
   ];
   var allDeploys = [];
+
+  function openCalendar() {
+    var src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK';
+    document.getElementById('calFullFrame').src = src;
+    showScreen('screen-calendar');
+  }
 
   function openTracker() {
     showScreen('screen-tracker');
