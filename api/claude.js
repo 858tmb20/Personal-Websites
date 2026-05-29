@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
     // Sensible defaults so the browser doesn't have to send everything.
     const payload = {
-      model: model || 'claude-sonnet-4-20250514',
+      model: model || 'claude-sonnet-4-6',
       max_tokens: max_tokens || 4000,
       messages: messages || []
     };
