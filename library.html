@@ -52,8 +52,10 @@
 
   /* MAIN APP */
   header { background: var(--card); border-bottom: 1px solid var(--rule); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .header-left { display: flex; align-items: center; gap: 1.5rem; }
   .header-left h1 { font-size: 1.05rem; font-weight: 600; color: var(--ink); }
   .header-left p { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+  .header-brand { display: flex; flex-direction: column; }
   .header-right { display: flex; gap: 0.5rem; align-items: center; }
   .btn-add { padding: 0.55rem 1.1rem; background: var(--accent); color: white; font-size: 0.82rem; font-weight: 500; border: none; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.15s; }
   .btn-add:hover { background: var(--accent-hover); }
@@ -62,6 +64,22 @@
   .btn-admin .badge { position: absolute; top: -6px; right: -6px; background: var(--danger); color: white; font-size: 0.65rem; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
   .btn-signout { padding: 0.55rem 1.1rem; background: var(--card); color: var(--muted); font-size: 0.82rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; transition: border-color 0.15s; }
   .btn-signout:hover { border-color: var(--muted-soft); color: var(--ink); }
+
+  /* ===== TOP NAV TABS (Work / Personal dropdowns, WGU.tools style) ===== */
+  .topnav { display: inline-flex; align-items: center; gap: 0.25rem; }
+  .topnav-item { position: relative; }
+  .topnav-tab { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; background: none; border: none; border-radius: var(--radius-sm); color: var(--ink-soft); font-size: 0.9rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
+  .topnav-tab:hover { background: var(--rule-soft); }
+  .topnav-tab.active { color: var(--link); }
+  .topnav-tab .tn-ico { font-size: 0.85rem; opacity: 0.7; }
+  .topnav-tab .tn-caret { font-size: 0.6rem; color: var(--muted); }
+  .topnav-menu { display: none; position: absolute; top: calc(100% + 8px); left: 0; min-width: 230px; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: 0 8px 28px rgba(15,31,61,0.13); z-index: 60; overflow: hidden; padding: 0.35rem; }
+  .topnav-menu.open { display: block; }
+  .topnav-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.7rem; font-size: 0.85rem; color: var(--ink); text-decoration: none; border-radius: var(--radius-sm); cursor: pointer; }
+  .topnav-link:hover { background: var(--bg); }
+  .topnav-link .tnl-ico { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+  .topnav-link .tnl-text { display: flex; flex-direction: column; line-height: 1.2; }
+  .topnav-link .tnl-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
 
   /* VIEW TOGGLE */
   .view-toggle { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--radius-sm); overflow: hidden; }
@@ -217,6 +235,8 @@
   .tool-chip { width: 26px; height: 26px; border-radius: 7px; background: var(--tc-soft); display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .tool-chip img { width: 16px; height: 16px; }
   .tool-chip span { font-size: 0.72rem; font-weight: 700; color: var(--tc); }
+  .tool-eyebrow-text { display: inline-flex; align-items: center; gap: 0.4rem; min-width: 0; }
+  .tool-eyebrow-sep { opacity: 0.45; font-weight: 400; }
   .tool-name { font-size: 0.92rem; font-weight: 700; color: var(--ink); margin-bottom: 0.35rem; line-height: 1.25; }
   .tool-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.45; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   .tool-edit { position: absolute; top: 0.55rem; right: 0.55rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
@@ -229,6 +249,10 @@
   .group-count { font-size: 0.72rem; font-weight: 600; color: #fff; background: var(--gc); padding: 2px 9px; border-radius: 11px; }
   .subcat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 0.7rem; }
   .tool-col .subcat-label:first-of-type { margin-top: 0.25rem; }
+  .alltools-head { display: flex; align-items: center; gap: 0.7rem; margin: 0.5rem 0 1.2rem; }
+  .alltools-bar { width: 5px; height: 24px; border-radius: 3px; background: var(--link); }
+  .alltools-title { font-size: 1.25rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+  .alltools-hint { margin-left: auto; font-size: 0.7rem; color: var(--muted-soft); font-weight: 600; }
   .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
   .cols-2 .group-head { margin-top: 0.5rem; }
   .cols-2 .tools-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
@@ -403,8 +427,36 @@
 <div class="screen" id="screen-library">
   <header>
     <div class="header-left">
-      <h1>Resource Library</h1>
-      <p id="loggedInAs"></p>
+      <div class="header-brand">
+        <h1>Resource Library</h1>
+        <p id="loggedInAs"></p>
+      </div>
+      <nav class="topnav" id="topnav">
+        <div class="topnav-item">
+          <button class="topnav-tab" id="tabWork" onclick="toggleTopnav(event,'work')">
+            <span class="tn-ico">&#128188;</span> Work <span class="tn-caret">&#9662;</span>
+          </button>
+          <div class="topnav-menu" id="menuWork">
+            <a class="topnav-link" onclick="filterHome('work')"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">All Work Tools<span class="tnl-sub">Everything tagged Work</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTracker();"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">Deployment Tracker<span class="tnl-sub">Needs / in progress / done</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openDocs('work');"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Documentation<span class="tnl-sub">Docs, specs, references</span></span></a>
+            <a class="topnav-link" href="integration-helper.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#00897B22;color:#00897B;">&#8747;</span><span class="tnl-text">Integration Helper<span class="tnl-sub">Salesforce build assistant</span></span></a>
+          </div>
+        </div>
+        <div class="topnav-item">
+          <button class="topnav-tab" id="tabPersonal" onclick="toggleTopnav(event,'personal')">
+            <span class="tn-ico">&#127968;</span> Personal <span class="tn-caret">&#9662;</span>
+          </button>
+          <div class="topnav-menu" id="menuPersonal">
+            <a class="topnav-link" onclick="filterHome('personal')"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#9783;</span><span class="tnl-text">All Personal Tools<span class="tnl-sub">Everything tagged Personal</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openPlanner();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128197;</span><span class="tnl-text">Planner<span class="tnl-sub">Plan your week</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openDocs('personal');"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Documentation<span class="tnl-sub">Personal docs &amp; notes</span></span></a>
+          </div>
+        </div>
+        <div class="topnav-item">
+          <button class="topnav-tab" id="tabAll" onclick="filterHome('all')">All</button>
+        </div>
+      </nav>
     </div>
     <div class="header-right">
       <div class="view-toggle">
@@ -445,8 +497,10 @@
 <div class="screen" id="screen-admin">
   <header>
     <div class="header-left">
-      <h1>Manage Access</h1>
-      <p>Approve requests and manage approved emails</p>
+      <div class="header-brand">
+        <h1>Manage Access</h1>
+        <p>Approve requests and manage approved emails</p>
+      </div>
     </div>
     <div class="header-right">
       <button class="btn-signout" onclick="showScreen('screen-library')">&larr; Back to Library</button>
@@ -474,8 +528,10 @@
 <div class="screen" id="screen-tracker">
   <header>
     <div class="header-left">
-      <h1>Deployment Tracker</h1>
-      <p>Track what needs deploying, what's in progress, and what's done</p>
+      <div class="header-brand">
+        <h1>Deployment Tracker</h1>
+        <p>Track what needs deploying, what's in progress, and what's done</p>
+      </div>
     </div>
     <div class="header-right">
       <button class="btn-add" onclick="openDeployModal(null)">+ Add Item</button>
@@ -506,8 +562,10 @@
 <div class="screen" id="screen-docs">
   <header>
     <div class="header-left">
-      <h1>Documentation</h1>
-      <p>Links to your docs, specs, and references</p>
+      <div class="header-brand">
+        <h1>Documentation</h1>
+        <p>Links to your docs, specs, and references</p>
+      </div>
     </div>
     <div class="header-right">
       <button class="btn-add" onclick="openDocModal(null)">+ Add Doc</button>
@@ -540,8 +598,10 @@
 <div class="screen" id="screen-planner">
   <header>
     <div class="header-left">
-      <h1 id="plannerMonthLabel">Planner</h1>
-      <p id="plannerWeekLabel"></p>
+      <div class="header-brand">
+        <h1 id="plannerMonthLabel">Planner</h1>
+        <p id="plannerWeekLabel"></p>
+      </div>
     </div>
     <div class="header-right">
       <div class="view-toggle">
@@ -591,7 +651,7 @@
 <!-- FULL CALENDAR SCREEN -->
 <div class="screen" id="screen-calendar">
   <header>
-    <div class="header-left"><h1>Calendar</h1><p>Your Google Calendar</p></div>
+    <div class="header-left"><div class="header-brand"><h1>Calendar</h1><p>Your Google Calendar</p></div></div>
     <div class="header-right">
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
@@ -644,7 +704,6 @@
 
 <script>
   // =====================================================================
-  // =====================================================================
   // APP STATE
   var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
@@ -659,6 +718,7 @@
   var catMap = {};
   var currentEmail = '';
   var currentView = localStorage.getItem('lib_view') || 'home';
+  var homeFilter = localStorage.getItem('lib_homefilter') || 'all'; // 'all' | 'work' | 'personal'
 
   var SECTION_COLORS = ['#1F6FEB','#16A34A','#9333EA','#EA580C','#0891B2','#DB2777','#CA8A04','#4F46E5','#059669','#DC2626','#7C3AED','#0D9488'];
   function colorForCategory(catId) {
@@ -676,6 +736,7 @@
     var t = (title || '').trim();
     return t ? t.charAt(0).toUpperCase() : '#';
   }
+  function typeLabel(t) { t = t || 'personal'; if (t === 'work') return 'Work'; if (t === 'both') return 'Work + Personal'; return 'Personal'; }
 
   var DEPLOY_CATEGORY_NAME = 'Deployment Status';
   var TOOLS_CATEGORY_NAME = 'Tools';
@@ -696,10 +757,6 @@
     return STATUS_STAGES[0].key;
   }
   function isDeployCategory(catId) { return catId && catMap[catId] === DEPLOY_CATEGORY_NAME; }
-
-  // =====================================================================
-  // EXISTING APP CODE
-  // =====================================================================
 
   window.onload = function() {
     var saved = localStorage.getItem('lib_email');
@@ -754,6 +811,38 @@
     if (ct) ct.style.display = (currentView === 'home') ? 'none' : 'block';
     var mainEl = document.querySelector('#screen-library .main');
     if (mainEl) mainEl.classList.toggle('wide', currentView === 'home');
+    var topnav = document.getElementById('topnav');
+    if (topnav) topnav.style.display = (currentView === 'home') ? 'inline-flex' : 'none';
+    applyTabHighlight();
+  }
+
+  // ===== TOP NAV (Work / Personal dropdowns) =====
+  function toggleTopnav(e, which) {
+    if (e) e.stopPropagation();
+    var work = document.getElementById('menuWork');
+    var personal = document.getElementById('menuPersonal');
+    var target = which === 'work' ? work : personal;
+    var other = which === 'work' ? personal : work;
+    other.classList.remove('open');
+    target.classList.toggle('open');
+  }
+  function closeTopnav() {
+    document.getElementById('menuWork').classList.remove('open');
+    document.getElementById('menuPersonal').classList.remove('open');
+  }
+  function filterHome(scope) {
+    homeFilter = (scope === 'work' || scope === 'personal') ? scope : 'all';
+    localStorage.setItem('lib_homefilter', homeFilter);
+    closeTopnav();
+    if (currentView !== 'home') { setView('home'); } else { applyFilters(); }
+    applyTabHighlight();
+  }
+  function applyTabHighlight() {
+    var tw = document.getElementById('tabWork'), tp = document.getElementById('tabPersonal'), ta = document.getElementById('tabAll');
+    if (!tw) return;
+    tw.classList.toggle('active', homeFilter === 'work');
+    tp.classList.toggle('active', homeFilter === 'personal');
+    ta.classList.toggle('active', homeFilter === 'all');
   }
 
   function signOut() {
@@ -1005,18 +1094,6 @@
 
   function greetingWord() { var h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 18) return 'Good afternoon'; return 'Good evening'; }
   function ownerFirstName() { return 'Trent'; }
-  function timeAgo(iso) {
-    if (!iso) return '';
-    var then = new Date(iso).getTime();
-    if (isNaN(then)) return '';
-    var s = Math.floor((Date.now() - then) / 1000);
-    if (s < 60) return 'just now';
-    var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
-    var hr = Math.floor(m / 60); if (hr < 24) return hr + 'h ago';
-    var d = Math.floor(hr / 24); if (d < 7) return d + 'd ago';
-    var w = Math.floor(d / 7); if (w < 5) return w + 'w ago';
-    return new Date(iso).toLocaleDateString();
-  }
 
   function renderHome(allLinksArg) {
     var links = allLinks.slice();
@@ -1067,7 +1144,7 @@
         '</a>' +
       '</div>';
 
-    var toolsHTML = buildGroupedToolCards(links);
+    var toolsHTML = buildAllToolsGrid(links);
 
     document.getElementById('linksList').innerHTML =
       greet + statusLine +
@@ -1077,48 +1154,65 @@
     wireDashButtons();
   }
 
+  // Tool card with TYPE + CATEGORY eyebrow (WGU.tools style)
   function toolCardHTML(l) {
     var color = colorForCategory(l.category_id);
     var catName = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Uncategorized';
+    var tType = typeLabel(l.link_type);
     var fav = faviconFor(l.url);
     var chipInner = fav ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />' : '<span>' + esc(firstLetter(l.title)) + '</span>';
     var desc = l.description ? esc(l.description) : esc(l.url);
+    var eyebrow = '<span class="tool-chip">' + chipInner + '</span>' +
+                  '<span class="tool-eyebrow-text">' + esc(tType) + ' <span class="tool-eyebrow-sep">&middot;</span> ' + esc(catName) + '</span>';
     return '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
         '<span class="tool-edit"><button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button></span>' +
-        '<span class="tool-eyebrow"><span class="tool-chip">' + chipInner + '</span>' + esc(catName) + '</span>' +
+        '<span class="tool-eyebrow">' + eyebrow + '</span>' +
         '<span class="tool-name">' + esc(l.title) + '</span>' +
         '<span class="tool-desc">' + desc + '</span>' +
       '</a>';
   }
 
-  function buildGroupedToolCards(links) {
-    var workLinks = links.filter(function(l) { var t = l.link_type || 'personal'; return t === 'work' || t === 'both'; });
-    var personalLinks = links.filter(function(l) { var t = l.link_type || 'personal'; return t === 'personal' || t === 'both'; });
+  // Built-in tool cards (Deployment Tracker, Docs, etc.) shown based on scope
+  function builtinToolCard(opts) {
+    return '<a class="tool-card" href="' + (opts.href || '#') + '"' + (opts.target ? ' target="' + opts.target + '"' : '') + (opts.onclick ? ' onclick="' + opts.onclick + '"' : '') + ' style="--tc:' + opts.color + ';--tc-soft:' + opts.color + '22;">' +
+        '<span class="tool-eyebrow"><span class="tool-chip"><span>' + opts.icon + '</span></span><span class="tool-eyebrow-text">' + opts.type + ' <span class="tool-eyebrow-sep">&middot;</span> Tool</span></span>' +
+        '<span class="tool-name">' + opts.name + '</span>' +
+        '<span class="tool-desc">' + opts.desc + '</span>' +
+      '</a>';
+  }
 
-    var trackerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openTracker();" style="--tc:#1F6FEB;--tc-soft:#1F6FEB22;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#9783;</span></span>Work</span><span class="tool-name">Deployment Tracker</span><span class="tool-desc">Track what needs deploying, what\'s in progress, and what\'s done.</span></a>';
-    var docsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'work\');" style="--tc:#0891B2;--tc-soft:#0891B222;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Work</span><span class="tool-name">Documentation</span><span class="tool-desc">Links to your docs, specs, and references.</span></a>';
-    var integrationCard = '<a class="tool-card" href="integration-helper.html" target="_blank" style="--tc:#00897B;--tc-soft:#00897B22;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#8747;x</span></span>Work</span><span class="tool-name">Integration Helper</span><span class="tool-desc">AI-powered step-by-step Salesforce integration builder.</span></a>';
-    var leadCards = trackerCard + docsCard + integrationCard;
+  function buildAllToolsGrid(links) {
+    // Apply the Work/Personal scope filter
+    var scoped = links.filter(function(l) {
+      var t = l.link_type || 'personal';
+      if (homeFilter === 'work') return t === 'work' || t === 'both';
+      if (homeFilter === 'personal') return t === 'personal' || t === 'both';
+      return true;
+    });
 
-    var personalDocsCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openDocs(\'personal\');" style="--tc:#9333EA;--tc-soft:#9333EA22;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#128196;</span></span>Personal</span><span class="tool-name">Documentation</span><span class="tool-desc">Links to your personal docs, notes, and references.</span></a>';
-    var plannerCard = '<a class="tool-card" href="#" onclick="event.preventDefault(); openPlanner();" style="--tc:#DB2777;--tc-soft:#DB277722;"><span class="tool-eyebrow"><span class="tool-chip"><span>&#128197;</span></span>Personal</span><span class="tool-name">Planner</span><span class="tool-desc">Plan your week. Add items to any day.</span></a>';
-    var personalLeadCards = plannerCard + personalDocsCard;
-
-    function column(title, color, items, leadCardsHTML, leadCount) {
-      leadCount = leadCount || 0;
-      var head = '<div class="group-head" style="--gc:' + color + ';"><span class="group-bar"></span><span class="group-title">' + title + '</span><span class="group-count">' + (items.length + leadCount) + '</span></div>';
-      var body = '';
-      if (leadCardsHTML) { body += '<div class="subcat-label">Tools</div><div class="tools-grid">' + leadCardsHTML + '</div>'; }
-      body += '<div class="subcat-label">Links</div>';
-      if (items.length) { body += '<div class="tools-grid">'; for (var k = 0; k < items.length; k++) body += toolCardHTML(items[k]); body += '</div>'; }
-      else { body += '<div class="recent-empty" style="padding:0.5rem 0;">No links here yet.</div>'; }
-      return '<div class="tool-col">' + head + body + '</div>';
+    // Built-in tool cards, filtered by the same scope
+    var builtins = [];
+    if (homeFilter === 'all' || homeFilter === 'work') {
+      builtins.push(builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }));
+      builtins.push(builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Documentation', desc: 'Links to your docs, specs, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'work\');' }));
+      builtins.push(builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' }));
+    }
+    if (homeFilter === 'all' || homeFilter === 'personal') {
+      builtins.push(builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }));
+      builtins.push(builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Documentation', desc: 'Links to your personal docs, notes, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'personal\');' }));
     }
 
-    return '<div class="cols-2">' +
-             column('Work Tools', '#1F6FEB', workLinks, leadCards, 2) +
-             column('Personal Tools and Links', '#9333EA', personalLinks, personalLeadCards, 2) +
-           '</div>';
+    var scopeLabel = homeFilter === 'work' ? 'Work tools' : homeFilter === 'personal' ? 'Personal tools' : 'All tools';
+    var totalCount = scoped.length + builtins.length;
+
+    var head = '<div class="alltools-head"><span class="alltools-bar"></span><span class="alltools-title">' + scopeLabel + '</span><span class="alltools-hint">' + totalCount + ' total</span></div>';
+
+    var cards = builtins.join('');
+    for (var i = 0; i < scoped.length; i++) { cards += toolCardHTML(scoped[i]); }
+
+    if (!totalCount) { return head + '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
+
+    return head + '<div class="tools-grid">' + cards + '</div>';
   }
 
   function launchTileHTML(it, pinned) {
@@ -1230,9 +1324,12 @@
   document.getElementById('docModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDocModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
-  document.addEventListener('click', function(e) { var wrap = document.querySelector('.filter-wrap'); if (wrap && !wrap.contains(e.target)) closeFilterMenu(); });
+  document.addEventListener('click', function(e) {
+    var wrap = document.querySelector('.filter-wrap'); if (wrap && !wrap.contains(e.target)) closeFilterMenu();
+    var tn = document.getElementById('topnav'); if (tn && !tn.contains(e.target)) closeTopnav();
+  });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeDeployModal(); closeDocModal(); closePlanModal(); closeAnalyze(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeDocModal(); closePlanModal(); closeAnalyze(); }
     if (e.key === '/' && document.getElementById('screen-library').classList.contains('active') && !document.getElementById('modalOverlay').classList.contains('open') && !document.getElementById('categoryModalOverlay').classList.contains('open')) {
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') { e.preventDefault(); document.getElementById('searchInput').focus(); }
