@@ -260,8 +260,9 @@
 
   /* DEPLOYMENT BOARD */
   .board-wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
-  @media (max-width: 800px) { .board { grid-template-columns: 1fr; } }
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 1000px) { .board { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .board { grid-template-columns: 1fr; } }
   .board-col { background: #EEF1F6; border-radius: 12px; padding: 0.9rem; min-height: 200px; }
   .board-col-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; padding: 0 0.2rem; }
   .board-col-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bc); flex-shrink: 0; }
@@ -550,7 +551,7 @@
     <input type="hidden" id="deployEditId" value="">
     <div class="field"><label>Title</label><input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" /></div>
     <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
-    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="needs">Needs deployed</option><option value="progress">In progress</option><option value="deployed">Deployed</option></select></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="needs">Needs deployed</option><option value="progress">In progress</option><option value="awaiting_cr">Awaiting CR approval</option><option value="deployed">Deployed</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -743,8 +744,8 @@
   var STATUS_STAGES = [
     { key: 'needs',    label: 'Needs deployed', cls: 'st-needs' },
     { key: 'progress', label: 'In progress',    cls: 'st-progress' },
-    { key: 'deployed', label: 'Deployed',       cls: 'st-deployed' },
-    { key: 'blocked',  label: 'Blocked',        cls: 'st-blocked' }
+    { key: 'awaiting_cr', label: 'Awaiting CR approval', cls: 'st-blocked' },
+    { key: 'deployed', label: 'Deployed',       cls: 'st-deployed' }
   ];
   function statusByKey(key) {
     for (var i = 0; i < STATUS_STAGES.length; i++) { if (STATUS_STAGES[i].key === key) return STATUS_STAGES[i]; }
@@ -1519,7 +1520,7 @@
   function deleteDoc(id) { if (!confirm('Delete this document?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDocs(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
-  var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
+  var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'awaiting_cr', title: 'Awaiting CR approval', color: '#7C3AED' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
   var allDeploys = [];
   function openCalendar() { document.getElementById('calFullFrame').src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK'; showScreen('screen-calendar'); }
   function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
