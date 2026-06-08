@@ -275,6 +275,12 @@
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
   .dcard-pr { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--link); text-decoration: none; margin-bottom: 0.6rem; }
   .dcard-pr:hover { text-decoration: underline; }
+  .dcard-envs { display: flex; align-items: center; gap: 0.4rem; padding-top: 0.55rem; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); }
+  .env-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.5rem 0.22rem 0.32rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); cursor: pointer; font-family: inherit; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+  .env-chip:hover { border-color: var(--muted-soft); }
+  .env-chip .env-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--muted-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; color: transparent; flex-shrink: 0; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+  .env-chip.on { background: var(--green-soft); border-color: #A7D8B9; color: #15803D; }
+  .env-chip.on .env-dot { background: var(--green); border-color: var(--green); color: #fff; }
   .dcard-actions { display: flex; align-items: center; gap: 0.35rem; padding-top: 0.55rem; border-top: 1px solid var(--rule-soft); }
   .dcard-move { padding: 0.3rem 0.55rem; background: var(--bg); border: 1px solid var(--rule); border-radius: 5px; font-size: 0.72rem; cursor: pointer; font-family: inherit; color: var(--ink); }
   .dcard-move:hover:not(:disabled) { border-color: var(--link); color: var(--link); }
@@ -1524,6 +1530,11 @@
 
   // ===== DEPLOYMENT TRACKER =====
   var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'awaiting_cr', title: 'Awaiting CR approval', color: '#7C3AED' }, { key: 'deploying', title: 'Deploying', color: '#0891B2' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
+  // Environment confirmation indicators per card. In-memory only (session) — resets on full page reload.
+  var DEPLOY_ENVS = [{ key: 'dev', label: 'Dev' }, { key: 'qa', label: 'QA' }, { key: 'prod', label: 'Prod' }];
+  var envState = {}; // { cardId: { dev:true, qa:false, prod:false } }
+  function getEnvState(id) { if (!envState[id]) envState[id] = { dev: false, qa: false, prod: false }; return envState[id]; }
+  function toggleEnv(id, envKey) { var s = getEnvState(id); s[envKey] = !s[envKey]; renderBoard(); }
   var allDeploys = [];
   function openCalendar() { document.getElementById('calFullFrame').src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK'; showScreen('screen-calendar'); }
   function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
@@ -1535,7 +1546,7 @@
       var items = allDeploys.filter(function(d) { return (d.status || 'needs') === col.key; });
       html += '<div class="board-col" style="--bc:' + col.color + ';"><div class="board-col-head"><span class="board-col-dot"></span><span class="board-col-title">' + col.title + '</span><span class="board-col-count">' + items.length + '</span></div>';
       if (!items.length) { html += '<div class="board-empty">Nothing here</div>'; }
-      else { for (var i = 0; i < items.length; i++) { var d = items[i]; var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1; html += '<div class="dcard" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>'; } }
+      else { for (var i = 0; i < items.length; i++) { var d = items[i]; var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1; var es = getEnvState(d.id); var envsHtml = '<div class="dcard-envs">'; for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; } envsHtml += '</div>'; html += '<div class="dcard" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + envsHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>'; } }
       html += '</div>';
     }
     html += '</div>';
@@ -1543,6 +1554,7 @@
     document.querySelectorAll('.dcard-move[data-dmove]').forEach(function(b) { b.addEventListener('click', function() { moveDeploy(this.getAttribute('data-dmove'), parseInt(this.getAttribute('data-dir'), 10)); }); });
     document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
+    document.querySelectorAll('.env-chip[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
