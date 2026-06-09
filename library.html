@@ -292,6 +292,16 @@
   .dcard-mini.del:hover { color: var(--danger); border-color: var(--danger); }
   .board-empty { font-size: 0.78rem; color: var(--muted-soft); text-align: center; padding: 1.5rem 0.5rem; }
 
+  /* ===== BLOCKED INDICATOR (in-memory, session only) ===== */
+  .dcard.is-blocked { border-left-color: var(--danger); }
+  .blk-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.5rem 0.22rem 0.4rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); cursor: pointer; font-family: inherit; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+  .blk-chip:hover { border-color: var(--muted-soft); }
+  .blk-chip.on { background: #FBE9E9; border-color: #F3C9C7; color: #C0322B; }
+  .blk-reason { width: 100%; margin-top: 0.5rem; padding: 0.45rem 0.55rem; font-size: 0.74rem; font-family: inherit; border: 1px solid #F3C9C7; border-radius: 6px; background: #FFF7F7; color: var(--ink); outline: none; resize: vertical; min-height: 38px; line-height: 1.35; transition: border-color 0.12s, box-shadow 0.12s; }
+  .blk-reason:focus { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+  .blk-reason::placeholder { color: var(--muted-soft); }
+  /* ===== END BLOCKED INDICATOR ===== */
+
   /* PLANNER */
   .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; align-items: start; }
   @media (max-width: 1100px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -1535,6 +1545,11 @@
   var envState = {}; // { cardId: { dev:true, qa:false, prod:false } }
   function getEnvState(id) { if (!envState[id]) envState[id] = { dev: false, qa: false, prod: false }; return envState[id]; }
   function toggleEnv(id, envKey) { var s = getEnvState(id); s[envKey] = !s[envKey]; renderBoard(); }
+  // Blocked indicator per card. In-memory only (session) — resets on full page reload, same as env chips above.
+  var blockState = {}; // { cardId: { blocked:true, reason:'...' } }
+  function getBlockState(id) { if (!blockState[id]) blockState[id] = { blocked: false, reason: '' }; return blockState[id]; }
+  function toggleBlock(id) { var s = getBlockState(id); s.blocked = !s.blocked; renderBoard(); }
+  function setBlockReason(id, val) { getBlockState(id).reason = val; } // no re-render: keep focus while typing
   var allDeploys = [];
   function openCalendar() { document.getElementById('calFullFrame').src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK'; showScreen('screen-calendar'); }
   function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
@@ -1546,7 +1561,22 @@
       var items = allDeploys.filter(function(d) { return (d.status || 'needs') === col.key; });
       html += '<div class="board-col" style="--bc:' + col.color + ';"><div class="board-col-head"><span class="board-col-dot"></span><span class="board-col-title">' + col.title + '</span><span class="board-col-count">' + items.length + '</span></div>';
       if (!items.length) { html += '<div class="board-empty">Nothing here</div>'; }
-      else { for (var i = 0; i < items.length; i++) { var d = items[i]; var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1; var es = getEnvState(d.id); var envsHtml = '<div class="dcard-envs">'; for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; } envsHtml += '</div>'; html += '<div class="dcard" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + envsHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>'; } }
+      else {
+        for (var i = 0; i < items.length; i++) {
+          var d = items[i];
+          var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
+          var es = getEnvState(d.id);
+          var bs = getBlockState(d.id);
+          var envsHtml = '<div class="dcard-envs">';
+          for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; }
+          // Blocked chip sits in the same row as the env chips
+          envsHtml += '<span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span>';
+          envsHtml += '</div>';
+          // Reason box shows only when blocked
+          var reasonHtml = bs.blocked ? '<textarea class="blk-reason" data-dblkreason="' + esc(d.id) + '" placeholder="What\'s blocking this? (e.g. waiting on CR approval)">' + esc(bs.reason) + '</textarea>' : '';
+          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + envsHtml + reasonHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
+        }
+      }
       html += '</div>';
     }
     html += '</div>';
@@ -1555,6 +1585,8 @@
     document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
     document.querySelectorAll('.env-chip[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
+    document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
+    document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('input', function() { setBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
