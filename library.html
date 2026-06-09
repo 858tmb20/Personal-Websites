@@ -330,6 +330,9 @@
   .todo-add input:focus { border-color: var(--link); box-shadow: 0 0 0 3px rgba(31,111,235,0.1); }
   .todo-add button { padding: 0.75rem 1.3rem; background: var(--accent); color: #fff; font-size: 0.85rem; font-weight: 600; border: none; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; white-space: nowrap; transition: background 0.15s; }
   .todo-add button:hover { background: var(--accent-hover); }
+  .todo-sort-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem; }
+  .todo-sort-row .todo-sort-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+  .todo-sort-row .view-btn { font-size: 0.78rem; padding: 0.42rem 0.85rem; }
   .todo-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
   .todo-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
   .todo-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted-soft); background: var(--card); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: transparent; line-height: 1; transition: background 0.13s, border-color 0.13s, color 0.13s; }
@@ -478,6 +481,7 @@
           <div class="topnav-menu" id="menuWork">
             <a class="topnav-link" onclick="filterHome('work')"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">All Work Tools<span class="tnl-sub">Everything tagged Work</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTracker();"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">Deployment Tracker<span class="tnl-sub">Needs / in progress / done</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openDocs('work');"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Documentation<span class="tnl-sub">Docs, specs, references</span></span></a>
             <a class="topnav-link" href="integration-helper.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#00897B22;color:#00897B;">&#8747;</span><span class="tnl-text">Integration Helper<span class="tnl-sub">Salesforce build assistant</span></span></a>
           </div>
@@ -689,6 +693,13 @@
     <div class="todo-add">
       <input type="text" id="todoInput" placeholder="Write a note or task, then press Enter..." />
       <button onclick="addTodo()">Add</button>
+    </div>
+    <div class="todo-sort-row">
+      <span class="todo-sort-label">Sort:</span>
+      <div class="view-toggle">
+        <button class="view-btn" id="todoSortOpen" onclick="setTodoSort('open')">Open first</button>
+        <button class="view-btn" id="todoSortDone" onclick="setTodoSort('done')">Completed first</button>
+      </div>
     </div>
     <div class="count" id="todoCount"></div>
     <div id="todoList"><div class="loading">Loading...</div></div>
@@ -1258,6 +1269,7 @@
     var builtins = [];
     if (homeFilter === 'all' || homeFilter === 'work') {
       builtins.push(builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }));
+      builtins.push(builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }));
       builtins.push(builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Documentation', desc: 'Links to your docs, specs, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'work\');' }));
       builtins.push(builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' }));
     }
@@ -1480,12 +1492,18 @@
 
   // ===== TO-DO / NOTES (browser-only, saved in this browser via localStorage) =====
   var allTodos = [];
+  var todoSort = localStorage.getItem('lib_todosort') || 'open'; // 'open' = open first, 'done' = completed first
   function loadTodos() {
     try { allTodos = JSON.parse(localStorage.getItem('lib_todos') || '[]'); }
     catch (e) { allTodos = []; }
     if (!Array.isArray(allTodos)) allTodos = [];
   }
   function saveTodos() { localStorage.setItem('lib_todos', JSON.stringify(allTodos)); }
+  function setTodoSort(mode) {
+    todoSort = (mode === 'done') ? 'done' : 'open';
+    localStorage.setItem('lib_todosort', todoSort);
+    renderTodos();
+  }
   function openTodo() { loadTodos(); showScreen('screen-todo'); renderTodos(); setTimeout(function() { var i = document.getElementById('todoInput'); if (i) i.focus(); }, 100); }
   function addTodo() {
     var input = document.getElementById('todoInput');
@@ -1514,13 +1532,26 @@
     renderTodos();
   }
   function renderTodos() {
+    var sortOpenBtn = document.getElementById('todoSortOpen');
+    var sortDoneBtn = document.getElementById('todoSortDone');
+    if (sortOpenBtn) sortOpenBtn.classList.toggle('active', todoSort === 'open');
+    if (sortDoneBtn) sortDoneBtn.classList.toggle('active', todoSort === 'done');
+
     var open = allTodos.filter(function(t) { return !t.done; }).length;
     var done = allTodos.length - open;
     document.getElementById('todoCount').textContent = open + ' open' + (done ? ' \u00b7 ' + done + ' done' : '');
     if (!allTodos.length) { document.getElementById('todoList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Write a note or task above and press Enter.</div>'; return; }
+
+    // Stable sort: keeps existing newest-first order within the open group and within the done group
+    var sorted = allTodos.slice().sort(function(a, b) {
+      var av = a.done ? 1 : 0, bv = b.done ? 1 : 0;
+      if (todoSort === 'done') return bv - av;   // completed first
+      return av - bv;                            // open first
+    });
+
     var html = '<div class="todo-list">';
-    for (var i = 0; i < allTodos.length; i++) {
-      var t = allTodos[i];
+    for (var i = 0; i < sorted.length; i++) {
+      var t = sorted[i];
       html += '<div class="todo-item ' + (t.done ? 'done' : '') + '">' +
         '<button class="todo-check" data-todocheck="' + esc(t.id) + '" title="' + (t.done ? 'Mark not done' : 'Mark done') + '">&#10003;</button>' +
         '<span class="todo-text">' + esc(t.text) + '</span>' +
