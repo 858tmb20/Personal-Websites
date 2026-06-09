@@ -202,6 +202,17 @@
 
   /* HERO CALENDAR EMBED */
   .hero-cal { padding: 0; cursor: pointer; overflow: hidden; min-height: 280px; display: block; }
+  .hero-cal-compact { min-height: 230px; }
+  .hero-cal-compact .hero-cal-frame iframe { background: #fff; }
+
+  /* Collapsible tool sections */
+  .tsec { margin-bottom: 1.5rem; }
+  .tsec:last-child { margin-bottom: 0; }
+  .tsec-head { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 1rem; cursor: pointer; user-select: none; padding: 0.2rem 0; }
+  .tsec-head .group-bar { background: var(--gc); }
+  .tsec-head .group-count { background: var(--gc); }
+  .tsec-head .tsec-toggle { margin-left: auto; font-size: 0.76rem; font-weight: 600; color: var(--link); white-space: nowrap; }
+  .tsec-head:hover .tsec-toggle { text-decoration: underline; }
   .hero-cal-frame { position: absolute; inset: 0; }
   .hero-cal-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
   .hero-cal-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 1rem 1.4rem; background: linear-gradient(to top, rgba(15,31,61,0.92) 0%, rgba(15,31,61,0.7) 60%, rgba(15,31,61,0) 100%); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -1180,10 +1191,10 @@
       '<button class="analyze-btn" onclick="openAnalyze()">&#10024; Analyze &amp; Clean Up</button>' +
       '</div>';
 
-    var calEmbed = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago';
-    var hero = '<div class="hero hero-cal" onclick="openCalendar()">' +
+    var calEmbed = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=AGENDA&showTitle=0&showNav=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0';
+    var hero = '<div class="hero hero-cal hero-cal-compact" onclick="openCalendar()">' +
                  '<div class="hero-cal-frame"><iframe src="' + calEmbed + '" frameborder="0" scrolling="no"></iframe></div>' +
-                 '<div class="hero-cal-overlay"><div class="hero-eyebrow">Your Week</div><div class="hero-cal-cta">Expand calendar &rarr;</div></div>' +
+                 '<div class="hero-cal-overlay"><div class="hero-eyebrow">Upcoming</div><div class="hero-cal-cta">Expand calendar &rarr;</div></div>' +
                '</div>';
 
     var quickLinks =
@@ -1256,6 +1267,35 @@
       '</a>';
   }
 
+  // How many cards to show before "Show all" kicks in, per section
+  var TOOLS_PREVIEW_COUNT = 6;
+  // Which sections are expanded right now (session state; defaults to collapsed-preview)
+  var toolsExpanded = { work: false, personal: false, links: false };
+  function toggleToolsSection(key) {
+    toolsExpanded[key] = !toolsExpanded[key];
+    applyFilters(); // re-renders home
+  }
+
+  // Build one collapsible section: a header (title + count + chevron) and a grid
+  // that shows only the first TOOLS_PREVIEW_COUNT cards unless expanded.
+  function toolsSection(key, title, color, cardArr) {
+    if (!cardArr.length) return '';
+    var expanded = !!toolsExpanded[key];
+    var total = cardArr.length;
+    var hasMore = total > TOOLS_PREVIEW_COUNT;
+    var shown = (expanded || !hasMore) ? cardArr : cardArr.slice(0, TOOLS_PREVIEW_COUNT);
+
+    var head = '<div class="tsec-head" data-tsec="' + key + '" style="--gc:' + color + ';">' +
+        '<span class="group-bar"></span>' +
+        '<span class="group-title">' + esc(title) + '</span>' +
+        '<span class="group-count">' + total + '</span>' +
+        (hasMore ? '<span class="tsec-toggle">' + (expanded ? 'Show less &#9652;' : 'Show all ' + total + ' &#9662;') + '</span>' : '') +
+      '</div>';
+
+    var grid = '<div class="tools-grid">' + shown.join('') + '</div>';
+    return '<div class="tsec">' + head + grid + '</div>';
+  }
+
   function buildAllToolsGrid(links) {
     // Apply the Work/Personal scope filter
     var scoped = links.filter(function(l) {
@@ -1265,31 +1305,46 @@
       return true;
     });
 
-    // Built-in tool cards, filtered by the same scope
-    var builtins = [];
-    if (homeFilter === 'all' || homeFilter === 'work') {
-      builtins.push(builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }));
-      builtins.push(builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }));
-      builtins.push(builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Documentation', desc: 'Links to your docs, specs, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'work\');' }));
-      builtins.push(builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' }));
-    }
-    if (homeFilter === 'all' || homeFilter === 'personal') {
-      builtins.push(builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }));
-      builtins.push(builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }));
-      builtins.push(builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Documentation', desc: 'Links to your personal docs, notes, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'personal\');' }));
+    // Built-in tool cards for each scope
+    var workBuiltins = [
+      builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }),
+      builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
+      builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Documentation', desc: 'Links to your docs, specs, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'work\');' }),
+      builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' })
+    ];
+    var personalBuiltins = [
+      builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
+      builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }),
+      builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Documentation', desc: 'Links to your personal docs, notes, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'personal\');' })
+    ];
+
+    // Sort the user's saved links into work vs personal buckets
+    var workLinks = [], personalLinks = [];
+    for (var i = 0; i < scoped.length; i++) {
+      var t = scoped[i].link_type || 'personal';
+      var card = toolCardHTML(scoped[i]);
+      if (t === 'work') workLinks.push(card);
+      else if (t === 'personal') personalLinks.push(card);
+      else { workLinks.push(card); personalLinks.push(card); } // 'both'
     }
 
+    var totalCount = scoped.length + (homeFilter !== 'personal' ? workBuiltins.length : 0) + (homeFilter !== 'work' ? personalBuiltins.length : 0);
     var scopeLabel = homeFilter === 'work' ? 'Work tools' : homeFilter === 'personal' ? 'Personal tools' : 'All tools';
-    var totalCount = scoped.length + builtins.length;
-
     var head = '<div class="alltools-head"><span class="alltools-bar"></span><span class="alltools-title">' + scopeLabel + '</span><span class="alltools-hint">' + totalCount + ' total</span></div>';
-
-    var cards = builtins.join('');
-    for (var i = 0; i < scoped.length; i++) { cards += toolCardHTML(scoped[i]); }
 
     if (!totalCount) { return head + '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
 
-    return head + '<div class="tools-grid">' + cards + '</div>';
+    var sections = '';
+    if (homeFilter === 'work') {
+      sections = toolsSection('work', 'Work', '#1F6FEB', workBuiltins.concat(workLinks));
+    } else if (homeFilter === 'personal') {
+      sections = toolsSection('personal', 'Personal', '#9333EA', personalBuiltins.concat(personalLinks));
+    } else {
+      sections = toolsSection('work', 'Work', '#1F6FEB', workBuiltins.concat(workLinks)) +
+                 toolsSection('personal', 'Personal', '#9333EA', personalBuiltins.concat(personalLinks));
+    }
+
+    return head + sections;
   }
 
   function launchTileHTML(it, pinned) {
@@ -1339,6 +1394,7 @@
     document.querySelectorAll('.launch-mini[data-del]').forEach(function(btn) { btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); deleteLink(this.getAttribute('data-del')); }); });
     document.querySelectorAll('.launch-star[data-pin]').forEach(function(btn) { btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); togglePin(this.getAttribute('data-pin')); }); });
     document.querySelectorAll('.launch-status[data-status]').forEach(function(el) { el.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); cycleStatus(this.getAttribute('data-status')); }); });
+    document.querySelectorAll('.tsec-head[data-tsec]').forEach(function(el) { el.addEventListener('click', function() { toggleToolsSection(this.getAttribute('data-tsec')); }); });
   }
 
   function cycleStatus(id) {
