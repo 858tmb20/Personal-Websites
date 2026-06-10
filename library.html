@@ -1551,55 +1551,89 @@
     next();
   }
 
-  // ===== TO-DO / NOTES (browser-only, saved in this browser via localStorage) =====
+  // ===== TO-DO / NOTES (persisted in Supabase: public.todos) =====
   var allTodos = [];
-  var todoSort = localStorage.getItem('lib_todosort') || 'manual'; // 'manual' = keep order, 'open' = open first, 'done' = completed first
-  function loadTodos() {
-    try { allTodos = JSON.parse(localStorage.getItem('lib_todos') || '[]'); }
-    catch (e) { allTodos = []; }
-    if (!Array.isArray(allTodos)) allTodos = [];
+  var todoSort = localStorage.getItem('lib_todosort') || 'manual'; // UI pref kept local: 'manual' | 'open' | 'done'
+  function patchTodo(id, fields, revert) {
+    fetch(SB_URL + '/rest/v1/todos?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(fields) })
+      .then(function(res) { if (!res.ok && revert) { revert(); renderTodos(); showToast('Could not save'); } })
+      .catch(function() { if (revert) { revert(); renderTodos(); } });
   }
-  function saveTodos() { localStorage.setItem('lib_todos', JSON.stringify(allTodos)); }
+  // One-time: lift any to-dos still in this browser's localStorage into Supabase, then forget the local copy.
+  function migrateLocalTodos(done) {
+    if (localStorage.getItem('lib_todos_migrated')) { done(); return; }
+    var legacy = [];
+    try { legacy = JSON.parse(localStorage.getItem('lib_todos') || '[]'); } catch (e) { legacy = []; }
+    if (!Array.isArray(legacy) || !legacy.length) { localStorage.setItem('lib_todos_migrated', '1'); done(); return; }
+    var rows = legacy.map(function(t) {
+      var row = { text: t.text, status: t.status ? t.status : (t.done ? 'done' : 'open') };
+      var ts = (typeof t.id === 'string' && t.id.charAt(0) === 't') ? parseInt(t.id.slice(1), 10) : NaN;
+      if (!isNaN(ts)) row.created_at = new Date(ts).toISOString(); // preserve original order
+      return row;
+    });
+    fetch(SB_URL + '/rest/v1/todos', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(rows) })
+      .then(function(res) { if (res.ok) { localStorage.setItem('lib_todos_migrated', '1'); localStorage.removeItem('lib_todos'); } done(); })
+      .catch(function() { done(); });
+  }
+  function fetchTodos() {
+    fetch(SB_URL + '/rest/v1/todos?order=created_at.desc', { headers: H })
+      .then(function(r) { return r.json(); })
+      .then(function(data) { allTodos = Array.isArray(data) ? data : []; renderTodos(); })
+      .catch(function() { document.getElementById('todoList').innerHTML = '<div class="board-empty">Could not load. Is the "todos" table created?</div>'; });
+  }
   function setTodoSort(mode) {
     // Clicking an already-active sort returns to manual (natural) order
     todoSort = (todoSort === mode) ? 'manual' : mode;
     localStorage.setItem('lib_todosort', todoSort);
     renderTodos();
   }
-  function openTodo() { loadTodos(); showScreen('screen-todo'); renderTodos(); setTimeout(function() { var i = document.getElementById('todoInput'); if (i) i.focus(); }, 100); }
+  function openTodo() {
+    showScreen('screen-todo');
+    document.getElementById('todoList').innerHTML = '<div class="loading">Loading...</div>';
+    migrateLocalTodos(fetchTodos);
+    setTimeout(function() { var i = document.getElementById('todoInput'); if (i) i.focus(); }, 100);
+  }
   function addTodo() {
     var input = document.getElementById('todoInput');
     var text = input.value.trim();
     if (!text) return;
-    allTodos.unshift({ id: 't' + Date.now(), text: text, done: false, status: 'open' });
-    saveTodos();
     input.value = '';
-    renderTodos();
+    fetch(SB_URL + '/rest/v1/todos', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=representation' }), body: JSON.stringify({ text: text, status: 'open' }) })
+      .then(function(r) { return r.json(); })
+      .then(function(rows) { var row = Array.isArray(rows) ? rows[0] : rows; if (row && row.id) { allTodos.unshift(row); renderTodos(); } else { fetchTodos(); } })
+      .catch(function() { showToast('Could not add'); });
     input.focus();
   }
   function todoStatus(t) { return t.status ? t.status : (t.done ? 'done' : 'open'); }
-  function setTodoStatus(t, s) { t.status = s; t.done = (s === 'done'); }
   function findTodo(id) { for (var i = 0; i < allTodos.length; i++) { if (allTodos[i].id === id) return allTodos[i]; } return null; }
   function markDone(id) {
     var t = findTodo(id); if (!t) return;
-    setTodoStatus(t, todoStatus(t) === 'done' ? 'open' : 'done');
-    saveTodos(); renderTodos();
+    var prev = todoStatus(t), next = (prev === 'done') ? 'open' : 'done';
+    t.status = next; renderTodos();
+    patchTodo(id, { status: next }, function() { t.status = prev; });
   }
   function toggleProgress(id) {
     var t = findTodo(id); if (!t) return;
-    setTodoStatus(t, todoStatus(t) === 'progress' ? 'open' : 'progress');
-    saveTodos(); renderTodos();
+    var prev = todoStatus(t), next = (prev === 'progress') ? 'open' : 'progress';
+    t.status = next; renderTodos();
+    patchTodo(id, { status: next }, function() { t.status = prev; });
   }
   function deleteTodo(id) {
+    var prevList = allTodos.slice();
     allTodos = allTodos.filter(function(t) { return t.id !== id; });
-    saveTodos();
     renderTodos();
+    fetch(SB_URL + '/rest/v1/todos?id=eq.' + id, { method: 'DELETE', headers: H })
+      .then(function(res) { if (!res.ok) { allTodos = prevList; renderTodos(); showToast('Could not delete'); } })
+      .catch(function() { allTodos = prevList; renderTodos(); });
   }
   function clearDoneTodos() {
     if (!confirm('Clear all completed items?')) return;
-    allTodos = allTodos.filter(function(t) { return !t.done; });
-    saveTodos();
+    var prevList = allTodos.slice();
+    allTodos = allTodos.filter(function(t) { return todoStatus(t) !== 'done'; });
     renderTodos();
+    fetch(SB_URL + '/rest/v1/todos?status=eq.done', { method: 'DELETE', headers: H })
+      .then(function(res) { if (!res.ok) { allTodos = prevList; renderTodos(); showToast('Could not clear'); } })
+      .catch(function() { allTodos = prevList; renderTodos(); });
   }
   function renderTodos() {
     var sortOpenBtn = document.getElementById('todoSortOpen');
@@ -1753,16 +1787,31 @@
 
   // ===== DEPLOYMENT TRACKER =====
   var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'awaiting_cr', title: 'Awaiting CR approval', color: '#7C3AED' }, { key: 'deploying', title: 'Deploying', color: '#0891B2' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
-  // Environment confirmation indicators per card. In-memory only (session) — resets on full page reload.
+  // Environment confirmation indicators per card. Persisted to Supabase (deployments.dev/qa/prod).
   var DEPLOY_ENVS = [{ key: 'dev', label: 'Dev' }, { key: 'qa', label: 'QA' }, { key: 'prod', label: 'Prod' }];
-  var envState = {}; // { cardId: { dev:true, qa:false, prod:false } }
-  function getEnvState(id) { if (!envState[id]) envState[id] = { dev: false, qa: false, prod: false }; return envState[id]; }
-  function toggleEnv(id, envKey) { var s = getEnvState(id); s[envKey] = !s[envKey]; renderBoard(); }
-  // Blocked indicator per card. In-memory only (session) — resets on full page reload, same as env chips above.
-  var blockState = {}; // { cardId: { blocked:true, reason:'...' } }
-  function getBlockState(id) { if (!blockState[id]) blockState[id] = { blocked: false, reason: '' }; return blockState[id]; }
-  function toggleBlock(id) { var s = getBlockState(id); s.blocked = !s.blocked; renderBoard(); }
-  function setBlockReason(id, val) { getBlockState(id).reason = val; } // no re-render: keep focus while typing
+  function patchDeploy(id, fields, revert) {
+    fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(fields) })
+      .then(function(res) { if (!res.ok && revert) { revert(); renderBoard(); showToast('Could not save'); } })
+      .catch(function() { if (revert) { revert(); renderBoard(); } });
+  }
+  function toggleEnv(id, envKey) {
+    var d = findDeploy(id); if (!d) return;
+    var prev = !!d[envKey]; d[envKey] = !prev; renderBoard();
+    var f = {}; f[envKey] = d[envKey];
+    patchDeploy(id, f, function() { d[envKey] = prev; });
+  }
+  // Blocked indicator + reason per card. Persisted to Supabase (deployments.blocked / block_reason).
+  function toggleBlock(id) {
+    var d = findDeploy(id); if (!d) return;
+    var prev = !!d.blocked; d.blocked = !prev; renderBoard();
+    patchDeploy(id, { blocked: d.blocked }, function() { d.blocked = prev; });
+  }
+  function saveBlockReason(id, val) {
+    var d = findDeploy(id); if (!d) return;
+    if ((d.block_reason || '') === (val || '')) return; // nothing changed
+    var prev = d.block_reason; d.block_reason = val;
+    patchDeploy(id, { block_reason: val }, function() { d.block_reason = prev; });
+  }
   var allDeploys = [];
   function openCalendar() { document.getElementById('calFullFrame').src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK'; showScreen('screen-calendar'); }
   function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
@@ -1778,8 +1827,8 @@
         for (var i = 0; i < items.length; i++) {
           var d = items[i];
           var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
-          var es = getEnvState(d.id);
-          var bs = getBlockState(d.id);
+          var es = d;                                                  // env flags live on the row: d.dev / d.qa / d.prod
+          var bs = { blocked: !!d.blocked, reason: d.block_reason || '' };
           var envsHtml = '<div class="dcard-envs">';
           for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; }
           // Blocked chip sits in the same row as the env chips
@@ -1799,7 +1848,7 @@
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
     document.querySelectorAll('.env-chip[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
     document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
-    document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('input', function() { setBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
+    document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
