@@ -349,7 +349,10 @@
   .todo-check { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted-soft); background: var(--card); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: transparent; line-height: 1; transition: background 0.13s, border-color 0.13s, color 0.13s; }
   .todo-check:hover { border-color: var(--green); }
   .todo-item.done .todo-check { background: var(--green); border-color: var(--green); color: #fff; }
+  .todo-item.progress .todo-check { background: #F59E0B; border-color: #F59E0B; color: #fff; font-size: 0.72rem; }
+  .todo-progress-tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #B7791F; background: #FEF6E0; border: 1px solid #FBE6B0; padding: 0.16rem 0.5rem; border-radius: 20px; flex-shrink: 0; }
   .todo-text { flex: 1; font-size: 0.92rem; color: var(--ink); line-height: 1.4; word-break: break-word; transition: color 0.13s; }
+  .todo-item.progress .todo-text { color: var(--ink); }
   .todo-item.done .todo-text { text-decoration: line-through; color: var(--muted-soft); }
   .todo-del { width: 30px; height: 30px; padding: 0; border: 1px solid var(--rule); background: var(--card); color: var(--muted); border-radius: var(--radius-sm); font-size: 0.78rem; cursor: pointer; font-family: inherit; flex-shrink: 0; line-height: 1; transition: all 0.13s; }
   .todo-del:hover { color: var(--danger); border-color: var(--danger); }
@@ -1565,14 +1568,24 @@
     var input = document.getElementById('todoInput');
     var text = input.value.trim();
     if (!text) return;
-    allTodos.unshift({ id: 't' + Date.now(), text: text, done: false });
+    allTodos.unshift({ id: 't' + Date.now(), text: text, done: false, status: 'open' });
     saveTodos();
     input.value = '';
     renderTodos();
     input.focus();
   }
+  function todoStatus(t) { return t.status ? t.status : (t.done ? 'done' : 'open'); }
+  function setTodoStatus(t, s) { t.status = s; t.done = (s === 'done'); }
   function toggleTodo(id) {
-    for (var i = 0; i < allTodos.length; i++) { if (allTodos[i].id === id) { allTodos[i].done = !allTodos[i].done; break; } }
+    // Click cycles: open -> in progress -> done -> open
+    for (var i = 0; i < allTodos.length; i++) {
+      if (allTodos[i].id === id) {
+        var s = todoStatus(allTodos[i]);
+        var next = (s === 'open') ? 'progress' : (s === 'progress') ? 'done' : 'open';
+        setTodoStatus(allTodos[i], next);
+        break;
+      }
+    }
     saveTodos();
     renderTodos();
   }
@@ -1593,24 +1606,30 @@
     if (sortOpenBtn) sortOpenBtn.classList.toggle('active', todoSort === 'open');
     if (sortDoneBtn) sortDoneBtn.classList.toggle('active', todoSort === 'done');
 
-    var open = allTodos.filter(function(t) { return !t.done; }).length;
-    var done = allTodos.length - open;
-    document.getElementById('todoCount').textContent = open + ' open' + (done ? ' \u00b7 ' + done + ' done' : '');
+    var open = 0, prog = 0, done = 0;
+    allTodos.forEach(function(t) { var s = todoStatus(t); if (s === 'done') done++; else if (s === 'progress') prog++; else open++; });
+    document.getElementById('todoCount').textContent = open + ' open' + (prog ? ' \u00b7 ' + prog + ' in progress' : '') + (done ? ' \u00b7 ' + done + ' done' : '');
     if (!allTodos.length) { document.getElementById('todoList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Write a note or task above and press Enter.</div>'; return; }
 
     // Stable sort: keeps existing newest-first order within the open group and within the done group
+    function todoRank(t) { var s = todoStatus(t); return s === 'done' ? 2 : (s === 'progress' ? 1 : 0); }
     var sorted = allTodos.slice().sort(function(a, b) {
-      var av = a.done ? 1 : 0, bv = b.done ? 1 : 0;
+      var av = todoRank(a), bv = todoRank(b);
       if (todoSort === 'done') return bv - av;   // completed first
-      return av - bv;                            // open first
+      return av - bv;                            // open / in progress first
     });
 
     var html = '<div class="todo-list">';
     for (var i = 0; i < sorted.length; i++) {
       var t = sorted[i];
-      html += '<div class="todo-item ' + (t.done ? 'done' : '') + '">' +
-        '<button class="todo-check" data-todocheck="' + esc(t.id) + '" title="' + (t.done ? 'Mark not done' : 'Mark done') + '">&#10003;</button>' +
+      var st = todoStatus(t);
+      var stCls = (st === 'done') ? 'done' : (st === 'progress') ? 'progress' : '';
+      var glyph = (st === 'done') ? '&#10003;' : (st === 'progress') ? '&#9680;' : '';
+      var nextTitle = (st === 'open') ? 'Mark in progress' : (st === 'progress') ? 'Mark done' : 'Reset to open';
+      html += '<div class="todo-item ' + stCls + '">' +
+        '<button class="todo-check" data-todocheck="' + esc(t.id) + '" title="' + nextTitle + '">' + glyph + '</button>' +
         '<span class="todo-text">' + esc(t.text) + '</span>' +
+        (st === 'progress' ? '<span class="todo-progress-tag">In progress</span>' : '') +
         '<button class="todo-del" data-tododel="' + esc(t.id) + '" title="Delete">&#10005;</button>' +
       '</div>';
     }
