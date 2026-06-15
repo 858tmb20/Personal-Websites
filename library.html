@@ -433,6 +433,24 @@
   .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--ink); color: white; padding: 0.65rem 1.25rem; font-size: 0.83rem; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 200; }
   .toast.show { opacity: 1; }
   .loading { text-align: center; padding: 3rem; color: var(--muted); }
+
+  /* KNOWLEDGE BASE TABLE */
+  .kb-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .kb-table th { text-align: left; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 0.8rem 1rem; border-bottom: 1px solid var(--rule); background: var(--rule-soft); }
+  .kb-table td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--rule-soft); font-size: 0.86rem; color: var(--ink); vertical-align: top; }
+  .kb-table tr:last-child td { border-bottom: none; }
+  .kb-table tbody tr:hover td { background: var(--bg); }
+  .kb-howto { font-weight: 600; color: var(--ink); width: 26%; }
+  .kb-desc { color: var(--ink-soft); line-height: 1.55; white-space: pre-wrap; }
+  .kb-res { width: 11%; white-space: nowrap; }
+  .kb-acts { width: 1%; white-space: nowrap; text-align: right; }
+  @media (max-width: 720px) {
+    .kb-table, .kb-table tbody, .kb-table tr, .kb-table td { display: block; width: 100%; }
+    .kb-table thead { display: none; }
+    .kb-table tr { border-bottom: 1px solid var(--rule); padding: 0.4rem 0; }
+    .kb-table td { border: none; padding: 0.3rem 1rem; }
+    .kb-howto { font-size: 0.95rem; padding-top: 0.7rem; }
+  }
 </style>
 </head>
 <body>
@@ -499,6 +517,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTracker();"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">Deployment Tracker<span class="tnl-sub">Needs / in progress / done</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openDocs('work');"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Documentation<span class="tnl-sub">Docs, specs, references</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#7C3AED22;color:#7C3AED;">&#128214;</span><span class="tnl-text">How-To Guides<span class="tnl-sub">What to do &amp; how to do it</span></span></a>
             <a class="topnav-link" href="integration-helper.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#00897B22;color:#00897B;">&#8747;</span><span class="tnl-text">Integration Helper<span class="tnl-sub">Salesforce build assistant</span></span></a>
           </div>
         </div>
@@ -650,6 +669,42 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDoc()">Save</button>
       <button class="btn-cancel" onclick="closeDocModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- KNOWLEDGE BASE SCREEN -->
+<div class="screen" id="screen-kb">
+  <header>
+    <div class="header-left">
+      <div class="header-brand">
+        <h1>How-To Guides</h1>
+        <p>What to do, how to do it, and where to look</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" onclick="openKbModal(null)">+ Add Entry</button>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <input type="text" class="search-bar" id="kbSearchInput" placeholder="Search how-to entries..." oninput="renderKb()">
+    <div class="count" id="kbCount"></div>
+    <div id="kbList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- KNOWLEDGE BASE MODAL -->
+<div class="modal-overlay" id="kbModalOverlay">
+  <div class="modal">
+    <h2 id="kbModalTitle">Add Entry</h2>
+    <input type="hidden" id="kbEditId" value="">
+    <div class="field"><label>How-To (title)</label><input type="text" id="kbTitleInput" placeholder="e.g. How to create a validation rule in Salesforce" /></div>
+    <div class="field"><label>Description</label><textarea id="kbDescInput" placeholder="Describe the steps..." style="min-height:140px;"></textarea></div>
+    <div class="field"><label>Resource Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="kbUrlInput" placeholder="https://help.salesforce.com/..." /></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveKb()">Save</button>
+      <button class="btn-cancel" onclick="closeKbModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1315,6 +1370,7 @@
       builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }),
       builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Documentation', desc: 'Links to your docs, specs, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'work\');' }),
+      builtinToolCard({ type: 'Work', color: '#7C3AED', icon: '&#128214;', name: 'How-To Guides', desc: 'What to do, how to do it, and where to look.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
       builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' })
     ];
     var personalBuiltins = [
@@ -1784,6 +1840,46 @@
     fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeDocModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchDocs(); } else { showToast('Error saving'); } });
   }
   function deleteDoc(id) { if (!confirm('Delete this document?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDocs(); }); }
+
+  // ===== KNOWLEDGE BASE (how-to guides; stored in documents table, doc_type='kb') =====
+  var allKb = [];
+  function openKb() { document.getElementById('kbSearchInput').value = ''; showScreen('screen-kb'); fetchKb(); }
+  function fetchKb() {
+    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { var all = Array.isArray(data) ? data : []; allKb = all.filter(function(d) { return d.doc_type === 'kb'; }); renderKb(); }).catch(function() { document.getElementById('kbList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
+  }
+  function renderKb() {
+    var q = (document.getElementById('kbSearchInput').value || '').toLowerCase();
+    var list = allKb.filter(function(d) { if (!q) return true; return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.note || '').toLowerCase().indexOf(q) > -1; });
+    document.getElementById('kbCount').textContent = list.length + ' entr' + (list.length !== 1 ? 'ies' : 'y');
+    if (!list.length) { document.getElementById('kbList').innerHTML = allKb.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No entries yet</strong>Hit &quot;+ Add Entry&quot; to add your first how-to.</div>'; return; }
+    var html = '<table class="kb-table"><thead><tr><th>How-To</th><th>Description</th><th>Resource</th><th></th></tr></thead><tbody>';
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      var res = d.url ? '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
+      html += '<tr><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.note || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-kbedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-kbdel="' + esc(d.id) + '">&#10005;</button></td></tr>';
+    }
+    html += '</tbody></table>';
+    document.getElementById('kbList').innerHTML = html;
+    document.querySelectorAll('.btn-edit[data-kbedit]').forEach(function(b) { b.addEventListener('click', function() { openKbModal(findKb(this.getAttribute('data-kbedit'))); }); });
+    document.querySelectorAll('.btn-delete[data-kbdel]').forEach(function(b) { b.addEventListener('click', function() { deleteKb(this.getAttribute('data-kbdel')); }); });
+  }
+  function findKb(id) { for (var i = 0; i < allKb.length; i++) { if (allKb[i].id === id) return allKb[i]; } return null; }
+  function openKbModal(d) { document.getElementById('kbEditId').value = d ? d.id : ''; document.getElementById('kbModalTitle').textContent = d ? 'Edit Entry' : 'Add Entry'; document.getElementById('kbTitleInput').value = d ? d.title : ''; document.getElementById('kbDescInput').value = (d && d.note) ? d.note : ''; document.getElementById('kbUrlInput').value = (d && d.url) ? d.url : ''; document.getElementById('kbModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('kbTitleInput').focus(); }, 100); }
+  function closeKbModal() { document.getElementById('kbModalOverlay').classList.remove('open'); }
+  function saveKb() {
+    var title = document.getElementById('kbTitleInput').value.trim();
+    var note = document.getElementById('kbDescInput').value.trim();
+    var url = document.getElementById('kbUrlInput').value.trim();
+    var editId = document.getElementById('kbEditId').value;
+    if (!title) { showToast('Add a how-to title'); return; }
+    var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/documents?id=eq.' + editId : SB_URL + '/rest/v1/documents';
+    var body = { title: title, note: note || null, url: fullUrl };
+    if (!editId) body.doc_type = 'kb';
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeKbModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchKb(); } else { showToast('Error saving'); } });
+  }
+  function deleteKb(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchKb(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
   var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'awaiting_cr', title: 'Awaiting CR approval', color: '#7C3AED' }, { key: 'deploying', title: 'Deploying', color: '#0891B2' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
