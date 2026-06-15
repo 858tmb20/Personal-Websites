@@ -516,8 +516,7 @@
             <a class="topnav-link" onclick="filterHome('work')"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">All Work Tools<span class="tnl-sub">Everything tagged Work</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTracker();"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">Deployment Tracker<span class="tnl-sub">Needs / in progress / done</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
-            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openDocs('work');"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Documentation<span class="tnl-sub">Docs, specs, references</span></span></a>
-            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#7C3AED22;color:#7C3AED;">&#128214;</span><span class="tnl-text">How-To Guides<span class="tnl-sub">What to do &amp; how to do it</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
             <a class="topnav-link" href="integration-helper.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#00897B22;color:#00897B;">&#8747;</span><span class="tnl-text">Integration Helper<span class="tnl-sub">Salesforce build assistant</span></span></a>
           </div>
         </div>
@@ -529,7 +528,7 @@
             <a class="topnav-link" onclick="filterHome('personal')"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#9783;</span><span class="tnl-text">All Personal Tools<span class="tnl-sub">Everything tagged Personal</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openPlanner();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128197;</span><span class="tnl-text">Planner<span class="tnl-sub">Plan your week</span></span></a>
-            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openDocs('personal');"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Documentation<span class="tnl-sub">Personal docs &amp; notes</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
           </div>
         </div>
         <div class="topnav-item">
@@ -637,49 +636,13 @@
   </div>
 </div>
 
-<!-- DOCUMENTATION SCREEN -->
-<div class="screen" id="screen-docs">
-  <header>
-    <div class="header-left">
-      <div class="header-brand">
-        <h1>Documentation</h1>
-        <p>Links to your docs, specs, and references</p>
-      </div>
-    </div>
-    <div class="header-right">
-      <button class="btn-add" onclick="openDocModal(null)">+ Add Doc</button>
-      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
-    </div>
-  </header>
-  <div class="board-wrap">
-    <input type="text" class="search-bar" id="docSearchInput" placeholder="Search documentation..." oninput="renderDocs()">
-    <div class="count" id="docCount"></div>
-    <div id="docsList"><div class="loading">Loading...</div></div>
-  </div>
-</div>
-
-<!-- DOCUMENTATION MODAL -->
-<div class="modal-overlay" id="docModalOverlay">
-  <div class="modal">
-    <h2 id="docModalTitle">Add Document</h2>
-    <input type="hidden" id="docEditId" value="">
-    <div class="field"><label>Title</label><input type="text" id="docTitleInput" placeholder="e.g. Tealium Integration Spec" /></div>
-    <div class="field"><label>Link</label><input type="text" id="docUrlInput" placeholder="https://docs.google.com/..." /></div>
-    <div class="field"><label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="docNoteInput" placeholder="Short description" /></div>
-    <div class="modal-actions">
-      <button class="btn-save" onclick="saveDoc()">Save</button>
-      <button class="btn-cancel" onclick="closeDocModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- KNOWLEDGE BASE SCREEN -->
+<!-- DOCS & GUIDES SCREEN -->
 <div class="screen" id="screen-kb">
   <header>
     <div class="header-left">
       <div class="header-brand">
-        <h1>How-To Guides</h1>
-        <p>What to do, how to do it, and where to look</p>
+        <h1>Docs &amp; Guides</h1>
+        <p>Docs, links, specs, and how-to guides &mdash; all in one place</p>
       </div>
     </div>
     <div class="header-right">
@@ -699,8 +662,8 @@
   <div class="modal">
     <h2 id="kbModalTitle">Add Entry</h2>
     <input type="hidden" id="kbEditId" value="">
-    <div class="field"><label>How-To (title)</label><input type="text" id="kbTitleInput" placeholder="e.g. How to create a validation rule in Salesforce" /></div>
-    <div class="field"><label>Description</label><textarea id="kbDescInput" placeholder="Describe the steps..." style="min-height:140px;"></textarea></div>
+    <div class="field"><label>Title</label><input type="text" id="kbTitleInput" placeholder="e.g. How to create a validation rule, or Tealium Integration Spec" /></div>
+    <div class="field"><label>Description <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="kbDescInput" placeholder="Steps, notes, or a short description..." style="min-height:140px;"></textarea></div>
     <div class="field"><label>Resource Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="kbUrlInput" placeholder="https://help.salesforce.com/..." /></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveKb()">Save</button>
@@ -1369,14 +1332,13 @@
     var workBuiltins = [
       builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }),
       builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
-      builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Documentation', desc: 'Links to your docs, specs, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'work\');' }),
-      builtinToolCard({ type: 'Work', color: '#7C3AED', icon: '&#128214;', name: 'How-To Guides', desc: 'What to do, how to do it, and where to look.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
+      builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
       builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' })
     ];
     var personalBuiltins = [
       builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }),
-      builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Documentation', desc: 'Links to your personal docs, notes, and references.', href: '#', onclick: 'event.preventDefault(); openDocs(\'personal\');' })
+      builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, and how-to guides in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' })
     ];
 
     // Sort the user's saved links into work vs personal buckets
@@ -1515,7 +1477,7 @@
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
-  document.getElementById('docModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDocModal(); });
+  document.getElementById('kbModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeKbModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
   document.addEventListener('click', function(e) {
@@ -1523,7 +1485,7 @@
     var tn = document.getElementById('topnav'); if (tn && !tn.contains(e.target)) closeTopnav();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeDocModal(); closePlanModal(); closeAnalyze(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closePlanModal(); closeAnalyze(); }
     if (e.key === '/' && document.getElementById('screen-library').classList.contains('active') && !document.getElementById('modalOverlay').classList.contains('open') && !document.getElementById('categoryModalOverlay').classList.contains('open')) {
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') { e.preventDefault(); document.getElementById('searchInput').focus(); }
@@ -1804,55 +1766,18 @@
   }
   function deletePlan(id) { if (!confirm('Delete this item?')) return; fetch(SB_URL + '/rest/v1/planner?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchPlans(); }); }
 
-  // ===== DOCUMENTATION =====
-  var allDocs = [];
-  var currentDocType = 'work';
-  function openDocs(type) { currentDocType = (type === 'personal') ? 'personal' : 'work'; document.querySelector('#screen-docs .header-left h1').textContent = (currentDocType === 'personal') ? 'Personal Documentation' : 'Documentation'; document.getElementById('docSearchInput').value = ''; showScreen('screen-docs'); fetchDocs(); }
-  function fetchDocs() {
-    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { var all = Array.isArray(data) ? data : []; allDocs = all.filter(function(d) { return (d.doc_type || 'work') === currentDocType; }); renderDocs(); }).catch(function() { document.getElementById('docsList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
-  }
-  function renderDocs() {
-    var q = (document.getElementById('docSearchInput').value || '').toLowerCase();
-    var list = allDocs.filter(function(d) { if (!q) return true; return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.url || '').toLowerCase().indexOf(q) > -1 || (d.note || '').toLowerCase().indexOf(q) > -1; });
-    document.getElementById('docCount').textContent = list.length + ' document' + (list.length !== 1 ? 's' : '');
-    if (!list.length) { document.getElementById('docsList').innerHTML = allDocs.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No documents yet</strong>Hit "+ Add Doc".</div>'; return; }
-    var html = '<div class="links-list">';
-    for (var i = 0; i < list.length; i++) { var d = list[i]; html += '<div class="link-item"><div class="link-info"><div class="link-title">' + esc(d.title) + '</div><a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.url) + '</a>' + (d.note ? '<div class="link-cat" style="text-transform:none;letter-spacing:0;">' + esc(d.note) + '</div>' : '') + '</div><div class="link-actions"><a class="btn-open" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a><button class="btn-edit" data-docedit="' + esc(d.id) + '">Edit</button><button class="btn-delete" data-docdel="' + esc(d.id) + '">&#10005;</button></div></div>'; }
-    html += '</div>';
-    document.getElementById('docsList').innerHTML = html;
-    document.querySelectorAll('.btn-edit[data-docedit]').forEach(function(b) { b.addEventListener('click', function() { openDocModal(findDoc(this.getAttribute('data-docedit'))); }); });
-    document.querySelectorAll('.btn-delete[data-docdel]').forEach(function(b) { b.addEventListener('click', function() { deleteDoc(this.getAttribute('data-docdel')); }); });
-  }
-  function findDoc(id) { for (var i = 0; i < allDocs.length; i++) { if (allDocs[i].id === id) return allDocs[i]; } return null; }
-  function openDocModal(d) { document.getElementById('docEditId').value = d ? d.id : ''; document.getElementById('docModalTitle').textContent = d ? 'Edit Document' : 'Add Document'; document.getElementById('docTitleInput').value = d ? d.title : ''; document.getElementById('docUrlInput').value = d ? d.url : ''; document.getElementById('docNoteInput').value = (d && d.note) ? d.note : ''; document.getElementById('docModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('docTitleInput').focus(); }, 100); }
-  function closeDocModal() { document.getElementById('docModalOverlay').classList.remove('open'); }
-  function saveDoc() {
-    var title = document.getElementById('docTitleInput').value.trim();
-    var url = document.getElementById('docUrlInput').value.trim();
-    var note = document.getElementById('docNoteInput').value.trim();
-    var editId = document.getElementById('docEditId').value;
-    if (!title || !url) { showToast('Fill in title and link'); return; }
-    var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
-    var method = editId ? 'PATCH' : 'POST';
-    var endpoint = editId ? SB_URL + '/rest/v1/documents?id=eq.' + editId : SB_URL + '/rest/v1/documents';
-    var body = { title: title, url: fullUrl, note: note || null };
-    if (!editId) body.doc_type = currentDocType;
-    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeDocModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchDocs(); } else { showToast('Error saving'); } });
-  }
-  function deleteDoc(id) { if (!confirm('Delete this document?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDocs(); }); }
-
-  // ===== KNOWLEDGE BASE (how-to guides; stored in documents table, doc_type='kb') =====
+  // ===== DOCS & GUIDES (docs, links, and how-to guides; stored in documents table) =====
   var allKb = [];
   function openKb() { document.getElementById('kbSearchInput').value = ''; showScreen('screen-kb'); fetchKb(); }
   function fetchKb() {
-    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { var all = Array.isArray(data) ? data : []; allKb = all.filter(function(d) { return d.doc_type === 'kb'; }); renderKb(); }).catch(function() { document.getElementById('kbList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
+    fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allKb = Array.isArray(data) ? data : []; renderKb(); }).catch(function() { document.getElementById('kbList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
   }
   function renderKb() {
     var q = (document.getElementById('kbSearchInput').value || '').toLowerCase();
     var list = allKb.filter(function(d) { if (!q) return true; return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.note || '').toLowerCase().indexOf(q) > -1; });
     document.getElementById('kbCount').textContent = list.length + ' entr' + (list.length !== 1 ? 'ies' : 'y');
-    if (!list.length) { document.getElementById('kbList').innerHTML = allKb.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No entries yet</strong>Hit &quot;+ Add Entry&quot; to add your first how-to.</div>'; return; }
-    var html = '<table class="kb-table"><thead><tr><th>How-To</th><th>Description</th><th>Resource</th><th></th></tr></thead><tbody>';
+    if (!list.length) { document.getElementById('kbList').innerHTML = allKb.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No entries yet</strong>Hit &quot;+ Add Entry&quot; to add a doc, link, or how-to.</div>'; return; }
+    var html = '<table class="kb-table"><thead><tr><th>Title</th><th>Description</th><th>Link</th><th></th></tr></thead><tbody>';
     for (var i = 0; i < list.length; i++) {
       var d = list[i];
       var res = d.url ? '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
