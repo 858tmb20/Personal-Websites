@@ -444,6 +444,11 @@
   .kb-desc { color: var(--ink-soft); line-height: 1.55; white-space: pre-wrap; }
   .kb-res { width: 11%; white-space: nowrap; }
   .kb-acts { width: 1%; white-space: nowrap; text-align: right; }
+  .kb-type { width: 12%; white-space: nowrap; }
+  .kb-tag { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.02em; padding: 0.16rem 0.5rem; border-radius: 20px; white-space: nowrap; display: inline-block; }
+  .kt-document { background: #E6F1FB; color: #185FA5; }
+  .kt-flowchart { background: #EEEDFE; color: #534AB7; }
+  .kt-howto { background: #E7F6EC; color: #15803D; }
   @media (max-width: 720px) {
     .kb-table, .kb-table tbody, .kb-table tr, .kb-table td { display: block; width: 100%; }
     .kb-table thead { display: none; }
@@ -661,7 +666,16 @@
     </div>
   </header>
   <div class="board-wrap">
-    <input type="text" class="search-bar" id="kbSearchInput" placeholder="Search how-to entries..." oninput="renderKb()">
+    <div class="todo-sort-row" style="margin-bottom:0.85rem;">
+      <span class="todo-sort-label">Show:</span>
+      <div class="view-toggle">
+        <button class="view-btn active" data-kbfilter="all" onclick="setKbFilter('all')">All</button>
+        <button class="view-btn" data-kbfilter="document" onclick="setKbFilter('document')">Documents</button>
+        <button class="view-btn" data-kbfilter="flowchart" onclick="setKbFilter('flowchart')">Flowcharts</button>
+        <button class="view-btn" data-kbfilter="howto" onclick="setKbFilter('howto')">How-tos</button>
+      </div>
+    </div>
+    <input type="text" class="search-bar" id="kbSearchInput" placeholder="Search by title or description..." oninput="renderKb()">
     <div class="count" id="kbCount"></div>
     <div id="kbList"><div class="loading">Loading...</div></div>
   </div>
@@ -672,7 +686,8 @@
   <div class="modal">
     <h2 id="kbModalTitle">Add Entry</h2>
     <input type="hidden" id="kbEditId" value="">
-    <div class="field"><label>Title</label><input type="text" id="kbTitleInput" placeholder="e.g. How to create a validation rule, or Tealium Integration Spec" /></div>
+    <div class="field"><label>Title</label><input type="text" id="kbTitleInput" placeholder="e.g. Lead routing flowchart, or Tealium Integration Spec" /></div>
+    <div class="field"><label>Type</label><select id="kbTypeInput"><option value="document">Document</option><option value="flowchart">Flowchart</option><option value="howto">How-to</option></select></div>
     <div class="field"><label>Description <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="kbDescInput" placeholder="Steps, notes, or a short description..." style="min-height:140px;"></textarea></div>
     <div class="field"><label>Resource Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="kbUrlInput" placeholder="https://help.salesforce.com/..." /></div>
     <div class="modal-actions">
@@ -1814,20 +1829,29 @@
 
   // ===== DOCS & GUIDES (docs, links, and how-to guides; stored in documents table) =====
   var allKb = [];
-  function openKb() { document.getElementById('kbSearchInput').value = ''; showScreen('screen-kb'); fetchKb(); }
+  var kbFilter = 'all';
+  var KB_TYPES = { document: { label: 'Document', cls: 'kt-document' }, flowchart: { label: 'Flowchart', cls: 'kt-flowchart' }, howto: { label: 'How-to', cls: 'kt-howto' } };
+  function kbType(d) { var t = d && d.doc_type; return (t === 'flowchart' || t === 'howto' || t === 'document') ? t : 'document'; }
+  function openKb() { document.getElementById('kbSearchInput').value = ''; kbFilter = 'all'; document.querySelectorAll('[data-kbfilter]').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-kbfilter') === 'all'); }); showScreen('screen-kb'); fetchKb(); }
+  function setKbFilter(f) { kbFilter = f; document.querySelectorAll('[data-kbfilter]').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-kbfilter') === f); }); renderKb(); }
   function fetchKb() {
     fetch(SB_URL + '/rest/v1/documents?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allKb = Array.isArray(data) ? data : []; renderKb(); }).catch(function() { document.getElementById('kbList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
   }
   function renderKb() {
     var q = (document.getElementById('kbSearchInput').value || '').toLowerCase();
-    var list = allKb.filter(function(d) { if (!q) return true; return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.note || '').toLowerCase().indexOf(q) > -1; });
+    var list = allKb.filter(function(d) {
+      if (kbFilter !== 'all' && kbType(d) !== kbFilter) return false;
+      if (!q) return true;
+      return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.note || '').toLowerCase().indexOf(q) > -1;
+    });
     document.getElementById('kbCount').textContent = list.length + ' entr' + (list.length !== 1 ? 'ies' : 'y');
-    if (!list.length) { document.getElementById('kbList').innerHTML = allKb.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No entries yet</strong>Hit &quot;+ Add Entry&quot; to add a doc, link, or how-to.</div>'; return; }
-    var html = '<table class="kb-table"><thead><tr><th>Title</th><th>Description</th><th>Link</th><th></th></tr></thead><tbody>';
+    if (!list.length) { document.getElementById('kbList').innerHTML = allKb.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>No entries yet</strong>Hit &quot;+ Add Entry&quot; to add a doc, flowchart, or how-to.</div>'; return; }
+    var html = '<table class="kb-table"><thead><tr><th>Type</th><th>Title</th><th>Description</th><th>Link</th><th></th></tr></thead><tbody>';
     for (var i = 0; i < list.length; i++) {
       var d = list[i];
+      var ty = KB_TYPES[kbType(d)];
       var res = d.url ? '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
-      html += '<tr><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.note || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-kbedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-kbdel="' + esc(d.id) + '">&#10005;</button></td></tr>';
+      html += '<tr><td class="kb-type"><span class="kb-tag ' + ty.cls + '">' + ty.label + '</span></td><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.note || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-kbedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-kbdel="' + esc(d.id) + '">&#10005;</button></td></tr>';
     }
     html += '</tbody></table>';
     document.getElementById('kbList').innerHTML = html;
@@ -1835,7 +1859,7 @@
     document.querySelectorAll('.btn-delete[data-kbdel]').forEach(function(b) { b.addEventListener('click', function() { deleteKb(this.getAttribute('data-kbdel')); }); });
   }
   function findKb(id) { for (var i = 0; i < allKb.length; i++) { if (allKb[i].id === id) return allKb[i]; } return null; }
-  function openKbModal(d) { document.getElementById('kbEditId').value = d ? d.id : ''; document.getElementById('kbModalTitle').textContent = d ? 'Edit Entry' : 'Add Entry'; document.getElementById('kbTitleInput').value = d ? d.title : ''; document.getElementById('kbDescInput').value = (d && d.note) ? d.note : ''; document.getElementById('kbUrlInput').value = (d && d.url) ? d.url : ''; document.getElementById('kbModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('kbTitleInput').focus(); }, 100); }
+  function openKbModal(d) { document.getElementById('kbEditId').value = d ? d.id : ''; document.getElementById('kbModalTitle').textContent = d ? 'Edit Entry' : 'Add Entry'; document.getElementById('kbTitleInput').value = d ? d.title : ''; document.getElementById('kbTypeInput').value = kbType(d); document.getElementById('kbDescInput').value = (d && d.note) ? d.note : ''; document.getElementById('kbUrlInput').value = (d && d.url) ? d.url : ''; document.getElementById('kbModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('kbTitleInput').focus(); }, 100); }
   function closeKbModal() { document.getElementById('kbModalOverlay').classList.remove('open'); }
   function saveKb() {
     var title = document.getElementById('kbTitleInput').value.trim();
@@ -1846,8 +1870,7 @@
     var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/documents?id=eq.' + editId : SB_URL + '/rest/v1/documents';
-    var body = { title: title, note: note || null, url: fullUrl };
-    if (!editId) body.doc_type = 'kb';
+    var body = { title: title, note: note || null, url: fullUrl, doc_type: document.getElementById('kbTypeInput').value || 'document' };
     fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeKbModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchKb(); } else { showToast('Error saving'); } });
   }
   function deleteKb(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchKb(); }); }
