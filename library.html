@@ -272,11 +272,8 @@
 
   /* DEPLOYMENT BOARD */
   .board-wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .board { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; align-items: start; }
-  @media (max-width: 1280px) { .board { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 1100px) { .board { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 700px) { .board { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 480px) { .board { grid-template-columns: 1fr; } }
+  .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(208px, 1fr); gap: 0.75rem; align-items: start; overflow-x: auto; padding-bottom: 0.5rem; }
+  @media (max-width: 700px) { .board { grid-auto-columns: minmax(80vw, 1fr); } }
   .board-col { background: #EEF1F6; border-radius: 12px; padding: 0.9rem; min-height: 200px; }
   .board-col-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; padding: 0 0.2rem; }
   .board-col-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bc); flex-shrink: 0; }
@@ -644,7 +641,7 @@
     <input type="hidden" id="deployEditId" value="">
     <div class="field"><label>Title</label><input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" /></div>
     <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
-    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="needs">Needs Deployed</option><option value="needs_pr">Needs PR Approval</option><option value="pr_approved">PR Approved</option><option value="sandbox">Deployment and Testing in Sandboxes</option><option value="needs_cr">Needs Change Request Approval</option><option value="done">Deployed / Approved</option></select></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="needs">Needs Deployed</option><option value="needs_pr">Needs PR Approval</option><option value="pr_approved">PR Approved</option><option value="sandbox">Deployment and Testing in Sandboxes</option><option value="needs_cr">Needs Change Request Approval</option><option value="cr_approved">Change Request Approved</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -1934,14 +1931,16 @@
 
   // ===== DEPLOYMENT TRACKER =====
   var DEPLOY_COLS = [
-    { key: 'needs',       title: 'Needs Deployed',                     color: '#6B7A99' },
-    { key: 'needs_pr',    title: 'Needs PR Approval',                  color: '#B7791F' },
-    { key: 'pr_approved', title: 'PR Approved',                        color: '#7C3AED' },
-    { key: 'sandbox',     title: 'Deployment and Testing in Sandboxes', color: '#0891B2' },
-    { key: 'needs_cr',    title: 'Needs Change Request Approval',       color: '#DB2777' },
-    { key: 'done',        title: 'Deployed / Approved',                color: '#15803D' }
+    { key: 'needs',          title: 'Needs Deployed',                      color: '#6B7A99' },
+    { key: 'needs_pr',       title: 'Needs PR Approval',                   color: '#B7791F' },
+    { key: 'pr_approved',    title: 'PR Approved',                         color: '#7C3AED' },
+    { key: 'sandbox',        title: 'Deployment and Testing in Sandboxes', color: '#0891B2' },
+    { key: 'needs_cr',       title: 'Needs Change Request Approval',       color: '#DB2777' },
+    { key: 'cr_approved',    title: 'Change Request Approved',             color: '#9333EA' },
+    { key: 'deploying_prod', title: 'Deploying to Prod',                   color: '#0E7490' },
+    { key: 'deployed_prod',  title: 'Deployed to Prod',                    color: '#15803D' }
   ];
-  var DEPLOY_STATUS_MAP = { needs: 'needs', progress: 'sandbox', awaiting_cr: 'needs_cr', deploying: 'sandbox', deployed: 'done' };
+  var DEPLOY_STATUS_MAP = { needs: 'needs', progress: 'sandbox', awaiting_cr: 'needs_cr', deploying: 'sandbox', deployed: 'deployed_prod', done: 'deployed_prod' };
   function normDeployStatus(s) {
     if (s && DEPLOY_STATUS_MAP[s]) return DEPLOY_STATUS_MAP[s];
     for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === s) return s; }
