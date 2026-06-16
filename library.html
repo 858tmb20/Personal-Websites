@@ -459,6 +459,7 @@
   .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.25rem; color: var(--muted-soft); line-height: 1; padding: 0; }
   .li-star.on { color: #F59E0B; }
   .learn-item .li-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; color: var(--ink); word-break: break-word; }
+  .learn-item .li-acts { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
 </style>
 </head>
 <body>
@@ -691,16 +692,27 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn-add" onclick="openLearnModal(null)">+ Add Item</button>
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
   </header>
   <div class="board-wrap">
-    <div class="todo-add">
-      <input type="text" id="learnInput" placeholder="What are you learning?" onkeydown="if(event.key==='Enter') addLearn();" />
-      <button onclick="addLearn()">Add</button>
-    </div>
     <div class="count" id="learnCount"></div>
     <div id="learnList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- LEARNING TRACKER MODAL -->
+<div class="modal-overlay" id="learnModalOverlay">
+  <div class="modal">
+    <h2 id="learnModalTitle">Add Item</h2>
+    <input type="hidden" id="learnEditId" value="">
+    <div class="field"><label>What are you learning?</label><input type="text" id="learnTitleInput" placeholder="e.g. LWC boot camp" /></div>
+    <div class="field"><label>Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="learnUrlInput" placeholder="https://www.learnlwc.com" /></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveLearn()">Save</button>
+      <button class="btn-cancel" onclick="closeLearnModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -1511,6 +1523,7 @@
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('kbModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeKbModal(); });
+  document.getElementById('learnModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeLearnModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
   document.addEventListener('click', function(e) {
@@ -1518,7 +1531,7 @@
     var tn = document.getElementById('topnav'); if (tn && !tn.contains(e.target)) closeTopnav();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closePlanModal(); closeAnalyze(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closeLearnModal(); closePlanModal(); closeAnalyze(); }
     if (e.key === '/' && document.getElementById('screen-library').classList.contains('active') && !document.getElementById('modalOverlay').classList.contains('open') && !document.getElementById('categoryModalOverlay').classList.contains('open')) {
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') { e.preventDefault(); document.getElementById('searchInput').focus(); }
@@ -1853,24 +1866,40 @@
     var html = '<div class="learn-list">';
     for (var i = 0; i < list.length; i++) {
       var x = list[i];
+      var link = x.url ? '<a class="btn-open" href="' + esc(x.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '';
       html += '<div class="learn-item' + (x.focused ? ' is-focus' : '') + '">'
         + '<button class="li-star' + (x.focused ? ' on' : '') + '" data-lstar="' + esc(x.id) + '" title="Star what you\'re focused on" aria-label="Toggle focus">' + (x.focused ? '&#9733;' : '&#9734;') + '</button>'
         + '<div class="li-title">' + esc(x.title) + '</div>'
-        + '<button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button>'
+        + '<div class="li-acts">' + link + '<button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
         + '</div>';
     }
     html += '</div>';
     document.getElementById('learnList').innerHTML = html;
     document.querySelectorAll('[data-lstar]').forEach(function(b) { b.addEventListener('click', function() { toggleFocus(this.getAttribute('data-lstar')); }); });
+    document.querySelectorAll('[data-ledit]').forEach(function(b) { b.addEventListener('click', function() { openLearnModal(findLearn(this.getAttribute('data-ledit'))); }); });
     document.querySelectorAll('[data-ldel]').forEach(function(b) { b.addEventListener('click', function() { deleteLearn(this.getAttribute('data-ldel')); }); });
   }
   function findLearn(id) { for (var i = 0; i < allLearn.length; i++) { if (allLearn[i].id === id) return allLearn[i]; } return null; }
-  function addLearn() {
-    var inp = document.getElementById('learnInput');
-    var title = inp.value.trim();
-    if (!title) return;
-    inp.value = '';
-    fetch(SB_URL + '/rest/v1/learning_items', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, focused: false }) }).then(function(res) { if (res.ok) { fetchLearn(); } else { showToast('Error saving'); } });
+  function openLearnModal(x) {
+    document.getElementById('learnEditId').value = x ? x.id : '';
+    document.getElementById('learnModalTitle').textContent = x ? 'Edit Item' : 'Add Item';
+    document.getElementById('learnTitleInput').value = x ? x.title : '';
+    document.getElementById('learnUrlInput').value = (x && x.url) ? x.url : '';
+    document.getElementById('learnModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('learnTitleInput').focus(); }, 100);
+  }
+  function closeLearnModal() { document.getElementById('learnModalOverlay').classList.remove('open'); }
+  function saveLearn() {
+    var title = document.getElementById('learnTitleInput').value.trim();
+    if (!title) { showToast('Add a title'); return; }
+    var url = document.getElementById('learnUrlInput').value.trim();
+    var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
+    var editId = document.getElementById('learnEditId').value;
+    var body = { title: title, url: fullUrl };
+    if (!editId) body.focused = false;
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/learning_items?id=eq.' + editId : SB_URL + '/rest/v1/learning_items';
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeLearnModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLearn(); } else { showToast('Error saving'); } });
   }
   function toggleFocus(id) {
     var item = findLearn(id); if (!item) return;
