@@ -453,34 +453,12 @@
   }
 
   /* LEARNING TRACKER */
-  .learn-banner { display: flex; align-items: center; gap: 1rem; background: #0F1F3D; color: #fff; border-radius: 12px; padding: 1.1rem 1.3rem; margin-bottom: 1.5rem; }
-  .learn-banner .lb-eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #F59E0B; margin-bottom: 0.3rem; }
-  .learn-banner .lb-title { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
-  .learn-banner .lb-meta { font-size: 0.8rem; color: #C5D6F0; margin-top: 0.35rem; }
-  .learn-banner.empty { background: #EEF1F6; color: var(--muted); }
-  .learn-banner.empty .lb-title { color: var(--ink); font-size: 0.95rem; font-weight: 600; }
   .learn-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
-  .learn-item { background: var(--card); padding: 1rem 1.1rem; display: flex; align-items: center; gap: 0.9rem; }
+  .learn-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
   .learn-item.is-focus { background: #FFFBEB; }
-  .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.2rem; color: var(--muted-soft); line-height: 1; padding: 0; }
+  .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.25rem; color: var(--muted-soft); line-height: 1; padding: 0; }
   .li-star.on { color: #F59E0B; }
-  .li-main { flex: 1; min-width: 0; }
-  .li-title { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
-  .li-sub { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }
-  .badge-sm { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; padding: 0.18rem 0.55rem; border-radius: 20px; white-space: nowrap; }
-  .lp-high { background: #FBE9E9; color: #C0322B; }
-  .lp-med { background: #FEF6E0; color: #B7791F; }
-  .lp-low { background: #EEF1F6; color: #6B7A99; }
-  .ls-todo { background: #F1F3F7; color: #6B7A99; border: 1px solid #E3E7EE; }
-  .ls-learning { background: #E0F2F7; color: #0E7490; border: 1px solid #B6E3EE; }
-  .ls-done { background: #E7F6EC; color: #15803D; border: 1px solid #BBE6C7; }
-  .li-source { font-size: 0.72rem; color: var(--muted); }
-  .li-prog-wrap { display: flex; align-items: center; gap: 0.5rem; min-width: 120px; flex-shrink: 0; }
-  .li-prog-bar { flex: 1; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
-  .li-prog-fill { height: 100%; background: var(--green); }
-  .li-prog-num { font-size: 0.7rem; color: var(--muted); min-width: 32px; text-align: right; }
-  .li-acts { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
-  @media (max-width: 720px) { .li-prog-wrap { display: none; } .learn-item { flex-wrap: wrap; } }
+  .learn-item .li-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; color: var(--ink); word-break: break-word; }
 </style>
 </head>
 <body>
@@ -709,48 +687,20 @@
     <div class="header-left">
       <div class="header-brand">
         <h1>Learning Tracker</h1>
-        <p>What you're learning, the priority, and what to focus on now</p>
+        <p>What you're learning &mdash; star what you're focused on</p>
       </div>
     </div>
     <div class="header-right">
-      <button class="btn-add" onclick="openLearnModal(null)">+ Add Item</button>
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
   </header>
   <div class="board-wrap">
-    <div id="learnBanner"></div>
-    <div class="todo-sort-row" style="margin-bottom:0.85rem;">
-      <span class="todo-sort-label">Show:</span>
-      <div class="view-toggle">
-        <button class="view-btn active" data-lfilter="all" onclick="setLearnFilter('all')">All</button>
-        <button class="view-btn" data-lfilter="learning" onclick="setLearnFilter('learning')">Learning</button>
-        <button class="view-btn" data-lfilter="not_started" onclick="setLearnFilter('not_started')">To Learn</button>
-        <button class="view-btn" data-lfilter="done" onclick="setLearnFilter('done')">Done</button>
-      </div>
+    <div class="todo-add">
+      <input type="text" id="learnInput" placeholder="What are you learning?" onkeydown="if(event.key==='Enter') addLearn();" />
+      <button onclick="addLearn()">Add</button>
     </div>
     <div class="count" id="learnCount"></div>
     <div id="learnList"><div class="loading">Loading...</div></div>
-  </div>
-</div>
-
-<!-- LEARNING TRACKER MODAL -->
-<div class="modal-overlay" id="learnModalOverlay">
-  <div class="modal">
-    <h2 id="learnModalTitle">Add Item</h2>
-    <input type="hidden" id="learnEditId" value="">
-    <div class="field"><label>What are you learning?</label><input type="text" id="learnTitleInput" placeholder="e.g. Lightning Web Components fundamentals" /></div>
-    <div class="field"><label>Source</label><select id="learnSourceInput"><option value="">&mdash; Select &mdash;</option><option>Trailhead</option><option>Focus on Force</option><option>LearnLWC.com</option><option>Pluralsight</option><option>Udemy</option><option>Boot camp</option><option>Other</option></select></div>
-    <div style="display:flex;gap:0.75rem;">
-      <div class="field" style="flex:1;"><label>Priority</label><select id="learnPrioInput"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
-      <div class="field" style="flex:1;"><label>Status</label><select id="learnStatusInput"><option value="not_started">To Learn</option><option value="learning">Learning</option><option value="done">Done</option></select></div>
-    </div>
-    <div class="field"><label>Progress % <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="number" id="learnProgInput" min="0" max="100" placeholder="0&ndash;100" /></div>
-    <div class="field"><label>Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="learnUrlInput" placeholder="https://trailhead.salesforce.com/..." /></div>
-    <div class="field"><label>Notes <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="learnNotesInput" placeholder="Anything to remember..." style="min-height:70px;"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-save" onclick="saveLearn()">Save</button>
-      <button class="btn-cancel" onclick="closeLearnModal()">Cancel</button>
-    </div>
   </div>
 </div>
 
@@ -1415,7 +1365,7 @@
       builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }),
       builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
-      builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, the priority, and what to focus on now.', href: '#', onclick: 'event.preventDefault(); openLearn();' }),
+      builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }),
       builtinToolCard({ type: 'Work', color: '#00897B', icon: '&#8747;', name: 'Integration Helper', desc: 'AI-powered step-by-step Salesforce integration builder.', href: 'integration-helper.html', target: '_blank' })
     ];
     var personalBuiltins = [
@@ -1561,7 +1511,6 @@
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('kbModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeKbModal(); });
-  document.getElementById('learnModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeLearnModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
   document.addEventListener('click', function(e) {
@@ -1569,7 +1518,7 @@
     var tn = document.getElementById('topnav'); if (tn && !tn.contains(e.target)) closeTopnav();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closeLearnModal(); closePlanModal(); closeAnalyze(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closePlanModal(); closeAnalyze(); }
     if (e.key === '/' && document.getElementById('screen-library').classList.contains('active') && !document.getElementById('modalOverlay').classList.contains('open') && !document.getElementById('categoryModalOverlay').classList.contains('open')) {
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') { e.preventDefault(); document.getElementById('searchInput').focus(); }
@@ -1890,119 +1839,45 @@
   }
   function deleteKb(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchKb(); }); }
 
-  // ===== LEARNING TRACKER (learning_items table) =====
+  // ===== LEARNING TRACKER (learning_items table; just title + star) =====
   var allLearn = [];
-  var learnFilter = 'all';
-  var LEARN_STATUS = { not_started: { label: 'To Learn', cls: 'ls-todo' }, learning: { label: 'Learning', cls: 'ls-learning' }, done: { label: 'Done', cls: 'ls-done' } };
-  var LEARN_PRIO = { high: { label: 'High', cls: 'lp-high', rank: 0 }, medium: { label: 'Medium', cls: 'lp-med', rank: 1 }, low: { label: 'Low', cls: 'lp-low', rank: 2 } };
-  function openLearn() { learnFilter = 'all'; showScreen('screen-learn'); fetchLearn(); }
+  function openLearn() { showScreen('screen-learn'); fetchLearn(); }
   function fetchLearn() {
-    fetch(SB_URL + '/rest/v1/learning_items?order=created_at.desc', { headers: H }).then(function(r) { if (!r.ok) throw new Error('load'); return r.json(); }).then(function(data) { allLearn = Array.isArray(data) ? data : []; renderLearn(); }).catch(function() { document.getElementById('learnBanner').innerHTML = ''; document.getElementById('learnList').innerHTML = '<div class="board-empty">Could not load. If this is the first run, create the learning_items table in Supabase (see setup SQL).</div>'; document.getElementById('learnCount').textContent = ''; });
+    fetch(SB_URL + '/rest/v1/learning_items?order=created_at.desc', { headers: H }).then(function(r) { if (!r.ok) throw new Error('load'); return r.json(); }).then(function(data) { allLearn = Array.isArray(data) ? data : []; renderLearn(); }).catch(function() { document.getElementById('learnList').innerHTML = '<div class="board-empty">Could not load. If this is the first run, create the learning_items table in Supabase.</div>'; document.getElementById('learnCount').textContent = ''; });
   }
-  function setLearnFilter(f) { learnFilter = f; document.querySelectorAll('[data-lfilter]').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-lfilter') === f); }); renderLearn(); }
   function renderLearn() {
-    var focus = allLearn.filter(function(x) { return x.focused; })[0];
-    var bn = document.getElementById('learnBanner');
-    if (focus) {
-      var meta = [];
-      if (focus.source) meta.push(esc(focus.source));
-      meta.push(LEARN_STATUS[focus.status || 'not_started'].label);
-      if (focus.progress != null && focus.progress !== '') meta.push(Math.round(focus.progress) + '% done');
-      var link = focus.url ? '<a href="' + esc(focus.url) + '" target="_blank" rel="noopener" style="flex-shrink:0;background:#fff;color:#0F1F3D;font-size:0.8rem;font-weight:600;padding:0.55rem 1rem;border-radius:30px;text-decoration:none;">Open &#8599;</a>' : '';
-      bn.className = 'learn-banner';
-      bn.innerHTML = '<div style="flex:1;min-width:0;"><div class="lb-eyebrow">&#9733; Focusing on now</div><div class="lb-title">' + esc(focus.title) + '</div><div class="lb-meta">' + meta.join(' &middot; ') + '</div></div>' + link;
-    } else {
-      bn.className = 'learn-banner empty';
-      bn.innerHTML = '<div style="flex:1;"><div class="lb-title">No focus set</div><div style="font-size:0.8rem;margin-top:0.2rem;">Tap the &#9734; star on an item to set what you\'re focusing on now.</div></div>';
-    }
     var list = allLearn.slice();
-    if (learnFilter !== 'all') list = list.filter(function(x) { return (x.status || 'not_started') === learnFilter; });
-    list.sort(function(a, b) {
-      var fa = a.focused ? 0 : 1, fb = b.focused ? 0 : 1; if (fa !== fb) return fa - fb;
-      var pa = (LEARN_PRIO[a.priority || 'medium'] || LEARN_PRIO.medium).rank, pb = (LEARN_PRIO[b.priority || 'medium'] || LEARN_PRIO.medium).rank;
-      return pa - pb;
-    });
+    list.sort(function(a, b) { return (a.focused ? 0 : 1) - (b.focused ? 0 : 1); });
     document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '');
-    if (!list.length) { document.getElementById('learnList').innerHTML = allLearn.length ? '<div class="empty"><strong>Nothing here</strong>Try a different filter.</div>' : '<div class="empty"><strong>No learning items yet</strong>Hit &quot;+ Add Item&quot; to add the first thing you\'re learning.</div>'; return; }
+    if (!list.length) { document.getElementById('learnList').innerHTML = '<div class="empty"><strong>Nothing yet</strong>Type what you\'re learning above and hit Add.</div>'; return; }
     var html = '<div class="learn-list">';
     for (var i = 0; i < list.length; i++) {
       var x = list[i];
-      var st = LEARN_STATUS[x.status || 'not_started'] || LEARN_STATUS.not_started;
-      var pr = LEARN_PRIO[x.priority || 'medium'] || LEARN_PRIO.medium;
-      var prog = (x.progress != null && x.progress !== '') ? '<div class="li-prog-wrap"><div class="li-prog-bar"><div class="li-prog-fill" style="width:' + Math.max(0, Math.min(100, Math.round(x.progress))) + '%;"></div></div><span class="li-prog-num">' + Math.round(x.progress) + '%</span></div>' : '';
-      var link = x.url ? '<a class="btn-open" href="' + esc(x.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '';
       html += '<div class="learn-item' + (x.focused ? ' is-focus' : '') + '">'
-        + '<button class="li-star' + (x.focused ? ' on' : '') + '" data-lstar="' + esc(x.id) + '" title="Set as focus" aria-label="Set as focus">' + (x.focused ? '&#9733;' : '&#9734;') + '</button>'
-        + '<div class="li-main"><div class="li-title">' + esc(x.title) + '</div><div class="li-sub">'
-        + '<span class="badge-sm ' + pr.cls + '">' + pr.label + '</span>'
-        + '<span class="badge-sm ' + st.cls + '" data-lstatus="' + esc(x.id) + '" style="cursor:pointer;" title="Click to change status">' + st.label + '</span>'
-        + (x.source ? '<span class="li-source">' + esc(x.source) + '</span>' : '')
-        + '</div></div>'
-        + prog
-        + '<div class="li-acts">' + link + '<button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
+        + '<button class="li-star' + (x.focused ? ' on' : '') + '" data-lstar="' + esc(x.id) + '" title="Star what you\'re focused on" aria-label="Toggle focus">' + (x.focused ? '&#9733;' : '&#9734;') + '</button>'
+        + '<div class="li-title">' + esc(x.title) + '</div>'
+        + '<button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button>'
         + '</div>';
     }
     html += '</div>';
     document.getElementById('learnList').innerHTML = html;
     document.querySelectorAll('[data-lstar]').forEach(function(b) { b.addEventListener('click', function() { toggleFocus(this.getAttribute('data-lstar')); }); });
-    document.querySelectorAll('[data-lstatus]').forEach(function(b) { b.addEventListener('click', function() { cycleLearnStatus(this.getAttribute('data-lstatus')); }); });
-    document.querySelectorAll('[data-ledit]').forEach(function(b) { b.addEventListener('click', function() { openLearnModal(findLearn(this.getAttribute('data-ledit'))); }); });
     document.querySelectorAll('[data-ldel]').forEach(function(b) { b.addEventListener('click', function() { deleteLearn(this.getAttribute('data-ldel')); }); });
   }
   function findLearn(id) { for (var i = 0; i < allLearn.length; i++) { if (allLearn[i].id === id) return allLearn[i]; } return null; }
+  function addLearn() {
+    var inp = document.getElementById('learnInput');
+    var title = inp.value.trim();
+    if (!title) return;
+    inp.value = '';
+    fetch(SB_URL + '/rest/v1/learning_items', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, focused: false }) }).then(function(res) { if (res.ok) { fetchLearn(); } else { showToast('Error saving'); } });
+  }
   function toggleFocus(id) {
     var item = findLearn(id); if (!item) return;
-    var turningOn = !item.focused;
-    allLearn.forEach(function(x) { x.focused = (turningOn && x.id === id); });
-    renderLearn();
-    fetch(SB_URL + '/rest/v1/learning_items?focused=eq.true', { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: false }) })
-      .then(function() { if (turningOn) return fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: true }) }); })
-      .catch(function() { fetchLearn(); });
+    var prev = !!item.focused; item.focused = !prev; renderLearn();
+    fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: item.focused }) }).then(function(res) { if (!res.ok) { item.focused = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.focused = prev; renderLearn(); });
   }
-  function cycleLearnStatus(id) {
-    var item = findLearn(id); if (!item) return;
-    var order = ['not_started', 'learning', 'done'];
-    var prev = item.status || 'not_started';
-    var next = order[(order.indexOf(prev) + 1) % order.length];
-    item.status = next; renderLearn();
-    fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: next }) }).then(function(res) { if (!res.ok) { item.status = prev; renderLearn(); showToast('Could not save'); } else { showToast(LEARN_STATUS[next].label); } }).catch(function() { item.status = prev; renderLearn(); });
-  }
-  function openLearnModal(x) {
-    document.getElementById('learnEditId').value = x ? x.id : '';
-    document.getElementById('learnModalTitle').textContent = x ? 'Edit Item' : 'Add Item';
-    document.getElementById('learnTitleInput').value = x ? x.title : '';
-    document.getElementById('learnSourceInput').value = (x && x.source) ? x.source : '';
-    document.getElementById('learnPrioInput').value = (x && x.priority) ? x.priority : 'medium';
-    document.getElementById('learnStatusInput').value = (x && x.status) ? x.status : 'not_started';
-    document.getElementById('learnProgInput').value = (x && x.progress != null) ? x.progress : '';
-    document.getElementById('learnUrlInput').value = (x && x.url) ? x.url : '';
-    document.getElementById('learnNotesInput').value = (x && x.notes) ? x.notes : '';
-    document.getElementById('learnModalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('learnTitleInput').focus(); }, 100);
-  }
-  function closeLearnModal() { document.getElementById('learnModalOverlay').classList.remove('open'); }
-  function saveLearn() {
-    var title = document.getElementById('learnTitleInput').value.trim();
-    if (!title) { showToast('Add a title'); return; }
-    var progRaw = document.getElementById('learnProgInput').value.trim();
-    var prog = progRaw === '' ? null : Math.max(0, Math.min(100, parseInt(progRaw, 10) || 0));
-    var url = document.getElementById('learnUrlInput').value.trim();
-    var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
-    var editId = document.getElementById('learnEditId').value;
-    var body = {
-      title: title,
-      source: document.getElementById('learnSourceInput').value || null,
-      priority: document.getElementById('learnPrioInput').value || 'medium',
-      status: document.getElementById('learnStatusInput').value || 'not_started',
-      progress: prog,
-      url: fullUrl,
-      notes: document.getElementById('learnNotesInput').value.trim() || null
-    };
-    var method = editId ? 'PATCH' : 'POST';
-    var endpoint = editId ? SB_URL + '/rest/v1/learning_items?id=eq.' + editId : SB_URL + '/rest/v1/learning_items';
-    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeLearnModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLearn(); } else { showToast('Error saving'); } });
-  }
-  function deleteLearn(id) { if (!confirm('Delete this learning item?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchLearn(); }); }
+  function deleteLearn(id) { if (!confirm('Remove this?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchLearn(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
   var DEPLOY_COLS = [{ key: 'needs', title: 'Needs deployed', color: '#6B7A99' }, { key: 'progress', title: 'In progress', color: '#B7791F' }, { key: 'awaiting_cr', title: 'Awaiting CR approval', color: '#7C3AED' }, { key: 'deploying', title: 'Deploying', color: '#0891B2' }, { key: 'deployed', title: 'Deployed', color: '#15803D' }];
