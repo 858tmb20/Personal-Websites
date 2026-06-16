@@ -272,6 +272,12 @@
 
   /* DEPLOYMENT BOARD */
   .board-wrap { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .pipeline { display: flex; align-items: center; gap: 0.4rem; overflow-x: auto; padding: 0.25rem 0 1.25rem; }
+  .pl-step { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--plc); border-radius: 8px; padding: 0.5rem 0.7rem; white-space: nowrap; flex-shrink: 0; }
+  .pl-step .pl-title { font-size: 0.74rem; font-weight: 600; color: var(--ink); }
+  .pl-step .pl-count { font-size: 0.7rem; font-weight: 700; color: #fff; background: var(--plc); border-radius: 10px; padding: 1px 7px; min-width: 18px; text-align: center; }
+  .pl-arrow { color: var(--muted-soft); font-size: 0.8rem; flex-shrink: 0; }
+  .tracker-foot { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; justify-content: center; }
   .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); gap: 0.75rem; align-items: start; overflow-x: auto; padding-bottom: 0.5rem; }
   @media (max-width: 700px) { .board { grid-auto-columns: minmax(80vw, 1fr); } }
   .board-col { background: #EEF1F6; border-radius: 12px; padding: 0.9rem; min-height: 200px; }
@@ -630,7 +636,11 @@
     </div>
   </header>
   <div class="board-wrap">
+    <div id="pipelinePath"></div>
     <div id="board"><div class="loading">Loading...</div></div>
+    <div class="tracker-foot">
+      <a class="btn-add" href="https://github.com/pulls" target="_blank" rel="noopener">&#128279; View my open pull requests on GitHub &#8599;</a>
+    </div>
   </div>
 </div>
 
@@ -1976,6 +1986,17 @@
   function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
   function fetchDeploys() { fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allDeploys = Array.isArray(data) ? data : []; allDeploys.forEach(function(d) { d.status = normDeployStatus(d.status); }); renderBoard(); }).catch(function() { document.getElementById('board').innerHTML = '<div class="board-empty">Could not load.</div>'; }); }
   function renderBoard() {
+    var counts = {};
+    for (var k = 0; k < DEPLOY_COLS.length; k++) { counts[DEPLOY_COLS[k].key] = 0; }
+    allDeploys.forEach(function(d) { var s = d.status || 'needs'; if (counts[s] != null) counts[s]++; });
+    var pl = '<div class="pipeline">';
+    for (var p = 0; p < DEPLOY_COLS.length; p++) {
+      var plc = DEPLOY_COLS[p];
+      pl += '<div class="pl-step" style="--plc:' + plc.color + ';"><span class="pl-title">' + plc.title + '</span><span class="pl-count">' + counts[plc.key] + '</span></div>';
+      if (p < DEPLOY_COLS.length - 1) pl += '<span class="pl-arrow">&rarr;</span>';
+    }
+    pl += '</div>';
+    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = pl;
     var html = '<div class="board">';
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
