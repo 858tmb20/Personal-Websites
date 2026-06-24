@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sprint Forecaster — Jira Velocity & Commitment Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #F4F6F9;
+    --ink: #0F1F3D;
+    --ink-soft: #1E2F52;
+    --muted: #6B7A99;
+    --muted-soft: #94A0B8;
+    --accent: #0F1F3D;
+    --accent-hover: #1E2F52;
+    --link: #1F6FEB;
+    --rule: #E3E7EE;
+    --rule-soft: #EEF1F6;
+    --card: #FFFFFF;
+    --danger: #DC2626;
+    --amber: #D97706;
+    --amber-soft: #FEF6E7;
+    --green: #16A34A;
+    --green-soft: #ECFDF5;
+    --blue-soft: #EAF2FE;
+    --purple: #7C3AED;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); margin: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 1.5rem; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* HEADER */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 0.8rem; }
+  .brand-ico { width: 42px; height: 42px; border-radius: 11px; background: linear-gradient(135deg, var(--purple), var(--link)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+  .brand h1 { font-size: 1.25rem; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  .brand p { font-size: 0.82rem; color: var(--muted); margin: 0.1rem 0 0; }
+  .back { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+  .back:hover { color: var(--link); text-decoration: none; }
+
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.1rem; box-shadow: 0 1px 3px rgba(15,31,61,0.04); }
+  .step-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--purple); margin-bottom: 0.5rem; }
+  .card h2 { font-size: 1.02rem; font-weight: 700; margin: 0 0 0.2rem; }
+  .card .hint { font-size: 0.82rem; color: var(--muted); margin: 0 0 1rem; line-height: 1.5; }
+
+  /* DROP ZONE */
+  .drop { border: 2px dashed var(--rule); border-radius: var(--radius); padding: 1.8rem 1.25rem; text-align: center; transition: all 0.15s; cursor: pointer; background: var(--rule-soft); }
+  .drop.over { border-color: var(--link); background: var(--blue-soft); }
+  .drop-ico { font-size: 1.6rem; }
+  .drop-main { font-size: 0.9rem; font-weight: 600; margin-top: 0.4rem; }
+  .drop-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+  .row-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
+  .btn { padding: 0.55rem 1rem; font-size: 0.82rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; border: 1px solid var(--rule); background: var(--card); color: var(--ink); transition: all 0.13s; }
+  .btn:hover { border-color: var(--link); color: var(--link); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-hover); color: #fff; }
+  .btn.ghost { background: none; }
+  textarea.paste { width: 100%; min-height: 120px; padding: 0.7rem 0.9rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.78rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); resize: vertical; color: var(--ink); outline: none; margin-top: 0.7rem; display: none; }
+  textarea.paste:focus { border-color: var(--link); box-shadow: 0 0 0 3px rgba(31,111,235,0.1); }
+
+  /* MAPPING */
+  .map-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; }
+  .field label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  select, input[type=number] { width: 100%; padding: 0.5rem 0.6rem; font-size: 0.85rem; font-family: inherit; border: 1px solid var(--rule); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); outline: none; }
+  select:focus, input[type=number]:focus { border-color: var(--link); box-shadow: 0 0 0 3px rgba(31,111,235,0.1); }
+  .done-box { margin-top: 0.9rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+  .chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.32rem 0.6rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.76rem; font-weight: 600; color: var(--muted); cursor: pointer; user-select: none; transition: all 0.12s; }
+  .chip.on { background: var(--green-soft); border-color: #A7D8B9; color: #15803D; }
+  .chip .ck { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--muted-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; color: transparent; }
+  .chip.on .ck { background: var(--green); border-color: var(--green); color: #fff; }
+
+  /* RESULTS */
+  #results { display: none; }
+  .verdict { border-radius: var(--radius); padding: 1.4rem 1.5rem; margin-bottom: 1.1rem; border: 1px solid; }
+  .verdict-head { display: flex; align-items: center; gap: 0.6rem; }
+  .verdict-badge { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+  .verdict-emoji { font-size: 1.5rem; }
+  .verdict-sub { font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.5; }
+  .v-green { background: var(--green-soft); border-color: #A7D8B9; }
+  .v-green .verdict-badge { color: #15803D; }
+  .v-amber { background: var(--amber-soft); border-color: #F5D78E; }
+  .v-amber .verdict-badge { color: #B45309; }
+  .v-red { background: #FBE9E9; border-color: #F3C9C7; }
+  .v-red .verdict-badge { color: #C0322B; }
+  .v-blue { background: var(--blue-soft); border-color: #B6D3F7; }
+  .v-blue .verdict-badge { color: #1D4ED8; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.7rem; margin-bottom: 1.1rem; }
+  .stat { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.9rem 1rem; }
+  .stat .k { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .stat .v { font-size: 1.6rem; font-weight: 800; margin-top: 0.15rem; letter-spacing: -0.02em; }
+  .stat .v small { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+
+  /* BOSS LINE */
+  .boss { background: var(--ink); color: #fff; border-radius: var(--radius); padding: 1.1rem 1.25rem; margin-bottom: 1.1rem; }
+  .boss-label { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA6D4; margin-bottom: 0.45rem; display: flex; align-items: center; justify-content: space-between; }
+  .boss-text { font-size: 0.96rem; line-height: 1.55; font-weight: 500; }
+  .copy-btn { background: rgba(255,255,255,0.12); color: #fff; border: none; border-radius: 5px; padding: 0.25rem 0.6rem; font-size: 0.7rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+
+  /* CHART */
+  .chart-wrap { overflow-x: auto; }
+  .legend { display: flex; gap: 1.2rem; font-size: 0.76rem; color: var(--muted); margin-bottom: 0.6rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .lg-swatch { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  th, td { text-align: right; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--rule-soft); }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 700; }
+  tr.planning td { background: var(--blue-soft); font-weight: 600; }
+  .pct-bar { display: inline-block; height: 6px; border-radius: 3px; background: var(--green); vertical-align: middle; margin-left: 0.4rem; }
+  .err { color: var(--danger); font-size: 0.82rem; margin-top: 0.6rem; }
+  .muted-note { font-size: 0.76rem; color: var(--muted-soft); margin-top: 0.8rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="brand-ico">&#128200;</div>
+      <div>
+        <h1>Sprint Forecaster</h1>
+        <p>Jira velocity &amp; commitment check — are we on track, overcommitted, or can we take more?</p>
+      </div>
+    </div>
+    <a class="back" href="library.html">&larr; Back to Library</a>
+  </div>
+
+  <!-- STEP 1: LOAD -->
+  <div class="card">
+    <div class="step-label">Step 1 · Load your Jira export</div>
+    <h2>Drop in a CSV</h2>
+    <p class="hint">In Jira: open your board or a filter/issue search &rarr; <b>Export &rarr; Export Excel CSV (all fields)</b>. Make sure <b>Sprint</b>, <b>Status</b>, and your <b>Story Points</b> field are columns. Nothing leaves your browser — all parsing is local.</p>
+    <div class="drop" id="drop">
+      <div class="drop-ico">&#128228;</div>
+      <div class="drop-main">Drop CSV here, or click to browse</div>
+      <div class="drop-sub">.csv exported from Jira</div>
+      <input type="file" id="file" accept=".csv,text/csv" style="display:none" />
+    </div>
+    <div class="row-actions">
+      <button class="btn ghost" id="pasteToggle">Paste CSV text instead</button>
+      <button class="btn ghost" id="sampleBtn">Load sample data</button>
+    </div>
+    <textarea class="paste" id="pasteArea" placeholder="Paste raw CSV here, then click Analyze..."></textarea>
+    <div id="pasteActions" class="row-actions" style="display:none;">
+      <button class="btn primary" id="parsePaste">Analyze pasted CSV</button>
+    </div>
+    <div class="err" id="loadErr" style="display:none;"></div>
+  </div>
+
+  <!-- STEP 2: MAP -->
+  <div class="card" id="mapCard" style="display:none;">
+    <div class="step-label">Step 2 · Map your columns</div>
+    <h2>Confirm what's what</h2>
+    <p class="hint">I auto-detected these from your headers. Fix any that are wrong, then pick which statuses count as <b>done</b>.</p>
+    <div class="map-grid">
+      <div class="field"><label>Sprint column</label><select id="mapSprint"></select></div>
+      <div class="field"><label>Story Points column</label><select id="mapPoints"></select></div>
+      <div class="field"><label>Status column</label><select id="mapStatus"></select></div>
+    </div>
+    <div class="done-box">
+      <label style="font-size:0.72rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.03em;">Statuses that count as "done"</label>
+      <div class="chips" id="doneChips"></div>
+    </div>
+    <div class="map-grid" style="margin-top:1rem;">
+      <div class="field"><label>Velocity window (last N sprints)</label><input type="number" id="windowN" value="6" min="1" max="20" /></div>
+      <div class="field"><label>Sprint you're planning</label><select id="planningSprint"></select></div>
+    </div>
+    <div class="row-actions">
+      <button class="btn primary" id="analyzeBtn">Analyze &rarr;</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="verdict" id="verdict">
+      <div class="verdict-head"><span class="verdict-emoji" id="vEmoji"></span><span class="verdict-badge" id="vBadge"></span></div>
+      <div class="verdict-sub" id="vSub"></div>
+    </div>
+
+    <div class="boss">
+      <div class="boss-label">The line for your boss <button class="copy-btn" id="copyBoss">Copy</button></div>
+      <div class="boss-text" id="bossText"></div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="card">
+      <div class="step-label">Velocity by sprint</div>
+      <div class="legend">
+        <span><span class="lg-swatch" style="background:#C7D2E8;"></span> Committed</span>
+        <span><span class="lg-swatch" style="background:var(--accent);"></span> Completed</span>
+        <span><span class="lg-swatch" style="background:var(--purple);"></span> Planning sprint (committed)</span>
+      </div>
+      <div class="chart-wrap" id="chart"></div>
+    </div>
+
+    <div class="card">
+      <div class="step-label">Sprint detail</div>
+      <table id="table"></table>
+      <div class="muted-note" id="notes"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var DATA = null;          // { headers:[], rows:[][] }
+  var doneSet = {};         // status -> bool
+
+  // ---------- CSV PARSER (handles quotes, embedded commas/newlines) ----------
+  function parseCSV(text){
+    text = text.replace(/^﻿/, '');           // strip BOM
+    var rows = [], row = [], cur = '', inQ = false, i = 0, c, n;
+    while(i < text.length){
+      c = text[i];
+      if(inQ){
+        if(c === '"'){
+          if(text[i+1] === '"'){ cur += '"'; i += 2; continue; }
+          inQ = false; i++; continue;
+        }
+        cur += c; i++; continue;
+      }
+      if(c === '"'){ inQ = true; i++; continue; }
+      if(c === ','){ row.push(cur); cur=''; i++; continue; }
+      if(c === '\r'){ i++; continue; }
+      if(c === '\n'){ row.push(cur); rows.push(row); row=[]; cur=''; i++; continue; }
+      cur += c; i++;
+    }
+    if(cur.length || row.length){ row.push(cur); rows.push(row); }
+    // drop fully-empty trailing rows
+    rows = rows.filter(function(r){ return r.some(function(x){ return (x||'').trim() !== ''; }); });
+    if(!rows.length) return null;
+    var headers = rows.shift().map(function(h){ return (h||'').trim(); });
+    return { headers: headers, rows: rows };
+  }
+
+  // indices of every column whose header matches (case-insensitive exact)
+  function colIndices(header){
+    var out = [];
+    DATA.headers.forEach(function(h, idx){ if(h.toLowerCase() === header.toLowerCase()) out.push(idx); });
+    return out;
+  }
+  // last non-empty value across all columns sharing that header (handles Jira's repeated "Sprint" cols)
+  function cell(row, header){
+    var idxs = colIndices(header), val = '';
+    for(var k=0;k<idxs.length;k++){ var v = (row[idxs[k]]||'').trim(); if(v) val = v; }
+    return val;
+  }
+  function uniqueHeaders(){
+    var seen = {}, out = [];
+    DATA.headers.forEach(function(h){ if(h && !seen[h.toLowerCase()]){ seen[h.toLowerCase()] = 1; out.push(h); } });
+    return out;
+  }
+  function guess(headers, patterns){
+    for(var p=0;p<patterns.length;p++){
+      for(var h=0;h<headers.length;h++){
+        if(headers[h].toLowerCase().indexOf(patterns[p]) !== -1) return headers[h];
+      }
+    }
+    return headers[0] || '';
+  }
+
+  // ---------- LOAD ----------
+  var drop = document.getElementById('drop'), fileInput = document.getElementById('file');
+  drop.addEventListener('click', function(){ fileInput.click(); });
+  drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', function(){ drop.classList.remove('over'); });
+  drop.addEventListener('drop', function(e){
+    e.preventDefault(); drop.classList.remove('over');
+    if(e.dataTransfer.files && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function(){ if(fileInput.files[0]) readFile(fileInput.files[0]); });
+  function readFile(f){
+    var r = new FileReader();
+    r.onload = function(){ ingest(r.result); };
+    r.readAsText(f);
+  }
+  document.getElementById('pasteToggle').addEventListener('click', function(){
+    var ta = document.getElementById('pasteArea'), pa = document.getElementById('pasteActions');
+    var show = ta.style.display !== 'block';
+    ta.style.display = show ? 'block' : 'none';
+    pa.style.display = show ? 'flex' : 'none';
+  });
+  document.getElementById('parsePaste').addEventListener('click', function(){ ingest(document.getElementById('pasteArea').value); });
+  document.getElementById('sampleBtn').addEventListener('click', function(){ ingest(SAMPLE); });
+
+  function ingest(text){
+    var err = document.getElementById('loadErr');
+    err.style.display = 'none';
+    var parsed = parseCSV(text || '');
+    if(!parsed || !parsed.headers.length || !parsed.rows.length){
+      err.textContent = 'Could not read any rows from that CSV. Check it has a header row and data.';
+      err.style.display = 'block'; return;
+    }
+    DATA = parsed;
+    setupMapping();
+  }
+
+  // ---------- MAP ----------
+  function setupMapping(){
+    var uh = uniqueHeaders();
+    var sprintSel = document.getElementById('mapSprint');
+    var pointsSel = document.getElementById('mapPoints');
+    var statusSel = document.getElementById('mapStatus');
+    [sprintSel, pointsSel, statusSel].forEach(function(sel){
+      sel.innerHTML = uh.map(function(h){ return '<option value="'+esc(h)+'">'+esc(h)+'</option>'; }).join('');
+    });
+    sprintSel.value = guess(uh, ['sprint']);
+    pointsSel.value = guess(uh, ['story point', 'story points', 'point estimate', 'points', 'estimate']);
+    statusSel.value = guess(uh, ['status']);
+
+    buildDoneChips(statusSel.value);
+    statusSel.addEventListener('change', function(){ buildDoneChips(statusSel.value); });
+
+    buildPlanningOptions(sprintSel.value);
+    sprintSel.addEventListener('change', function(){ buildPlanningOptions(sprintSel.value); });
+
+    document.getElementById('mapCard').style.display = 'block';
+    document.getElementById('mapCard').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  var DONE_HINTS = ['done','closed','resolved','complete','completed','shipped','deployed','released','accepted'];
+  function buildDoneChips(statusHeader){
+    var vals = {}, order = [];
+    DATA.rows.forEach(function(r){ var v = cell(r, statusHeader); if(v && !vals[v]){ vals[v]=1; order.push(v); } });
+    doneSet = {};
+    var box = document.getElementById('doneChips');
+    box.innerHTML = order.map(function(v){
+      var on = DONE_HINTS.some(function(h){ return v.toLowerCase().indexOf(h) !== -1; });
+      doneSet[v] = on;
+      return '<span class="chip'+(on?' on':'')+'" data-status="'+esc(v)+'"><span class="ck">&#10003;</span>'+esc(v)+'</span>';
+    }).join('');
+    box.querySelectorAll('.chip').forEach(function(ch){
+      ch.addEventListener('click', function(){
+        var s = ch.getAttribute('data-status');
+        doneSet[s] = !doneSet[s];
+        ch.classList.toggle('on', doneSet[s]);
+      });
+    });
+  }
+
+  function sprintOrder(sprintHeader){
+    var seen = {}, order = [];
+    DATA.rows.forEach(function(r){ var v = cell(r, sprintHeader); if(v && !seen[v]){ seen[v]=1; order.push(v); } });
+    return order;
+  }
+  function buildPlanningOptions(sprintHeader){
+    var order = sprintOrder(sprintHeader);
+    var sel = document.getElementById('planningSprint');
+    sel.innerHTML = order.map(function(s){ return '<option value="'+esc(s)+'">'+esc(s)+'</option>'; }).join('');
+    if(order.length) sel.value = order[order.length-1];   // default to last sprint
+  }
+
+  document.getElementById('analyzeBtn').addEventListener('click', analyze);
+
+  // ---------- ANALYZE ----------
+  function num(v){ var n = parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n) ? 0 : n; }
+
+  function analyze(){
+    var sprintH = document.getElementById('mapSprint').value;
+    var pointsH = document.getElementById('mapPoints').value;
+    var statusH = document.getElementById('mapStatus').value;
+    var order = sprintOrder(sprintH);
+    var planning = document.getElementById('planningSprint').value;
+
+    var agg = {};
+    order.forEach(function(s){ agg[s] = { sprint:s, committed:0, completed:0, issues:0, doneIssues:0 }; });
+    DATA.rows.forEach(function(r){
+      var s = cell(r, sprintH); if(!s || !agg[s]) return;
+      var pts = num(cell(r, pointsH));
+      var st = cell(r, statusH);
+      agg[s].committed += pts; agg[s].issues += 1;
+      if(doneSet[st]){ agg[s].completed += pts; agg[s].doneIssues += 1; }
+    });
+    var sprints = order.map(function(s){ return agg[s]; });
+
+    // velocity = avg completed over last N COMPLETED sprints (those before the planning sprint)
+    var planIdx = order.indexOf(planning);
+    var priorSprints = sprints.slice(0, planIdx < 0 ? sprints.length : planIdx);
+    var N = Math.max(1, parseInt(document.getElementById('windowN').value, 10) || 6);
+    var windowSprints = priorSprints.slice(-N);
+    var completedVals = windowSprints.map(function(s){ return s.completed; });
+
+    var avg = completedVals.length ? completedVals.reduce(function(a,b){return a+b;},0) / completedVals.length : 0;
+    var min = completedVals.length ? Math.min.apply(null, completedVals) : 0;
+    var max = completedVals.length ? Math.max.apply(null, completedVals) : 0;
+    var committed = (planIdx>=0 ? sprints[planIdx].committed : 0);
+    var recommended = Math.round(avg);
+    var ratio = avg > 0 ? committed / avg : 0;
+    var headroom = recommended - committed;
+
+    render({
+      sprints: sprints, planning: planning, planIdx: planIdx,
+      avg: avg, min: min, max: max, committed: committed, recommended: recommended,
+      ratio: ratio, headroom: headroom, N: windowSprints.length, sprintCount: sprints.length
+    });
+  }
+
+  function fmt(n){ return (Math.round(n*10)/10).toString().replace(/\.0$/,''); }
+
+  function render(m){
+    document.getElementById('results').style.display = 'block';
+
+    // VERDICT
+    var cls, emoji, badge, sub;
+    if(m.avg <= 0){
+      cls='v-blue'; emoji='&#8505;&#65039;'; badge='Not enough history';
+      sub='No completed sprints before the planning sprint, so there\'s no velocity to compare against yet. Add more sprint history or pick a later planning sprint.';
+    } else if(m.ratio > 1.20){
+      cls='v-red'; emoji='&#128680;'; badge='Overcommitted';
+      sub='You\'ve committed <b>'+fmt(m.committed)+' pts</b> against a velocity of <b>'+fmt(m.avg)+'</b>. That\'s <b>'+Math.round((m.ratio-1)*100)+'% over</b> what the team actually delivers. Expect spillover unless something is cut.';
+    } else if(m.ratio > 1.05){
+      cls='v-amber'; emoji='&#9888;&#65039;'; badge='At capacity (stretch)';
+      sub='Committed <b>'+fmt(m.committed)+' pts</b> vs velocity <b>'+fmt(m.avg)+'</b> — a '+Math.round((m.ratio-1)*100)+'% stretch. Doable on a good sprint, risky if anything slips. No room for new asks.';
+    } else if(m.ratio >= 0.85){
+      cls='v-green'; emoji='&#9989;'; badge='On track';
+      sub='Committed <b>'+fmt(m.committed)+' pts</b> against velocity <b>'+fmt(m.avg)+'</b>. This is a realistic, sustainable load. Hold the line.';
+    } else {
+      cls='v-blue'; emoji='&#128202;'; badge='Room for more';
+      sub='Committed <b>'+fmt(m.committed)+' pts</b> but the team averages <b>'+fmt(m.avg)+'</b> — you have roughly <b>'+fmt(m.headroom)+' pts</b> of headroom. You can responsibly take on a bit more.';
+    }
+    var v = document.getElementById('verdict');
+    v.className = 'verdict ' + cls;
+    document.getElementById('vEmoji').innerHTML = emoji;
+    document.getElementById('vBadge').textContent = badge;
+    document.getElementById('vSub').innerHTML = sub;
+
+    // BOSS LINE
+    var boss;
+    if(m.avg <= 0){
+      boss = 'We don\'t yet have enough completed-sprint history to forecast reliably. Once we have a couple of finished sprints, I can tell you exactly how much we can take on.';
+    } else if(m.ratio > 1.05){
+      boss = 'Over the last '+m.N+' sprints we\'ve averaged '+fmt(m.avg)+' story points per sprint. '+m.planning+' is already loaded with '+fmt(m.committed)+' points — '+Math.round((m.ratio-1)*100)+'% above what we actually deliver. To add anything new, we\'d need to pull something out, or it slips.';
+    } else if(m.ratio >= 0.85){
+      boss = 'Over the last '+m.N+' sprints we\'ve averaged '+fmt(m.avg)+' points per sprint, and '+m.planning+' is committed at '+fmt(m.committed)+'. We\'re right at a healthy, sustainable load — taking on more means trading something out.';
+    } else {
+      boss = 'Over the last '+m.N+' sprints we\'ve averaged '+fmt(m.avg)+' points per sprint. '+m.planning+' is only at '+fmt(m.committed)+', so we have about '+fmt(m.headroom)+' points of capacity — we can take on a bit more without overloading.';
+    }
+    document.getElementById('bossText').textContent = boss;
+
+    // STATS
+    var stats = [
+      { k:'Velocity (avg)', v: fmt(m.avg), s:'pts/sprint' },
+      { k:'Range', v: fmt(m.min)+'–'+fmt(m.max), s:'last '+m.N+' spr.' },
+      { k:'Recommended', v: fmt(m.recommended), s:'pts to commit' },
+      { k:'Committed now', v: fmt(m.committed), s:m.planning },
+      { k: m.headroom>=0?'Headroom':'Over by', v:(m.headroom>=0?'+':'')+fmt(m.headroom), s:'pts' }
+    ];
+    document.getElementById('stats').innerHTML = stats.map(function(s){
+      return '<div class="stat"><div class="k">'+esc(s.k)+'</div><div class="v">'+s.v+' <small>'+esc(s.s)+'</small></div></div>';
+    }).join('');
+
+    drawChart(m);
+    drawTable(m);
+
+    document.getElementById('notes').innerHTML =
+      'Velocity uses <b>completed</b> points (statuses you marked done) over the last '+m.N+' sprint(s) before <b>'+esc(m.planning)+'</b>. '+
+      '"Committed" is the sum of all story points tagged to a sprint — a flat CSV can\'t see what was added mid-sprint, so treat committed/completed splits as directional. '+
+      'Issues spanning multiple sprints are counted in their most recent sprint.';
+
+    document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function drawChart(m){
+    var sprints = m.sprints;
+    var W = Math.max(560, sprints.length * 86), H = 260, padB = 54, padT = 16, padL = 36;
+    var maxV = Math.max(1, m.max, m.committed, Math.max.apply(null, sprints.map(function(s){return Math.max(s.committed,s.completed);})));
+    var plotH = H - padB - padT, plotW = W - padL - 12;
+    var bw = plotW / sprints.length;
+    var svg = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">';
+    // velocity avg line
+    var yAvg = padT + plotH - (m.avg/maxV)*plotH;
+    if(m.avg>0){
+      svg += '<line x1="'+padL+'" y1="'+yAvg+'" x2="'+(W-12)+'" y2="'+yAvg+'" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="5 4"/>';
+      svg += '<text x="'+(W-14)+'" y="'+(yAvg-5)+'" text-anchor="end" font-size="10" font-weight="700" fill="#7C3AED">velocity '+fmt(m.avg)+'</text>';
+    }
+    sprints.forEach(function(s, i){
+      var x0 = padL + i*bw;
+      var cH = (s.committed/maxV)*plotH, dH = (s.completed/maxV)*plotH;
+      var bwi = bw*0.30;
+      var xc = x0 + bw*0.5 - bwi - 3, xd = x0 + bw*0.5 + 3;
+      var isPlan = (i === m.planIdx);
+      // committed
+      svg += '<rect x="'+xc+'" y="'+(padT+plotH-cH)+'" width="'+bwi+'" height="'+cH+'" rx="3" fill="'+(isPlan?'#7C3AED':'#C7D2E8')+'"/>';
+      // completed (planning sprint has none yet typically)
+      svg += '<rect x="'+xd+'" y="'+(padT+plotH-dH)+'" width="'+bwi+'" height="'+dH+'" rx="3" fill="#0F1F3D"/>';
+      // value labels
+      if(s.committed>0) svg += '<text x="'+(xc+bwi/2)+'" y="'+(padT+plotH-cH-4)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#6B7A99">'+fmt(s.committed)+'</text>';
+      if(s.completed>0) svg += '<text x="'+(xd+bwi/2)+'" y="'+(padT+plotH-dH-4)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#0F1F3D">'+fmt(s.completed)+'</text>';
+      // x label (truncated)
+      var lbl = s.sprint.length>14 ? s.sprint.slice(0,13)+'…' : s.sprint;
+      svg += '<text x="'+(x0+bw/2)+'" y="'+(H-padB+16)+'" text-anchor="middle" font-size="10" fill="'+(isPlan?'#7C3AED':'#6B7A99')+'" font-weight="'+(isPlan?'700':'500')+'" transform="rotate(0 '+(x0+bw/2)+' '+(H-padB+16)+')">'+esc(lbl)+'</text>';
+    });
+    // baseline
+    svg += '<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-12)+'" y2="'+(padT+plotH)+'" stroke="#E3E7EE" stroke-width="1"/>';
+    svg += '</svg>';
+    document.getElementById('chart').innerHTML = svg;
+  }
+
+  function drawTable(m){
+    var maxV = Math.max(1, Math.max.apply(null, m.sprints.map(function(s){return s.committed;})));
+    var rows = m.sprints.map(function(s, i){
+      var pct = s.committed>0 ? Math.round(s.completed/s.committed*100) : 0;
+      var barW = Math.round((s.committed/maxV)*60);
+      return '<tr class="'+(i===m.planIdx?'planning':'')+'">'+
+        '<td>'+esc(s.sprint)+(i===m.planIdx?' &nbsp;<span style="color:#7C3AED;font-size:0.7rem;font-weight:700;">PLANNING</span>':'')+'</td>'+
+        '<td>'+fmt(s.committed)+'</td>'+
+        '<td>'+fmt(s.completed)+'</td>'+
+        '<td>'+s.issues+'</td>'+
+        '<td>'+pct+'% <span class="pct-bar" style="width:'+barW+'px;"></span></td>'+
+      '</tr>';
+    }).join('');
+    document.getElementById('table').innerHTML =
+      '<thead><tr><th>Sprint</th><th>Committed</th><th>Completed</th><th>Issues</th><th>Completion</th></tr></thead><tbody>'+rows+'</tbody>';
+  }
+
+  // COPY
+  document.getElementById('copyBoss').addEventListener('click', function(){
+    var t = document.getElementById('bossText').textContent;
+    navigator.clipboard.writeText(t).then(function(){
+      var b = document.getElementById('copyBoss'); var old = b.textContent;
+      b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = old; }, 1500);
+    });
+  });
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ---------- SAMPLE DATA ----------
+  var SAMPLE = [
+    'Issue key,Summary,Issue Type,Status,Story Points,Sprint',
+    'PP-101,Login SSO,Story,Done,5,Sprint 18',
+    'PP-102,Fix nav bug,Bug,Done,3,Sprint 18',
+    'PP-103,Account API,Story,Done,8,Sprint 18',
+    'PP-104,Refactor cache,Task,Done,5,Sprint 18',
+    'PP-105,Email digest,Story,In Progress,8,Sprint 18',
+    'PP-110,Reporting v2,Story,Done,13,Sprint 19',
+    'PP-111,Audit log,Story,Done,5,Sprint 19',
+    'PP-112,Mobile layout,Story,Done,8,Sprint 19',
+    'PP-113,Perf tuning,Task,Closed,5,Sprint 19',
+    'PP-114,Webhook retry,Bug,Done,3,Sprint 19',
+    'PP-115,Search filters,Story,To Do,8,Sprint 19',
+    'PP-120,Bulk import,Story,Done,8,Sprint 20',
+    'PP-121,SAML mapping,Story,Done,5,Sprint 20',
+    'PP-122,Rate limiting,Task,Done,5,Sprint 20',
+    'PP-123,Dark mode,Story,Done,8,Sprint 20',
+    'PP-124,Export CSV,Story,In Progress,5,Sprint 20',
+    'PP-130,Notifications,Story,Done,8,Sprint 21',
+    'PP-131,Onboarding flow,Story,Done,13,Sprint 21',
+    'PP-132,Field history,Story,Done,5,Sprint 21',
+    'PP-133,Cleanup tech debt,Task,Done,3,Sprint 21',
+    'PP-134,API pagination,Story,To Do,8,Sprint 21',
+    'PP-140,Dashboard charts,Story,Done,8,Sprint 22',
+    'PP-141,Role permissions,Story,Done,8,Sprint 22',
+    'PP-142,Slack integration,Story,Done,5,Sprint 22',
+    'PP-143,Bug triage,Bug,Done,5,Sprint 22',
+    'PP-144,Settings redesign,Story,In Progress,8,Sprint 22',
+    'PP-150,Billing module,Story,To Do,13,Sprint 23',
+    'PP-151,Invoice PDF,Story,To Do,8,Sprint 23',
+    'PP-152,Tax rules,Story,To Do,8,Sprint 23',
+    'PP-153,Payment retry,Story,To Do,5,Sprint 23',
+    'PP-154,Dunning emails,Story,To Do,8,Sprint 23',
+    'PP-155,Usage metering,Story,To Do,8,Sprint 23',
+    'PP-156,Admin audit,Task,To Do,5,Sprint 23'
+  ].join('\n');
+})();
+</script>
+</body>
+</html>
