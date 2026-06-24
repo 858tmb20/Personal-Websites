@@ -295,6 +295,9 @@
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
   .dcard-pr { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--link); text-decoration: none; margin-bottom: 0.6rem; }
   .dcard-pr:hover { text-decoration: underline; }
+  .dcard-approvals { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
+  .appr-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.55rem 0.22rem 0.34rem; border-radius: 20px; background: var(--green-soft); border: 1px solid #A7D8B9; color: #15803D; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; }
+  .appr-badge .appr-check { width: 14px; height: 14px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; flex-shrink: 0; }
   .dcard-envs { display: flex; align-items: center; gap: 0.4rem; padding-top: 0.55rem; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); }
   .env-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.5rem 0.22rem 0.32rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); cursor: pointer; font-family: inherit; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s; }
   .env-chip:hover { border-color: var(--muted-soft); }
@@ -2013,6 +2016,12 @@
         for (var i = 0; i < items.length; i++) {
           var d = items[i];
           var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
+          // Approval badges: a card at "PR Approved" or beyond carries a "PR approved" check;
+          // a card at "Change Request Approved" or beyond carries both checks. Index-based so the badge persists through later stages.
+          var apprHtml = '';
+          if (c >= colIndex('pr_approved')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>PR approved</span>'; }
+          if (c >= colIndex('cr_approved')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>Change request approved</span>'; }
+          if (apprHtml) { apprHtml = '<div class="dcard-approvals">' + apprHtml + '</div>'; }
           var es = d;                                                  // env flags live on the row: d.dev / d.qa / d.prod
           var bs = { blocked: !!d.blocked, reason: d.block_reason || '' };
           var envsHtml = '<div class="dcard-envs">';
@@ -2022,7 +2031,7 @@
           envsHtml += '</div>';
           // Reason box shows only when blocked
           var reasonHtml = bs.blocked ? '<textarea class="blk-reason" data-dblkreason="' + esc(d.id) + '" placeholder="What\'s blocking this? (e.g. waiting on CR approval)">' + esc(bs.reason) + '</textarea>' : '';
-          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + envsHtml + reasonHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
+          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + apprHtml + envsHtml + reasonHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
         }
       }
       html += '</div>';
