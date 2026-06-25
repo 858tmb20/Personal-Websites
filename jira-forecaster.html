@@ -62,6 +62,8 @@
   .btn.ghost { background: none; }
   textarea.paste { width: 100%; min-height: 120px; padding: 0.7rem 0.9rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.78rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); resize: vertical; color: var(--ink); outline: none; margin-top: 0.7rem; display: none; }
   textarea.paste:focus { border-color: var(--link); box-shadow: 0 0 0 3px rgba(31,111,235,0.1); }
+  textarea.ctx { width: 100%; min-height: 72px; padding: 0.6rem 0.8rem; font-family: inherit; font-size: 0.86rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); resize: vertical; color: var(--ink); outline: none; line-height: 1.45; }
+  textarea.ctx:focus { border-color: var(--link); box-shadow: 0 0 0 3px rgba(31,111,235,0.1); }
 
   /* MAPPING */
   .map-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; }
@@ -171,8 +173,13 @@
       <div class="chips" id="doneChips"></div>
     </div>
     <div class="map-grid" style="margin-top:1rem;">
-      <div class="field"><label>Velocity window (last N sprints)</label><input type="number" id="windowN" value="6" min="1" max="20" /></div>
-      <div class="field"><label>Sprint you're planning</label><select id="planningSprint"></select></div>
+      <div class="field"><label>How many past sprints to look at</label><input type="number" id="windowN" value="6" min="1" max="20" /></div>
+      <div class="field"><label>Which sprint are you planning?</label><select id="planningSprint"></select></div>
+      <div class="field"><label>Your normal points per sprint <span style="font-weight:400;text-transform:none;color:var(--muted-soft);">(optional)</span></label><input type="number" id="manualPace" placeholder="e.g. 60" min="0" /></div>
+    </div>
+    <div class="field" style="margin-top:1rem;">
+      <label>Anything I should know? <span style="font-weight:400;text-transform:none;color:var(--muted-soft);">(optional, plain English)</span></label>
+      <textarea id="contextBox" class="ctx" placeholder="e.g. We haven't tracked points well in the past, so the history is unreliable. Our normal is about 60 a sprint. Two people are out next sprint."></textarea>
     </div>
     <div class="row-actions">
       <button class="btn primary" id="analyzeBtn">Analyze &rarr;</button>
@@ -208,6 +215,15 @@
       <table id="table"></table>
       <div class="muted-note" id="notes"></div>
     </div>
+
+    <div class="card" id="aiCard">
+      <div class="step-label">Plain-English read</div>
+      <h2 style="margin:0 0 0.5rem;">Want me to just explain it?</h2>
+      <p class="hint">I'll turn these numbers — plus anything you told me up top — into a few plain sentences and a line you can hand your boss.</p>
+      <button class="btn primary" id="aiBtn">Explain this in plain English</button>
+      <div id="aiOut" style="display:none;margin-top:1rem;font-size:0.93rem;line-height:1.65;white-space:pre-wrap;background:var(--rule-soft);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:0.9rem 1rem;"></div>
+      <div class="err" id="aiErr" style="display:none;"></div>
+    </div>
   </div>
 </div>
 
@@ -216,6 +232,7 @@
   "use strict";
   var DATA = null;          // { headers:[], rows:[][] }
   var doneSet = {};         // status -> bool
+  var lastM = null;         // last computed analysis (for the AI explainer)
 
   // ---------- CSV PARSER (handles quotes, embedded commas/newlines) ----------
   function parseCSV(text){
@@ -395,13 +412,22 @@
     var min = completedVals.length ? Math.min.apply(null, completedVals) : 0;
     var max = completedVals.length ? Math.max.apply(null, completedVals) : 0;
     var committed = (planIdx>=0 ? sprints[planIdx].committed : 0);
-    var recommended = Math.round(avg);
-    var ratio = avg > 0 ? committed / avg : 0;
+
+    // Optional human override: "our normal is ~60 a sprint" beats shaky history
+    var manualPace = parseFloat(document.getElementById('manualPace').value);
+    var hasManual = !isNaN(manualPace) && manualPace > 0;
+    var baseline = hasManual ? manualPace : avg;        // what we judge "normal" against
+    var context = document.getElementById('contextBox').value.trim();
+
+    var recommended = Math.round(baseline);
+    var ratio = baseline > 0 ? committed / baseline : 0;
     var headroom = recommended - committed;
 
     render({
       sprints: sprints, planning: planning, planIdx: planIdx,
-      avg: avg, min: min, max: max, committed: committed, recommended: recommended,
+      calcAvg: avg, min: min, max: max,
+      baseline: baseline, hasManual: hasManual, context: context,
+      committed: committed, recommended: recommended,
       ratio: ratio, headroom: headroom, N: windowSprints.length, sprintCount: sprints.length
     });
   }
@@ -410,24 +436,27 @@
 
   function render(m){
     document.getElementById('results').style.display = 'block';
+    lastM = m;
+    document.getElementById('aiOut').style.display = 'none';
+    document.getElementById('aiErr').style.display = 'none';
 
     // VERDICT
     var cls, emoji, badge, sub;
-    if(m.avg <= 0){
-      cls='v-blue'; emoji='&#8505;&#65039;'; badge='Not enough history';
-      sub='No completed sprints before the planning sprint, so there\'s no velocity to compare against yet. Add more sprint history or pick a later planning sprint.';
+    if(m.baseline <= 0){
+      cls='v-blue'; emoji='&#8505;&#65039;'; badge='I need a bit more to go on';
+      sub='There aren\'t enough finished sprints to figure out your normal pace yet. Either add more sprint history, or just type your normal points-per-sprint in the box above and I\'ll use that.';
     } else if(m.ratio > 1.20){
-      cls='v-red'; emoji='&#128680;'; badge='Overcommitted';
-      sub='You\'ve committed <b>'+fmt(m.committed)+' pts</b> against a velocity of <b>'+fmt(m.avg)+'</b>. That\'s <b>'+Math.round((m.ratio-1)*100)+'% over</b> what the team actually delivers. Expect spillover unless something is cut.';
+      cls='v-red'; emoji='&#128680;'; badge='Too much on your plate';
+      sub='You\'ve got <b>'+fmt(m.committed)+' points</b> planned, but your team normally finishes about <b>'+fmt(m.baseline)+'</b> a sprint. That\'s <b>roughly '+Math.round((m.ratio-1)*100)+'% more than you usually get done</b> — so unless something comes off the list, expect this sprint to run over.';
     } else if(m.ratio > 1.05){
-      cls='v-amber'; emoji='&#9888;&#65039;'; badge='At capacity (stretch)';
-      sub='Committed <b>'+fmt(m.committed)+' pts</b> vs velocity <b>'+fmt(m.avg)+'</b> — a '+Math.round((m.ratio-1)*100)+'% stretch. Doable on a good sprint, risky if anything slips. No room for new asks.';
+      cls='v-amber'; emoji='&#9888;&#65039;'; badge='Full — no room to add';
+      sub='You\'ve planned <b>'+fmt(m.committed)+' points</b> and your team normally finishes around <b>'+fmt(m.baseline)+'</b>. It\'s a bit of a stretch — doable on a good week, but there\'s no room to take anything new on without something slipping.';
     } else if(m.ratio >= 0.85){
-      cls='v-green'; emoji='&#9989;'; badge='On track';
-      sub='Committed <b>'+fmt(m.committed)+' pts</b> against velocity <b>'+fmt(m.avg)+'</b>. This is a realistic, sustainable load. Hold the line.';
+      cls='v-green'; emoji='&#9989;'; badge='Right where you should be';
+      sub='You\'ve planned <b>'+fmt(m.committed)+' points</b>, which is right in line with the <b>'+fmt(m.baseline)+'</b> your team normally finishes. This is a realistic, steady load — no need to change anything.';
     } else {
-      cls='v-blue'; emoji='&#128202;'; badge='Room for more';
-      sub='Committed <b>'+fmt(m.committed)+' pts</b> but the team averages <b>'+fmt(m.avg)+'</b> — you have roughly <b>'+fmt(m.headroom)+' pts</b> of headroom. You can responsibly take on a bit more.';
+      cls='v-blue'; emoji='&#128202;'; badge='You\'ve got room for more';
+      sub='You\'ve only planned <b>'+fmt(m.committed)+' points</b>, but your team normally finishes about <b>'+fmt(m.baseline)+'</b>. You\'ve got room for roughly <b>'+fmt(m.headroom)+' more points</b> if you want to pull something in.';
     }
     var v = document.getElementById('verdict');
     v.className = 'verdict ' + cls;
@@ -436,25 +465,29 @@
     document.getElementById('vSub').innerHTML = sub;
 
     // BOSS LINE
+    var paceSrc = m.hasManual ? 'we typically finish around '+fmt(m.baseline)+' points a sprint' : 'over the last '+m.N+' sprints we\'ve averaged '+fmt(m.baseline)+' points a sprint';
     var boss;
-    if(m.avg <= 0){
-      boss = 'We don\'t yet have enough completed-sprint history to forecast reliably. Once we have a couple of finished sprints, I can tell you exactly how much we can take on.';
+    if(m.baseline <= 0){
+      boss = 'We don\'t have enough reliable sprint history yet to forecast this. Once we\'ve got a couple of finished sprints tracked, I can say exactly how much we can take on.';
     } else if(m.ratio > 1.05){
-      boss = 'Over the last '+m.N+' sprints we\'ve averaged '+fmt(m.avg)+' story points per sprint. '+m.planning+' is already loaded with '+fmt(m.committed)+' points — '+Math.round((m.ratio-1)*100)+'% above what we actually deliver. To add anything new, we\'d need to pull something out, or it slips.';
+      boss = 'For context, '+paceSrc+'. '+m.planning+' is already loaded with '+fmt(m.committed)+' points — about '+Math.round((m.ratio-1)*100)+'% more than we normally get done. To add anything new, we\'d need to take something off, otherwise it slips to next sprint.';
     } else if(m.ratio >= 0.85){
-      boss = 'Over the last '+m.N+' sprints we\'ve averaged '+fmt(m.avg)+' points per sprint, and '+m.planning+' is committed at '+fmt(m.committed)+'. We\'re right at a healthy, sustainable load — taking on more means trading something out.';
+      boss = 'For context, '+paceSrc+', and '+m.planning+' is planned at '+fmt(m.committed)+'. We\'re right at a healthy, sustainable load — happy to take more on, but it means trading something else out.';
     } else {
-      boss = 'Over the last '+m.N+' sprints we\'ve averaged '+fmt(m.avg)+' points per sprint. '+m.planning+' is only at '+fmt(m.committed)+', so we have about '+fmt(m.headroom)+' points of capacity — we can take on a bit more without overloading.';
+      boss = 'For context, '+paceSrc+'. '+m.planning+' is only at '+fmt(m.committed)+', so we have room for roughly '+fmt(m.headroom)+' more points — we can take a bit more on without overloading.';
     }
     document.getElementById('bossText').textContent = boss;
 
     // STATS
+    var secondStat = m.hasManual
+      ? { k:'From your history', v:(m.calcAvg>0?fmt(m.calcAvg):'—'), s:'(you set your own)' }
+      : { k:'Slowest – fastest', v: fmt(m.min)+' – '+fmt(m.max), s:'past '+m.N+' sprints' };
     var stats = [
-      { k:'Velocity (avg)', v: fmt(m.avg), s:'pts/sprint' },
-      { k:'Range', v: fmt(m.min)+'–'+fmt(m.max), s:'last '+m.N+' spr.' },
-      { k:'Recommended', v: fmt(m.recommended), s:'pts to commit' },
-      { k:'Committed now', v: fmt(m.committed), s:m.planning },
-      { k: m.headroom>=0?'Headroom':'Over by', v:(m.headroom>=0?'+':'')+fmt(m.headroom), s:'pts' }
+      { k:'Your usual pace', v: fmt(m.baseline), s:'points / sprint' },
+      secondStat,
+      { k:'Safe to take on', v: fmt(m.recommended), s:'points' },
+      { k:'Planned now', v: fmt(m.committed), s:m.planning },
+      { k: m.headroom>=0?'Room left':'Over by', v:(m.headroom>=0?'+':'')+fmt(m.headroom), s:'points' }
     ];
     document.getElementById('stats').innerHTML = stats.map(function(s){
       return '<div class="stat"><div class="k">'+esc(s.k)+'</div><div class="v">'+s.v+' <small>'+esc(s.s)+'</small></div></div>';
@@ -464,9 +497,9 @@
     drawTable(m);
 
     document.getElementById('notes').innerHTML =
-      'Velocity uses <b>completed</b> points (statuses you marked done) over the last '+m.N+' sprint(s) before <b>'+esc(m.planning)+'</b>. '+
-      '"Committed" is the sum of all story points tagged to a sprint — a flat CSV can\'t see what was added mid-sprint, so treat committed/completed splits as directional. '+
-      'Issues spanning multiple sprints are counted in their most recent sprint.';
+      'How I got this: I looked at the last '+m.N+' finished sprint(s) before <b>'+esc(m.planning)+'</b> and averaged what your team actually completed'+
+      (m.hasManual ? ' &mdash; but since you told me your normal is about <b>'+fmt(m.baseline)+'</b>, I used your number instead.' : '.')+
+      ' "Planned now" is everything currently sitting in '+esc(m.planning)+'. A plain CSV can\'t tell what got added partway through a sprint, so treat the planned number as a close estimate.';
 
     document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
   }
@@ -531,6 +564,32 @@
       var b = document.getElementById('copyBoss'); var old = b.textContent;
       b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = old; }, 1500);
     });
+  });
+
+  // AI plain-English explainer (uses the site's /api/claude proxy)
+  document.getElementById('aiBtn').addEventListener('click', function(){
+    if(!lastM) return;
+    var m = lastM, btn = this, out = document.getElementById('aiOut'), err = document.getElementById('aiErr');
+    err.style.display = 'none';
+    btn.disabled = true; var label = btn.textContent; btn.textContent = 'Thinking…';
+    var recent = m.sprints.slice(Math.max(0, m.planIdx - m.N), m.planIdx)
+      .map(function(s){ return s.sprint + ': ' + fmt(s.completed) + ' done'; }).join('; ');
+    var prompt = "You're helping a busy team lead understand their sprint workload. Use plain, everyday English — no jargon, avoid words like 'velocity'. Give 3-4 short sentences, then a final line starting with 'For your boss:' that they can copy.\n\n"
+      + "Facts:\n"
+      + "- Usual pace: about " + fmt(m.baseline) + " points per sprint (" + (m.hasManual ? "this is the number the user gave me" : "calculated from their finished sprints") + ").\n"
+      + "- The sprint they're planning (" + m.planning + ") currently has " + fmt(m.committed) + " points planned.\n"
+      + "- Recent finished sprints: " + (recent || "not much history") + ".\n"
+      + (m.context ? "- Extra context from the user: \"" + m.context + "\"\n" : "")
+      + "\nTell them plainly whether they're overloaded, on track, or have room; roughly how many points they can safely take on; and factor in their extra context if any.";
+    fetch('/api/claude', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:600, messages:[{ role:'user', content: prompt }] }) })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var txt = data && data.content && data.content[0] && data.content[0].text;
+        if(txt){ out.textContent = txt; out.style.display = 'block'; }
+        else { var msg = data && data.error ? (typeof data.error === 'string' ? data.error : JSON.stringify(data.error)) : 'No response came back.'; throw new Error(msg); }
+      })
+      .catch(function(e){ err.textContent = 'Couldn\'t get a plain-English read: ' + e.message + ' (the AI helper only works on the live site, not a local file).'; err.style.display = 'block'; })
+      .then(function(){ btn.disabled = false; btn.textContent = label; });
   });
 
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
