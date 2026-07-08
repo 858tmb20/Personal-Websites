@@ -975,10 +975,9 @@
 
   function enterLibrary() {
     if (currentEmail) document.getElementById('loggedInAs').textContent = currentEmail;
-    // Public access: no email gate. Admin panel stays reachable but is still
-    // password-protected via goAdmin() -> checkAdminPass().
-    document.getElementById('adminBtn').style.display = 'inline-block';
-    checkPendingCount();
+    // Public access: no email gate, so the "Manage Access" admin button (which
+    // only manages the now-defunct email allow-list) stays hidden. To re-enable
+    // it if the gate is ever restored, show 'adminBtn' + call checkPendingCount().
     showScreen('screen-library');
     applyViewButtons();
     fetchCategories(function() { fetchLinks(); });
