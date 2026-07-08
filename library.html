@@ -2097,7 +2097,14 @@
       html += '</div>';
     }
     html += '</div>';
-    document.getElementById('board').innerHTML = html;
+    // Preserve the board's scroll position across re-renders — otherwise toggling a chip
+    // (which rebuilds this HTML) snaps you back to the left/top.
+    var boardWrap = document.getElementById('board');
+    var oldBoard = boardWrap.querySelector('.board');
+    var keepX = oldBoard ? oldBoard.scrollLeft : 0, keepY = oldBoard ? oldBoard.scrollTop : 0;
+    boardWrap.innerHTML = html;
+    var newBoard = boardWrap.querySelector('.board');
+    if (newBoard) { newBoard.scrollLeft = keepX; newBoard.scrollTop = keepY; }
     document.querySelectorAll('.dcard-move[data-dmove]').forEach(function(b) { b.addEventListener('click', function() { moveDeploy(this.getAttribute('data-dmove'), parseInt(this.getAttribute('data-dir'), 10)); }); });
     document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
