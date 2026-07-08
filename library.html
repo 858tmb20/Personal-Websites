@@ -681,7 +681,7 @@
     <div class="field"><label>Title</label><input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" /></div>
     <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
     <div class="field"><label>Change Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployCrInput" placeholder="https://..." /></div>
-    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="needs">Needs Deployed</option><option value="needs_pr">Needs PR Approval</option><option value="pr_approved">PR Approved</option><option value="sandbox">Deployment and Testing in Sandboxes</option><option value="needs_cr">Needs Change Request Approval</option><option value="cr_approved">Change Request Approved</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option></select></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building in Sandbox</option><option value="sandbox">Testing in Sandboxes (Dev and QA)</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -1982,24 +1982,36 @@
   function deleteLearn(id) { if (!confirm('Remove this?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchLearn(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
+  // Columns are the physical work stages only. PR/CR progress is tracked by the
+  // per-card checkboxes below (order-independent), not by columns.
   var DEPLOY_COLS = [
-    { key: 'needs',          title: 'Needs Deployed',                      color: '#6B7A99' },
-    { key: 'needs_pr',       title: 'Needs PR Approval',                   color: '#B7791F' },
-    { key: 'pr_approved',    title: 'PR Approved',                         color: '#7C3AED' },
-    { key: 'sandbox',        title: 'Deployment and Testing in Sandboxes', color: '#0891B2' },
-    { key: 'needs_cr',       title: 'Needs Change Request Approval',       color: '#DB2777' },
-    { key: 'cr_approved',    title: 'Change Request Approved',             color: '#9333EA' },
-    { key: 'deploying_prod', title: 'Deploying to Prod',                   color: '#0E7490' },
-    { key: 'deployed_prod',  title: 'Deployed to Prod',                    color: '#15803D' }
+    { key: 'building',       title: 'Building in Sandbox',                color: '#6B7A99' },
+    { key: 'sandbox',        title: 'Testing in Sandboxes (Dev and QA)',  color: '#0891B2' },
+    { key: 'deploying_prod', title: 'Deploying to Prod',  color: '#0E7490' },
+    { key: 'deployed_prod',  title: 'Deployed to Prod',   color: '#15803D' }
   ];
-  var DEPLOY_STATUS_MAP = { needs: 'needs', progress: 'sandbox', awaiting_cr: 'needs_cr', deploying: 'sandbox', deployed: 'deployed_prod', done: 'deployed_prod' };
+  // Map every legacy status (from the old 8-column board) onto the new 4 columns.
+  var DEPLOY_STATUS_MAP = {
+    needs: 'building', needs_pr: 'building', pr_approved: 'building',
+    sandbox: 'sandbox', needs_cr: 'sandbox', cr_approved: 'sandbox',
+    deploying_prod: 'deploying_prod', deployed_prod: 'deployed_prod',
+    progress: 'sandbox', awaiting_cr: 'sandbox', deploying: 'deploying_prod', deployed: 'deployed_prod', done: 'deployed_prod'
+  };
   function normDeployStatus(s) {
     if (s && DEPLOY_STATUS_MAP[s]) return DEPLOY_STATUS_MAP[s];
     for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === s) return s; }
-    return 'needs';
+    return 'building';
   }
   // Environment confirmation indicators per card. Persisted to Supabase (deployments.dev/qa/prod).
   var DEPLOY_ENVS = [{ key: 'dev', label: 'Dev' }, { key: 'qa', label: 'QA' }, { key: 'prod', label: 'Prod' }];
+  // PR/CR milestone checkboxes (order-independent). Persisted to Supabase as booleans.
+  // 'CR created' reuses the existing cr_submitted column.
+  var DEPLOY_FLAGS = [
+    { key: 'pr_created',  label: 'PR created' },
+    { key: 'pr_approved', label: 'PR approved' },
+    { key: 'cr_submitted', label: 'CR created' },
+    { key: 'cr_approved', label: 'CR approved' }
+  ];
   function patchDeploy(id, fields, revert) {
     fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(fields) })
       .then(function(res) { if (!res.ok && revert) { revert(); renderBoard(); showToast('Could not save'); } })
@@ -2017,11 +2029,13 @@
     var prev = !!d.blocked; d.blocked = !prev; renderBoard();
     patchDeploy(id, { blocked: d.blocked }, function() { d.blocked = prev; });
   }
-  // Manual "change request submitted" flag per card. Persisted to Supabase (deployments.cr_submitted).
-  function toggleCrSub(id) {
+  // Toggle any boolean milestone flag on a card (pr_created / pr_approved / cr_submitted / cr_approved).
+  // Persisted to the matching Supabase boolean column.
+  function toggleFlag(id, field) {
     var d = findDeploy(id); if (!d) return;
-    var prev = !!d.cr_submitted; d.cr_submitted = !prev; renderBoard();
-    patchDeploy(id, { cr_submitted: d.cr_submitted }, function() { d.cr_submitted = prev; });
+    var prev = !!d[field]; d[field] = !prev; renderBoard();
+    var body = {}; body[field] = d[field];
+    patchDeploy(id, body, function() { d[field] = prev; });
   }
   function saveBlockReason(id, val) {
     var d = findDeploy(id); if (!d) return;
@@ -2042,16 +2056,16 @@
     // approved yet (cr_submitted flag on, card not yet at "Change Request Approved").
     function waitFlags(d) {
       return {
-        pr: (d.status || 'needs') === 'needs_pr',
-        cr: !!d.cr_submitted && colIndex(d.status || 'needs') < colIndex('cr_approved')
+        pr: !!d.pr_created && !d.pr_approved,   // PR created but not yet approved
+        cr: !!d.cr_submitted && !d.cr_approved  // CR created but not yet approved
       };
     }
     var waiting = allDeploys.filter(function(d) { var f = waitFlags(d); return f.pr || f.cr; });
     var ewItems = '';
     for (var w = 0; w < waiting.length; w++) {
       var wd = waiting[w], f = waitFlags(wd), tags = '';
-      if (f.pr) tags += '<span class="ew-tag pr" title="Needs PR approval">PR</span>';
-      if (f.cr) tags += '<span class="ew-tag cr" title="Change request submitted, awaiting approval">CR</span>';
+      if (f.pr) tags += '<span class="ew-tag pr" title="PR created, awaiting approval">PR</span>';
+      if (f.cr) tags += '<span class="ew-tag cr" title="CR created, awaiting approval">CR</span>';
       ewItems += '<div class="ew-item">' + tags + '<span class="ew-name" title="' + esc(wd.title) + '">' + esc(wd.title) + '</span></div>';
     }
     if (!ewItems) ewItems = '<div class="ew-empty">Nothing waiting on EdTech right now.</div>';
@@ -2074,20 +2088,17 @@
         for (var i = 0; i < items.length; i++) {
           var d = items[i];
           var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
-          // Auto approval badges (index-based, persist through later stages): a card at
-          // "PR Approved" or beyond shows "PR approved"; at "Change Request Approved" or
-          // beyond shows "Change request approved". ("CR submitted" is a manual chip below.)
-          var apprHtml = '';
-          if (c >= colIndex('pr_approved')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>PR approved</span>'; }
-          if (c >= colIndex('cr_approved')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>Change request approved</span>'; }
-          if (apprHtml) { apprHtml = '<div class="dcard-approvals">' + apprHtml + '</div>'; }
+          // PR/CR milestone checkboxes — clickable green chips, order-independent. Persisted per flag.
+          var apprHtml = '<div class="dcard-approvals">';
+          for (var fi = 0; fi < DEPLOY_FLAGS.length; fi++) {
+            var flag = DEPLOY_FLAGS[fi], fon = !!d[flag.key];
+            apprHtml += '<span class="env-chip ' + (fon ? 'on' : '') + '" data-dflag="' + esc(d.id) + '" data-field="' + flag.key + '" title="' + (fon ? flag.label + ' — click to clear' : 'Click to mark: ' + flag.label) + '"><span class="env-dot">&#10003;</span>' + flag.label + '</span>';
+          }
+          apprHtml += '</div>';
           var es = d;                                                  // env flags live on the row: d.dev / d.qa / d.prod
           var bs = { blocked: !!d.blocked, reason: d.block_reason || '' };
           var envsHtml = '<div class="dcard-envs">';
           for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; }
-          // Manual "CR submitted" checkbox \u2014 green like the env chips. Marks that a change
-          // request was submitted (not approved). Persisted to Supabase (deployments.cr_submitted).
-          envsHtml += '<span class="env-chip ' + (d.cr_submitted ? 'on' : '') + '" data-dcrsub="' + esc(d.id) + '" title="' + (d.cr_submitted ? 'Change request submitted \u2014 click to clear' : 'Click to mark change request submitted') + '"><span class="env-dot">&#10003;</span>CR submitted</span>';
           // Blocked chip sits in the same row as the env chips
           envsHtml += '<span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span>';
           envsHtml += '</div>';
@@ -2111,14 +2122,14 @@
     document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
     document.querySelectorAll('.env-chip[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
-    document.querySelectorAll('.env-chip[data-dcrsub]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleCrSub(this.getAttribute('data-dcrsub')); }); });
+    document.querySelectorAll('.env-chip[data-dflag]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleFlag(this.getAttribute('data-dflag'), this.getAttribute('data-field')); }); });
     document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
     document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
-  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(d.status || 'needs') + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key; var prev = d.status; d.status = newKey; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey }) }).then(function(res) { if (!res.ok) { d.status = prev; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; renderBoard(); }); }
-  function openDeployModal(d) { document.getElementById('deployEditId').value = d ? d.id : ''; document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item'; document.getElementById('deployTitleInput').value = d ? d.title : ''; document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : ''; document.getElementById('deployCrInput').value = (d && d.cr_url) ? d.cr_url : ''; document.getElementById('deployStatusInput').value = (d && d.status) ? d.status : 'needs'; document.getElementById('deployModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100); }
+  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(normDeployStatus(d.status)) + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key; var prev = d.status; d.status = newKey; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey }) }).then(function(res) { if (!res.ok) { d.status = prev; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; renderBoard(); }); }
+  function openDeployModal(d) { document.getElementById('deployEditId').value = d ? d.id : ''; document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item'; document.getElementById('deployTitleInput').value = d ? d.title : ''; document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : ''; document.getElementById('deployCrInput').value = (d && d.cr_url) ? d.cr_url : ''; document.getElementById('deployStatusInput').value = normDeployStatus((d && d.status) ? d.status : 'building'); document.getElementById('deployModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100); }
   function closeDeployModal() { document.getElementById('deployModalOverlay').classList.remove('open'); }
   function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var crRaw = document.getElementById('deployCrInput').value.trim(); var cr_url = crRaw ? (crRaw.indexOf('http') === 0 ? crRaw : 'https://' + crRaw) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, pr_url: pr_url, cr_url: cr_url, status: status }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
   function deleteDeploy(id) { if (!confirm('Delete this deployment item?')) return; fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDeploys(); }); }
