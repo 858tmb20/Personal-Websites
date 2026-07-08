@@ -482,7 +482,7 @@
 <body>
 
 <!-- LOGIN SCREEN -->
-<div class="screen active" id="screen-login">
+<div class="screen" id="screen-login">
   <div class="gate-wrap">
     <div class="gate-box">
       <h1>Resource Library</h1>
@@ -526,7 +526,7 @@
 </div>
 
 <!-- MAIN LIBRARY SCREEN -->
-<div class="screen" id="screen-library">
+<div class="screen active" id="screen-library">
   <header>
     <div class="header-left">
       <div class="header-brand">
@@ -576,7 +576,7 @@
         <span class="badge" id="pendingBadge" style="display:none;">0</span>
       </button>
       <button class="btn-add" onclick="openModal(null)">+ Add Link</button>
-      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+      <button class="btn-signout" onclick="signOut()" style="display:none;">Sign Out</button>
     </div>
   </header>
   <div class="main">
@@ -947,7 +947,8 @@
 
   window.onload = function() {
     var saved = localStorage.getItem('lib_email');
-    if (saved) { currentEmail = saved; enterLibrary(); }
+    if (saved) { currentEmail = saved; }
+    enterLibrary();
   };
 
   function showScreen(id) {
@@ -973,11 +974,11 @@
   }
 
   function enterLibrary() {
-    document.getElementById('loggedInAs').textContent = currentEmail;
-    if (currentEmail === OWNER_EMAIL.toLowerCase()) {
-      document.getElementById('adminBtn').style.display = 'inline-block';
-      checkPendingCount();
-    }
+    if (currentEmail) document.getElementById('loggedInAs').textContent = currentEmail;
+    // Public access: no email gate. Admin panel stays reachable but is still
+    // password-protected via goAdmin() -> checkAdminPass().
+    document.getElementById('adminBtn').style.display = 'inline-block';
+    checkPendingCount();
     showScreen('screen-library');
     applyViewButtons();
     fetchCategories(function() { fetchLinks(); });
