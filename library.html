@@ -293,7 +293,7 @@
   .edtech-wait .ew-tag.cr { background: #DB2777; }
   .edtech-wait .ew-empty { font-size: 0.7rem; color: var(--muted); }
   @media (max-width: 760px) { .tracker-layout { flex-direction: column; } .pipeline-side { width: 100%; position: static; } .pipeline { flex-direction: row; overflow-x: auto; } }
-  .tracker-foot { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; justify-content: center; }
+  .tracker-foot { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
   .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); gap: 0.75rem; align-items: start; overflow: auto; max-height: calc(100vh - 185px); padding-bottom: 0.5rem; }
   /* Always-visible scrollbars (macOS hides them by default) so the horizontal one is easy to find and reach. */
   .board::-webkit-scrollbar { height: 12px; width: 12px; }
@@ -668,6 +668,7 @@
     </div>
     <div class="tracker-foot">
       <a class="btn-add" href="https://github.com/WGU-edu/partner-management-salesforce/pulls/858tmb20" target="_blank" rel="noopener">&#128279; View my open PRs &mdash; partner-management-salesforce &#8599;</a>
+      <a class="btn-add" href="https://wgu.service-now.com/task_list.do?sysparm_query=assigned_toDYNAMIC90d1921e5f510100a9ad2572f2b477fe%5Eactive%3Dtrue%5EnumberNOT%20LIKEJIRA%5Eref_rm_scrum_task.story.stateNOT%20IN3%2C4%5EORref_u_report_an_outage.u_statusNOT%20IN3%2C4%2C5%5EORref_change_task.change_request.stateNOT%20IN3%2C4%5EORref_u_jira_issues.u_resolvedISEMPTY%5Esys_class_name!%3Dsysapproval_group%5Esys_class_name!%3Du_jira_issues" target="_blank" rel="noopener">&#128279; View open change requests &mdash; ServiceNow &#8599;</a>
     </div>
   </div>
 </div>
