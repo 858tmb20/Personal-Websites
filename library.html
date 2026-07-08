@@ -314,7 +314,7 @@
   .dcard-approvals { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
   .appr-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.55rem 0.22rem 0.34rem; border-radius: 20px; background: var(--green-soft); border: 1px solid #A7D8B9; color: #15803D; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; }
   .appr-badge .appr-check { width: 14px; height: 14px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; flex-shrink: 0; }
-  .dcard-envs { display: flex; align-items: center; gap: 0.4rem; padding-top: 0.55rem; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); }
+  .dcard-envs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding-top: 0.55rem; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); }
   .env-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.5rem 0.22rem 0.32rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); cursor: pointer; font-family: inherit; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s; }
   .env-chip:hover { border-color: var(--muted-soft); }
   .env-chip .env-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--muted-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; color: transparent; flex-shrink: 0; transition: background 0.12s, border-color 0.12s, color 0.12s; }
@@ -2015,6 +2015,12 @@
     var prev = !!d.blocked; d.blocked = !prev; renderBoard();
     patchDeploy(id, { blocked: d.blocked }, function() { d.blocked = prev; });
   }
+  // Manual "change request submitted" flag per card. Persisted to Supabase (deployments.cr_submitted).
+  function toggleCrSub(id) {
+    var d = findDeploy(id); if (!d) return;
+    var prev = !!d.cr_submitted; d.cr_submitted = !prev; renderBoard();
+    patchDeploy(id, { cr_submitted: d.cr_submitted }, function() { d.cr_submitted = prev; });
+  }
   function saveBlockReason(id, val) {
     var d = findDeploy(id); if (!d) return;
     if ((d.block_reason || '') === (val || '')) return; // nothing changed
@@ -2029,13 +2035,22 @@
     var counts = {};
     for (var k = 0; k < DEPLOY_COLS.length; k++) { counts[DEPLOY_COLS[k].key] = 0; }
     allDeploys.forEach(function(d) { var s = d.status || 'needs'; if (counts[s] != null) counts[s]++; });
-    // "Waiting on EdTech": items where a PR still needs approval (needs_pr) or a
-    // change request still needs approval (needs_cr) — i.e. the ball is in EdTech's court.
-    var waiting = allDeploys.filter(function(d) { var s = d.status || 'needs'; return s === 'needs_pr' || s === 'needs_cr'; });
+    // "Waiting on EdTech": the ball is in EdTech's court — either a PR still needs
+    // approval (needs_pr column), or a change request has been submitted but isn't
+    // approved yet (cr_submitted flag on, card not yet at "Change Request Approved").
+    function waitFlags(d) {
+      return {
+        pr: (d.status || 'needs') === 'needs_pr',
+        cr: !!d.cr_submitted && colIndex(d.status || 'needs') < colIndex('cr_approved')
+      };
+    }
+    var waiting = allDeploys.filter(function(d) { var f = waitFlags(d); return f.pr || f.cr; });
     var ewItems = '';
     for (var w = 0; w < waiting.length; w++) {
-      var wd = waiting[w], isPr = (wd.status === 'needs_pr');
-      ewItems += '<div class="ew-item"><span class="ew-tag ' + (isPr ? 'pr' : 'cr') + '" title="' + (isPr ? 'Needs PR approval' : 'Needs change request approval') + '">' + (isPr ? 'PR' : 'CR') + '</span><span class="ew-name" title="' + esc(wd.title) + '">' + esc(wd.title) + '</span></div>';
+      var wd = waiting[w], f = waitFlags(wd), tags = '';
+      if (f.pr) tags += '<span class="ew-tag pr" title="Needs PR approval">PR</span>';
+      if (f.cr) tags += '<span class="ew-tag cr" title="Change request submitted, awaiting approval">CR</span>';
+      ewItems += '<div class="ew-item">' + tags + '<span class="ew-name" title="' + esc(wd.title) + '">' + esc(wd.title) + '</span></div>';
     }
     if (!ewItems) ewItems = '<div class="ew-empty">Nothing waiting on EdTech right now.</div>';
     var ew = '<div class="edtech-wait"><div class="ew-head"><span class="ew-dot"></span>Waiting on EdTech<span class="ew-count">' + waiting.length + '</span></div>' + ewItems + '</div>';
@@ -2057,17 +2072,20 @@
         for (var i = 0; i < items.length; i++) {
           var d = items[i];
           var canLeft = c > 0, canRight = c < DEPLOY_COLS.length - 1;
-          // Approval badges: a card at "PR Approved" or beyond carries a "PR approved" check;
-          // a card at "Change Request Approved" or beyond carries both checks. Index-based so the badge persists through later stages.
+          // Auto approval badges (index-based, persist through later stages): a card at
+          // "PR Approved" or beyond shows "PR approved"; at "Change Request Approved" or
+          // beyond shows "Change request approved". ("CR submitted" is a manual chip below.)
           var apprHtml = '';
           if (c >= colIndex('pr_approved')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>PR approved</span>'; }
-          if (c >= colIndex('needs_cr')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>Change request created</span>'; }
           if (c >= colIndex('cr_approved')) { apprHtml += '<span class="appr-badge"><span class="appr-check">&#10003;</span>Change request approved</span>'; }
           if (apprHtml) { apprHtml = '<div class="dcard-approvals">' + apprHtml + '</div>'; }
           var es = d;                                                  // env flags live on the row: d.dev / d.qa / d.prod
           var bs = { blocked: !!d.blocked, reason: d.block_reason || '' };
           var envsHtml = '<div class="dcard-envs">';
           for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; }
+          // Manual "CR submitted" checkbox \u2014 green like the env chips. Marks that a change
+          // request was submitted (not approved). Persisted to Supabase (deployments.cr_submitted).
+          envsHtml += '<span class="env-chip ' + (d.cr_submitted ? 'on' : '') + '" data-dcrsub="' + esc(d.id) + '" title="' + (d.cr_submitted ? 'Change request submitted \u2014 click to clear' : 'Click to mark change request submitted') + '"><span class="env-dot">&#10003;</span>CR submitted</span>';
           // Blocked chip sits in the same row as the env chips
           envsHtml += '<span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span>';
           envsHtml += '</div>';
@@ -2084,6 +2102,7 @@
     document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
     document.querySelectorAll('.env-chip[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
+    document.querySelectorAll('.env-chip[data-dcrsub]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleCrSub(this.getAttribute('data-dcrsub')); }); });
     document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
     document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
   }
