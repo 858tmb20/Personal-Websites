@@ -948,6 +948,16 @@
   window.onload = function() {
     var saved = localStorage.getItem('lib_email');
     if (saved) { currentEmail = saved; }
+    // Shared tracker-only link: library.html?tracker
+    // Opens the Deployment Tracker directly and hides its Home button so a
+    // recipient has no path to the personal home. The normal library.html
+    // keeps the Home button (when it's just me, that's fine).
+    if (new URLSearchParams(location.search).has('tracker')) {
+      var homeBtn = document.querySelector('#screen-tracker .btn-signout');
+      if (homeBtn) homeBtn.style.display = 'none';
+      openTracker();
+      return;
+    }
     enterLibrary();
   };
 
