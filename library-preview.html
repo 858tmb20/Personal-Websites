@@ -681,7 +681,7 @@
     <div class="field"><label>Title</label><input type="text" id="deployTitleInput" placeholder="e.g. Tealium integration v2" /></div>
     <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
     <div class="field"><label>Change Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployCrInput" placeholder="https://..." /></div>
-    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building</option><option value="sandbox">In Sandboxes</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option></select></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building in Sandbox</option><option value="sandbox">Testing in Sandboxes (Dev and QA)</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -1998,8 +1998,8 @@
   // Columns are the physical work stages only. PR/CR progress is tracked by the
   // per-card checkboxes below (order-independent), not by columns.
   var DEPLOY_COLS = [
-    { key: 'building',       title: 'Building',           color: '#6B7A99' },
-    { key: 'sandbox',        title: 'In Sandboxes',       color: '#0891B2' },
+    { key: 'building',       title: 'Building in Sandbox',                color: '#6B7A99' },
+    { key: 'sandbox',        title: 'Testing in Sandboxes (Dev and QA)',  color: '#0891B2' },
     { key: 'deploying_prod', title: 'Deploying to Prod',  color: '#0E7490' },
     { key: 'deployed_prod',  title: 'Deployed to Prod',   color: '#15803D' }
   ];
