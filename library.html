@@ -281,7 +281,7 @@
   .pl-step { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--plc); border-radius: 6px; padding: 0.4rem 0.55rem; }
   .pl-step .pl-title { font-size: 0.72rem; font-weight: 600; color: var(--ink); line-height: 1.2; flex: 1; }
   .pl-step .pl-count { font-size: 0.68rem; font-weight: 700; color: #fff; background: var(--plc); border-radius: 9px; padding: 1px 6px; min-width: 16px; text-align: center; flex-shrink: 0; }
-  .edtech-wait { background: #FDF4E3; border: 1px solid #F0C879; border-radius: 8px; padding: 0.55rem 0.6rem; margin-bottom: 0.85rem; }
+  .edtech-wait { background: #FDF4E3; border: 1px solid #F0C879; border-radius: 8px; padding: 0.55rem 0.6rem; margin-top: 0.85rem; }
   .edtech-wait .ew-head { display: flex; align-items: center; gap: 0.4rem; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #B7791F; margin-bottom: 0.5rem; }
   .edtech-wait .ew-dot { width: 8px; height: 8px; border-radius: 50%; background: #E0A82E; box-shadow: 0 0 0 3px rgba(224,168,46,0.25); flex-shrink: 0; }
   .edtech-wait .ew-count { margin-left: auto; font-size: 0.66rem; font-weight: 700; color: #fff; background: #E0A82E; border-radius: 9px; padding: 1px 6px; min-width: 16px; text-align: center; }
@@ -294,7 +294,12 @@
   .edtech-wait .ew-empty { font-size: 0.7rem; color: var(--muted); }
   @media (max-width: 760px) { .tracker-layout { flex-direction: column; } .pipeline-side { width: 100%; position: static; } .pipeline { flex-direction: row; overflow-x: auto; } }
   .tracker-foot { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; justify-content: center; }
-  .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); gap: 0.75rem; align-items: start; overflow-x: auto; padding-bottom: 0.5rem; }
+  .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); gap: 0.75rem; align-items: start; overflow: auto; max-height: calc(100vh - 185px); padding-bottom: 0.5rem; }
+  /* Always-visible scrollbars (macOS hides them by default) so the horizontal one is easy to find and reach. */
+  .board::-webkit-scrollbar { height: 12px; width: 12px; }
+  .board::-webkit-scrollbar-track { background: var(--rule-soft); border-radius: 8px; }
+  .board::-webkit-scrollbar-thumb { background: var(--muted-soft); border-radius: 8px; border: 2px solid var(--rule-soft); }
+  .board::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   @media (max-width: 700px) { .board { grid-auto-columns: minmax(80vw, 1fr); } }
   .board-col { background: #EEF1F6; border-radius: 12px; padding: 0.9rem; min-height: 200px; }
   .board-col-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; padding: 0 0.2rem; }
@@ -2041,7 +2046,7 @@
       pl += '<div class="pl-step" style="--plc:' + plc.color + ';"><span class="pl-title">' + plc.title + '</span><span class="pl-count">' + counts[plc.key] + '</span></div>';
     }
     pl += '</div>';
-    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = ew + pl;
+    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = pl + ew;
     var html = '<div class="board">';
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
