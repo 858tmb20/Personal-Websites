@@ -641,6 +641,7 @@
     </div>
     <div class="header-right">
       <button class="btn-add" onclick="openDeployModal(null)">+ Add Item</button>
+      <button class="btn-signout" onclick="shareTracker(event)">&#128279; Share link</button>
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
   </header>
@@ -953,8 +954,8 @@
     // recipient has no path to the personal home. The normal library.html
     // keeps the Home button (when it's just me, that's fine).
     if (new URLSearchParams(location.search).has('tracker')) {
-      var homeBtn = document.querySelector('#screen-tracker .btn-signout');
-      if (homeBtn) homeBtn.style.display = 'none';
+      // Hide the owner-only controls (Share link + Home) on the shared view.
+      document.querySelectorAll('#screen-tracker .btn-signout').forEach(function(b) { b.style.display = 'none'; });
       openTracker();
       return;
     }
@@ -1372,6 +1373,7 @@
   // Built-in tool cards (Deployment Tracker, Docs, etc.) shown based on scope
   function builtinToolCard(opts) {
     return '<a class="tool-card" href="' + (opts.href || '#') + '"' + (opts.target ? ' target="' + opts.target + '"' : '') + (opts.onclick ? ' onclick="' + opts.onclick + '"' : '') + ' style="--tc:' + opts.color + ';--tc-soft:' + opts.color + '22;">' +
+        (opts.share ? '<span class="tool-edit"><button class="launch-mini" onclick="shareTracker(event)" title="Copy shareable link">&#128279;</button></span>' : '') +
         '<span class="tool-eyebrow"><span class="tool-chip"><span>' + opts.icon + '</span></span><span class="tool-eyebrow-text">' + opts.type + ' <span class="tool-eyebrow-sep">&middot;</span> Tool</span></span>' +
         '<span class="tool-name">' + opts.name + '</span>' +
         '<span class="tool-desc">' + opts.desc + '</span>' +
@@ -1418,7 +1420,7 @@
 
     // Built-in tool cards for each scope
     var workBuiltins = [
-      builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();' }),
+      builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();', share: true }),
       builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
       builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }),
@@ -2064,6 +2066,16 @@
   function closeDeployModal() { document.getElementById('deployModalOverlay').classList.remove('open'); }
   function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, pr_url: pr_url, status: status }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
   function deleteDeploy(id) { if (!confirm('Delete this deployment item?')) return; fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDeploys(); }); }
+
+  // Copies the shareable tracker-only link (…/library.html?tracker) to the clipboard.
+  function shareTracker(ev) {
+    if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+    var url = location.href.split('?')[0].split('#')[0] + '?tracker';
+    function fallback() { window.prompt('Copy this shareable tracker link:', url); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function() { showToast('Share link copied — opens the tracker only'); }, fallback);
+    } else { fallback(); }
+  }
 
   function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 2500); }
   function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
