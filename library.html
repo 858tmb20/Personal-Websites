@@ -2025,7 +2025,7 @@
     if (!d.pr_created) return { t: 'Create the PR', k: 'do' };
     if (!d.pr_approved) return { t: 'Waiting on PR approval', k: 'wait' };
     if (!d.dev) return { t: 'Deploy & test in Dev', k: 'do' };
-    if (!d.qa) return { t: 'Test in QA', k: 'do' };
+    if (!d.qa) return { t: 'Deploy & test in QA', k: 'do' };
     if (!d.cr_submitted) return { t: 'Create the change request', k: 'do' };
     if (!d.cr_approved) return { t: 'Waiting on CR approval', k: 'wait' };
     if (!d.prod) return { t: 'Deploy to Prod', k: 'do' };
