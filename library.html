@@ -2017,6 +2017,7 @@
     { key: 'pr_created',  label: 'PR created' },
     { key: 'pr_approved', label: 'PR approved' },
     { key: 'cr_submitted', label: 'CR created' },
+    { key: 'test_plan_attached', label: 'Test plan attached' },
     { key: 'cr_approved', label: 'CR approved' }
   ];
   // Computes the single "next action" for a card from its flags/stage (tired-brain helper).
@@ -2029,6 +2030,7 @@
     if (!d.dev) return { t: 'Deploy & test in Dev', k: 'do' };
     if (!d.qa) return { t: 'Deploy & test in QA', k: 'do' };
     if (!d.cr_submitted) return { t: 'Create the change request', k: 'do' };
+    if (!d.test_plan_attached) return { t: 'Make & attach the test plan to the CR', k: 'do' };
     if (!d.cr_approved) return { t: 'Waiting on CR approval', k: 'wait' };
     if (!d.prod) return { t: 'Deploy to Prod', k: 'do' };
     return { t: 'Confirm deployed, move to Deployed', k: 'do' };
