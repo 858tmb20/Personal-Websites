@@ -311,6 +311,10 @@
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
   .dcard-pr { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--link); text-decoration: none; margin-bottom: 0.6rem; margin-right: 0.9rem; }
   .dcard-done { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; color: #15803D; background: var(--green-soft); border: 1px solid #A7D8B9; border-radius: 20px; padding: 0.28rem 0.65rem; margin-bottom: 0.2rem; }
+  .dcard-next { display: flex; align-items: center; gap: 0.4rem; font-size: 0.76rem; font-weight: 700; border-radius: 8px; padding: 0.4rem 0.6rem; margin-bottom: 0.7rem; line-height: 1.3; }
+  .dcard-next.do { background: #EAF1FF; border: 1px solid #B8D0FF; color: #1F5FD6; }
+  .dcard-next.wait { background: #FDF4E3; border: 1px solid #F0C879; color: #B7791F; }
+  .dcard-next.blocked { background: #FBE9E9; border: 1px solid #F3C9C7; color: #C0322B; }
   .dcard-pr:hover { text-decoration: underline; }
   .dcard-approvals { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
   .appr-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.55rem 0.22rem 0.34rem; border-radius: 20px; background: var(--green-soft); border: 1px solid #A7D8B9; color: #15803D; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; }
@@ -2013,6 +2017,20 @@
     { key: 'cr_submitted', label: 'CR created' },
     { key: 'cr_approved', label: 'CR approved' }
   ];
+  // Computes the single "next action" for a card from its flags/stage (tired-brain helper).
+  // Returns { t: label, k: 'do'|'wait'|'blocked' } or null (nothing to do — shipped).
+  function nextStep(d) {
+    if (d.blocked) return { t: 'Unblock' + (d.block_reason ? ' — ' + d.block_reason : ''), k: 'blocked' };
+    if (normDeployStatus(d.status) === 'deployed_prod') return null; // shipped
+    if (!d.pr_created) return { t: 'Create the PR', k: 'do' };
+    if (!d.pr_approved) return { t: 'Waiting on PR approval', k: 'wait' };
+    if (!d.dev) return { t: 'Deploy & test in Dev', k: 'do' };
+    if (!d.qa) return { t: 'Test in QA', k: 'do' };
+    if (!d.cr_submitted) return { t: 'Create the change request', k: 'do' };
+    if (!d.cr_approved) return { t: 'Waiting on CR approval', k: 'wait' };
+    if (!d.prod) return { t: 'Deploy to Prod', k: 'do' };
+    return { t: 'Confirm deployed, move to Deployed', k: 'do' };
+  }
   function patchDeploy(id, fields, revert) {
     fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(fields) })
       .then(function(res) { if (!res.ok && revert) { revert(); renderBoard(); showToast('Could not save'); } })
@@ -2107,7 +2125,10 @@
           var reasonHtml = bs.blocked ? '<textarea class="blk-reason" data-dblkreason="' + esc(d.id) + '" placeholder="What\'s blocking this? (e.g. waiting on CR approval)">' + esc(bs.reason) + '</textarea>' : '';
           // Deployed-to-Prod cards are finished, so collapse the chip detail to one calm line.
           var bodyHtml = (col.key === 'deployed_prod') ? '<div class="dcard-done">&#10003; Shipped &mdash; all approved</div>' : (apprHtml + envsHtml + reasonHtml);
-          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
+          var ns = nextStep(d);
+          var nsIcon = ns ? (ns.k === 'blocked' ? '&#9940;' : ns.k === 'wait' ? '&#9203;' : '&#128073;') : '';
+          var nextHtml = ns ? '<div class="dcard-next ' + ns.k + '">' + nsIcon + ' <span>Next: ' + esc(ns.t) + '</span></div>' : '';
+          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
         }
       }
       html += '</div>';
