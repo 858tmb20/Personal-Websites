@@ -275,7 +275,9 @@
   #screen-tracker .board-wrap { max-width: none; }
   .tracker-layout { display: flex; gap: 1.25rem; align-items: flex-start; }
   .board-main { flex: 1; min-width: 0; }
-  .pipeline-side { flex-shrink: 0; width: 190px; position: sticky; top: 1rem; }
+  .pipeline-side { flex-shrink: 0; width: 240px; min-width: 190px; max-width: 460px; resize: horizontal; overflow: auto; position: sticky; top: 1rem; }
+  .pipeline-side::-webkit-scrollbar { width: 10px; height: 10px; }
+  .pipeline-side::-webkit-scrollbar-thumb { background: var(--muted-soft); border-radius: 6px; }
   .pipeline { display: flex; flex-direction: column; gap: 0.35rem; }
   .pl-cap { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
   .pl-step { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--plc); border-radius: 6px; padding: 0.4rem 0.55rem; }
@@ -2064,7 +2066,23 @@
   }
   var allDeploys = [];
   function openCalendar() { document.getElementById('calFullFrame').src = 'https://calendar.google.com/calendar/embed?src=trentbacon985%40gmail.com&ctz=America%2FChicago&mode=WEEK'; showScreen('screen-calendar'); }
-  function openTracker() { showScreen('screen-tracker'); fetchDeploys(); }
+  function openTracker() { showScreen('screen-tracker'); fetchDeploys(); initPipelineResize(); }
+  // The left rail is drag-resizable (CSS resize: horizontal). Remember the chosen width.
+  var _pipeResizeInit = false;
+  function initPipelineResize() {
+    var el = document.getElementById('pipelinePath');
+    if (!el) return;
+    var saved = parseInt(localStorage.getItem('lib_pipeline_w'), 10);
+    if (saved && window.innerWidth > 760) { el.style.width = Math.max(190, Math.min(460, saved)) + 'px'; }
+    if (_pipeResizeInit || !window.ResizeObserver) return;
+    _pipeResizeInit = true;
+    var ro = new ResizeObserver(function() {
+      if (window.innerWidth <= 760) return;
+      var w = Math.round(el.getBoundingClientRect().width);
+      if (w >= 190 && w <= 460) localStorage.setItem('lib_pipeline_w', w);
+    });
+    ro.observe(el);
+  }
   function fetchDeploys() { fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allDeploys = Array.isArray(data) ? data : []; allDeploys.forEach(function(d) { d.status = normDeployStatus(d.status); }); renderBoard(); }).catch(function() { document.getElementById('board').innerHTML = '<div class="board-empty">Could not load.</div>'; }); }
   function renderBoard() {
     var counts = {};
