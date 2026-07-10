@@ -2181,10 +2181,11 @@
   // Copies the shareable tracker-only link (…/library.html?tracker) to the clipboard.
   function shareTracker(ev) {
     if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-    var url = location.href.split('?')[0].split('#')[0] + '?tracker';
+    // Clean, standalone share URL (…/deployment-tracker.html) — tracker only, no path to the library.
+    var url = location.href.split('?')[0].split('#')[0].replace(/[^/]*$/, 'deployment-tracker.html');
     function fallback() { window.prompt('Copy this shareable tracker link:', url); }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function() { showToast('Share link copied — opens the tracker only'); }, fallback);
+      navigator.clipboard.writeText(url).then(function() { showToast('Tracker share link copied'); }, fallback);
     } else { fallback(); }
   }
 
