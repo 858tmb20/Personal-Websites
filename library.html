@@ -972,16 +972,17 @@
   function isDeployCategory(catId) { return catId && catMap[catId] === DEPLOY_CATEGORY_NAME; }
 
   window.onload = function() {
-    var saved = localStorage.getItem('lib_email');
-    // LOCKED DOWN: only enter if this browser has a saved approved email. Otherwise
-    // the login gate (screen-login) shows. This also gates the ?tracker share link.
-    if (!saved) { showScreen('screen-login'); return; }
-    currentEmail = saved;
+    // OPEN, tracker-only share view (no login) — this is what deployment-tracker.html
+    // loads. Shows ONLY the Deployment Tracker with no path to the personal library.
     if (new URLSearchParams(location.search).has('tracker')) {
       document.querySelectorAll('#screen-tracker .btn-signout').forEach(function(b) { b.style.display = 'none'; });
       openTracker();
       return;
     }
+    // Everything else (the personal library) stays LOCKED behind the email gate.
+    var saved = localStorage.getItem('lib_email');
+    if (!saved) { showScreen('screen-login'); return; }
+    currentEmail = saved;
     enterLibrary();
   };
 

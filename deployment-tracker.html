@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Tracker</title>
+  <!-- Clean, shareable link that opens straight into the Deployment Tracker only.
+       Forwards to the tracker-only view of library.html; the personal library stays locked. -->
+  <meta http-equiv="refresh" content="0; url=library.html?tracker">
+  <style>
+    html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#0F1F3D;color:#fff;}
+    .wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;}
+    .spinner{width:34px;height:34px;border:3px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    a{color:#9DC3FF;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="spinner"></div>
+    <div>Opening the Deployment Tracker…</div>
+    <div style="font-size:13px;opacity:.7">If it doesn’t load, <a href="library.html?tracker">click here</a>.</div>
+  </div>
+  <script>location.replace('library.html?tracker');</script>
+</body>
+</html>
