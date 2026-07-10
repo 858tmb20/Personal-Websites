@@ -316,6 +316,7 @@
   .dcard-pr { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--link); text-decoration: none; margin-bottom: 0.6rem; margin-right: 0.9rem; }
   .dcard-done { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; color: #15803D; background: var(--green-soft); border: 1px solid #A7D8B9; border-radius: 20px; padding: 0.28rem 0.65rem; margin-bottom: 0.2rem; }
   .dcard-next { display: flex; align-items: center; gap: 0.4rem; font-size: 0.76rem; font-weight: 700; border-radius: 8px; padding: 0.4rem 0.6rem; margin-bottom: 0.7rem; line-height: 1.3; }
+  .dcard-total { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.66rem; font-weight: 700; color: var(--muted); background: var(--rule-soft); border-radius: 6px; padding: 0.2rem 0.5rem; margin-bottom: 0.55rem; }
   .dcard-next.do { background: #EAF1FF; border: 1px solid #B8D0FF; color: #1F5FD6; }
   .dcard-next.wait { background: #FDF4E3; border: 1px solid #F0C879; color: #B7791F; }
   .dcard-next.blocked { background: #FBE9E9; border: 1px solid #F3C9C7; color: #C0322B; }
@@ -2083,6 +2084,24 @@
     });
     return n ? Math.round((total / n) / 86400000 * 10) / 10 : null;
   }
+  // Total cycle time: created_at -> ship (deployed_at) if shipped, else -> now. null if a shipped card has no recorded ship date.
+  function totalDays(d) {
+    if (!d.created_at) return null;
+    var end;
+    if (normDeployStatus(d.status) === 'deployed_prod') { if (!d.deployed_at) return null; end = new Date(d.deployed_at).getTime(); }
+    else end = Date.now();
+    var dc = Math.floor((end - new Date(d.created_at).getTime()) / 86400000);
+    return dc < 0 ? 0 : dc;
+  }
+  function totalLabel(d) { var t = totalDays(d); if (t === null) return '—'; return t < 1 ? 'today' : t + 'd'; }
+  // Average total cycle time over completed (shipped, with a recorded ship date) cards.
+  function avgTotalDays() {
+    var total = 0, n = 0;
+    allDeploys.forEach(function(d) {
+      if (normDeployStatus(d.status) === 'deployed_prod' && d.deployed_at && d.created_at) { total += (new Date(d.deployed_at) - new Date(d.created_at)); n++; }
+    });
+    return n ? Math.round((total / n) / 86400000 * 10) / 10 : null;
+  }
   function saveBlockReason(id, val) {
     var d = findDeploy(id); if (!d) return;
     if ((d.block_reason || '') === (val || '')) return; // nothing changed
@@ -2134,9 +2153,11 @@
       ewItems += '<div class="ew-item">' + tags + '<span class="ew-name" title="' + esc(wd.title) + '">' + esc(wd.title) + '</span>' + daysTag + '</div>';
     }
     if (!ewItems) ewItems = '<div class="ew-empty">Nothing waiting on EdTech right now.</div>';
-    // Summary line: how many waiting, the longest current wait, and average approval turnaround.
-    var avg = avgApprovalDays();
-    var ewFoot = waiting.length ? '<div class="ew-foot">' + waiting.length + ' waiting &middot; longest ' + (longestWait < 1 ? '<1d' : longestWait + 'd') + (avg !== null ? ' &middot; avg approval ' + avg + 'd' : '') + '</div>' : (avg !== null ? '<div class="ew-foot">avg approval ' + avg + 'd</div>' : '');
+    // Summary: how many waiting + longest current wait, then averages (EdTech wait + total cycle time).
+    var avgE = avgApprovalDays(), avgT = avgTotalDays();
+    var line1 = waiting.length ? waiting.length + ' waiting &middot; longest ' + (longestWait < 1 ? '<1d' : longestWait + 'd') : '';
+    var line2 = 'avg EdTech ' + (avgE !== null ? avgE + 'd' : '—') + ' &middot; avg total ' + (avgT !== null ? avgT + 'd' : '—');
+    var ewFoot = '<div class="ew-foot">' + (line1 ? line1 + '<br>' : '') + line2 + '</div>';
     var ew = '<div class="edtech-wait"><div class="ew-head"><span class="ew-dot"></span>Waiting on EdTech<span class="ew-count">' + waiting.length + '</span></div>' + ewItems + ewFoot + '</div>';
 
     var pl = '<div class="pipeline"><div class="pl-cap">Pipeline</div>';
@@ -2178,7 +2199,7 @@
           var nsIcon = ns ? (ns.k === 'blocked' ? '&#9940;' : ns.k === 'wait' ? '&#9203;' : '&#128073;') : '';
           var nsExtra = (ns && ns.k === 'wait') ? (function(){ var lbl = waitLabel(openWaitStart(d)); return lbl ? ' · ' + lbl : ''; })() : '';
           var nextHtml = ns ? '<div class="dcard-next ' + ns.k + '">' + nsIcon + ' <span>Next: ' + esc(ns.t) + nsExtra + '</span></div>' : '';
-          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
+          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + '<div class="dcard-total">&#128337; Total: ' + totalLabel(d) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
         }
       }
       html += '</div>';
@@ -2202,10 +2223,10 @@
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
-  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(normDeployStatus(d.status)) + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key; var prev = d.status; d.status = newKey; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey }) }).then(function(res) { if (!res.ok) { d.status = prev; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; renderBoard(); }); }
+  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(normDeployStatus(d.status)) + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key; var prev = d.status, prevDep = d.deployed_at; d.status = newKey; d.deployed_at = (newKey === 'deployed_prod') ? (d.deployed_at || new Date().toISOString()) : null; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey, deployed_at: d.deployed_at }) }).then(function(res) { if (!res.ok) { d.status = prev; d.deployed_at = prevDep; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; d.deployed_at = prevDep; renderBoard(); }); }
   function openDeployModal(d) { document.getElementById('deployEditId').value = d ? d.id : ''; document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item'; document.getElementById('deployTitleInput').value = d ? d.title : ''; document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : ''; document.getElementById('deployCrInput').value = (d && d.cr_url) ? d.cr_url : ''; document.getElementById('deployStatusInput').value = normDeployStatus((d && d.status) ? d.status : 'building'); document.getElementById('deployModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100); }
   function closeDeployModal() { document.getElementById('deployModalOverlay').classList.remove('open'); }
-  function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var crRaw = document.getElementById('deployCrInput').value.trim(); var cr_url = crRaw ? (crRaw.indexOf('http') === 0 ? crRaw : 'https://' + crRaw) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, pr_url: pr_url, cr_url: cr_url, status: status }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
+  function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var crRaw = document.getElementById('deployCrInput').value.trim(); var cr_url = crRaw ? (crRaw.indexOf('http') === 0 ? crRaw : 'https://' + crRaw) : null; var existing = editId ? findDeploy(editId) : null; var deployed_at = (status === 'deployed_prod') ? ((existing && existing.deployed_at) ? existing.deployed_at : new Date().toISOString()) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, pr_url: pr_url, cr_url: cr_url, status: status, deployed_at: deployed_at }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
   function deleteDeploy(id) { if (!confirm('Delete this deployment item?')) return; fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDeploys(); }); }
 
   // Copies the shareable tracker-only link (…/library.html?tracker) to the clipboard.
