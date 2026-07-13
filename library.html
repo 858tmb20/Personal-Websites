@@ -316,7 +316,8 @@
   .dcard-pr { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--link); text-decoration: none; margin-bottom: 0.6rem; margin-right: 0.9rem; }
   .dcard-done { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; color: #15803D; background: var(--green-soft); border: 1px solid #A7D8B9; border-radius: 20px; padding: 0.28rem 0.65rem; margin-bottom: 0.2rem; }
   .dcard-next { display: flex; align-items: center; gap: 0.4rem; font-size: 0.76rem; font-weight: 700; border-radius: 8px; padding: 0.4rem 0.6rem; margin-bottom: 0.7rem; line-height: 1.3; }
-  .dcard-total { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.66rem; font-weight: 700; color: var(--muted); background: var(--rule-soft); border-radius: 6px; padding: 0.2rem 0.5rem; margin-bottom: 0.55rem; }
+  .dcard-total { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.66rem; font-weight: 700; color: var(--muted); background: var(--rule-soft); border-radius: 6px; padding: 0.2rem 0.5rem; margin-bottom: 0.55rem; margin-right: 0.4rem; }
+  .dcard-edtech { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.66rem; font-weight: 700; color: #B7791F; background: #FDF4E3; border: 1px solid #F0C879; border-radius: 6px; padding: 0.2rem 0.5rem; margin-bottom: 0.55rem; }
   .dcard-next.do { background: #EAF1FF; border: 1px solid #B8D0FF; color: #1F5FD6; }
   .dcard-next.wait { background: #FDF4E3; border: 1px solid #F0C879; color: #B7791F; }
   .dcard-next.blocked { background: #FBE9E9; border: 1px solid #F3C9C7; color: #C0322B; }
@@ -2071,19 +2072,19 @@
   function waitLabel(iso) { var dc = dayCount(iso); if (dc === null) return ''; return dc < 1 ? 'today' : dc + 'd'; }
   // The card's currently-open wait start (PR created-not-approved takes priority, then CR).
   function openWaitStart(d) {
-    if (d.pr_created && !d.pr_approved) return d.pr_created_at || null;
-    if (d.cr_submitted && !d.cr_approved) return d.cr_submitted_at || null;
+    if (d.pr_created && !d.pr_approved) return d.pr_created_at || null;                 // PR wait: created -> approved
+    if (d.test_plan_attached && !d.cr_approved) return d.test_plan_attached_at || null; // CR wait: test-plan-attached -> approved
     return null;
   }
-  // Average approval turnaround (days, 1 decimal) over completed PR + CR waits; null if none yet.
-  function avgApprovalDays() {
-    var total = 0, n = 0;
-    allDeploys.forEach(function(d) {
-      if (d.pr_created_at && d.pr_approved_at) { total += (new Date(d.pr_approved_at) - new Date(d.pr_created_at)); n++; }
-      if (d.cr_submitted_at && d.cr_approved_at) { total += (new Date(d.cr_approved_at) - new Date(d.cr_submitted_at)); n++; }
-    });
-    return n ? Math.round((total / n) / 86400000 * 10) / 10 : null;
-  }
+  // Individual wait durations (ms). PR: pr_created -> pr_approved (or now). CR: test_plan_attached -> cr_approved (or now).
+  function prWaitMs(d) { if (!d.pr_created || !d.pr_created_at) return null; var end = d.pr_approved_at ? new Date(d.pr_approved_at).getTime() : Date.now(); return Math.max(0, end - new Date(d.pr_created_at).getTime()); }
+  function crWaitMs(d) { if (!d.test_plan_attached || !d.test_plan_attached_at) return null; var end = d.cr_approved_at ? new Date(d.cr_approved_at).getTime() : Date.now(); return Math.max(0, end - new Date(d.test_plan_attached_at).getTime()); }
+  // Combined EdTech time on this card = PR wait + CR wait (all of it is on EdTech).
+  function edtechTotalMs(d) { var p = prWaitMs(d), c = crWaitMs(d); if (p === null && c === null) return null; return (p || 0) + (c || 0); }
+  function edtechTotalLabel(d) { var ms = edtechTotalMs(d); if (ms === null) return '—'; var dc = Math.floor(ms / 86400000); return dc < 1 ? 'today' : dc + 'd'; }
+  // Average completed PR / CR waits (days, 1 decimal); null until something's been approved under tracking.
+  function avgPrDays() { var t = 0, n = 0; allDeploys.forEach(function(d) { if (d.pr_created_at && d.pr_approved_at) { t += (new Date(d.pr_approved_at) - new Date(d.pr_created_at)); n++; } }); return n ? Math.round(t / n / 86400000 * 10) / 10 : null; }
+  function avgCrDays() { var t = 0, n = 0; allDeploys.forEach(function(d) { if (d.test_plan_attached_at && d.cr_approved_at) { t += (new Date(d.cr_approved_at) - new Date(d.test_plan_attached_at)); n++; } }); return n ? Math.round(t / n / 86400000 * 10) / 10 : null; }
   // Total cycle time: created_at -> ship (deployed_at) if shipped, else -> now. null if a shipped card has no recorded ship date.
   function totalDays(d) {
     if (!d.created_at) return null;
@@ -2137,8 +2138,8 @@
     // approved yet (cr_submitted flag on, card not yet at "Change Request Approved").
     function waitFlags(d) {
       return {
-        pr: !!d.pr_created && !d.pr_approved,   // PR created but not yet approved
-        cr: !!d.cr_submitted && !d.cr_approved  // CR created but not yet approved
+        pr: !!d.pr_created && !d.pr_approved,          // PR created, not yet approved
+        cr: !!d.test_plan_attached && !d.cr_approved   // test plan attached (fully in EdTech's hands), not yet approved
       };
     }
     var waiting = allDeploys.filter(function(d) { var f = waitFlags(d); return f.pr || f.cr; });
@@ -2154,9 +2155,10 @@
     }
     if (!ewItems) ewItems = '<div class="ew-empty">Nothing waiting on EdTech right now.</div>';
     // Summary: how many waiting + longest current wait, then averages (EdTech wait + total cycle time).
-    var avgE = avgApprovalDays(), avgT = avgTotalDays();
+    var avgP = avgPrDays(), avgC = avgCrDays(), avgT = avgTotalDays();
+    var fmt = function(v) { return v !== null ? v + 'd' : '—'; };
     var line1 = waiting.length ? waiting.length + ' waiting &middot; longest ' + (longestWait < 1 ? '<1d' : longestWait + 'd') : '';
-    var line2 = 'avg EdTech ' + (avgE !== null ? avgE + 'd' : '—') + ' &middot; avg total ' + (avgT !== null ? avgT + 'd' : '—');
+    var line2 = 'avg PR ' + fmt(avgP) + ' &middot; CR ' + fmt(avgC) + ' &middot; total ' + fmt(avgT);
     var ewFoot = '<div class="ew-foot">' + (line1 ? line1 + '<br>' : '') + line2 + '</div>';
     var ew = '<div class="edtech-wait"><div class="ew-head"><span class="ew-dot"></span>Waiting on EdTech<span class="ew-count">' + waiting.length + '</span></div>' + ewItems + ewFoot + '</div>';
 
@@ -2199,7 +2201,7 @@
           var nsIcon = ns ? (ns.k === 'blocked' ? '&#9940;' : ns.k === 'wait' ? '&#9203;' : '&#128073;') : '';
           var nsExtra = (ns && ns.k === 'wait') ? (function(){ var lbl = waitLabel(openWaitStart(d)); return lbl ? ' · ' + lbl : ''; })() : '';
           var nextHtml = ns ? '<div class="dcard-next ' + ns.k + '">' + nsIcon + ' <span>Next: ' + esc(ns.t) + nsExtra + '</span></div>' : '';
-          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + '<div class="dcard-total">&#128337; Total: ' + totalLabel(d) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
+          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + '<div class="dcard-total">&#128337; Total: ' + totalLabel(d) + '</div>' + '<div class="dcard-edtech">&#9203; EdTech: ' + edtechTotalLabel(d) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
         }
       }
       html += '</div>';
