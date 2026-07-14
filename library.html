@@ -394,6 +394,12 @@
   .todo-colclear:hover { color: var(--danger); border-color: var(--danger); }
   .todo-col-body { display: flex; flex-direction: column; gap: 1px; min-height: 70px; }
   .todo-col-empty { padding: 1.5rem 1rem; text-align: center; font-size: 0.78rem; color: var(--muted-soft); background: var(--card); }
+  .todo-prio { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 20px; padding: 0.18rem 0.5rem; cursor: pointer; font-family: inherit; border: 1px solid var(--rule); background: none; color: var(--muted-soft); line-height: 1; min-width: 20px; }
+  .todo-prio.low { color: #1F5FD6; background: #EAF1FF; border-color: #B8D0FF; }
+  .todo-prio.med { color: #B7791F; background: #FDF4E3; border-color: #F0C879; }
+  .todo-prio.high { color: #C0322B; background: #FBE9E9; border-color: #F3C9C7; }
+  .todo-colsort { margin-left: auto; font-size: 0.68rem; font-weight: 600; color: var(--muted); background: none; border: 1px solid var(--rule); border-radius: var(--radius-sm); padding: 0.15rem 0.5rem; cursor: pointer; font-family: inherit; text-transform: none; letter-spacing: 0; }
+  .todo-colsort:hover { color: var(--ink); border-color: var(--muted-soft); }
   .todo-grip { cursor: grab; color: var(--muted-soft); font-size: 0.9rem; flex-shrink: 0; user-select: none; }
   .todo-item[draggable] { cursor: default; }
   .todo-item.dragging { opacity: 0.45; }
@@ -1753,6 +1759,19 @@
     input.focus();
   }
   function todoStatus(t) { return t.status ? t.status : (t.done ? 'done' : 'open'); }
+  var TODO_PRIOS = [{ cls: 'none', label: '' }, { cls: 'low', label: 'Low' }, { cls: 'med', label: 'Med' }, { cls: 'high', label: 'High' }];
+  function todoPrio(t) { return t.priority ? t.priority : 0; }
+  function cyclePrio(id) { var t = findTodo(id); if (!t) return; var prev = todoPrio(t); var next = (prev + 1) % 4; t.priority = next; renderTodos(); patchTodo(id, { priority: next }, function() { t.priority = prev; }); }
+  function sortTodosByPriority() {
+    var openArr = [], doneArr = [];
+    allTodos.forEach(function(x) { (todoStatus(x) === 'done' ? doneArr : openArr).push(x); });
+    openArr.sort(function(a, b) { return todoPrio(b) - todoPrio(a); });  // stable; high first
+    var newOrder = openArr.concat(doneArr), changed = [];
+    newOrder.forEach(function(x, i) { if (x.position !== i) { x.position = i; changed.push(x); } });
+    allTodos = newOrder; renderTodos();
+    changed.forEach(function(x) { patchTodo(x.id, { position: x.position }); });
+    showToast('Sorted by priority');
+  }
   function findTodo(id) { for (var i = 0; i < allTodos.length; i++) { if (allTodos[i].id === id) return allTodos[i]; } return null; }
   function markDone(id) {
     var t = findTodo(id); if (!t) return;
@@ -1797,6 +1816,7 @@
         (st !== 'done' ? '<button class="todo-prog-btn' + progActive + '" data-todoprog="' + esc(t.id) + '" title="' + (st === 'progress' ? 'Clear in progress' : 'Mark in progress') + '">&#9680;</button>' : '') +
         '<span class="todo-text">' + esc(t.text) + '</span>' +
         (st === 'progress' ? '<span class="todo-progress-tag">In progress</span>' : '') +
+        '<button class="todo-prio ' + TODO_PRIOS[todoPrio(t)].cls + '" data-todoprio="' + esc(t.id) + '" title="Priority — click to change">' + (todoPrio(t) ? TODO_PRIOS[todoPrio(t)].label : '&#9873;') + '</button>' +
         '<button class="todo-del" data-tododel="' + esc(t.id) + '" title="Delete">&#10005;</button>' +
       '</div>';
     }
@@ -1805,13 +1825,15 @@
       return '<div class="todo-col" data-col="' + key + '"><div class="todo-col-head">' + title + '<span class="todo-col-n">' + items.length + '</span>' + (extra || '') + '</div><div class="todo-col-body" data-col="' + key + '">' + inner + '</div></div>';
     }
     var clearBtn = done.length ? '<button class="todo-colclear" onclick="clearDoneTodos()" title="Delete all done">clear</button>' : '';
-    document.getElementById('todoList').innerHTML = '<div class="todo-board">' + col('To do', open, 'todo', '') + col('Done', done, 'done', clearBtn) + '</div>';
+    var sortBtn = open.length > 1 ? '<button class="todo-colsort" onclick="sortTodosByPriority()" title="Sort by priority, high first">sort by priority</button>' : '';
+    document.getElementById('todoList').innerHTML = '<div class="todo-board">' + col('To do', open, 'todo', sortBtn) + col('Done', done, 'done', clearBtn) + '</div>';
     wireTodoEvents();
   }
   function wireTodoEvents() {
     document.querySelectorAll('.todo-check[data-todocheck]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); markDone(this.getAttribute('data-todocheck')); }); });
     document.querySelectorAll('.todo-prog-btn[data-todoprog]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleProgress(this.getAttribute('data-todoprog')); }); });
     document.querySelectorAll('.todo-del[data-tododel]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); deleteTodo(this.getAttribute('data-tododel')); }); });
+    document.querySelectorAll('.todo-prio[data-todoprio]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); cyclePrio(this.getAttribute('data-todoprio')); }); });
     document.querySelectorAll('.todo-item[data-todoid]').forEach(function(it) {
       it.addEventListener('dragstart', function(e) { todoDragId = this.getAttribute('data-todoid'); this.classList.add('dragging'); if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', todoDragId); } catch (_) {} } });
       it.addEventListener('dragend', function() { this.classList.remove('dragging'); document.querySelectorAll('.todo-col.drag-over').forEach(function(c) { c.classList.remove('drag-over'); }); });
