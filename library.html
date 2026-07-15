@@ -325,6 +325,13 @@
   .dcard-approvals { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
   .appr-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.55rem 0.22rem 0.34rem; border-radius: 20px; background: var(--green-soft); border: 1px solid #A7D8B9; color: #15803D; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; }
   .appr-badge .appr-check { width: 14px; height: 14px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; flex-shrink: 0; }
+  .dcard-steps { list-style: none; margin: 0; padding: 0.55rem 0 0; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); counter-reset: dstep; display: flex; flex-direction: column; gap: 0.28rem; }
+  .dstep { display: flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0.3rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.01em; color: var(--muted); cursor: pointer; user-select: none; transition: background 0.12s, color 0.12s; }
+  .dstep:hover { background: var(--bg); }
+  .dstep::before { counter-increment: dstep; content: counter(dstep) "."; flex-shrink: 0; width: 0.9rem; text-align: right; color: var(--muted-soft); font-weight: 800; }
+  .dstep .dstep-box { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--muted-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 0.62rem; line-height: 1; color: transparent; flex-shrink: 0; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+  .dstep.on { color: #15803D; }
+  .dstep.on .dstep-box { background: var(--green); border-color: var(--green); color: #fff; }
   .dcard-envs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding-top: 0.55rem; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); }
   .env-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.5rem 0.22rem 0.32rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); cursor: pointer; font-family: inherit; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s; }
   .env-chip:hover { border-color: var(--muted-soft); }
@@ -2079,8 +2086,16 @@
     for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === s) return s; }
     return 'building';
   }
-  // Environment confirmation indicators per card. Persisted to Supabase (deployments.dev/qa/prod).
-  var DEPLOY_ENVS = [{ key: 'dev', label: 'Dev' }, { key: 'qa', label: 'QA' }, { key: 'prod', label: 'Prod' }];
+  // Ordered deploy/test checklist per card. Persisted to Supabase booleans.
+  // Reuses the legacy dev/qa/prod columns for the "tested" + prod steps (preserves history);
+  // deployed_dev / deployed_qa are the new deploy-only sub-steps (add these columns in Supabase).
+  var DEPLOY_ENVS = [
+    { key: 'deployed_dev', label: 'Deployed to Dev' },
+    { key: 'dev',          label: 'Tested in Dev' },
+    { key: 'deployed_qa',  label: 'Deployed to QA' },
+    { key: 'qa',           label: 'Tested in QA' },
+    { key: 'prod',         label: 'Deployed & tested in Prod' }
+  ];
   // PR/CR milestone checkboxes (order-independent). Persisted to Supabase as booleans.
   // 'CR created' reuses the existing cr_submitted column.
   var DEPLOY_FLAGS = [
@@ -2097,12 +2112,14 @@
     if (normDeployStatus(d.status) === 'deployed_prod') return null; // shipped
     if (!d.pr_created) return { t: 'Create the PR', k: 'do' };
     if (!d.pr_approved) return { t: 'Waiting on PR approval', k: 'wait' };
-    if (!d.dev) return { t: 'Deploy & test in Dev', k: 'do' };
-    if (!d.qa) return { t: 'Deploy & test in QA', k: 'do' };
+    if (!d.deployed_dev) return { t: 'Deploy to Dev', k: 'do' };
+    if (!d.dev) return { t: 'Test in Dev', k: 'do' };
+    if (!d.deployed_qa) return { t: 'Deploy to QA', k: 'do' };
+    if (!d.qa) return { t: 'Test in QA', k: 'do' };
     if (!d.cr_submitted) return { t: 'Create the change request', k: 'do' };
     if (!d.test_plan_attached) return { t: 'Make & attach the test plan to the CR', k: 'do' };
     if (!d.cr_approved) return { t: 'Waiting on CR approval', k: 'wait' };
-    if (!d.prod) return { t: 'Deploy to Prod', k: 'do' };
+    if (!d.prod) return { t: 'Deploy & test in Prod', k: 'do' };
     return { t: 'Confirm deployed, move to Deployed', k: 'do' };
   }
   function patchDeploy(id, fields, revert) {
@@ -2252,13 +2269,14 @@
             apprHtml += '<span class="env-chip ' + (fon ? 'on' : '') + '" data-dflag="' + esc(d.id) + '" data-field="' + flag.key + '" title="' + (fon ? flag.label + ' — click to clear' : 'Click to mark: ' + flag.label) + '"><span class="env-dot">&#10003;</span>' + flag.label + '</span>';
           }
           apprHtml += '</div>';
-          var es = d;                                                  // env flags live on the row: d.dev / d.qa / d.prod
+          var es = d;                                                  // deploy/test flags live on the row (see DEPLOY_ENVS)
           var bs = { blocked: !!d.blocked, reason: d.block_reason || '' };
-          var envsHtml = '<div class="dcard-envs">';
-          for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<span class="env-chip ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? 'Confirmed in ' + env.label + ' \u2014 click to clear' : 'Click to confirm in ' + env.label) + '"><span class="env-dot">&#10003;</span>' + env.label + '</span>'; }
-          // Blocked chip sits in the same row as the env chips
-          envsHtml += '<span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span>';
-          envsHtml += '</div>';
+          // Ordered deploy/test checklist (numbered). Each <li> toggles its Supabase boolean.
+          var envsHtml = '<ol class="dcard-steps">';
+          for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<li class="dstep ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? env.label + ' \u2014 click to clear' : 'Click to mark: ' + env.label) + '"><span class="dstep-box">&#10003;</span><span class="dstep-label">' + env.label + '</span></li>'; }
+          envsHtml += '</ol>';
+          // Blocked chip sits on its own row below the checklist.
+          envsHtml += '<div class="dcard-envs"><span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span></div>';
           // Reason box shows only when blocked
           var reasonHtml = bs.blocked ? '<textarea class="blk-reason" data-dblkreason="' + esc(d.id) + '" placeholder="What\'s blocking this? (e.g. waiting on CR approval)">' + esc(bs.reason) + '</textarea>' : '';
           // Deployed-to-Prod cards are finished, so collapse the chip detail to one calm line.
@@ -2284,7 +2302,7 @@
     document.querySelectorAll('.dcard-move[data-dmove]').forEach(function(b) { b.addEventListener('click', function() { moveDeploy(this.getAttribute('data-dmove'), parseInt(this.getAttribute('data-dir'), 10)); }); });
     document.querySelectorAll('.dcard-mini[data-dedit]').forEach(function(b) { b.addEventListener('click', function() { openDeployModal(findDeploy(this.getAttribute('data-dedit'))); }); });
     document.querySelectorAll('.dcard-mini[data-ddel]').forEach(function(b) { b.addEventListener('click', function() { deleteDeploy(this.getAttribute('data-ddel')); }); });
-    document.querySelectorAll('.env-chip[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
+    document.querySelectorAll('[data-denv]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleEnv(this.getAttribute('data-denv'), this.getAttribute('data-env')); }); });
     document.querySelectorAll('.env-chip[data-dflag]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleFlag(this.getAttribute('data-dflag'), this.getAttribute('data-field')); }); });
     document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
     document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
