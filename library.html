@@ -278,6 +278,10 @@
   .pipeline-side { flex-shrink: 0; width: 240px; min-width: 190px; max-width: 460px; resize: horizontal; overflow: auto; position: sticky; top: 1rem; }
   .pipeline-side::-webkit-scrollbar { width: 10px; height: 10px; }
   .pipeline-side::-webkit-scrollbar-thumb { background: var(--muted-soft); border-radius: 6px; }
+  .process-link { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.5rem 0.6rem; margin-bottom: 0.85rem; text-decoration: none; color: var(--ink); font-size: 0.72rem; font-weight: 700; transition: border-color 0.12s, background 0.12s; }
+  .process-link:hover { border-color: var(--muted-soft); background: var(--rule-soft); }
+  .process-link .pl-ico { font-size: 0.95rem; line-height: 1; flex-shrink: 0; }
+  .process-link .pl-arr { margin-left: auto; color: var(--muted-soft); font-size: 0.8rem; }
   .pipeline { display: flex; flex-direction: column; gap: 0.35rem; }
   .pl-cap { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
   .pl-step { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--plc); border-radius: 6px; padding: 0.4rem 0.55rem; }
@@ -325,12 +329,14 @@
   .dcard-approvals { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
   .appr-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.55rem 0.22rem 0.34rem; border-radius: 20px; background: var(--green-soft); border: 1px solid #A7D8B9; color: #15803D; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; }
   .appr-badge .appr-check { width: 14px; height: 14px; border-radius: 50%; background: var(--green); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; flex-shrink: 0; }
-  .dcard-steps { list-style: none; margin: 0; padding: 0.55rem 0 0; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); counter-reset: dstep; display: flex; flex-direction: column; gap: 0.28rem; }
-  .dstep { display: flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0.3rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.01em; color: var(--muted); cursor: pointer; user-select: none; transition: background 0.12s, color 0.12s; }
-  .dstep:hover { background: var(--bg); }
-  .dstep::before { counter-increment: dstep; content: counter(dstep) "."; flex-shrink: 0; width: 0.9rem; text-align: right; color: var(--muted-soft); font-weight: 800; }
+  .dcard-steps { list-style: none; margin: 0.1rem 0 0; padding: 0.55rem 0 0; border-top: 1px solid var(--rule-soft); counter-reset: dstep; display: flex; flex-flow: row wrap; gap: 0.35rem; }
+  .dstep { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.45rem; border: 1px solid var(--rule); border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.01em; color: var(--muted); cursor: pointer; user-select: none; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+  .dstep:hover { background: var(--bg); border-color: var(--muted-soft); }
+  .dstep::before { counter-increment: dstep; content: counter(dstep); flex-shrink: 0; color: var(--muted-soft); font-weight: 800; }
+  .dstep .dstep-label { display: none; }
   .dstep .dstep-box { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--muted-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 0.62rem; line-height: 1; color: transparent; flex-shrink: 0; transition: background 0.12s, border-color 0.12s, color 0.12s; }
-  .dstep.on { color: #15803D; }
+  .dstep.on { color: #15803D; background: var(--green-soft); border-color: #A7D8B9; }
+  .dstep.on::before { color: #15803D; }
   .dstep.on .dstep-box { background: var(--green); border-color: var(--green); color: #fff; }
   .dcard-envs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding-top: 0.55rem; margin-top: 0.1rem; border-top: 1px solid var(--rule-soft); }
   .env-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.5rem 0.22rem 0.32rem; border: 1px solid var(--rule); border-radius: 20px; background: var(--bg); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); cursor: pointer; font-family: inherit; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s; }
@@ -2251,7 +2257,9 @@
       pl += '<div class="pl-step" style="--plc:' + plc.color + ';"><span class="pl-title">' + plc.title + '</span><span class="pl-count">' + counts[plc.key] + '</span></div>';
     }
     pl += '</div>';
-    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = pl + ew;
+    // Link to the standalone process-overview flowchart (opens in a new tab).
+    var processLink = '<a class="process-link" href="process.html" target="_blank" rel="noopener" aria-label="Process overview — opens the full change process in a new tab" title="Open the full change process (new tab)"><span class="pl-ico">&#128220;</span><span>Process overview</span><span class="pl-arr">&#8599;</span></a>';
+    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = processLink + pl + ew;
     var html = '<div class="board">';
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
