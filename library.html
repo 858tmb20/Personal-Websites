@@ -333,7 +333,7 @@
   .dstep { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.45rem; border: 1px solid var(--rule); border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.01em; color: var(--muted); cursor: pointer; user-select: none; transition: background 0.12s, color 0.12s, border-color 0.12s; }
   .dstep:hover { background: var(--bg); border-color: var(--muted-soft); }
   .dstep::before { counter-increment: dstep; content: counter(dstep); flex-shrink: 0; color: var(--muted-soft); font-weight: 800; }
-  .dstep .dstep-label { display: none; }
+  .dstep .dstep-label { white-space: nowrap; }
   .dstep .dstep-box { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--muted-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 0.62rem; line-height: 1; color: transparent; flex-shrink: 0; transition: background 0.12s, border-color 0.12s, color 0.12s; }
   .dstep.on { color: #15803D; background: var(--green-soft); border-color: #A7D8B9; }
   .dstep.on::before { color: #15803D; }
@@ -2096,11 +2096,11 @@
   // Reuses the legacy dev/qa/prod columns for the "tested" + prod steps (preserves history);
   // deployed_dev / deployed_qa are the new deploy-only sub-steps (add these columns in Supabase).
   var DEPLOY_ENVS = [
-    { key: 'deployed_dev', label: 'Deployed to Dev' },
-    { key: 'dev',          label: 'Tested in Dev' },
-    { key: 'deployed_qa',  label: 'Deployed to QA' },
-    { key: 'qa',           label: 'Tested in QA' },
-    { key: 'prod',         label: 'Deployed & tested in Prod' }
+    { key: 'deployed_dev', label: 'Deployed to Dev', short: 'Dev dep' },
+    { key: 'dev',          label: 'Tested in Dev', short: 'Dev test' },
+    { key: 'deployed_qa',  label: 'Deployed to QA', short: 'QA dep' },
+    { key: 'qa',           label: 'Tested in QA', short: 'QA test' },
+    { key: 'prod',         label: 'Deployed & tested in Prod', short: 'Prod' }
   ];
   // PR/CR milestone checkboxes (order-independent). Persisted to Supabase as booleans.
   // 'CR created' reuses the existing cr_submitted column.
@@ -2281,7 +2281,7 @@
           var bs = { blocked: !!d.blocked, reason: d.block_reason || '' };
           // Ordered deploy/test checklist (numbered). Each <li> toggles its Supabase boolean.
           var envsHtml = '<ol class="dcard-steps">';
-          for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<li class="dstep ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? env.label + ' \u2014 click to clear' : 'Click to mark: ' + env.label) + '"><span class="dstep-box">&#10003;</span><span class="dstep-label">' + env.label + '</span></li>'; }
+          for (var ei = 0; ei < DEPLOY_ENVS.length; ei++) { var env = DEPLOY_ENVS[ei]; var on = !!es[env.key]; envsHtml += '<li class="dstep ' + (on ? 'on' : '') + '" data-denv="' + esc(d.id) + '" data-env="' + env.key + '" title="' + (on ? env.label + ' \u2014 click to clear' : 'Click to mark: ' + env.label) + '"><span class="dstep-box">&#10003;</span><span class="dstep-label">' + (env.short || env.label) + '</span></li>'; }
           envsHtml += '</ol>';
           // Blocked chip sits on its own row below the checklist.
           envsHtml += '<div class="dcard-envs"><span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span></div>';
