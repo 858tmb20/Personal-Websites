@@ -616,6 +616,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openPlanner();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128197;</span><span class="tnl-text">Planner<span class="tnl-sub">Plan your week</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
+            <a class="topnav-link" href="cloud-path-checklist.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#38BDF822;color:#0891B2;">&#9729;</span><span class="tnl-text">Cloud Path Launch<span class="tnl-sub">Business launch checklist</span></span></a>
           </div>
         </div>
         <div class="topnav-item">
@@ -1485,7 +1486,8 @@
     var personalBuiltins = [
       builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }),
-      builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, and how-to guides in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' })
+      builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, and how-to guides in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
+      builtinToolCard({ type: 'Personal', color: '#0891B2', icon: '&#9729;', name: 'Cloud Path Launch', desc: 'Your Cloud Path Consulting business launch checklist — check off each step.', href: 'cloud-path-checklist.html', target: '_blank' })
     ];
 
     // Sort the user's saved links into work vs personal buckets
