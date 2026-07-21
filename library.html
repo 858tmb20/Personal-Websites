@@ -2366,7 +2366,7 @@
     if (!ewItems) ewItems = '<div class="ew-empty">Nothing waiting on EdTech right now.</div>';
     // Summary: how many waiting + longest current wait, then averages (EdTech wait + total cycle time).
     var avgP = avgPrDays(), avgC = avgCrDays(), avgT = avgTotalDays();
-    var fmt = function(v) { return v !== null ? v + 'd' : '—'; };
+    var fmt = function(v) { return v === null ? '—' : (v < 1 ? '<1d' : v + 'd'); };
     var line1 = waiting.length ? waiting.length + ' waiting &middot; longest ' + (longestWait < 1 ? '<1d' : longestWait + 'd') : '';
     var line2 = 'avg PR ' + fmt(avgP) + ' &middot; CR ' + fmt(avgC) + ' &middot; total ' + fmt(avgT);
     var ewFoot = '<div class="ew-foot">' + (line1 ? line1 + '<br>' : '') + line2 + '</div>';
