@@ -62,6 +62,7 @@
     display: grid; place-items: center; margin-top: 1px; transition: all .18s ease; background: #fff;
   }
   .box svg { width: 15px; height: 15px; opacity: 0; transform: scale(.5); transition: all .18s ease; }
+  .body { flex: 1 1 auto; min-width: 0; }
   .body .step { font-size: 11px; font-weight: 700; letter-spacing: .6px; color: var(--accent); text-transform: uppercase; }
   .body .title { font-size: 16px; font-weight: 700; line-height: 1.3; margin: 1px 0 2px; }
   .body .hint { font-size: 13px; color: var(--muted); line-height: 1.4; }
@@ -73,16 +74,17 @@
   li.item.done .box svg { opacity: 1; transform: scale(1); }
   li.item.done .title { text-decoration: line-through; color: var(--muted); }
 
-  .notes-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 15px 16px; box-shadow: var(--shadow); margin-top: 20px; }
-  .notes-head { display: flex; justify-content: space-between; align-items: center; font-size: 15px;
-    font-weight: 700; color: var(--ink); margin-bottom: 10px; }
-  .notes-head .saved { font-size: 12px; font-weight: 600; color: var(--done); opacity: 0; transition: opacity .3s; }
-  .notes-head .saved.show { opacity: 1; }
-  #notes { width: 100%; min-height: 130px; resize: vertical; border: 1px solid var(--line); border-radius: 10px;
-    padding: 12px; font: inherit; font-size: 14px; line-height: 1.5; color: var(--ink); background: #fbfdff;
-    box-sizing: border-box; }
-  #notes:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,.18); }
+  .note-wrap { flex: 0 0 210px; align-self: stretch; }
+  .note { width: 100%; height: 100%; min-height: 62px; resize: vertical; box-sizing: border-box;
+    border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 13px;
+    line-height: 1.45; color: var(--ink); background: #fbfdff; transition: border-color .3s, box-shadow .2s; }
+  .note::placeholder { color: #aebfce; }
+  .note:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,.18); }
+  .note.saved { border-color: var(--done); }
+  @media (max-width: 640px) {
+    li.item { flex-wrap: wrap; }
+    .note-wrap { flex-basis: 100%; margin-top: 4px; }
+  }
 
   .foot { text-align: center; margin-top: 28px; }
   .disclaimer { color: #9fc6e4; font-size: 12px; max-width: 560px; margin: 0 auto 18px; line-height: 1.5; }
@@ -109,11 +111,6 @@
     </div>
 
     <ul class="list" id="list"></ul>
-
-    <div class="notes-card">
-      <div class="notes-head"><span>&#128221; Notes</span><span class="saved" id="notesSaved">Saved</span></div>
-      <textarea id="notes" placeholder="Jot anything down — business name ideas, domains you're eyeing, questions for your CPA, next steps…"></textarea>
-    </div>
 
     <div class="foot">
       <p class="disclaimer">Informational only — not legal or tax advice, and US-focused. Rules vary by state; consult a licensed tax or legal professional for your situation.</p>
@@ -146,10 +143,14 @@
   var KEY = 'cpc_launch_checklist_v1';
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
+  var NKEY = 'cpc_launch_itemnotes_v1';
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
   function save(state) { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function loadNotes() { try { return JSON.parse(localStorage.getItem(NKEY)) || {}; } catch (e) { return {}; } }
+  function saveNotes() { try { localStorage.setItem(NKEY, JSON.stringify(notesState)); } catch (e) {} }
 
   var state = load();
+  var notesState = loadNotes();
 
   function render() {
     var list = document.getElementById('list');
@@ -164,9 +165,23 @@
           '<div class="step">Step ' + (i + 1) + '</div>' +
           '<div class="title">' + it.title + '</div>' +
           '<div class="hint">' + it.hint + '</div>' +
-        '</div>';
+        '</div>' +
+        '<div class="note-wrap"><textarea class="note" placeholder="Notes…"></textarea></div>';
+
+      // Per-item note — value set via DOM (not innerHTML) so it can't break markup
+      var ta = li.querySelector('.note');
+      ta.value = notesState[it.id] || '';
+      ta.addEventListener('input', function () {
+        notesState[it.id] = ta.value;
+        saveNotes();
+        ta.classList.add('saved');
+        clearTimeout(ta._t);
+        ta._t = setTimeout(function () { ta.classList.remove('saved'); }, 900);
+      });
+
       li.addEventListener('click', function (e) {
-        if (e.target.tagName === 'A') return; // let links work without toggling
+        // Don't toggle when interacting with the note field or a link
+        if (e.target.tagName === 'A' || e.target.closest('.note-wrap')) return;
         state[it.id] = !state[it.id];
         save(state);
         render();
@@ -189,19 +204,6 @@
 
   document.getElementById('resetBtn').addEventListener('click', function () {
     if (confirm('Uncheck all items and start over?')) { state = {}; save(state); render(); }
-  });
-
-  // Notes — persisted in localStorage, same as the checkboxes
-  var NKEY = 'cpc_launch_notes_v1';
-  var notes = document.getElementById('notes');
-  var savedTag = document.getElementById('notesSaved');
-  var savedTimer;
-  try { notes.value = localStorage.getItem(NKEY) || ''; } catch (e) {}
-  notes.addEventListener('input', function () {
-    try { localStorage.setItem(NKEY, notes.value); } catch (e) {}
-    savedTag.classList.add('show');
-    clearTimeout(savedTimer);
-    savedTimer = setTimeout(function () { savedTag.classList.remove('show'); }, 1200);
   });
 
   render();
