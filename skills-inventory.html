@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Skills Inventory — Find Your Niche</title>
+<style>
+  :root {
+    --bg1: #0d2a3a; --bg2: #114b52; --accent: #14b8a6; --accent2: #22d3ee;
+    --card: #ffffff; --ink: #0f2438; --muted: #5b7189; --line: #e3ebf3;
+    --star: #f59e0b; --staroff: #d7dee6; --sweet: #0d9488; --shadow: 0 8px 30px rgba(13,42,58,.10);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 500px at 12% -10%, #145a5f 0%, transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, #0f3f52 0%, transparent 55%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 34px 20px 70px; }
+
+  .head { color: #eafcfa; text-align: center; margin-bottom: 22px; }
+  .head h1 { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: .2px; }
+  .head p { font-size: 14px; color: #bfeae6; margin: 8px auto 0; max-width: 560px; line-height: 1.5; }
+
+  /* Add / edit form */
+  .form-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px; box-shadow: var(--shadow); margin-bottom: 20px; }
+  .form-title { font-size: 14px; font-weight: 700; margin: 0 0 12px; color: var(--ink); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; align-items: end; }
+  .fld label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .5px; margin-bottom: 5px; }
+  .fld input[type=text] { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font: inherit; font-size: 14px; color: var(--ink); background: #fbfdff; }
+  .fld input[type=text]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(20,184,166,.16); }
+  .stars { display: inline-flex; gap: 3px; font-size: 24px; line-height: 1; cursor: pointer; }
+  .stars .star { color: var(--staroff); transition: color .12s, transform .12s; }
+  .stars .star.on { color: var(--star); }
+  .stars.input .star:hover { transform: scale(1.15); }
+  .form-actions { display: flex; gap: 10px; margin-top: 14px; }
+  .btn { border: none; border-radius: 10px; padding: 10px 18px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #04302e; }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-ghost { background: #eef3f7; color: var(--muted); }
+  .btn-ghost:hover { background: #e2eaf1; }
+
+  /* Sweet spot */
+  .sweet-card { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 20px; color: #eafcfa; backdrop-filter: blur(6px); }
+  .sweet-card h2 { font-size: 15px; margin: 0 0 4px; }
+  .sweet-card .sub { font-size: 12px; color: #a9dbd6; margin-bottom: 10px; }
+  .sweet-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sweet-chip { background: rgba(20,184,166,.22); border: 1px solid rgba(34,211,238,.4); color: #d7fbf6;
+    border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; }
+  .sweet-empty { font-size: 13px; color: #a9dbd6; }
+
+  /* Sort bar */
+  .sortbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .sortbar .lbl { color: #bfeae6; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-right: 4px; }
+  .chip-btn { background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.16); color: #d7f0ee;
+    border-radius: 999px; padding: 6px 13px; font-size: 13px; cursor: pointer; }
+  .chip-btn.active { background: #fff; color: #0d3b40; border-color: #fff; font-weight: 700; }
+
+  /* List */
+  .cat-head { color: #cdeeea; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    margin: 18px 0 8px; }
+  ul.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  li.skill { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px;
+    box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  li.skill.sweet { border-color: #9ee7dd; background: #f2fcfa; }
+  .sk-name { font-size: 15px; font-weight: 700; flex: 1 1 180px; min-width: 0; display: flex; align-items: center; gap: 8px; }
+  .sk-cat { font-size: 11px; font-weight: 700; color: var(--muted); background: #eef3f7; border-radius: 6px; padding: 2px 7px; }
+  .badge { font-size: 11px; font-weight: 800; color: #fff; background: var(--sweet); border-radius: 6px; padding: 2px 7px; }
+  .rate { display: flex; flex-direction: column; gap: 1px; }
+  .rate .rl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .rate .stars { font-size: 16px; gap: 2px; cursor: default; }
+  .sk-actions { display: flex; gap: 6px; }
+  .icon-btn { border: none; background: #eef3f7; color: var(--muted); border-radius: 8px; width: 30px; height: 30px;
+    cursor: pointer; font-size: 14px; display: grid; place-items: center; }
+  .icon-btn:hover { background: #e2eaf1; color: var(--ink); }
+  .icon-btn.del:hover { background: #fde8ee; color: #e11d48; }
+
+  .empty { text-align: center; color: #bfeae6; padding: 30px 10px; font-size: 14px; }
+  .foot { text-align: center; margin-top: 30px; }
+  .backlink { color: #9fe2db; font-size: 13px; text-decoration: none; }
+  .backlink:hover { text-decoration: underline; }
+
+  @media (max-width: 560px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .rate { flex: 1 0 46%; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <h1>Skills Inventory</h1>
+      <p>Add everything you can do, then rate how <b>good</b> you are and how much you <b>enjoy</b> it. Your niche lives where the two overlap.</p>
+    </div>
+
+    <div class="form-card">
+      <p class="form-title" id="formTitle">Add a skill</p>
+      <div class="form-grid">
+        <div class="fld">
+          <label for="skillName">Skill</label>
+          <input type="text" id="skillName" placeholder="e.g. Salesforce Flow, data migration, discovery calls" list="catSkills" autocomplete="off" />
+        </div>
+        <div class="fld">
+          <label for="skillCat">Category</label>
+          <input type="text" id="skillCat" placeholder="e.g. Salesforce, Industry, Soft skills" list="catList" autocomplete="off" />
+          <datalist id="catList"></datalist>
+        </div>
+        <div class="fld">
+          <label>Proficiency — how good are you?</label>
+          <div class="stars input" id="profStars"></div>
+        </div>
+        <div class="fld">
+          <label>Enjoyment — how much do you like it?</label>
+          <div class="stars input" id="enjoyStars"></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="addBtn">Add skill</button>
+        <button class="btn btn-ghost" id="cancelBtn" style="display:none;">Cancel</button>
+      </div>
+    </div>
+
+    <div class="sweet-card">
+      <h2>&#127919; Your niche candidates</h2>
+      <div class="sub">Skills you rated 4&#9733;+ on <b>both</b> proficiency and enjoyment — this is where to aim.</div>
+      <div id="sweetBody"></div>
+    </div>
+
+    <div class="sortbar">
+      <span class="lbl">Sort</span>
+      <button class="chip-btn" data-sort="category">By category</button>
+      <button class="chip-btn" data-sort="fit">Best fit</button>
+      <button class="chip-btn" data-sort="prof">Proficiency</button>
+      <button class="chip-btn" data-sort="enjoy">Enjoyment</button>
+    </div>
+
+    <ul class="list" id="list"></ul>
+    <div class="empty" id="empty" style="display:none;">No skills yet — add your first one above.</div>
+
+    <div class="foot"><a class="backlink" href="library.html">&larr; Back to Library</a></div>
+  </div>
+
+<script>
+  var KEY = 'cpc_skills_v1';
+  var CAT_SUGGEST = ['Salesforce', 'Technical', 'Data & reporting', 'Industry knowledge', 'Soft skills', 'Tools', 'Certifications', 'Business'];
+
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(skills)); } catch (e) {} }
+
+  var skills = load();
+  var sortMode = 'category';
+  var editingId = null;
+  var formProf = 0, formEnjoy = 0;
+
+  // ---- Star helpers ----
+  function starRow(filled, interactive) {
+    var s = '';
+    for (var i = 1; i <= 5; i++) s += '<span class="star' + (i <= filled ? ' on' : '') + '" data-v="' + i + '">★</span>';
+    return s;
+  }
+  function bindInputStars(el, getVal, setVal) {
+    el.innerHTML = starRow(getVal(), true);
+    el.querySelectorAll('.star').forEach(function (st) {
+      st.addEventListener('click', function () { setVal(parseInt(st.getAttribute('data-v'), 10)); el.innerHTML = starRow(getVal(), true); bindInputStars(el, getVal, setVal); });
+    });
+  }
+
+  function refreshFormStars() {
+    bindInputStars(document.getElementById('profStars'), function () { return formProf; }, function (v) { formProf = v; });
+    bindInputStars(document.getElementById('enjoyStars'), function () { return formEnjoy; }, function (v) { formEnjoy = v; });
+  }
+
+  function refreshCatList() {
+    var cats = {};
+    skills.forEach(function (s) { if (s.category) cats[s.category] = 1; });
+    CAT_SUGGEST.forEach(function (c) { cats[c] = 1; });
+    document.getElementById('catList').innerHTML = Object.keys(cats).sort().map(function (c) { return '<option value="' + c.replace(/"/g, '&quot;') + '">'; }).join('');
+  }
+
+  // ---- Add / edit ----
+  function resetForm() {
+    editingId = null; formProf = 0; formEnjoy = 0;
+    document.getElementById('skillName').value = '';
+    document.getElementById('skillCat').value = '';
+    document.getElementById('formTitle').textContent = 'Add a skill';
+    document.getElementById('addBtn').textContent = 'Add skill';
+    document.getElementById('cancelBtn').style.display = 'none';
+    refreshFormStars();
+  }
+  function submitForm() {
+    var name = document.getElementById('skillName').value.trim();
+    var cat = document.getElementById('skillCat').value.trim() || 'Uncategorized';
+    if (!name) { document.getElementById('skillName').focus(); return; }
+    if (editingId) {
+      var it = skills.filter(function (s) { return s.id === editingId; })[0];
+      if (it) { it.name = name; it.category = cat; it.prof = formProf; it.enjoy = formEnjoy; }
+    } else {
+      skills.push({ id: 'sk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), name: name, category: cat, prof: formProf, enjoy: formEnjoy });
+    }
+    save(); resetForm(); render();
+    document.getElementById('skillName').focus();
+  }
+  function editSkill(id) {
+    var it = skills.filter(function (s) { return s.id === id; })[0];
+    if (!it) return;
+    editingId = id; formProf = it.prof; formEnjoy = it.enjoy;
+    document.getElementById('skillName').value = it.name;
+    document.getElementById('skillCat').value = it.category;
+    document.getElementById('formTitle').textContent = 'Edit skill';
+    document.getElementById('addBtn').textContent = 'Save changes';
+    document.getElementById('cancelBtn').style.display = '';
+    refreshFormStars();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function deleteSkill(id) {
+    var it = skills.filter(function (s) { return s.id === id; })[0];
+    if (!it || !confirm('Remove "' + it.name + '"?')) return;
+    skills = skills.filter(function (s) { return s.id !== id; });
+    if (editingId === id) resetForm();
+    save(); render();
+  }
+
+  function isSweet(s) { return s.prof >= 4 && s.enjoy >= 4; }
+
+  // ---- Render ----
+  function skillRow(s) {
+    var li = document.createElement('li');
+    li.className = 'skill' + (isSweet(s) ? ' sweet' : '');
+    li.innerHTML =
+      '<div class="sk-name"><span></span>' + (isSweet(s) ? '<span class="badge">niche fit</span>' : '') + '<span class="sk-cat"></span></div>' +
+      '<div class="rate"><span class="rl">Good</span><span class="stars">' + starRow(s.prof) + '</span></div>' +
+      '<div class="rate"><span class="rl">Enjoy</span><span class="stars">' + starRow(s.enjoy) + '</span></div>' +
+      '<div class="sk-actions"><button class="icon-btn edit" title="Edit">&#9998;</button><button class="icon-btn del" title="Remove">&times;</button></div>';
+    li.querySelector('.sk-name span').textContent = s.name;          // set via DOM (safe)
+    li.querySelector('.sk-cat').textContent = s.category;
+    li.querySelector('.edit').addEventListener('click', function () { editSkill(s.id); });
+    li.querySelector('.del').addEventListener('click', function () { deleteSkill(s.id); });
+    return li;
+  }
+
+  function render() {
+    refreshCatList();
+    document.querySelectorAll('.chip-btn').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-sort') === sortMode); });
+
+    // Sweet spot
+    var sweet = skills.filter(isSweet);
+    var sb = document.getElementById('sweetBody');
+    if (sweet.length) {
+      sb.innerHTML = '<div class="sweet-chips"></div>';
+      var wrap = sb.querySelector('.sweet-chips');
+      sweet.sort(function (a, b) { return (b.prof + b.enjoy) - (a.prof + a.enjoy); }).forEach(function (s) {
+        var c = document.createElement('span'); c.className = 'sweet-chip'; c.textContent = s.name; wrap.appendChild(c);
+      });
+    } else {
+      sb.innerHTML = '<div class="sweet-empty">Nothing here yet. Rate a skill 4&#9733;+ on both meters and it’ll surface as a niche candidate.</div>';
+    }
+
+    // List
+    var list = document.getElementById('list');
+    list.innerHTML = '';
+    document.getElementById('empty').style.display = skills.length ? 'none' : 'block';
+
+    if (sortMode === 'category') {
+      var groups = {};
+      skills.forEach(function (s) { (groups[s.category] = groups[s.category] || []).push(s); });
+      Object.keys(groups).sort().forEach(function (cat) {
+        var h = document.createElement('div'); h.className = 'cat-head'; h.textContent = cat; list.appendChild(h);
+        groups[cat].sort(function (a, b) { return (b.prof + b.enjoy) - (a.prof + a.enjoy); }).forEach(function (s) { list.appendChild(skillRow(s)); });
+      });
+    } else {
+      var sorted = skills.slice();
+      if (sortMode === 'fit') sorted.sort(function (a, b) { return (b.prof + b.enjoy) - (a.prof + a.enjoy); });
+      else if (sortMode === 'prof') sorted.sort(function (a, b) { return b.prof - a.prof; });
+      else if (sortMode === 'enjoy') sorted.sort(function (a, b) { return b.enjoy - a.enjoy; });
+      sorted.forEach(function (s) { list.appendChild(skillRow(s)); });
+    }
+  }
+
+  // ---- Wire up ----
+  document.getElementById('addBtn').addEventListener('click', submitForm);
+  document.getElementById('cancelBtn').addEventListener('click', resetForm);
+  document.getElementById('skillName').addEventListener('keydown', function (e) { if (e.key === 'Enter') submitForm(); });
+  document.querySelectorAll('.chip-btn').forEach(function (b) {
+    b.addEventListener('click', function () { sortMode = b.getAttribute('data-sort'); render(); });
+  });
+
+  refreshFormStars();
+  render();
+</script>
+</body>
+</html>
