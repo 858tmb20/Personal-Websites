@@ -73,6 +73,17 @@
   li.item.done .box svg { opacity: 1; transform: scale(1); }
   li.item.done .title { text-decoration: line-through; color: var(--muted); }
 
+  .notes-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 15px 16px; box-shadow: var(--shadow); margin-top: 20px; }
+  .notes-head { display: flex; justify-content: space-between; align-items: center; font-size: 15px;
+    font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .notes-head .saved { font-size: 12px; font-weight: 600; color: var(--done); opacity: 0; transition: opacity .3s; }
+  .notes-head .saved.show { opacity: 1; }
+  #notes { width: 100%; min-height: 130px; resize: vertical; border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px; font: inherit; font-size: 14px; line-height: 1.5; color: var(--ink); background: #fbfdff;
+    box-sizing: border-box; }
+  #notes:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,.18); }
+
   .foot { text-align: center; margin-top: 28px; }
   .disclaimer { color: #9fc6e4; font-size: 12px; max-width: 560px; margin: 0 auto 18px; line-height: 1.5; }
   .reset { background: transparent; border: 1px solid rgba(255,255,255,.3); color: #cfe6f8;
@@ -86,7 +97,6 @@
   <div class="wrap">
     <div class="head">
       <div class="logo">
-        <span class="mark">&#9729;</span>
         <span class="name">Cloud Path Consulting<small>Launch Checklist</small></span>
       </div>
       <h1>Everything to stand up the business — check each off as you go.</h1>
@@ -99,6 +109,11 @@
     </div>
 
     <ul class="list" id="list"></ul>
+
+    <div class="notes-card">
+      <div class="notes-head"><span>&#128221; Notes</span><span class="saved" id="notesSaved">Saved</span></div>
+      <textarea id="notes" placeholder="Jot anything down — business name ideas, domains you're eyeing, questions for your CPA, next steps…"></textarea>
+    </div>
 
     <div class="foot">
       <p class="disclaimer">Informational only — not legal or tax advice, and US-focused. Rules vary by state; consult a licensed tax or legal professional for your situation.</p>
@@ -174,6 +189,19 @@
 
   document.getElementById('resetBtn').addEventListener('click', function () {
     if (confirm('Uncheck all items and start over?')) { state = {}; save(state); render(); }
+  });
+
+  // Notes — persisted in localStorage, same as the checkboxes
+  var NKEY = 'cpc_launch_notes_v1';
+  var notes = document.getElementById('notes');
+  var savedTag = document.getElementById('notesSaved');
+  var savedTimer;
+  try { notes.value = localStorage.getItem(NKEY) || ''; } catch (e) {}
+  notes.addEventListener('input', function () {
+    try { localStorage.setItem(NKEY, notes.value); } catch (e) {}
+    savedTag.classList.add('show');
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(function () { savedTag.classList.remove('show'); }, 1200);
   });
 
   render();
