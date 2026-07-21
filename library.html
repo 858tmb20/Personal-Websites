@@ -536,6 +536,14 @@
   .li-star.on { color: #F59E0B; }
   .learn-item .li-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; color: var(--ink); word-break: break-word; }
   .learn-item .li-acts { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
+  .idea-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .idea-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: flex-start; gap: 0.85rem; }
+  .idea-item.is-shelved { opacity: 0.55; }
+  .idea-stage { flex-shrink: 0; border: none; cursor: pointer; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 0.3rem 0.62rem; border-radius: 999px; line-height: 1; white-space: nowrap; margin-top: 0.08rem; }
+  .idea-main { flex: 1; min-width: 0; }
+  .idea-title { font-size: 0.95rem; font-weight: 600; color: var(--ink); word-break: break-word; }
+  .idea-note { font-size: 0.82rem; color: var(--muted); margin-top: 0.28rem; word-break: break-word; white-space: pre-wrap; }
+  .idea-acts { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
 </style>
 </head>
 <body>
@@ -602,6 +610,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTracker();"><span class="tnl-ico" style="background:#1F6FEB22;color:#1F6FEB;">&#9783;</span><span class="tnl-text">Deployment Tracker<span class="tnl-sub">Needs / in progress / done</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openLearn();"><span class="tnl-ico" style="background:#EA580C22;color:#EA580C;">&#127891;</span><span class="tnl-text">Learning Tracker<span class="tnl-sub">What to learn &amp; focus on</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
           </div>
         </div>
@@ -613,6 +622,7 @@
             <a class="topnav-link" onclick="filterHome('personal')"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#9783;</span><span class="tnl-text">All Personal Tools<span class="tnl-sub">Everything tagged Personal</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openPlanner();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128197;</span><span class="tnl-text">Planner<span class="tnl-sub">Plan your week</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
             <a class="topnav-link" href="cloud-path-checklist.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#38BDF822;color:#0891B2;">&#9729;</span><span class="tnl-text">Cloud Path Launch<span class="tnl-sub">Business launch checklist</span></span></a>
             <a class="topnav-link" href="skills-inventory.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#14B8A622;color:#0D9488;">&#127919;</span><span class="tnl-text">Skills &amp; Niche<span class="tnl-sub">Map skills, spot your niche</span></span></a>
@@ -809,6 +819,46 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="saveLearn()">Save</button>
       <button class="btn-cancel" onclick="closeLearnModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- IDEA TRACKER SCREEN -->
+<div class="screen" id="screen-ideas">
+  <header>
+    <div class="header-left">
+      <div class="header-brand">
+        <h1>Idea Tracker</h1>
+        <p>Catch the shower thoughts &mdash; jot it now, triage it later</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" onclick="openIdeaModal(null)">+ Add Idea</button>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <div class="count" id="ideaCount"></div>
+    <div id="ideaList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- IDEA TRACKER MODAL -->
+<div class="modal-overlay" id="ideaModalOverlay">
+  <div class="modal">
+    <h2 id="ideaModalTitle">Add Idea</h2>
+    <input type="hidden" id="ideaEditId" value="">
+    <div class="field"><label>The idea</label><input type="text" id="ideaTitleInput" placeholder="e.g. Auto-summarize deploy notes with Claude" /></div>
+    <div class="field"><label>Notes <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="ideaNoteInput" rows="3" placeholder="Any detail you don't want to forget..."></textarea></div>
+    <div class="field"><label>Stage</label><select id="ideaStageInput">
+      <option value="raw">Raw idea</option>
+      <option value="exploring">Exploring</option>
+      <option value="building">Building</option>
+      <option value="shelved">Shelved</option>
+    </select></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveIdea()">Save</button>
+      <button class="btn-cancel" onclick="closeIdeaModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1478,14 +1528,16 @@
       builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();', share: true }),
       builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
-      builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' })
+      builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }),
+      builtinToolCard({ type: 'Work', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' })
     ];
     var personalBuiltins = [
       builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }),
       builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, and how-to guides in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
       builtinToolCard({ type: 'Personal', color: '#0891B2', icon: '&#9729;', name: 'Cloud Path Launch', desc: 'Your Cloud Path Consulting business launch checklist — check off each step.', href: 'cloud-path-checklist.html', target: '_blank' }),
-      builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' })
+      builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' }),
+      builtinToolCard({ type: 'Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' })
     ];
 
     // Sort the user's saved links into work vs personal buckets
@@ -2070,6 +2122,75 @@
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: item.focused }) }).then(function(res) { if (!res.ok) { item.focused = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.focused = prev; renderLearn(); });
   }
   function deleteLearn(id) { if (!confirm('Remove this?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchLearn(); }); }
+
+  // ===== IDEA TRACKER (ideas table; quick capture + stage) =====
+  var allIdeas = [];
+  var IDEA_STAGES = ['raw', 'exploring', 'building', 'shelved'];
+  var IDEA_STAGE_META = {
+    raw:       { label: 'Raw',       bg: '#F59E0B22', fg: '#B45309' },
+    exploring: { label: 'Exploring', bg: '#1F6FEB22', fg: '#1F6FEB' },
+    building:  { label: 'Building',  bg: '#16A34A22', fg: '#15803D' },
+    shelved:   { label: 'Shelved',   bg: '#6B7A9922', fg: '#6B7A99' }
+  };
+  function ideaStageMeta(s) { return IDEA_STAGE_META[s] || IDEA_STAGE_META.raw; }
+  function openIdeas() { showScreen('screen-ideas'); fetchIdeas(); }
+  function fetchIdeas() {
+    fetch(SB_URL + '/rest/v1/ideas?order=created_at.desc', { headers: H }).then(function(r) { if (!r.ok) throw new Error('load'); return r.json(); }).then(function(data) { allIdeas = Array.isArray(data) ? data : []; renderIdeas(); }).catch(function() { document.getElementById('ideaList').innerHTML = '<div class="board-empty">Could not load. If this is the first run, create the ideas table in Supabase.</div>'; document.getElementById('ideaCount').textContent = ''; });
+  }
+  function renderIdeas() {
+    var list = allIdeas.slice();
+    // Shelved ideas sink to the bottom; everything else stays newest-first.
+    list.sort(function(a, b) { return ((a.stage === 'shelved') ? 1 : 0) - ((b.stage === 'shelved') ? 1 : 0); });
+    document.getElementById('ideaCount').textContent = list.length + ' idea' + (list.length !== 1 ? 's' : '');
+    if (!list.length) { document.getElementById('ideaList').innerHTML = '<div class="empty"><strong>No ideas yet</strong>Hit &ldquo;Add Idea&rdquo; and capture that shower thought before it escapes.</div>'; return; }
+    var html = '<div class="idea-list">';
+    for (var i = 0; i < list.length; i++) {
+      var x = list[i];
+      var m = ideaStageMeta(x.stage);
+      var note = x.note ? '<div class="idea-note">' + esc(x.note) + '</div>' : '';
+      html += '<div class="idea-item' + (x.stage === 'shelved' ? ' is-shelved' : '') + '">'
+        + '<button class="idea-stage" data-istage="' + esc(x.id) + '" style="background:' + m.bg + ';color:' + m.fg + ';" title="Click to move to the next stage">' + m.label + '</button>'
+        + '<div class="idea-main"><div class="idea-title">' + esc(x.title) + '</div>' + note + '</div>'
+        + '<div class="idea-acts"><button class="btn-edit" data-iedit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-idel="' + esc(x.id) + '">&#10005;</button></div>'
+        + '</div>';
+    }
+    html += '</div>';
+    document.getElementById('ideaList').innerHTML = html;
+    document.querySelectorAll('[data-istage]').forEach(function(b) { b.addEventListener('click', function() { cycleIdeaStage(this.getAttribute('data-istage')); }); });
+    document.querySelectorAll('[data-iedit]').forEach(function(b) { b.addEventListener('click', function() { openIdeaModal(findIdea(this.getAttribute('data-iedit'))); }); });
+    document.querySelectorAll('[data-idel]').forEach(function(b) { b.addEventListener('click', function() { deleteIdea(this.getAttribute('data-idel')); }); });
+  }
+  function findIdea(id) { for (var i = 0; i < allIdeas.length; i++) { if (allIdeas[i].id === id) return allIdeas[i]; } return null; }
+  function openIdeaModal(x) {
+    document.getElementById('ideaEditId').value = x ? x.id : '';
+    document.getElementById('ideaModalTitle').textContent = x ? 'Edit Idea' : 'Add Idea';
+    document.getElementById('ideaTitleInput').value = x ? x.title : '';
+    document.getElementById('ideaNoteInput').value = (x && x.note) ? x.note : '';
+    document.getElementById('ideaStageInput').value = (x && x.stage) ? x.stage : 'raw';
+    document.getElementById('ideaModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('ideaTitleInput').focus(); }, 100);
+  }
+  function closeIdeaModal() { document.getElementById('ideaModalOverlay').classList.remove('open'); }
+  function saveIdea() {
+    var title = document.getElementById('ideaTitleInput').value.trim();
+    if (!title) { showToast('Add the idea first'); return; }
+    var note = document.getElementById('ideaNoteInput').value.trim();
+    var stage = document.getElementById('ideaStageInput').value || 'raw';
+    var editId = document.getElementById('ideaEditId').value;
+    var body = { title: title, note: note, stage: stage };
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/ideas?id=eq.' + editId : SB_URL + '/rest/v1/ideas';
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeIdeaModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchIdeas(); } else { showToast('Error saving'); } });
+  }
+  function cycleIdeaStage(id) {
+    var item = findIdea(id); if (!item) return;
+    var prev = item.stage || 'raw';
+    var idx = IDEA_STAGES.indexOf(prev); if (idx < 0) idx = 0;
+    var next = IDEA_STAGES[(idx + 1) % IDEA_STAGES.length];
+    item.stage = next; renderIdeas();
+    fetch(SB_URL + '/rest/v1/ideas?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ stage: next }) }).then(function(res) { if (!res.ok) { item.stage = prev; renderIdeas(); showToast('Could not save'); } }).catch(function() { item.stage = prev; renderIdeas(); });
+  }
+  function deleteIdea(id) { if (!confirm('Delete this idea?')) return; fetch(SB_URL + '/rest/v1/ideas?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchIdeas(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
   // Columns are the physical work stages only. PR/CR progress is tracked by the
