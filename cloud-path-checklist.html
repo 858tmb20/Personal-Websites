@@ -74,13 +74,27 @@
   li.item.done .box svg { opacity: 1; transform: scale(1); }
   li.item.done .title { text-decoration: line-through; color: var(--muted); }
 
-  .note-wrap { flex: 0 0 210px; align-self: stretch; }
-  .note { width: 100%; height: 100%; min-height: 62px; resize: vertical; box-sizing: border-box;
+  .note-wrap { flex: 0 0 230px; align-self: stretch; display: flex; flex-direction: column; }
+  .note { width: 100%; min-height: 62px; resize: vertical; box-sizing: border-box;
     border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 13px;
     line-height: 1.45; color: var(--ink); background: #fbfdff; transition: border-color .3s, box-shadow .2s; }
   .note::placeholder { color: #aebfce; }
   .note:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,.18); }
   .note.saved { border-color: var(--done); }
+  .filebar { margin-top: 8px; }
+  .attach-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600;
+    color: #1f6fae; background: #eef6fd; border: 1px dashed #b9d6ee; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  .attach-btn:hover { background: #e2f0fb; }
+  .attach-btn input { display: none; }
+  .file-chip { display: flex; align-items: center; gap: 6px; background: #f1f6fb; border: 1px solid var(--line);
+    border-radius: 8px; padding: 5px 8px; margin-top: 6px; font-size: 12px; }
+  .file-chip .fname { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: #0d6efd; cursor: pointer; }
+  .file-chip .fname:hover { text-decoration: underline; }
+  .file-chip .fsize { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
+  .file-chip .fdel { flex: 0 0 auto; border: none; background: none; color: #b0bccb; font-size: 15px; line-height: 1;
+    cursor: pointer; padding: 0 2px; }
+  .file-chip .fdel:hover { color: #e11d48; }
   @media (max-width: 640px) {
     li.item { flex-wrap: wrap; }
     .note-wrap { flex-basis: 100%; margin-top: 4px; }
@@ -152,6 +166,74 @@
   var state = load();
   var notesState = loadNotes();
 
+  // ---- File attachments: metadata in localStorage, file bytes in IndexedDB (private to this browser) ----
+  var FKEY = 'cpc_launch_files_v1';
+  function loadFiles() { try { return JSON.parse(localStorage.getItem(FKEY)) || []; } catch (e) { return []; } }
+  function saveFiles() { try { localStorage.setItem(FKEY, JSON.stringify(filesMeta)); } catch (e) {} }
+  var filesMeta = loadFiles();
+
+  var _dbp;
+  function db() {
+    if (_dbp) return _dbp;
+    _dbp = new Promise(function (res, rej) {
+      var r = indexedDB.open('cpcLaunchFiles', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('blobs', { keyPath: 'id' }); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+    return _dbp;
+  }
+  function idbPut(id, blob) { return db().then(function (d) { return new Promise(function (res, rej) {
+    var t = d.transaction('blobs', 'readwrite'); t.objectStore('blobs').put({ id: id, blob: blob });
+    t.oncomplete = function () { res(); }; t.onerror = function () { rej(t.error); }; }); }); }
+  function idbGet(id) { return db().then(function (d) { return new Promise(function (res, rej) {
+    var t = d.transaction('blobs', 'readonly'); var rq = t.objectStore('blobs').get(id);
+    rq.onsuccess = function () { res(rq.result); }; rq.onerror = function () { rej(rq.error); }; }); }); }
+  function idbDel(id) { return db().then(function (d) { return new Promise(function (res, rej) {
+    var t = d.transaction('blobs', 'readwrite'); t.objectStore('blobs').delete(id);
+    t.oncomplete = function () { res(); }; t.onerror = function () { rej(t.error); }; }); }); }
+
+  function fmtSize(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return Math.round(b / 1024) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
+
+  function handleFiles(fileList, itemId) {
+    Array.prototype.forEach.call(fileList, function (file) {
+      if (file.size > 25 * 1048576) { alert('“' + file.name + '” is larger than 25 MB — skipped.'); return; }
+      var id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      idbPut(id, file).then(function () {
+        filesMeta.push({ id: id, itemId: itemId, name: file.name, size: file.size, type: file.type });
+        saveFiles();
+        render();
+      }).catch(function () { alert('Could not save “' + file.name + '” in this browser.'); });
+    });
+  }
+  function downloadFile(f) {
+    idbGet(f.id).then(function (rec) {
+      if (!rec) { alert('That file isn’t stored in this browser anymore.'); return; }
+      var url = URL.createObjectURL(rec.blob);
+      var a = document.createElement('a'); a.href = url; a.download = f.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
+  }
+  function removeFile(f) {
+    if (!confirm('Remove “' + f.name + '”? This deletes it from this browser.')) return;
+    function done() { filesMeta = filesMeta.filter(function (x) { return x.id !== f.id; }); saveFiles(); render(); }
+    idbDel(f.id).then(done, done);
+  }
+  function renderChips(container, itemId) {
+    container.innerHTML = '';
+    filesMeta.filter(function (f) { return f.itemId === itemId; }).forEach(function (f) {
+      var chip = document.createElement('div'); chip.className = 'file-chip';
+      var name = document.createElement('span'); name.className = 'fname'; name.textContent = f.name; name.title = 'Download ' + f.name;
+      var size = document.createElement('span'); size.className = 'fsize'; size.textContent = fmtSize(f.size);
+      var del = document.createElement('button'); del.className = 'fdel'; del.innerHTML = '&times;'; del.title = 'Remove';
+      name.addEventListener('click', function () { downloadFile(f); });
+      del.addEventListener('click', function () { removeFile(f); });
+      chip.appendChild(name); chip.appendChild(size); chip.appendChild(del);
+      container.appendChild(chip);
+    });
+  }
+
   function render() {
     var list = document.getElementById('list');
     list.innerHTML = '';
@@ -166,7 +248,10 @@
           '<div class="title">' + it.title + '</div>' +
           '<div class="hint">' + it.hint + '</div>' +
         '</div>' +
-        '<div class="note-wrap"><textarea class="note" placeholder="Notes…"></textarea></div>';
+        '<div class="note-wrap">' +
+          '<textarea class="note" placeholder="Notes…"></textarea>' +
+          '<div class="filebar"><label class="attach-btn">&#128206; Attach file<input type="file" multiple></label><div class="files"></div></div>' +
+        '</div>';
 
       // Per-item note — value set via DOM (not innerHTML) so it can't break markup
       var ta = li.querySelector('.note');
@@ -177,6 +262,13 @@
         ta.classList.add('saved');
         clearTimeout(ta._t);
         ta._t = setTimeout(function () { ta.classList.remove('saved'); }, 900);
+      });
+
+      // Per-item files — stored privately in this browser
+      renderChips(li.querySelector('.files'), it.id);
+      li.querySelector('.attach-btn input').addEventListener('change', function (e) {
+        handleFiles(e.target.files, it.id);
+        e.target.value = '';
       });
 
       li.addEventListener('click', function (e) {
