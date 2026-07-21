@@ -48,13 +48,6 @@
     background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s ease; }
   .done-msg { font-size: 13px; color: #b8f5df; margin-top: 10px; display: none; }
 
-  .budget { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: -8px 0 24px; }
-  .budget-b { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 12px;
-    padding: 10px 16px; color: #eaf5ff; display: flex; flex-direction: column; }
-  .budget-b .by { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #9fd4f6; }
-  .budget-b b { font-size: 18px; }
-  .budget-note { flex: 1 1 220px; font-size: 12px; color: #9fc6e4; line-height: 1.4; min-width: 200px; }
-
   /* Items */
   ul.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
   li.item {
@@ -74,10 +67,6 @@
   .body .hint { font-size: 13px; color: var(--muted); line-height: 1.4; }
   .body .hint a { color: #0d6efd; text-decoration: none; }
   .body .hint a:hover { text-decoration: underline; }
-  .cost { flex: 0 0 auto; align-self: center; font-size: 13px; font-weight: 700; color: #b45309;
-    background: #fef3c7; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-  .cost.free { color: #047857; background: #d1fae5; border-color: #a7f3d0; }
-  li.item.done .cost { opacity: .5; }
 
   li.item.done { border-color: #bdead8; background: #f4fbf8; }
   li.item.done .box { background: var(--done); border-color: var(--done); }
@@ -108,12 +97,6 @@
       <div class="done-msg" id="doneMsg">&#127881; All set — Cloud Path Consulting is ready to fly.</div>
     </div>
 
-    <div class="budget">
-      <div class="budget-b"><span class="by">Year 1</span><b>$375–$575</b></div>
-      <div class="budget-b"><span class="by">Year 2+</span><b>$275/yr</b></div>
-      <div class="budget-note">“Real Deal” tier — mostly free tools plus domain, email, hosting &amp; LLC. Insurance extra if a client requires it.</div>
-    </div>
-
     <ul class="list" id="list"></ul>
 
     <div class="foot">
@@ -124,17 +107,17 @@
 
 <script>
   var ITEMS = [
-    { id: 'name',      title: 'Finalize your business name', cost: 'Free', hint: 'Set a 60-minute timer and commit to a name before it expires — don’t overthink it.' },
-    { id: 'logo',      title: 'Save your logo export files', cost: 'Free', hint: 'Export the Cloud Path Consulting logo in PNG + SVG, light and dark versions, and store them somewhere safe. (Canva free tier works.)' },
-    { id: 'linkedin',  title: 'Create your LinkedIn Company Page', cost: 'Free', hint: 'Use your finalized business name and logo.' },
-    { id: 'accounts',  title: 'Set up free accounts on Mailchimp & Google Meet', cost: 'Free', hint: 'Mailchimp for email, Google Meet for client calls.' },
-    { id: 'domain',    title: 'Buy your website domain name', cost: '$14/yr', hint: 'e.g. cloudpathconsulting.com — grab it before someone else does.' },
-    { id: 'email',     title: 'Set up a professional business email', cost: '$70/yr', hint: 'A real address tied to your domain (you@yourdomain.com), not a personal Gmail.' },
-    { id: 'website',   title: 'Create and host a simple 1-page website', cost: '$190/yr', hint: 'One clean page: who you are, what you offer, how to reach you.' },
-    { id: 'llc',       title: 'File for your LLC with your state', cost: '$100–$300 once', hint: 'Register the LLC through your state’s business filing site. One-time filing fee varies by state.' },
-    { id: 'ein',       title: 'Get a free EIN from the IRS', cost: 'Free', hint: 'Free at <a href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank" rel="noopener">irs.gov</a> — never pay a third party for this.' },
-    { id: 'bank',      title: 'Open a separate business bank account', cost: 'Free', hint: 'Use your LLC and EIN — keep business money separate from personal.' },
-    { id: 'insurance', title: 'Check if you need business insurance', cost: '~$500/yr if needed', hint: 'Confirm what your first client’s contract requires before you sign. Optional for the Real Deal tier.' }
+    { id: 'name',      title: 'Finalize your business name', hint: 'Set a 60-minute timer and commit to a name before it expires — don’t overthink it.' },
+    { id: 'logo',      title: 'Save your logo export files', hint: 'Export the Cloud Path Consulting logo in PNG + SVG, light and dark versions, and store them somewhere safe.' },
+    { id: 'linkedin',  title: 'Create your LinkedIn Company Page', hint: 'Use your finalized business name and logo.' },
+    { id: 'accounts',  title: 'Set up free accounts on Mailchimp & Google Meet', hint: 'Mailchimp for email, Google Meet for client calls.' },
+    { id: 'domain',    title: 'Buy your website domain name', hint: 'e.g. cloudpathconsulting.com — grab it before someone else does.' },
+    { id: 'email',     title: 'Set up a professional business email', hint: 'A real address tied to your domain (you@yourdomain.com), not a personal Gmail.' },
+    { id: 'website',   title: 'Create and host a simple 1-page website', hint: 'One clean page: who you are, what you offer, how to reach you.' },
+    { id: 'llc',       title: 'File for your LLC with your state', hint: 'Register the LLC through your state’s business filing site.' },
+    { id: 'ein',       title: 'Get a free EIN from the IRS', hint: 'Free at <a href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank" rel="noopener">irs.gov</a> — never pay a third party for this.' },
+    { id: 'bank',      title: 'Open a separate business bank account', hint: 'Use your LLC and EIN — keep business money separate from personal.' },
+    { id: 'insurance', title: 'Check if you need business insurance', hint: 'Confirm what your first client’s contract requires before you sign.' }
   ];
   var KEY = 'cpc_launch_checklist_v1';
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -151,15 +134,13 @@
       var done = !!state[it.id];
       var li = document.createElement('li');
       li.className = 'item' + (done ? ' done' : '');
-      var free = /free/i.test(it.cost);
       li.innerHTML =
         '<div class="box">' + CHECK + '</div>' +
         '<div class="body">' +
           '<div class="step">Step ' + (i + 1) + '</div>' +
           '<div class="title">' + it.title + '</div>' +
           '<div class="hint">' + it.hint + '</div>' +
-        '</div>' +
-        '<div class="cost' + (free ? ' free' : '') + '">' + it.cost + '</div>';
+        '</div>';
       li.addEventListener('click', function (e) {
         if (e.target.tagName === 'A') return; // let links work without toggling
         state[it.id] = !state[it.id];
