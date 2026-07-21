@@ -74,6 +74,7 @@
   li.item.done .title { text-decoration: line-through; color: var(--muted); }
 
   .foot { text-align: center; margin-top: 28px; }
+  .disclaimer { color: #9fc6e4; font-size: 12px; max-width: 560px; margin: 0 auto 18px; line-height: 1.5; }
   .reset { background: transparent; border: 1px solid rgba(255,255,255,.3); color: #cfe6f8;
     font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
   .reset:hover { background: rgba(255,255,255,.1); }
@@ -100,6 +101,7 @@
     <ul class="list" id="list"></ul>
 
     <div class="foot">
+      <p class="disclaimer">Informational only — not legal or tax advice, and US-focused. Rules vary by state; consult a licensed tax or legal professional for your situation.</p>
       <button class="reset" id="resetBtn">Reset checklist</button>
       <br /><a class="backlink" href="library.html">&larr; Back to Library</a>
     </div>
@@ -114,11 +116,17 @@
     { id: 'domain',    title: 'Buy your website domain name', hint: 'e.g. cloudpathconsulting.com — grab it before someone else does.' },
     { id: 'email',     title: 'Set up a professional business email', hint: 'A real address tied to your domain (you@yourdomain.com), not a personal Gmail.' },
     { id: 'website',   title: 'Create and host a simple 1-page website', hint: 'One clean page: who you are, what you offer, how to reach you.' },
-    { id: 'llc',       title: 'File for your LLC with your state', hint: 'Register the LLC through your state’s business filing site.' },
-    { id: 'ein',       title: 'Get a free EIN from the IRS', hint: 'Free at <a href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank" rel="noopener">irs.gov</a> — never pay a third party for this.' },
-    { id: 'bank',      title: 'Open a separate business bank account', hint: 'Use your LLC and EIN — keep business money separate from personal.' },
+    { id: 'structure', title: 'Decide your business structure (LLC vs. sole proprietorship)', hint: 'An LLC is a separate legal entity that shields your personal assets from business debts; a sole proprietorship is simpler but leaves you personally liable for everything. Weigh cost, liability, and taxes. <a href="https://www.legalzoom.com/articles/llc-vs-sole-proprietorship" target="_blank" rel="noopener">LLC vs. sole proprietorship &#8599;</a>' },
+    { id: 'llc',       title: 'File for your LLC with your state', hint: 'Register the LLC through your state’s business filing site. (An LLC requires an EIN — next step.)' },
+    { id: 'ein',       title: 'Get a free EIN from the IRS', hint: 'Free at <a href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank" rel="noopener">irs.gov</a> — never pay a third party for this. Keep it handy; you’ll need it often.' },
+    { id: 'bank',      title: 'Open a separate business checking account', hint: 'Keep business money separate from personal — it makes tracking income/expenses easy and is a lifesaver if you’re ever audited.' },
+    { id: 'taxsavings',title: 'Open a separate savings account for taxes', hint: 'A second account, apart from checking — set aside ~25% of every payment for taxes. Self-employment tax isn’t withheld automatically like a W-2, so this keeps you covered.' },
+    { id: 'quarterly', title: 'Set up quarterly estimated tax payments', hint: 'Estimated taxes are due to the IRS each quarter (plus state, if yours has income tax). Hit the "safe harbor" to avoid penalties: pay at least 90% of this year’s tax, 100% of last year’s, or owe under $1,000. <a href="https://www.hrblock.com/tax-center/irs/tax-responsibilities/avoiding-underpayment-tax-penalty/" target="_blank" rel="noopener">Safe harbor details &#8599;</a>' },
     { id: 'pnl',       title: 'Set up your profit & loss (P&L) statement', hint: 'Track monthly revenue, expenses, and net income. <a href="cloud-path-profit-loss-template.xlsx" download>&#128229; Download the P&amp;L template (Excel)</a> — fill in your company name and year, then update it each month.' },
-    { id: 'insurance', title: 'Check if you need business insurance', hint: 'Confirm what your first client’s contract requires before you sign.' }
+    { id: 'retirement',title: 'Open a retirement account (SEP IRA or Solo 401k)', hint: 'No more employer auto-deductions — you set this up. Self-employed options are a SEP IRA or Solo 401(k), opened through a provider like Vanguard or Fidelity. Automate a monthly contribution. <a href="https://www.choosefi.com/retirement-plans-for-the-self-employed-sep-ira-vs-solo-401k/" target="_blank" rel="noopener">SEP IRA vs. Solo 401(k) &#8599;</a>' },
+    { id: 'health',    title: 'Sort out your health insurance', hint: 'Separate from business insurance. If you’re not covered through a spouse’s employer, look at the Health Insurance Marketplace for self-employed coverage. <a href="https://www.healthcare.gov/self-employed/" target="_blank" rel="noopener">HealthCare.gov &#8599;</a>' },
+    { id: 'insurance', title: 'Check if you need business insurance', hint: 'Confirm what your first client’s contract requires before you sign. Professional liability and cyber insurance are common starting points for Salesforce work — you handle a lot of client data.' },
+    { id: 'rate',      title: 'Factor all costs into your hourly rate', hint: 'Every cost above — taxes, retirement, insurance, tools — has to be baked into your hourly rate. Total them up so your rate covers the whole business, not just your take-home pay.' }
   ];
   var KEY = 'cpc_launch_checklist_v1';
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
