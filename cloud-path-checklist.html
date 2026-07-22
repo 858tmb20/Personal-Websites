@@ -57,6 +57,11 @@
   }
   li.item:hover { transform: translateY(-1px); border-color: #c9dcec; }
   li.item:active { transform: translateY(0); }
+  li.sect {
+    margin: 14px 2px 0; padding: 0 0 6px; color: #9fd4f6;
+    font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+  }
   .box {
     flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px; border: 2px solid #c3d3e2;
     display: grid; place-items: center; margin-top: 1px; transition: all .18s ease; background: #fff;
@@ -152,7 +157,16 @@
     { id: 'retirement',title: 'Open a retirement account (SEP IRA or Solo 401k)', hint: 'No more employer auto-deductions — you set this up. Self-employed options are a SEP IRA or Solo 401(k), opened through a provider like Vanguard or Fidelity. Automate a monthly contribution. <a href="https://www.choosefi.com/retirement-plans-for-the-self-employed-sep-ira-vs-solo-401k/" target="_blank" rel="noopener">SEP IRA vs. Solo 401(k) &#8599;</a>' },
     { id: 'health',    title: 'Sort out your health insurance', hint: 'Separate from business insurance. If you’re not covered through a spouse’s employer, look at the Health Insurance Marketplace for self-employed coverage. <a href="https://www.healthcare.gov/self-employed/" target="_blank" rel="noopener">HealthCare.gov &#8599;</a>' },
     { id: 'insurance', title: 'Check if you need business insurance', hint: 'Confirm what your first client’s contract requires before you sign. Professional liability and cyber insurance are common starting points for Salesforce work — you handle a lot of client data.' },
-    { id: 'rate',      title: 'Factor all costs into your hourly rate', hint: 'Every cost above — taxes, retirement, insurance, tools — has to be baked into your hourly rate. Total them up so your rate covers the whole business, not just your take-home pay.' }
+    { id: 'rate',      title: 'Factor all costs into your hourly rate', hint: 'Every cost above — taxes, retirement, insurance, tools — has to be baked into your hourly rate. Total them up so your rate covers the whole business, not just your take-home pay.' },
+    { header: 'Marketing &amp; lead generation' },
+    { id: 'warmlist',  title: 'Build your warm outreach list', hint: 'List everyone who could hire you or refer you — past coworkers, WGU contacts, LinkedIn connections. Warm conversations convert far better than cold ones.' },
+    { id: 'linkedinme',title: 'Level up your personal LinkedIn page', hint: 'Your personal profile sells you as much as the company page — headline, banner, and About section aligned to Cloud Path Consulting.' },
+    { id: 'engage',    title: 'Network consistently: DM, share, comment', hint: 'A little engagement every day — DMs, commenting, sharing — keeps you visible. Beats a once-a-month blitz.' },
+    { id: 'socials',   title: 'Set up other socials &amp; public outlets', hint: 'Pick 1–2 channels beyond LinkedIn where your clients actually hang out. Claim the Cloud Path handle even if you don’t post yet.' },
+    { id: 'events',    title: 'Attend virtual &amp; in-person events', hint: 'Salesforce community events, local user groups, alumni events — real conversations beat cold outreach.' },
+    { id: 'leadmagnet',title: 'Create a lead magnet', hint: 'A free, genuinely useful giveaway — a checklist, guide, or template — that trades value for an email address.' },
+    { id: 'leadform',  title: 'Add a basic contact / lead form (nice to have)', hint: 'A simple form on your website wired to your email list, so interested visitors don’t slip away.' },
+    { id: 'funnel',    title: 'Set up a basic email funnel (nice to have)', hint: 'A short automated welcome sequence in Mailchimp for anyone who grabs the lead magnet.' }
   ];
   var KEY = 'cpc_launch_checklist_v1';
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -237,14 +251,23 @@
   function render() {
     var list = document.getElementById('list');
     list.innerHTML = '';
-    ITEMS.forEach(function(it, i) {
+    var stepNum = 0;
+    ITEMS.forEach(function(it) {
+      if (it.header) {
+        var h = document.createElement('li');
+        h.className = 'sect';
+        h.innerHTML = it.header;
+        list.appendChild(h);
+        return;
+      }
+      stepNum++;
       var done = !!state[it.id];
       var li = document.createElement('li');
       li.className = 'item' + (done ? ' done' : '');
       li.innerHTML =
         '<div class="box">' + CHECK + '</div>' +
         '<div class="body">' +
-          '<div class="step">Step ' + (i + 1) + '</div>' +
+          '<div class="step">Step ' + stepNum + '</div>' +
           '<div class="title">' + it.title + '</div>' +
           '<div class="hint">' + it.hint + '</div>' +
         '</div>' +
@@ -284,8 +307,9 @@
   }
 
   function updateProgress() {
-    var total = ITEMS.length;
-    var count = ITEMS.filter(function (it) { return state[it.id]; }).length;
+    var real = ITEMS.filter(function (it) { return !it.header; });
+    var total = real.length;
+    var count = real.filter(function (it) { return state[it.id]; }).length;
     var pct = total ? Math.round((count / total) * 100) : 0;
     document.getElementById('count').textContent = count;
     document.getElementById('total').textContent = total;
