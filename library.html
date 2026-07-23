@@ -612,6 +612,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openLearn();"><span class="tnl-ico" style="background:#EA580C22;color:#EA580C;">&#127891;</span><span class="tnl-text">Learning Tracker<span class="tnl-sub">What to learn &amp; focus on</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
+            <a class="topnav-link" href="job-description.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#4F46E522;color:#4F46E5;">&#128203;</span><span class="tnl-text">Job Description<span class="tnl-sub">Your role at a glance</span></span></a>
           </div>
         </div>
         <div class="topnav-item">
@@ -1529,7 +1530,8 @@
       builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
       builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
       builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }),
-      builtinToolCard({ type: 'Work', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' })
+      builtinToolCard({ type: 'Work', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }),
+      builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' })
     ];
     var personalBuiltins = [
       builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
