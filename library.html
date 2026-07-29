@@ -325,6 +325,21 @@
   .dcard-next.do { background: #EAF1FF; border: 1px solid #B8D0FF; color: #1F5FD6; }
   .dcard-next.wait { background: #FDF4E3; border: 1px solid #F0C879; color: #B7791F; }
   .dcard-next.blocked { background: #FBE9E9; border: 1px solid #F3C9C7; color: #C0322B; }
+  /* Global "Next step" focus banner — one thing to do, ranked across the whole board */
+  .focus-banner { display: flex; align-items: center; gap: 0.6rem; border-radius: 10px; border: 1px solid; padding: 0.8rem 1.1rem; margin-bottom: 0.6rem; font-size: 0.95rem; line-height: 1.35; cursor: pointer; box-shadow: 0 1px 3px rgba(15,31,61,0.05); }
+  .focus-banner.do { background: #EAF1FF; border-color: #B8D0FF; color: #1F5FD6; }
+  .focus-banner.wait { background: #FDF4E3; border-color: #F0C879; color: #B7791F; }
+  .focus-banner.blocked { background: #FBE9E9; border-color: #F3C9C7; color: #C0322B; }
+  .focus-banner.done { background: var(--green-soft); border-color: #BBE7CC; color: var(--green); cursor: default; }
+  .focus-banner .fb-ico { font-size: 1.15rem; flex-shrink: 0; }
+  .focus-banner .fb-text { flex: 1; min-width: 0; }
+  .focus-banner .fb-text strong { font-weight: 800; }
+  .focus-banner .fb-age { flex-shrink: 0; font-size: 0.72rem; font-weight: 800; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.9); border-radius: 999px; padding: 0.2rem 0.6rem; white-space: nowrap; }
+  .focus-then { font-size: 0.78rem; color: var(--muted); margin: 0 0 1rem 0.25rem; line-height: 1.6; }
+  .focus-then .ft-item { cursor: pointer; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 2px; }
+  .focus-then .ft-item:hover { color: var(--ink); }
+  @keyframes dcardFlash { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 3px rgba(31,111,235,0.4); } }
+  .dcard.flash { animation: dcardFlash 1.2s ease 2; }
   .dcard-pr:hover { text-decoration: underline; }
   .dcard-approvals { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
   .appr-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.55rem 0.22rem 0.34rem; border-radius: 20px; background: var(--green-soft); border: 1px solid #A7D8B9; color: #15803D; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.02em; }
@@ -716,6 +731,7 @@
     </div>
   </header>
   <div class="board-wrap">
+    <div id="focusBanner"></div>
     <div class="tracker-layout">
       <aside id="pipelinePath" class="pipeline-side"></aside>
       <div class="board-main"><div id="board"><div class="loading">Loading...</div></div></div>
@@ -2253,6 +2269,60 @@
     if (!d.prod) return { t: 'Deploy & test in Prod', k: 'do' };
     return { t: 'Confirm deployed, move to Deployed', k: 'do' };
   }
+  // ===== Global "Next step" focus banner =====
+  // Ranks every unshipped card's next action into ONE suggestion: blocked cards first,
+  // then doable steps (oldest card first), then EdTech waits of 5d+ (worth a nudge).
+  // Short waits aren't actionable, so they only surface when nothing else is left.
+  function focusCandidates() {
+    var out = [];
+    allDeploys.forEach(function(d) {
+      var ns = nextStep(d);
+      if (!ns) return; // shipped
+      var age = totalDays(d) || 0;
+      if (ns.k === 'blocked') out.push({ d: d, ns: ns, age: age, score: 3000 + age });
+      else if (ns.k === 'do') out.push({ d: d, ns: ns, age: age, score: 2000 + age });
+      else {
+        var wDays = dayCount(openWaitStart(d));
+        if (wDays !== null && wDays >= 5) out.push({ d: d, ns: { t: 'Nudge EdTech &mdash; ' + ns.t.replace('Waiting on ', '') + ' pending ' + wDays + 'd', k: 'wait', raw: true }, age: age, score: 1000 + wDays });
+      }
+    });
+    out.sort(function(a, b) { return b.score - a.score; });
+    return out;
+  }
+  // Block reasons can be paragraphs — keep the banner glanceable.
+  function fbTrunc(s, n) { return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s; }
+  function jumpToCard(id) {
+    var card = document.getElementById('dcard-' + id); if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+  }
+  function renderFocusBanner() {
+    var el = document.getElementById('focusBanner'); if (!el) return;
+    var cands = focusCandidates();
+    if (!cands.length) {
+      var waits = allDeploys.filter(function(d) { var ns = nextStep(d); return ns && ns.k === 'wait'; });
+      if (waits.length) el.innerHTML = '<div class="focus-banner wait"><span class="fb-ico">&#9203;</span><span class="fb-text"><strong>Nothing to do right now</strong> &mdash; waiting on EdTech for ' + waits.length + ' card' + (waits.length > 1 ? 's' : '') + '.</span></div>';
+      else el.innerHTML = allDeploys.length ? '<div class="focus-banner done"><span class="fb-ico">&#127881;</span><span class="fb-text"><strong>All caught up</strong> &mdash; everything is shipped.</span></div>' : '';
+      return;
+    }
+    var top = cands[0];
+    var icon = top.ns.k === 'blocked' ? '&#9940;' : top.ns.k === 'wait' ? '&#9203;' : '&#128073;';
+    var topText = top.ns.raw ? top.ns.t : esc(fbTrunc(top.ns.t, 110));
+    var html = '<div class="focus-banner ' + top.ns.k + '" data-djump="' + esc(top.d.id) + '" title="Click to jump to this card">'
+      + '<span class="fb-ico">' + icon + '</span>'
+      + '<span class="fb-text"><strong>Next step:</strong> ' + topText + ' &mdash; &ldquo;' + esc(fbTrunc(top.d.title, 60)) + '&rdquo;</span>'
+      + '<span class="fb-age">' + (top.age < 1 ? 'new today' : top.age + 'd old') + '</span></div>';
+    if (cands.length > 1) {
+      var bits = [];
+      for (var i = 1; i < Math.min(cands.length, 4); i++) {
+        var c = cands[i];
+        bits.push('<span class="ft-item" data-djump="' + esc(c.d.id) + '">' + (c.ns.raw ? c.ns.t : esc(fbTrunc(c.ns.t, 50))) + ' &mdash; ' + esc(fbTrunc(c.d.title, 40)) + (c.age >= 1 ? ' (' + c.age + 'd)' : '') + '</span>');
+      }
+      html += '<div class="focus-then">Then: ' + bits.join(' &nbsp;&middot;&nbsp; ') + (cands.length > 4 ? ' &nbsp;&middot;&nbsp; +' + (cands.length - 4) + ' more' : '') + '</div>';
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('[data-djump]').forEach(function(b) { b.addEventListener('click', function() { jumpToCard(this.getAttribute('data-djump')); }); });
+  }
   function patchDeploy(id, fields, revert) {
     fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(fields) })
       .then(function(res) { if (!res.ok && revert) { revert(); renderBoard(); showToast('Could not save'); } })
@@ -2418,7 +2488,7 @@
           var nsIcon = ns ? (ns.k === 'blocked' ? '&#9940;' : ns.k === 'wait' ? '&#9203;' : '&#128073;') : '';
           var nsExtra = (ns && ns.k === 'wait') ? (function(){ var lbl = waitLabel(openWaitStart(d)); return lbl ? ' · ' + lbl : ''; })() : '';
           var nextHtml = ns ? '<div class="dcard-next ' + ns.k + '">' + nsIcon + ' <span>Next: ' + esc(ns.t) + nsExtra + '</span></div>' : '';
-          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + '<div class="dcard-total">&#128337; Total: ' + totalLabel(d) + '</div>' + '<div class="dcard-edtech">&#9203; EdTech: ' + edtechTotalLabel(d) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + (d.jira_url ? '<a class="dcard-pr" href="' + esc(d.jira_url) + '" target="_blank" rel="noopener">&#128279; View Jira</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
+          html += '<div class="dcard' + (bs.blocked ? ' is-blocked' : '') + '" id="dcard-' + esc(d.id) + '" style="--bc:' + col.color + ';"><div class="dcard-edit"><button class="dcard-mini" data-dedit="' + esc(d.id) + '" title="Edit">&#9998;</button><button class="dcard-mini del" data-ddel="' + esc(d.id) + '" title="Delete">&#10005;</button></div><div class="dcard-title">' + esc(d.title) + '</div>' + '<div class="dcard-total">&#128337; Total: ' + totalLabel(d) + '</div>' + '<div class="dcard-edtech">&#9203; EdTech: ' + edtechTotalLabel(d) + '</div>' + nextHtml + (d.pr_url ? '<a class="dcard-pr" href="' + esc(d.pr_url) + '" target="_blank" rel="noopener">&#128279; View PR</a>' : '') + (d.cr_url ? '<a class="dcard-pr" href="' + esc(d.cr_url) + '" target="_blank" rel="noopener">&#128279; View CR</a>' : '') + (d.jira_url ? '<a class="dcard-pr" href="' + esc(d.jira_url) + '" target="_blank" rel="noopener">&#128279; View Jira</a>' : '') + bodyHtml + '<div class="dcard-actions"><button class="dcard-move" data-dmove="' + esc(d.id) + '" data-dir="-1"' + (canLeft ? '' : ' disabled') + '>&larr;</button><button class="dcard-move fill" data-dmove="' + esc(d.id) + '" data-dir="1"' + (canRight ? '' : ' disabled') + '>' + (canRight ? 'Move &rarr;' : 'Done') + '</button></div></div>';
         }
       }
       html += '</div>';
@@ -2439,6 +2509,7 @@
     document.querySelectorAll('.env-chip[data-dflag]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleFlag(this.getAttribute('data-dflag'), this.getAttribute('data-field')); }); });
     document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
     document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
+    renderFocusBanner();
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
