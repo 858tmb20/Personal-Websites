@@ -57,6 +57,12 @@
   th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
+  .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+  .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+  .seg button { font: inherit; font-size: 0.72rem; font-weight: 700; color: var(--muted); background: var(--card); border: none; padding: 0.3rem 0.8rem; cursor: pointer; }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .trend-verdict { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .trend-svg { width: 100%; height: auto; display: block; }
   #tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: #fff; font-size: 0.72rem; line-height: 1.45; border-radius: 6px; padding: 0.45rem 0.6rem; max-width: 260px; opacity: 0; transition: opacity 0.1s; }
   #tip b { font-weight: 700; }
   .defs { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
@@ -80,6 +86,7 @@
   <div class="kpis" id="kpis"></div>
   <div class="panel" id="waitPanel"></div>
   <div class="panel" id="cyclePanel"></div>
+  <div class="panel" id="trendPanel"></div>
   <div class="panel">
     <h2>How these are measured</h2>
     <p class="p-sub"></p>
@@ -144,7 +151,9 @@
     }).catch(function() { document.getElementById('kpis').innerHTML = '<div class="empty">Could not load data.</div>'; });
   }
 
+  var lastAll = [];
   function render(all) {
+    lastAll = all;
     document.getElementById('refreshed').textContent = 'Live from the deployment tracker · refreshed ' + new Date().toLocaleString();
 
     // --- KPIs ---
@@ -195,12 +204,90 @@
         + dataTable(['Card', 'Days created → shipped'], shippedCards.map(function(s) { return [s.name, s.v]; }));
     }
 
-    // hover tooltips
+    renderTrend();
+    bindTips(document);
+  }
+
+  function bindTips(scope) {
     var tip = document.getElementById('tip');
-    document.querySelectorAll('.row[data-tip]').forEach(function(r) {
+    scope.querySelectorAll('[data-tip]').forEach(function(r) {
       r.addEventListener('mousemove', function(e) { tip.innerHTML = this.getAttribute('data-tip'); tip.style.opacity = 1; tip.style.left = Math.min(e.clientX + 14, window.innerWidth - 280) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; });
       r.addEventListener('mouseleave', function() { tip.style.opacity = 0; });
     });
+  }
+
+  // ===== Trend over time: is the deployment process getting faster? =====
+  var trendMode = 'month', trendModeAuto = true; // auto: fall back to weekly until ships span 2+ months
+  function setTrendMode(m) { trendMode = m; trendModeAuto = false; renderTrend(); bindTips(document.getElementById('trendPanel')); }
+  function bucketStart(iso, mode) {
+    var d = new Date(iso);
+    if (mode === 'month') return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+    var day = (d.getDay() + 6) % 7; // Monday-start weeks
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - day).getTime();
+  }
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function bucketLabel(t, mode) { var d = new Date(t); return mode === 'month' ? MONTHS[d.getMonth()] + ' ’' + String(d.getFullYear()).slice(2) : MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+  function renderTrend() {
+    var tp = document.getElementById('trendPanel'); if (!tp) return;
+    if (trendModeAuto) {
+      var allShips = lastAll.filter(function(d) { return shipped(d) && d.deployed_at && d.created_at; });
+      function nBuckets(mode) { var seen = {}; allShips.forEach(function(d) { seen[bucketStart(new Date(d.deployed_at).getTime(), mode)] = 1; }); return Object.keys(seen).length; }
+      trendMode = nBuckets('month') >= 2 ? 'month' : (nBuckets('week') >= 2 ? 'week' : 'month');
+    }
+    var unit = trendMode === 'month' ? 'month' : 'week';
+    var head = '<div class="panel-head"><div><h2>Is the process getting faster?</h2>'
+      + '<p class="p-sub">Average deployment cycle (created &rarr; shipped) by ' + unit + ' shipped &middot; light dots are individual cards</p></div>'
+      + '<span class="seg"><button class="' + (trendMode === 'week' ? 'on' : '') + '" onclick="setTrendMode(\'week\')">Weekly</button>'
+      + '<button class="' + (trendMode === 'month' ? 'on' : '') + '" onclick="setTrendMode(\'month\')">Monthly</button></span></div>';
+    var ships = lastAll.filter(function(d) { return shipped(d) && d.deployed_at && d.created_at; })
+      .map(function(d) { return { t: new Date(d.deployed_at).getTime(), v: days(new Date(d.deployed_at) - new Date(d.created_at)), name: d.title }; })
+      .sort(function(a, b) { return a.t - b.t; });
+    if (ships.length < 2) { tp.innerHTML = head + '<div class="empty">Not enough shipped cards with dates yet to draw a trend.</div>'; return; }
+    var buckets = {};
+    ships.forEach(function(s) { var k = bucketStart(s.t, trendMode); (buckets[k] = buckets[k] || []).push(s); });
+    var keys = Object.keys(buckets).map(Number).sort(function(a, b) { return a - b; });
+    var pts = keys.map(function(k) {
+      var list = buckets[k], t = 0; list.forEach(function(s) { t += s.v; });
+      return { t: k, avg: Math.round(t / list.length * 10) / 10, n: list.length, list: list };
+    });
+    if (pts.length < 2) { tp.innerHTML = head + '<div class="empty">All shipped cards land in the same ' + unit + ' so far &mdash; the trend line needs at least two. Try the ' + (trendMode === 'month' ? 'weekly' : 'monthly') + ' view, or check back after the next ship.</div>'; return; }
+
+    // verdict: latest bucket vs the one before
+    var last = pts[pts.length - 1], prev = pts[pts.length - 2];
+    var diff = Math.round((last.avg - prev.avg) * 10) / 10;
+    var verdict = diff === 0 ? '<span style="color:var(--muted)">&#8596; Holding steady vs the previous ' + unit + '</span>'
+      : diff < 0 ? '<span style="color:var(--green)">&#9660; ' + Math.abs(diff) + 'd faster than the previous ' + unit + '</span>'
+      : '<span style="color:var(--amber)">&#9650; ' + diff + 'd slower than the previous ' + unit + '</span>';
+    verdict = '<div class="trend-verdict">' + verdict + ' <span style="color:var(--muted); font-weight:500;">(' + last.avg + 'd vs ' + prev.avg + 'd)</span></div>';
+
+    // SVG line chart: x = real time, y = days
+    var W = 720, Hh = 235, ml = 40, mr = 16, mt = 18, mb = 30, pw = W - ml - mr, ph = Hh - mt - mb;
+    var minT = keys[0], maxT = keys[keys.length - 1], span = maxT - minT;
+    var maxV = 0; ships.forEach(function(s) { if (s.v > maxV) maxV = s.v; }); pts.forEach(function(p) { if (p.avg > maxV) maxV = p.avg; });
+    maxV = Math.max(10, Math.ceil(maxV * 1.15 / 10) * 10);
+    function X(t) { return ml + (t - minT) / span * pw; }
+    function Y(v) { return mt + ph - v / maxV * ph; }
+    var svg = '<svg class="trend-svg" viewBox="0 0 ' + W + ' ' + Hh + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Average deployment cycle days per ' + unit + '">';
+    for (var g = 0; g <= 4; g++) {
+      var gv = Math.round(maxV * g / 4), gy = Y(gv);
+      svg += '<line x1="' + ml + '" y1="' + gy + '" x2="' + (W - mr) + '" y2="' + gy + '" stroke="#EEF1F6" stroke-width="1"/>'
+        + '<text x="' + (ml - 6) + '" y="' + (gy + 3) + '" text-anchor="end" font-size="10" fill="#94A0B8">' + gv + 'd</text>';
+    }
+    pts.forEach(function(p) { svg += '<text x="' + X(p.t) + '" y="' + (Hh - 10) + '" text-anchor="middle" font-size="10" fill="#6B7A99">' + bucketLabel(p.t, trendMode) + '</text>'; });
+    // individual ships: light dots at their real ship date
+    ships.forEach(function(s) { svg += '<circle cx="' + X(bucketStart(s.t, trendMode)) + '" cy="' + Y(s.v) + '" r="3.5" fill="#93B9F7" stroke="#fff" stroke-width="1"/>'; });
+    // average line + points
+    var path = pts.map(function(p, i) { return (i ? 'L' : 'M') + X(p.t) + ',' + Y(p.avg); }).join('');
+    svg += '<path d="' + path + '" fill="none" stroke="#1F6FEB" stroke-width="2" stroke-linejoin="round"/>';
+    pts.forEach(function(p) {
+      svg += '<circle cx="' + X(p.t) + '" cy="' + Y(p.avg) + '" r="4.5" fill="#1F6FEB" stroke="#fff" stroke-width="2"/>'
+        + '<text x="' + X(p.t) + '" y="' + (Y(p.avg) - 10) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#0F1F3D">' + p.avg + 'd</text>';
+      var tipHtml = '<b>' + bucketLabel(p.t, trendMode) + '</b> &middot; avg ' + p.avg + 'd over ' + p.n + ' ship' + (p.n === 1 ? '' : 's') + '<br>' + p.list.map(function(s) { return esc(s.name) + ' &mdash; ' + s.v + 'd'; }).join('<br>');
+      svg += '<circle cx="' + X(p.t) + '" cy="' + Y(p.avg) + '" r="14" fill="transparent" data-tip="' + esc(tipHtml) + '"/>';
+    });
+    svg += '</svg>';
+    tp.innerHTML = head + verdict + svg
+      + dataTable([unit.charAt(0).toUpperCase() + unit.slice(1) + ' shipped', 'Ships', 'Avg days'], pts.map(function(p) { return [bucketLabel(p.t, trendMode), p.n, p.avg]; }));
   }
   load();
 </script>
