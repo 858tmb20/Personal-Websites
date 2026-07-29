@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Deployment Metrics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #F4F6F9; --ink: #0F1F3D; --ink-soft: #1E2F52; --muted: #6B7A99; --muted-soft: #94A0B8;
+    --link: #1F6FEB; --rule: #E3E7EE; --rule-soft: #EEF1F6; --card: #FFFFFF;
+    --green: #16A34A; --green-soft: #ECFDF5;
+    --blue: #1F6FEB; --blue-soft: #EAF1FF;
+    --amber: #B7791F; --amber-soft: #FDF4E3;
+    --radius: 8px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  header h1 { font-size: 1.3rem; font-weight: 700; }
+  header p { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+  .hdr-btns { display: flex; gap: 0.5rem; }
+  .btn { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.5rem 0.9rem; cursor: pointer; text-decoration: none; transition: border-color 0.15s; }
+  .btn:hover { border-color: var(--muted-soft); }
+  .refreshed { font-size: 0.72rem; color: var(--muted-soft); margin-bottom: 1rem; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.9rem; margin-bottom: 1.5rem; }
+  .kpi { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.1rem 1.2rem; border-top: 3px solid var(--kc, var(--ink)); }
+  .kpi .k-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem; }
+  .kpi .k-value { font-size: 2.6rem; font-weight: 800; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .kpi .k-value .k-unit { font-size: 1.2rem; font-weight: 700; color: var(--muted); margin-left: 0.1rem; }
+  .kpi .k-sub { font-size: 0.74rem; color: var(--muted); margin-top: 0.55rem; line-height: 1.4; }
+
+  .panel { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.2rem 1.3rem; margin-bottom: 1.1rem; }
+  .panel h2 { font-size: 0.95rem; font-weight: 700; }
+  .panel .p-sub { font-size: 0.76rem; color: var(--muted); margin: 0.15rem 0 1rem; }
+  .rows { display: flex; flex-direction: column; gap: 0.45rem; }
+  .row { display: grid; grid-template-columns: minmax(120px, 240px) 1fr 52px; align-items: center; gap: 0.7rem; }
+  .r-name { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r-track { position: relative; height: 14px; background: var(--rule-soft); border-radius: 4px; }
+  .r-bar { position: absolute; inset: 0 auto 0 0; border-radius: 4px 4px 4px 4px; background: var(--bc); min-width: 3px; }
+  .row:hover .r-bar { filter: brightness(0.92); }
+  .r-val { font-size: 0.76rem; font-weight: 700; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .r-tag { display: inline-block; font-size: 0.62rem; font-weight: 800; border-radius: 4px; padding: 0.08rem 0.3rem; margin-left: 0.35rem; vertical-align: 1px; }
+  .r-tag.pr { background: var(--blue-soft); color: var(--blue); }
+  .r-tag.cr { background: var(--amber-soft); color: var(--amber); }
+  .avg-line { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed var(--muted-soft); }
+  .avg-cap { font-size: 0.68rem; color: var(--muted); margin-top: 0.5rem; }
+  .empty { font-size: 0.82rem; color: var(--muted); padding: 0.7rem 0; }
+  details { margin-top: 0.9rem; }
+  details summary { font-size: 0.74rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.76rem; }
+  th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--rule-soft); }
+  th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  #tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: #fff; font-size: 0.72rem; line-height: 1.45; border-radius: 6px; padding: 0.45rem 0.6rem; max-width: 260px; opacity: 0; transition: opacity 0.1s; }
+  #tip b { font-weight: 700; }
+  .defs { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+  .defs b { color: var(--ink-soft); }
+  @media (max-width: 560px) { .row { grid-template-columns: 90px 1fr 46px; } .kpi .k-value { font-size: 2.1rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>&#128202; Deployment Metrics</h1>
+      <p>How long things wait on EdTech, and how long a change takes end to end</p>
+    </div>
+    <div class="hdr-btns">
+      <button class="btn" onclick="load()">&#8635; Refresh</button>
+      <a class="btn" href="deployment-tracker.html">&#8592; Back to tracker</a>
+    </div>
+  </header>
+  <div class="refreshed" id="refreshed"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="panel" id="waitPanel"></div>
+  <div class="panel" id="cyclePanel"></div>
+  <div class="panel">
+    <h2>How these are measured</h2>
+    <p class="p-sub"></p>
+    <div class="defs">
+      <b>PR wait</b> = "PR created" checked &rarr; "PR approved" checked.<br>
+      <b>CR wait</b> = "Test plan attached" checked (fully in EdTech's hands) &rarr; "CR approved" checked.<br>
+      <b>EdTech wait per card</b> = its PR wait + its CR wait, including waits still running today.<br>
+      <b>Deployment cycle</b> = card created &rarr; moved to "Deployed to Prod". Averages only count finished waits/shipped cards; timestamps started being recorded 2026-07-09, so older cards may not have wait data.
+    </div>
+  </div>
+</div>
+<div id="tip"></div>
+<script>
+  var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
+  var H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+  var DAY = 86400000;
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function shipped(d) { return (d.status || '') === 'deployed_prod' || (d.status || '') === 'deployed'; }
+
+  // Same wait math as the tracker (library.html): PR = created->approved, CR = test-plan-attached->approved.
+  function prWaitMs(d) { if (!d.pr_created || !d.pr_created_at) return null; var end = d.pr_approved_at ? new Date(d.pr_approved_at).getTime() : Date.now(); return Math.max(0, end - new Date(d.pr_created_at).getTime()); }
+  function crWaitMs(d) { if (!d.test_plan_attached || !d.test_plan_attached_at) return null; var end = d.cr_approved_at ? new Date(d.cr_approved_at).getTime() : Date.now(); return Math.max(0, end - new Date(d.test_plan_attached_at).getTime()); }
+  function edtechMs(d) { var p = prWaitMs(d), c = crWaitMs(d); if (p === null && c === null) return null; return (p || 0) + (c || 0); }
+  function openWait(d) {
+    if (d.pr_created && !d.pr_approved && d.pr_created_at) return { since: d.pr_created_at, kind: 'PR' };
+    if (d.test_plan_attached && !d.cr_approved && d.test_plan_attached_at) return { since: d.test_plan_attached_at, kind: 'CR' };
+    return null;
+  }
+  function days(ms) { return Math.round(ms / DAY * 10) / 10; }
+  function fmtD(v) { return v === null ? '&mdash;' : (v < 0.1 ? '<0.1' : v); }
+  function avg(list) { if (!list.length) return null; var t = 0; list.forEach(function(v) { t += v; }); return Math.round(t / list.length / DAY * 10) / 10; }
+
+  function kpiTile(label, value, sub, color) {
+    var v = value === null ? '&mdash;' : value + '<span class="k-unit">d</span>';
+    return '<div class="kpi" style="--kc:' + color + ';"><div class="k-label">' + label + '</div><div class="k-value">' + v + '</div><div class="k-sub">' + sub + '</div></div>';
+  }
+  function barRows(items, max, color, avgVal) {
+    var html = '<div class="rows">';
+    items.forEach(function(it) {
+      var pct = max > 0 ? Math.max(1.5, it.v / max * 100) : 0;
+      html += '<div class="row" data-tip="' + esc(it.tip) + '"><span class="r-name" title="' + esc(it.name) + '">' + esc(it.name) + '</span>'
+        + '<span class="r-track"><span class="r-bar" style="--bc:' + color + '; width:' + pct + '%;"></span></span>'
+        + '<span class="r-val">' + it.v + 'd' + (it.tag ? '<span class="r-tag ' + it.tag.toLowerCase() + '">' + it.tag + '</span>' : '') + '</span></div>';
+    });
+    html += '</div>';
+    if (avgVal !== null && max > 0) html += '<div class="avg-cap">Average: ' + avgVal + 'd</div>';
+    return html;
+  }
+  function dataTable(cols, rows) {
+    var html = '<details><summary>View as table</summary><table><tr>';
+    cols.forEach(function(c, i) { html += '<th' + (i > 0 ? ' class="num"' : '') + '>' + c + '</th>'; });
+    html += '</tr>';
+    rows.forEach(function(r) { html += '<tr>'; r.forEach(function(c, i) { html += '<td' + (i > 0 ? ' class="num"' : '') + '>' + esc(c) + '</td>'; }); html += '</tr>'; });
+    return html + '</table></details>';
+  }
+
+  function load() {
+    fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) {
+      var all = Array.isArray(data) ? data : [];
+      render(all);
+    }).catch(function() { document.getElementById('kpis').innerHTML = '<div class="empty">Could not load data.</div>'; });
+  }
+
+  function render(all) {
+    document.getElementById('refreshed').textContent = 'Live from the deployment tracker · refreshed ' + new Date().toLocaleString();
+
+    // --- KPIs ---
+    var prDone = [], crDone = [], edtech = [], cycles = [];
+    all.forEach(function(d) {
+      if (d.pr_created_at && d.pr_approved_at) prDone.push(new Date(d.pr_approved_at) - new Date(d.pr_created_at));
+      if (d.test_plan_attached_at && d.cr_approved_at) crDone.push(new Date(d.cr_approved_at) - new Date(d.test_plan_attached_at));
+      var e = edtechMs(d); if (e !== null) edtech.push(e);
+      if (shipped(d) && d.deployed_at && d.created_at) cycles.push(new Date(d.deployed_at) - new Date(d.created_at));
+    });
+    var openNow = [], unstamped = 0;
+    all.forEach(function(d) {
+      if (shipped(d)) return;
+      var w = openWait(d);
+      if (w) { openNow.push({ d: d, w: w, ms: Date.now() - new Date(w.since).getTime() }); return; }
+      // waiting, but checked off before timestamp tracking began — can't measure it
+      if ((d.pr_created && !d.pr_approved) || (d.test_plan_attached && !d.cr_approved)) unstamped++;
+    });
+    openNow.sort(function(a, b) { return b.ms - a.ms; });
+
+    document.getElementById('kpis').innerHTML =
+      kpiTile('Avg EdTech wait / card', avg(edtech), 'PR + CR wait combined · ' + edtech.length + ' cards · includes waits still running (' + openNow.length + ' open now)', 'var(--amber)')
+      + kpiTile('Avg PR wait → approval', avg(prDone), prDone.length + ' approved PR' + (prDone.length === 1 ? '' : 's') + ' with timestamps', 'var(--blue)')
+      + kpiTile('Avg CR wait → approval', avg(crDone), crDone.length + ' approved CR' + (crDone.length === 1 ? '' : 's') + ' · measured from test plan attached', 'var(--blue)')
+      + kpiTile('Avg deployment cycle', avg(cycles), cycles.length + ' shipped card' + (cycles.length === 1 ? '' : 's') + ' · created → deployed to Prod', 'var(--ink)');
+
+    // --- Chart A: open waits right now ---
+    var wp = document.getElementById('waitPanel');
+    var head = '<h2>Waiting on EdTech right now</h2><p class="p-sub">Open PR / CR approvals, longest first — the top bar is your best nudge candidate</p>';
+    if (!openNow.length) { wp.innerHTML = head + '<div class="empty">Nothing is waiting on EdTech right now &#127881;</div>'; }
+    else {
+      var items = openNow.map(function(o) { return { name: o.d.title, v: days(o.ms), tag: o.w.kind, tip: '<b>' + esc(o.d.title) + '</b><br>Waiting on ' + o.w.kind + ' approval since ' + new Date(o.w.since).toLocaleDateString() }; });
+      var max = items[0].v;
+      wp.innerHTML = head + barRows(items, max, 'var(--amber)', null)
+        + (unstamped ? '<div class="avg-cap">+' + unstamped + ' more waiting card' + (unstamped === 1 ? '' : 's') + ' from before wait tracking started (no start date recorded)</div>' : '')
+        + dataTable(['Card', 'Waiting on', 'Days'], openNow.map(function(o) { return [o.d.title, o.w.kind + ' approval', days(o.ms)]; }));
+    }
+
+    // --- Chart B: cycle time per shipped card ---
+    var cp = document.getElementById('cyclePanel');
+    var head2 = '<h2>Deployment cycle per shipped card</h2><p class="p-sub">Card created → deployed to Prod, longest first</p>';
+    var shippedCards = all.filter(function(d) { return shipped(d) && d.deployed_at && d.created_at; })
+      .map(function(d) { return { name: d.title, v: days(new Date(d.deployed_at) - new Date(d.created_at)), tag: null, tip: '<b>' + esc(d.title) + '</b><br>Created ' + new Date(d.created_at).toLocaleDateString() + ' → shipped ' + new Date(d.deployed_at).toLocaleDateString() }; })
+      .sort(function(a, b) { return b.v - a.v; });
+    if (!shippedCards.length) { cp.innerHTML = head2 + '<div class="empty">No shipped cards with a recorded ship date yet.</div>'; }
+    else {
+      cp.innerHTML = head2 + barRows(shippedCards, shippedCards[0].v, 'var(--blue)', avg(cycles))
+        + dataTable(['Card', 'Days created → shipped'], shippedCards.map(function(s) { return [s.name, s.v]; }));
+    }
+
+    // hover tooltips
+    var tip = document.getElementById('tip');
+    document.querySelectorAll('.row[data-tip]').forEach(function(r) {
+      r.addEventListener('mousemove', function(e) { tip.innerHTML = this.getAttribute('data-tip'); tip.style.opacity = 1; tip.style.left = Math.min(e.clientX + 14, window.innerWidth - 280) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; });
+      r.addEventListener('mouseleave', function() { tip.style.opacity = 0; });
+    });
+  }
+  load();
+</script>
+</body>
+</html>

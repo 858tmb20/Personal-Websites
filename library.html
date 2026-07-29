@@ -2454,7 +2454,9 @@
     pl += '</div>';
     // Link to the standalone process-overview flowchart (opens in a new tab).
     var processLink = '<a class="process-link" href="process.html" target="_blank" rel="noopener" aria-label="Process overview — opens the full change process in a new tab" title="Open the full change process (new tab)"><span class="pl-ico">&#128220;</span><span>Process overview</span><span class="pl-arr">&#8599;</span></a>';
-    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = processLink + pl + ew;
+    // Metrics dashboard link sits directly under the Waiting-on-EdTech box.
+    var dashLink = '<a class="process-link" href="deploy-dashboard.html" target="_blank" rel="noopener" aria-label="Metrics dashboard — average EdTech, PR, CR and cycle times, opens in a new tab" title="Open the metrics dashboard (new tab)"><span class="pl-ico">&#128202;</span><span>Metrics dashboard</span><span class="pl-arr">&#8599;</span></a>';
+    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = processLink + pl + ew + dashLink;
     var html = '<div class="board">';
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
