@@ -726,6 +726,7 @@
     </div>
     <div class="header-right">
       <button class="btn-add" onclick="openDeployModal(null)">+ Add Item</button>
+      <button class="btn-signout" onclick="copyStatusReport()" title="Copy a readable status summary to paste into Teams or email">&#128203; Copy report</button>
       <button class="btn-signout" onclick="shareTracker(event)">&#128279; Share link</button>
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
@@ -2291,6 +2292,54 @@
   }
   // Block reasons can be paragraphs — keep the banner glanceable.
   function fbTrunc(s, n) { return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s; }
+  // ===== Copy-paste status report — a readable "what's in flight" summary for Teams/email =====
+  function buildStatusReport() {
+    var lines = [];
+    lines.push('DEPLOYMENT STATUS — ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+    lines.push('');
+    for (var c = 0; c < DEPLOY_COLS.length; c++) {
+      var col = DEPLOY_COLS[c];
+      if (col.key === 'deployed_prod') continue;
+      var items = allDeploys.filter(function(d) { return normDeployStatus(d.status) === col.key; });
+      if (!items.length) continue;
+      lines.push(col.title.toUpperCase() + ' (' + items.length + ')');
+      items.forEach(function(d) {
+        var line = '• ' + d.title;
+        if (d.blocked) line += ' — ⛔ BLOCKED' + (d.block_reason ? ': ' + fbTrunc(d.block_reason, 70) : '');
+        else { var ns = nextStep(d); if (ns) line += ' — next: ' + ns.t; }
+        var t = totalLabel(d);
+        if (t !== '—' && t !== 'today') line += ' (' + t + ' in flight)';
+        lines.push(line);
+      });
+      lines.push('');
+    }
+    var waiting = allDeploys.filter(function(d) { return normDeployStatus(d.status) !== 'deployed_prod' && ((d.pr_created && !d.pr_approved) || (d.test_plan_attached && !d.cr_approved)); });
+    if (waiting.length) {
+      lines.push('⏳ WAITING ON EDTECH (' + waiting.length + ')');
+      waiting.forEach(function(d) {
+        var kind = (d.pr_created && !d.pr_approved) ? 'PR approval' : 'CR approval';
+        var w = waitLabel(openWaitStart(d));
+        lines.push('• ' + d.title + ' — ' + kind + (w && w !== 'today' ? ', waiting ' + w : ''));
+      });
+      lines.push('');
+    }
+    var recent = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'deployed_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 14 * 86400000; });
+    if (recent.length) {
+      lines.push('✅ SHIPPED IN THE LAST 2 WEEKS');
+      recent.forEach(function(d) { lines.push('• ' + d.title + ' (' + new Date(d.deployed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ')'); });
+      lines.push('');
+    }
+    lines.push('Live board: https://personal-websites-ten.vercel.app/deployment-tracker.html');
+    lines.push('Metrics: https://personal-websites-ten.vercel.app/deploy-dashboard.html');
+    return lines.join('\n');
+  }
+  function copyStatusReport() {
+    var txt = buildStatusReport();
+    var done = function() { showToast('Report copied — paste into Teams or email'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function() { legacyCopy(txt); done(); });
+    else { legacyCopy(txt); done(); }
+  }
+  function legacyCopy(txt) { var ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); }
   function jumpToCard(id) {
     var card = document.getElementById('dcard-' + id); if (!card) return;
     card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
