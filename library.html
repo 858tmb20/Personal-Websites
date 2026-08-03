@@ -549,7 +549,11 @@
   /* LEARNING TRACKER */
   .learn-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
   .learn-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
+  .learn-item.is-starred { background: #FFFBEB; }
   .learn-item.is-focus { background: #FFFBEB; border-left: 4px solid #F59E0B; padding-left: calc(1.1rem - 4px); }
+  .btn-focus { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
+  .btn-focus:hover { border-color: #F59E0B; color: #B45309; }
+  .btn-focus.on { background: #FEF3E2; border-color: #F59E0B; color: #B45309; }
   .learn-item.is-focus .li-title { font-weight: 700; }
   .li-focus-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #B45309; background: #FEF3E2; border: 1px solid #F59E0B; border-radius: 999px; padding: 0.15rem 0.5rem; }
   .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.25rem; color: var(--muted-soft); line-height: 1; padding: 0; }
@@ -2101,24 +2105,28 @@
   }
   function renderLearn() {
     var list = allLearn.slice();
-    list.sort(function(a, b) { return (a.focused ? 0 : 1) - (b.focused ? 0 : 1); });
-    var nFocus = list.filter(function(x) { return x.focused; }).length;
-    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nFocus + '/2 focus slots used';
+    function rank(x) { return x.priority === 'focus' ? 0 : (x.focused ? 1 : 2); }
+    list.sort(function(a, b) { return rank(a) - rank(b); });
+    var nFocus = list.filter(function(x) { return x.priority === 'focus'; }).length;
+    var nStar = list.filter(function(x) { return x.focused; }).length;
+    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nStar + ' starred \u00b7 ' + nFocus + '/2 in focus';
     if (!list.length) { document.getElementById('learnList').innerHTML = '<div class="empty"><strong>Nothing yet</strong>Type what you\'re learning above and hit Add.</div>'; return; }
     var html = '<div class="learn-list">';
     for (var i = 0; i < list.length; i++) {
       var x = list[i];
       var link = x.url ? '<a class="btn-open" href="' + esc(x.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '';
-      html += '<div class="learn-item' + (x.focused ? ' is-focus' : '') + '">'
+      var isFocus = x.priority === 'focus';
+      html += '<div class="learn-item' + (isFocus ? ' is-focus' : (x.focused ? ' is-starred' : '')) + '">'
         + '<button class="li-star' + (x.focused ? ' on' : '') + '" data-lstar="' + esc(x.id) + '" title="Star what you\'re focused on" aria-label="Toggle focus">' + (x.focused ? '&#9733;' : '&#9734;') + '</button>'
         + '<div class="li-title">' + esc(x.title) + '</div>'
-        + (x.focused ? '<span class="li-focus-badge">FOCUS</span>' : '')
-        + '<div class="li-acts">' + link + '<button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
+        + (isFocus ? '<span class="li-focus-badge">FOCUS</span>' : '')
+        + '<div class="li-acts">' + link + '<button class="btn-focus' + (isFocus ? ' on' : '') + '" data-lfocus="' + esc(x.id) + '" title="Focus = the 1-2 things you\'re actively working">' + (isFocus ? 'Unfocus' : 'Focus') + '</button><button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
         + '</div>';
     }
     html += '</div>';
     document.getElementById('learnList').innerHTML = html;
     document.querySelectorAll('[data-lstar]').forEach(function(b) { b.addEventListener('click', function() { toggleFocus(this.getAttribute('data-lstar')); }); });
+    document.querySelectorAll('[data-lfocus]').forEach(function(b) { b.addEventListener('click', function() { toggleFocusMode(this.getAttribute('data-lfocus')); }); });
     document.querySelectorAll('[data-ledit]').forEach(function(b) { b.addEventListener('click', function() { openLearnModal(findLearn(this.getAttribute('data-ledit'))); }); });
     document.querySelectorAll('[data-ldel]').forEach(function(b) { b.addEventListener('click', function() { deleteLearn(this.getAttribute('data-ldel')); }); });
   }
@@ -2146,13 +2154,20 @@
   }
   function toggleFocus(id) {
     var item = findLearn(id); if (!item) return;
-    // Focus is a scarce resource: max 2 items, on purpose. Unstar something to make room.
-    if (!item.focused) {
-      var focusedNow = allLearn.filter(function(x) { return x.focused; }).length;
-      if (focusedNow >= 2) { showToast('Focus is limited to 2 \u2014 unstar one first'); return; }
-    }
     var prev = !!item.focused; item.focused = !prev; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: item.focused }) }).then(function(res) { if (!res.ok) { item.focused = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.focused = prev; renderLearn(); });
+  }
+  // Focus mode: max 2 items, stored in the (previously unused) priority column as 'focus'.
+  // Stars = unlimited "this matters" pile; Focus = the 1-2 you're actively working.
+  function toggleFocusMode(id) {
+    var item = findLearn(id); if (!item) return;
+    var isFocus = item.priority === 'focus';
+    if (!isFocus) {
+      var n = allLearn.filter(function(x) { return x.priority === 'focus'; }).length;
+      if (n >= 2) { showToast('Focus is limited to 2 \u2014 unfocus one first'); return; }
+    }
+    var prev = item.priority; item.priority = isFocus ? null : 'focus'; renderLearn();
+    fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ priority: item.priority }) }).then(function(res) { if (!res.ok) { item.priority = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.priority = prev; renderLearn(); });
   }
   function deleteLearn(id) { if (!confirm('Remove this?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchLearn(); }); }
 
