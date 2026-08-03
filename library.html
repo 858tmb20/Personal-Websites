@@ -549,7 +549,9 @@
   /* LEARNING TRACKER */
   .learn-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
   .learn-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
-  .learn-item.is-focus { background: #FFFBEB; }
+  .learn-item.is-focus { background: #FFFBEB; border-left: 4px solid #F59E0B; padding-left: calc(1.1rem - 4px); }
+  .learn-item.is-focus .li-title { font-weight: 700; }
+  .li-focus-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #B45309; background: #FEF3E2; border: 1px solid #F59E0B; border-radius: 999px; padding: 0.15rem 0.5rem; }
   .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.25rem; color: var(--muted-soft); line-height: 1; padding: 0; }
   .li-star.on { color: #F59E0B; }
   .learn-item .li-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; color: var(--ink); word-break: break-word; }
@@ -2100,7 +2102,8 @@
   function renderLearn() {
     var list = allLearn.slice();
     list.sort(function(a, b) { return (a.focused ? 0 : 1) - (b.focused ? 0 : 1); });
-    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '');
+    var nFocus = list.filter(function(x) { return x.focused; }).length;
+    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nFocus + '/2 focus slots used';
     if (!list.length) { document.getElementById('learnList').innerHTML = '<div class="empty"><strong>Nothing yet</strong>Type what you\'re learning above and hit Add.</div>'; return; }
     var html = '<div class="learn-list">';
     for (var i = 0; i < list.length; i++) {
@@ -2109,6 +2112,7 @@
       html += '<div class="learn-item' + (x.focused ? ' is-focus' : '') + '">'
         + '<button class="li-star' + (x.focused ? ' on' : '') + '" data-lstar="' + esc(x.id) + '" title="Star what you\'re focused on" aria-label="Toggle focus">' + (x.focused ? '&#9733;' : '&#9734;') + '</button>'
         + '<div class="li-title">' + esc(x.title) + '</div>'
+        + (x.focused ? '<span class="li-focus-badge">FOCUS</span>' : '')
         + '<div class="li-acts">' + link + '<button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
         + '</div>';
     }
@@ -2142,6 +2146,11 @@
   }
   function toggleFocus(id) {
     var item = findLearn(id); if (!item) return;
+    // Focus is a scarce resource: max 2 items, on purpose. Unstar something to make room.
+    if (!item.focused) {
+      var focusedNow = allLearn.filter(function(x) { return x.focused; }).length;
+      if (focusedNow >= 2) { showToast('Focus is limited to 2 \u2014 unstar one first'); return; }
+    }
     var prev = !!item.focused; item.focused = !prev; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: item.focused }) }).then(function(res) { if (!res.ok) { item.focused = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.focused = prev; renderLearn(); });
   }
