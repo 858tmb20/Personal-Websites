@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trent Bacon — Engineering Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --bg: #F4F6F9; --ink: #0F1F3D; --muted: #6B7A99; --muted-soft: #94A0B8; --link: #1F6FEB;
+    --rule: #E3E7EE; --card: #FFFFFF; --green: #16A34A; --green-soft: #ECFDF5; --amber: #B45309; --amber-soft: #FEF3E2; --radius: 10px; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  header { margin-bottom: 2.2rem; }
+  .crumb { font-size: 0.78rem; margin-bottom: 1.6rem; }
+  .crumb a { color: var(--muted); text-decoration: none; }
+  .crumb a:hover { color: var(--link); }
+  h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  .lede { color: var(--muted); max-width: 62ch; font-size: 0.98rem; }
+  .lede b { color: var(--ink); }
+  h2 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 2.4rem 0 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .proj { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .proj.wide { grid-column: 1 / -1; }
+  .proj-top { display: flex; align-items: center; gap: 0.6rem; }
+  .proj h3 { font-size: 1.05rem; font-weight: 700; }
+  .status { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; border-radius: 999px; padding: 0.18rem 0.6rem; white-space: nowrap; }
+  .status.live { background: var(--green-soft); color: var(--green); }
+  .status.building { background: var(--amber-soft); color: var(--amber); }
+  .status.work { background: #EAF1FF; color: #1F5FD6; }
+  .proj p { font-size: 0.88rem; color: var(--ink); }
+  .shows { font-size: 0.8rem; color: var(--muted); border-left: 3px solid var(--link); padding-left: 0.7rem; }
+  .shows b { color: var(--ink); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .chip { font-size: 0.68rem; font-weight: 600; background: var(--bg); border: 1px solid var(--rule); border-radius: 999px; padding: 0.15rem 0.55rem; color: var(--muted); }
+  .links { display: flex; gap: 0.9rem; margin-top: auto; padding-top: 0.4rem; }
+  .links a { font-size: 0.82rem; font-weight: 600; color: var(--link); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+  footer { margin-top: 3rem; font-size: 0.78rem; color: var(--muted-soft); }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="crumb"><a href="/library.html">&#8962; Home</a> &nbsp;&middot;&nbsp; <a href="/portfolio.html">About me</a></div>
+  <h1>Engineering Projects</h1>
+  <p class="lede">Working proof, not claims: things I've <b>built, shipped, and can walk through line by line</b> — web apps in production, Apex delivered through a real release pipeline, and systems analysis of an enterprise org. Everything linked here is live and clickable.</p>
+</header>
+
+<h2>Live &amp; in production</h2>
+<div class="grid">
+  <div class="proj">
+    <div class="proj-top"><h3>Deployment Tracker</h3><span class="status live">Live · used by my team</span></div>
+    <p>A pipeline board for Salesforce deployments — per-card checklists (PR → Dev/QA → CR → Prod), blocked-reason tracking, wait-time timers on EdTech approvals, a computed "next step" banner, and a one-click plain-text status report for stakeholders.</p>
+    <div class="shows"><b>Shows:</b> end-to-end feature delivery, REST CRUD against Postgres, UX for real operational pain, iterating in production with users.</div>
+    <div class="chips"><span class="chip">JavaScript</span><span class="chip">Supabase REST API</span><span class="chip">Vercel</span><span class="chip">CI-aware UX</span></div>
+    <div class="links"><a href="/deployment-tracker.html">Open the tracker →</a></div>
+  </div>
+  <div class="proj">
+    <div class="proj-top"><h3>Deployment Metrics Dashboard</h3><span class="status live">Live</span></div>
+    <p>Analytics layer on the tracker's data: average EdTech wait per card, PR and CR approval times, deployment cycle time, and a weekly/monthly trend line answering "are we getting faster?" — with honest handling of unmeasurable legacy data.</p>
+    <div class="shows"><b>Shows:</b> metrics design, SVG charting from scratch, data honesty (n-counts, untracked-data caveats), consuming my own API.</div>
+    <div class="chips"><span class="chip">JavaScript</span><span class="chip">SVG charts</span><span class="chip">Supabase</span></div>
+    <div class="links"><a href="/deploy-dashboard.html">Open the dashboard →</a></div>
+  </div>
+  <div class="proj">
+    <div class="proj-top"><h3>Cert Flashcards</h3><span class="status live">Live</span></div>
+    <p>A spaced-repetition flashcard app: 142 cards across PD1, PD2, and JavaScript Developer I, with flip/shuffle, per-topic filters, and mastery state persisted in localStorage.</p>
+    <div class="shows"><b>Shows:</b> vanilla JavaScript fundamentals — state management, event handling, DOM rendering, browser storage. No framework, on purpose.</div>
+    <div class="chips"><span class="chip">JavaScript</span><span class="chip">localStorage</span><span class="chip">Zero dependencies</span></div>
+    <div class="links"><a href="/flashcards.html">Open the flashcards →</a></div>
+  </div>
+  <div class="proj">
+    <div class="proj-top"><h3>Sprint Forecaster</h3><span class="status live">Live</span></div>
+    <p>A client-side Jira velocity analyzer: load a sprint CSV export, get rolling velocity, a commitment verdict (on track / stretch / overcommitted), and a copyable summary line. Built because live Jira API access was blocked by a corporate allowlist — so the data comes to the tool instead.</p>
+    <div class="shows"><b>Shows:</b> CSV parsing edge cases, working around integration constraints, turning raw exports into decisions.</div>
+    <div class="chips"><span class="chip">JavaScript</span><span class="chip">CSV parsing</span><span class="chip">No backend</span></div>
+    <div class="links"><a href="/jira-forecaster.html">Open the forecaster →</a></div>
+  </div>
+</div>
+
+<h2>Salesforce engineering at WGU</h2>
+<div class="grid">
+  <div class="proj wide">
+    <div class="proj-top"><h3>Org Documentation &amp; Systems Analysis</h3><span class="status work">Work · internal</span></div>
+    <p>Full static analysis of our Partner Management org — 78 objects, 148 flows, 124 Apex classes, 8 triggers — synthesized into team documentation with process-flow diagrams: the partner lifecycle, lead conversion (including the exact conversion criteria and field mappings as encoded), and post-won management. The analysis surfaced ten concrete findings, including a flow routing branch whose AND/OR logic can never fire, a fully-built-but-unwired integration, and untracked configuration drift between production and source control.</p>
+    <div class="shows"><b>Shows:</b> tracing behavior across triggers + flows + integrations, technical-debt identification, documentation as an engineering deliverable. Artifacts available on request (internal).</div>
+    <div class="chips"><span class="chip">Metadata analysis</span><span class="chip">Process diagrams</span><span class="chip">Kafka platform events</span><span class="chip">Findings backlog</span></div>
+  </div>
+  <div class="proj">
+    <div class="proj-top"><h3>Release Pipeline Ownership</h3><span class="status work">Work · daily</span></div>
+    <p>Co-own the CI/CD path for a 300+ user org: every PR runs a check-only deployment against the Develop sandbox with full local test runs as a quality gate, plus scratch-org build validation, through to ServiceNow change management.</p>
+    <div class="shows"><b>Shows:</b> promotion-pipeline discipline, quality gates, environment strategy — the deployment half of the SE role, practiced daily.</div>
+    <div class="chips"><span class="chip">Salesforce CLI</span><span class="chip">GitHub Actions</span><span class="chip">RunLocalTests</span><span class="chip">ServiceNow CRs</span></div>
+  </div>
+  <div class="proj">
+    <div class="proj-top"><h3>Tealium CDP Integration</h3><span class="status work">Work</span></div>
+    <p>Apex integration syncing five pipeline events across Lead and Opportunity into Tealium, built on a trigger-handler architecture with SHA-256 email hashing for compliance — designed to fail visibly rather than silently.</p>
+    <div class="shows"><b>Shows:</b> trigger-framework Apex, outbound integration payload design, compliance handling, error-visibility as a design principle.</div>
+    <div class="chips"><span class="chip">Apex</span><span class="chip">Trigger handler</span><span class="chip">SHA-256</span><span class="chip">CDP</span></div>
+  </div>
+</div>
+
+<h2>In the workshop</h2>
+<div class="grid">
+  <div class="proj wide">
+    <div class="proj-top"><h3>Partner Renewal Engine</h3><span class="status building">In progress · dev org</span></div>
+    <p>An async Apex build designed from scratch: a Schedulable scans partner agreements approaching renewal, launches Queueable jobs with Finalizer-based retry to create renewal records and notifications, an outbound callout stage with mocked tests, and an inbound REST endpoint — the full pattern set, built stage by stage with 200-record bulk tests at every step. Modeled on a real gap found during the org analysis: renewal dates existed in the data model with no automation watching them.</p>
+    <div class="shows"><b>Shows (in progress):</b> async architecture from scratch — Batch/Queueable/Schedulable, retry logic, transaction boundaries, callout mocking, test-first bulk discipline.</div>
+    <div class="chips"><span class="chip">Apex</span><span class="chip">Queueable + Finalizer</span><span class="chip">Schedulable</span><span class="chip">HttpCalloutMock</span><span class="chip">Trigger framework</span></div>
+  </div>
+</div>
+
+<footer>Trent Bacon · <a href="/portfolio.html">about me</a> · <a href="https://www.linkedin.com/in/trent-bacon">LinkedIn</a> · Every "live" link above is the real running app, not a screenshot.</footer>
+</div>
+</body>
+</html>

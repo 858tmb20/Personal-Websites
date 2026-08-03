@@ -20,7 +20,7 @@ body { background:var(--bg); color:var(--ink); font-family:Arial,Helvetica,sans-
 h1 { font-size:1.15rem; color:var(--navy); margin:0 0 0.2rem; }
 .sub { font-size:0.8rem; color:var(--muted); margin-bottom:1rem; }
 .controls { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; }
-select, button.ctl { font:inherit; font-size:0.82rem; padding:0.45rem 0.8rem; border-radius:8px; border:1px solid var(--rule); background:var(--card); color:var(--ink); cursor:pointer; }
+select, button.ctl, a.ctl { font:inherit; font-size:0.82rem; padding:0.45rem 0.8rem; border-radius:8px; border:1px solid var(--rule); background:var(--card); color:var(--ink); cursor:pointer; }
 button.ctl:hover { border-color:var(--accent); }
 .prog { font-size:0.78rem; color:var(--muted); margin-left:auto; align-self:center; font-variant-numeric:tabular-nums; }
 .card { background:var(--card); border:1px solid var(--rule); border-radius:14px; min-height:270px; padding:1.6rem 1.5rem; cursor:pointer;
@@ -43,6 +43,7 @@ button.ctl:hover { border-color:var(--accent); }
 <h1>Salesforce cert flashcards — PD1 · PD2 · JavaScript · WGU SE II</h1>
 <div class="sub">Built from the docs-verified Apex course · tap the card to flip · "Got it" hides a card until you reset</div>
 <div class="controls">
+  <a class="ctl" href="/library.html" style="text-decoration:none;">&#8962; Home</a>
   <select id="exam"><option value="ALL">PD1 + PD2</option><option value="PD1" selected>PD1 only</option><option value="PD2">PD2 only</option><option value="JS">JavaScript cert</option><option value="WGU">WGU SE II extras</option></select>
   <select id="topic"><option value="ALL">All topics</option></select>
   <button class="ctl" id="shuffle">Shuffle</button>
