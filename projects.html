@@ -45,7 +45,7 @@
 <body>
 <div class="wrap">
 <header>
-  <div class="crumb"><a href="/library.html">&#8962; Home</a> &nbsp;&middot;&nbsp; <a href="/portfolio.html">About me</a></div>
+  <div class="crumb" id="crumb"><a href="/library.html">&#8962; Home</a> &nbsp;&middot;&nbsp; <a href="/portfolio.html">About me</a> &nbsp;&middot;&nbsp; <a href="#" id="shareBtn">&#128279; Copy share link</a></div>
   <h1>Engineering Projects</h1>
   <p class="lede">Working proof, not claims: things I've <b>built, shipped, and can walk through line by line</b> — web apps in production, Apex delivered through a real release pipeline, and systems analysis of an enterprise org. Everything linked here is live and clickable.</p>
 </header>
@@ -114,7 +114,21 @@
   </div>
 </div>
 
-<footer>Trent Bacon · <a href="/portfolio.html">about me</a> · <a href="https://www.linkedin.com/in/trent-bacon">LinkedIn</a> · Every "live" link above is the real running app, not a screenshot.</footer>
+<footer id="foot">Trent Bacon · <a href="https://www.linkedin.com/in/trent-bacon">LinkedIn</a> · Every "live" link above is the real running app, not a screenshot.</footer>
+<script>
+  // ?share = clean view for recruiters/hiring managers: no navigation back into the personal site
+  if (new URLSearchParams(location.search).has('share')) {
+    document.getElementById('crumb').style.display = 'none';
+  } else {
+    document.getElementById('shareBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      var url = location.origin + '/projects.html?share';
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
+        function(){ e.target.textContent = '\u2713 Copied!'; },
+        function(){ prompt('Copy this link:', url); });
+    });
+  }
+</script>
 </div>
 </body>
 </html>
