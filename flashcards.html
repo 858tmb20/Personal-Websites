@@ -68,6 +68,7 @@ function pool(){ const e=$('exam').value, t=$('topic').value;
 function save(){ localStorage.setItem('pdcards_mastered', JSON.stringify([...mastered])); }
 function ansHTML(a){
   let parts = a.split(' · ');
+  if(parts.length<2){ const arr = a.split(' → '); if(arr.length>2) parts=arr; }
   if(parts.length<2){ const lab = a.split(/(?=Situation:|Task[/]Action:|Task:|Action:|Result:)/); if(lab.length>1) parts=lab; }
   if(parts.length<2){ const num = a.split(/ (?=[(][0-9][)])/); if(num.length>1) parts=num; }
   if(parts.length<2) return a;
