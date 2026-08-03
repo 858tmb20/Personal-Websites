@@ -38,6 +38,12 @@
   .links { display: flex; gap: 0.9rem; margin-top: auto; padding-top: 0.4rem; }
   .links a { font-size: 0.82rem; font-weight: 600; color: var(--link); text-decoration: none; }
   .links a:hover { text-decoration: underline; }
+  .shots { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .shots img { height: 110px; border-radius: 6px; border: 1px solid var(--rule); cursor: zoom-in; max-width: 100%; object-fit: cover; }
+  .shots img:hover { border-color: var(--link); }
+  .shots-hint { font-size: 0.7rem; color: var(--muted-soft); border: 1px dashed var(--rule); border-radius: 6px; padding: 0.5rem 0.7rem; }
+  #lightbox { position: fixed; inset: 0; background: rgba(10,20,40,0.88); display: none; align-items: center; justify-content: center; z-index: 50; cursor: zoom-out; padding: 2rem; }
+  #lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
   footer { margin-top: 3rem; font-size: 0.78rem; color: var(--muted-soft); }
   footer a { color: var(--muted); }
 </style>
@@ -57,6 +63,7 @@
     <p>A pipeline board for Salesforce deployments — per-card checklists (PR → Dev/QA → CR → Prod), blocked-reason tracking, wait-time timers on EdTech approvals, a computed "next step" banner, and a one-click plain-text status report for stakeholders.</p>
     <div class="shows"><b>Shows:</b> end-to-end feature delivery, REST CRUD against Postgres, UX for real operational pain, iterating in production with users.</div>
     <div class="chips"><span class="chip">JavaScript</span><span class="chip">Supabase REST API</span><span class="chip">Vercel</span><span class="chip">CI-aware UX</span></div>
+    <div class="shots" data-shots="tracker"></div>
     <div class="links"><a href="/deployment-tracker.html">Open the tracker →</a></div>
   </div>
   <div class="proj">
@@ -64,6 +71,7 @@
     <p>Analytics layer on the tracker's data: average EdTech wait per card, PR and CR approval times, deployment cycle time, and a weekly/monthly trend line answering "are we getting faster?" — with honest handling of unmeasurable legacy data.</p>
     <div class="shows"><b>Shows:</b> metrics design, SVG charting from scratch, data honesty (n-counts, untracked-data caveats), consuming my own API.</div>
     <div class="chips"><span class="chip">JavaScript</span><span class="chip">SVG charts</span><span class="chip">Supabase</span></div>
+    <div class="shots" data-shots="dashboard"></div>
     <div class="links"><a href="/deploy-dashboard.html">Open the dashboard →</a></div>
   </div>
   <div class="proj">
@@ -71,6 +79,7 @@
     <p>A spaced-repetition flashcard app: 142 cards across PD1, PD2, and JavaScript Developer I, with flip/shuffle, per-topic filters, and mastery state persisted in localStorage.</p>
     <div class="shows"><b>Shows:</b> vanilla JavaScript fundamentals — state management, event handling, DOM rendering, browser storage. No framework, on purpose.</div>
     <div class="chips"><span class="chip">JavaScript</span><span class="chip">localStorage</span><span class="chip">Zero dependencies</span></div>
+    <div class="shots" data-shots="flashcards"></div>
     <div class="links"><a href="/flashcards.html">Open the flashcards →</a></div>
   </div>
   <div class="proj">
@@ -78,6 +87,7 @@
     <p>A client-side Jira velocity analyzer: load a sprint CSV export, get rolling velocity, a commitment verdict (on track / stretch / overcommitted), and a copyable summary line. Built because live Jira API access was blocked by a corporate allowlist — so the data comes to the tool instead.</p>
     <div class="shows"><b>Shows:</b> CSV parsing edge cases, working around integration constraints, turning raw exports into decisions.</div>
     <div class="chips"><span class="chip">JavaScript</span><span class="chip">CSV parsing</span><span class="chip">No backend</span></div>
+    <div class="shots" data-shots="forecaster"></div>
     <div class="links"><a href="/jira-forecaster.html">Open the forecaster →</a></div>
   </div>
 </div>
@@ -89,18 +99,21 @@
     <p>Full static analysis of our Partner Management org — 78 objects, 148 flows, 124 Apex classes, 8 triggers — synthesized into team documentation with process-flow diagrams: the partner lifecycle, lead conversion (including the exact conversion criteria and field mappings as encoded), and post-won management. The analysis surfaced ten concrete findings, including a flow routing branch whose AND/OR logic can never fire, a fully-built-but-unwired integration, and untracked configuration drift between production and source control.</p>
     <div class="shows"><b>Shows:</b> tracing behavior across triggers + flows + integrations, technical-debt identification, documentation as an engineering deliverable. Artifacts available on request (internal).</div>
     <div class="chips"><span class="chip">Metadata analysis</span><span class="chip">Process diagrams</span><span class="chip">Kafka platform events</span><span class="chip">Findings backlog</span></div>
+    <div class="shots" data-shots="orgdocs"></div>
   </div>
   <div class="proj">
     <div class="proj-top"><h3>Release Pipeline Ownership</h3><span class="status work">Work · daily</span></div>
     <p>Co-own the CI/CD path for a 300+ user org: every PR runs a check-only deployment against the Develop sandbox with full local test runs as a quality gate, plus scratch-org build validation, through to ServiceNow change management.</p>
     <div class="shows"><b>Shows:</b> promotion-pipeline discipline, quality gates, environment strategy — the deployment half of the SE role, practiced daily.</div>
     <div class="chips"><span class="chip">Salesforce CLI</span><span class="chip">GitHub Actions</span><span class="chip">RunLocalTests</span><span class="chip">ServiceNow CRs</span></div>
+    <div class="shots" data-shots="pipeline"></div>
   </div>
   <div class="proj">
     <div class="proj-top"><h3>Tealium CDP Integration</h3><span class="status work">Work</span></div>
     <p>Apex integration syncing five pipeline events across Lead and Opportunity into Tealium, built on a trigger-handler architecture with SHA-256 email hashing for compliance — designed to fail visibly rather than silently.</p>
     <div class="shows"><b>Shows:</b> trigger-framework Apex, outbound integration payload design, compliance handling, error-visibility as a design principle.</div>
     <div class="chips"><span class="chip">Apex</span><span class="chip">Trigger handler</span><span class="chip">SHA-256</span><span class="chip">CDP</span></div>
+    <div class="shots" data-shots="tealium"></div>
   </div>
 </div>
 
@@ -111,6 +124,7 @@
     <p>An async Apex build designed from scratch: a Schedulable scans partner agreements approaching renewal, launches Queueable jobs with Finalizer-based retry to create renewal records and notifications, an outbound callout stage with mocked tests, and an inbound REST endpoint — the full pattern set, built stage by stage with 200-record bulk tests at every step. Modeled on a real gap found during the org analysis: renewal dates existed in the data model with no automation watching them.</p>
     <div class="shows"><b>Shows (in progress):</b> async architecture from scratch — Batch/Queueable/Schedulable, retry logic, transaction boundaries, callout mocking, test-first bulk discipline.</div>
     <div class="chips"><span class="chip">Apex</span><span class="chip">Queueable + Finalizer</span><span class="chip">Schedulable</span><span class="chip">HttpCalloutMock</span><span class="chip">Trigger framework</span></div>
+    <div class="shots" data-shots="renewal"></div>
   </div>
 </div>
 
