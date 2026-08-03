@@ -550,12 +550,12 @@
   .learn-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
   .learn-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
   .learn-item.is-starred { background: #FFFBEB; }
-  .learn-item.is-focus { background: #FFFBEB; border-left: 4px solid #F59E0B; padding-left: calc(1.1rem - 4px); }
+  .learn-item.is-focus { background: #ECFDF5; border-left: 4px solid #16A34A; padding-left: calc(1.1rem - 4px); }
   .btn-focus { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
-  .btn-focus:hover { border-color: #F59E0B; color: #B45309; }
-  .btn-focus.on { background: #FEF3E2; border-color: #F59E0B; color: #B45309; }
+  .btn-focus:hover { border-color: #16A34A; color: #15803D; }
+  .btn-focus.on { background: #ECFDF5; border-color: #16A34A; color: #15803D; }
   .learn-item.is-focus .li-title { font-weight: 700; }
-  .li-focus-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #B45309; background: #FEF3E2; border: 1px solid #F59E0B; border-radius: 999px; padding: 0.15rem 0.5rem; }
+  .li-focus-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #15803D; background: #ECFDF5; border: 1px solid #16A34A; border-radius: 999px; padding: 0.15rem 0.5rem; }
   .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.25rem; color: var(--muted-soft); line-height: 1; padding: 0; }
   .li-star.on { color: #F59E0B; }
   .learn-item .li-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; color: var(--ink); word-break: break-word; }
@@ -2166,7 +2166,7 @@
       var n = allLearn.filter(function(x) { return x.priority === 'focus'; }).length;
       if (n >= 2) { showToast('Focus is limited to 2 \u2014 unfocus one first'); return; }
     }
-    var prev = item.priority; item.priority = isFocus ? null : 'focus'; renderLearn();
+    var prev = item.priority; item.priority = isFocus ? 'medium' : 'focus'; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ priority: item.priority }) }).then(function(res) { if (!res.ok) { item.priority = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.priority = prev; renderLearn(); });
   }
   function deleteLearn(id) { if (!confirm('Remove this?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchLearn(); }); }
