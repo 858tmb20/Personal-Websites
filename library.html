@@ -261,10 +261,6 @@
   .group-count { font-size: 0.72rem; font-weight: 600; color: #fff; background: var(--gc); padding: 2px 9px; border-radius: 11px; }
   .subcat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 0.7rem; }
   .tool-col .subcat-label:first-of-type { margin-top: 0.25rem; }
-  .alltools-head { display: flex; align-items: center; gap: 0.7rem; margin: 0.5rem 0 1.2rem; }
-  .alltools-bar { width: 5px; height: 24px; border-radius: 3px; background: var(--link); }
-  .alltools-title { font-size: 1.25rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
-  .alltools-hint { margin-left: auto; font-size: 0.7rem; color: var(--muted-soft); font-weight: 600; }
   .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
   .cols-2 .group-head { margin-top: 0.5rem; }
   .cols-2 .tools-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
@@ -1527,7 +1523,7 @@
   // How many cards to show before "Show all" kicks in, per section
   var TOOLS_PREVIEW_COUNT = 6;
   // Which sections are expanded right now (session state; defaults to collapsed-preview)
-  var toolsExpanded = { work: false, personal: false, links: false };
+  var toolsExpanded = { tools: false, links: false };
   function toggleToolsSection(key) {
     toolsExpanded[key] = !toolsExpanded[key];
     applyFilters(); // re-renders home
@@ -1554,59 +1550,37 @@
   }
 
   function buildAllToolsGrid(links) {
-    // Apply the Work/Personal scope filter
-    var scoped = links.filter(function(l) {
-      var t = l.link_type || 'personal';
+    // ONE merged grid (2026-08-04): every tool appears exactly once, tagged with its
+    // scope in the card eyebrow. The Work/Personal filter buttons narrow the grid;
+    // 'both' items show under either scope. No more duplicate cards across sections.
+    function inScope(t) {
+      t = t || 'personal';
       if (homeFilter === 'work') return t === 'work' || t === 'both';
       if (homeFilter === 'personal') return t === 'personal' || t === 'both';
       return true;
-    });
-
-    // Built-in tool cards for each scope
-    var workBuiltins = [
-      builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();', share: true }),
-      builtinToolCard({ type: 'Work', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
-      builtinToolCard({ type: 'Work', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
-      builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }),
-      builtinToolCard({ type: 'Work', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }),
-      builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' })
-    ];
-    var personalBuiltins = [
-      builtinToolCard({ type: 'Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }),
-      builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }),
-      builtinToolCard({ type: 'Personal', color: '#9333EA', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, and how-to guides in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }),
-      builtinToolCard({ type: 'Personal', color: '#0891B2', icon: '&#9729;', name: 'Cloud Path Launch', desc: 'Your Cloud Path Consulting business launch checklist — check off each step.', href: 'cloud-path-checklist.html', target: '_blank' }),
-      builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' }),
-      builtinToolCard({ type: 'Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' })
-    ];
-
-    // Sort the user's saved links into work vs personal buckets
-    var workLinks = [], personalLinks = [];
-    for (var i = 0; i < scoped.length; i++) {
-      var t = scoped[i].link_type || 'personal';
-      var card = toolCardHTML(scoped[i]);
-      if (t === 'work') workLinks.push(card);
-      else if (t === 'personal') personalLinks.push(card);
-      else { workLinks.push(card); personalLinks.push(card); } // 'both'
     }
 
-    var totalCount = scoped.length + (homeFilter !== 'personal' ? workBuiltins.length : 0) + (homeFilter !== 'work' ? personalBuiltins.length : 0);
+    // Built-in tools, each once, with the scope it belongs to.
+    var builtins = [
+      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#1F6FEB', icon: '&#9783;', name: 'Deployment Tracker', desc: 'Track what needs deploying, what\'s in progress, and what\'s done.', href: '#', onclick: 'event.preventDefault(); openTracker();', share: true }) },
+      { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }) },
+      { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }) },
+      { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }) },
+      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }) },
+      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' }) },
+      { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }) },
+      { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0891B2', icon: '&#9729;', name: 'Cloud Path Launch', desc: 'Your Cloud Path Consulting business launch checklist — check off each step.', href: 'cloud-path-checklist.html', target: '_blank' }) },
+      { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' }) }
+    ];
+
+    var cards = [];
+    builtins.forEach(function(b) { if (inScope(b.scope)) cards.push(b.card); });
+    links.forEach(function(l) { if (inScope(l.link_type)) cards.push(toolCardHTML(l)); });
+
     var scopeLabel = homeFilter === 'work' ? 'Work tools' : homeFilter === 'personal' ? 'Personal tools' : 'All tools';
-    var head = '<div class="alltools-head"><span class="alltools-bar"></span><span class="alltools-title">' + scopeLabel + '</span><span class="alltools-hint">' + totalCount + ' total</span></div>';
-
-    if (!totalCount) { return head + '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
-
-    var sections = '';
-    if (homeFilter === 'work') {
-      sections = toolsSection('work', 'Work', '#1F6FEB', workBuiltins.concat(workLinks));
-    } else if (homeFilter === 'personal') {
-      sections = toolsSection('personal', 'Personal', '#9333EA', personalBuiltins.concat(personalLinks));
-    } else {
-      sections = toolsSection('work', 'Work', '#1F6FEB', workBuiltins.concat(workLinks)) +
-                 toolsSection('personal', 'Personal', '#9333EA', personalBuiltins.concat(personalLinks));
-    }
-
-    return head + sections;
+    var scopeColor = homeFilter === 'personal' ? '#9333EA' : '#1F6FEB';
+    if (!cards.length) { return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
+    return toolsSection('tools', scopeLabel, scopeColor, cards);
   }
 
   function launchTileHTML(it, pinned) {
