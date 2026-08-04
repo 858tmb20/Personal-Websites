@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Shipped to Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #F4F6F9; --ink: #0F1F3D; --ink-soft: #1E2F52; --muted: #6B7A99; --muted-soft: #94A0B8;
+    --link: #1F6FEB; --rule: #E3E7EE; --rule-soft: #EEF1F6; --card: #FFFFFF;
+    --green: #15803D; --green-soft: #ECFDF5;
+    --blue: #1F6FEB; --blue-soft: #EAF1FF;
+    --amber: #B7791F; --amber-soft: #FDF4E3;
+    --radius: 8px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  header h1 { font-size: 1.3rem; font-weight: 700; }
+  header p { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; }
+  .hdr-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.5rem 0.9rem; cursor: pointer; text-decoration: none; transition: border-color 0.15s; }
+  .btn:hover { border-color: var(--muted-soft); }
+  .viewonly { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); background: var(--green-soft); border: 1px solid #BBEBD0; border-radius: 999px; padding: 0.2rem 0.65rem; }
+  .refreshed { font-size: 0.72rem; color: var(--muted-soft); margin-bottom: 1rem; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.9rem; margin-bottom: 1.4rem; }
+  .kpi { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.1rem; border-top: 3px solid var(--kc, var(--ink)); }
+  .kpi .k-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.45rem; }
+  .kpi .k-value { font-size: 2.2rem; font-weight: 800; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .kpi .k-value .k-unit { font-size: 1.1rem; font-weight: 700; color: var(--muted); margin-left: 0.1rem; }
+  .kpi .k-sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; line-height: 1.4; }
+
+  .month { margin-bottom: 1.3rem; }
+  .month-head { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.6rem; padding: 0 0.15rem; }
+  .month-head h2 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+  .month-head .m-count { font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+  .ship { background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--green); border-radius: var(--radius); padding: 0.85rem 1rem; margin-bottom: 0.55rem; }
+  .ship-top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+  .ship-title { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
+  .ship-date { font-size: 0.74rem; font-weight: 700; color: var(--green); white-space: nowrap; }
+  .ship-meta { font-size: 0.74rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.5; }
+  .ship-links { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.55rem; }
+  .ship-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--link); background: var(--blue-soft); border-radius: 6px; padding: 0.25rem 0.6rem; text-decoration: none; }
+  .ship-link:hover { text-decoration: underline; }
+  .ship-link.none { color: var(--muted-soft); background: var(--rule-soft); font-weight: 600; }
+  .empty { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.2rem 1.3rem; font-size: 0.85rem; color: var(--muted); }
+  .note { font-size: 0.72rem; color: var(--muted-soft); margin-top: 1.2rem; line-height: 1.5; }
+  @media (max-width: 560px) { .kpi .k-value { font-size: 1.8rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>&#9989; Shipped to Production</h1>
+      <p>Everything deployed to Prod, newest first &mdash; with its PR, CR, and Jira links <span class="viewonly">View only</span></p>
+    </div>
+    <div class="hdr-btns">
+      <button class="btn" onclick="copyReport()">&#128203; Copy as text</button>
+      <button class="btn" onclick="load()">&#8635; Refresh</button>
+      <a class="btn" href="deployment-tracker.html">&#8592; Back to tracker</a>
+    </div>
+  </header>
+  <div class="refreshed" id="refreshed"></div>
+  <div class="kpis" id="kpis"></div>
+  <div id="list"></div>
+  <div class="note" id="note"></div>
+</div>
+<script>
+  var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
+  var H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+  var DAY = 86400000;
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function shipped(d) { var s = d.status || ''; return s === 'deployed_prod' || s === 'deployed' || s === 'done'; }
+  function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function cycleDays(d) { if (!d.deployed_at || !d.created_at) return null; var dc = Math.floor((new Date(d.deployed_at) - new Date(d.created_at)) / DAY); return dc < 0 ? 0 : dc; }
+  // Same EdTech wait math as the tracker: PR = created->approved, CR = test-plan-attached->approved.
+  function edtechDays(d) {
+    var t = 0, any = false;
+    if (d.pr_created_at && d.pr_approved_at) { t += new Date(d.pr_approved_at) - new Date(d.pr_created_at); any = true; }
+    if (d.test_plan_attached_at && d.cr_approved_at) { t += new Date(d.cr_approved_at) - new Date(d.test_plan_attached_at); any = true; }
+    return any ? Math.round(t / DAY * 10) / 10 : null;
+  }
+
+  var lastShips = [];
+  function load() {
+    fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) {
+      var all = Array.isArray(data) ? data : [];
+      render(all.filter(shipped));
+    }).catch(function() { document.getElementById('list').innerHTML = '<div class="empty">Could not load data.</div>'; });
+  }
+
+  function render(ships) {
+    // Newest ship first; cards shipped before ship-date tracking (no deployed_at) sink to the bottom.
+    ships.sort(function(a, b) { return (b.deployed_at ? new Date(b.deployed_at).getTime() : 0) - (a.deployed_at ? new Date(a.deployed_at).getTime() : 0); });
+    lastShips = ships;
+    document.getElementById('refreshed').textContent = 'Live from the deployment tracker · refreshed ' + new Date().toLocaleString();
+
+    var last30 = ships.filter(function(d) { return d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 30 * DAY; }).length;
+    var cycles = []; ships.forEach(function(d) { var c = cycleDays(d); if (c !== null) cycles.push(c); });
+    var avgCycle = cycles.length ? Math.round(cycles.reduce(function(a, b) { return a + b; }, 0) / cycles.length * 10) / 10 : null;
+    document.getElementById('kpis').innerHTML =
+      kpiTile('Shipped all-time', ships.length, '', 'deployments on the board', 'var(--green)')
+      + kpiTile('Shipped last 30 days', last30, '', 'with a recorded ship date', 'var(--blue)')
+      + kpiTile('Avg cycle', avgCycle, 'd', 'created → deployed to Prod · ' + cycles.length + ' card' + (cycles.length === 1 ? '' : 's'), 'var(--ink)');
+
+    var el = document.getElementById('list');
+    if (!ships.length) { el.innerHTML = '<div class="empty">Nothing has been deployed to Prod yet.</div>'; document.getElementById('note').textContent = ''; return; }
+
+    var html = '', curKey = null, undated = 0;
+    ships.forEach(function(d) {
+      var key = d.deployed_at ? (function(dt) { return dt.getFullYear() + '-' + dt.getMonth(); })(new Date(d.deployed_at)) : 'undated';
+      if (key !== curKey) {
+        if (curKey !== null) html += '</div>';
+        var label = key === 'undated' ? 'Earlier ships (no recorded date)' : (function(dt) { return MONTHS[dt.getMonth()] + ' ' + dt.getFullYear(); })(new Date(d.deployed_at));
+        var n = ships.filter(function(s) { return (s.deployed_at ? (function(dt) { return dt.getFullYear() + '-' + dt.getMonth(); })(new Date(s.deployed_at)) : 'undated') === key; }).length;
+        html += '<div class="month"><div class="month-head"><h2>' + label + '</h2><span class="m-count">' + n + ' ship' + (n === 1 ? '' : 's') + '</span></div>';
+        curKey = key;
+      }
+      if (!d.deployed_at) undated++;
+      var meta = [];
+      if (d.created_at) meta.push('Started ' + fmtDate(d.created_at));
+      var c = cycleDays(d); if (c !== null) meta.push((c < 1 ? 'shipped same day' : c + 'd start → ship'));
+      var e = edtechDays(d); if (e !== null) meta.push(e + 'd of that waiting on EdTech approvals');
+      var links = '';
+      links += d.pr_url ? shipLink(d.pr_url, '&#128279; PR') : '';
+      links += d.cr_url ? shipLink(d.cr_url, '&#128279; CR') : '';
+      links += d.jira_url ? shipLink(d.jira_url, '&#128279; Jira') : '';
+      if (!links) links = '<span class="ship-link none">No links recorded</span>';
+      html += '<div class="ship"><div class="ship-top"><span class="ship-title">' + esc(d.title) + '</span>'
+        + '<span class="ship-date">' + (d.deployed_at ? '&#9989; ' + fmtDate(d.deployed_at) : '&#9989; Shipped') + '</span></div>'
+        + (meta.length ? '<div class="ship-meta">' + meta.join(' &middot; ') + '</div>' : '')
+        + '<div class="ship-links">' + links + '</div></div>';
+    });
+    if (curKey !== null) html += '</div>';
+    el.innerHTML = html;
+    document.getElementById('note').innerHTML = 'This page is read-only &mdash; add or edit cards on the <a href="deployment-tracker.html" style="color:var(--link);">deployment tracker</a>.'
+      + (undated ? '<br>' + undated + ' card' + (undated === 1 ? ' was' : 's were') + ' shipped before ship-date tracking began, so ' + (undated === 1 ? 'it has' : 'they have') + ' no date.' : '');
+  }
+  function kpiTile(label, value, unit, sub, color) {
+    var v = value === null ? '&mdash;' : value + (unit ? '<span class="k-unit">' + unit + '</span>' : '');
+    return '<div class="kpi" style="--kc:' + color + ';"><div class="k-label">' + label + '</div><div class="k-value">' + v + '</div><div class="k-sub">' + sub + '</div></div>';
+  }
+  function shipLink(url, label) { return '<a class="ship-link" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + '</a>'; }
+
+  // Plain-text version for pasting into Teams or email.
+  function copyReport() {
+    var lines = ['SALESFORCE — DEPLOYED TO PRODUCTION (' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ')', ''];
+    var curKey = null;
+    lastShips.forEach(function(d) {
+      var key = d.deployed_at ? (function(dt) { return dt.getFullYear() + '-' + dt.getMonth(); })(new Date(d.deployed_at)) : 'undated';
+      if (key !== curKey) {
+        lines.push(key === 'undated' ? 'EARLIER SHIPS (NO RECORDED DATE)' : (function(dt) { return (MONTHS[dt.getMonth()] + ' ' + dt.getFullYear()).toUpperCase(); })(new Date(d.deployed_at)));
+        curKey = key;
+      }
+      var c = cycleDays(d);
+      lines.push('• ' + d.title + (d.deployed_at ? ' — shipped ' + fmtDate(d.deployed_at) : '') + (c !== null && c >= 1 ? ' · ' + c + 'd cycle' : ''));
+      if (d.pr_url) lines.push('   PR:   ' + d.pr_url);
+      if (d.cr_url) lines.push('   CR:   ' + d.cr_url);
+      if (d.jira_url) lines.push('   Jira: ' + d.jira_url);
+    });
+    lines.push('', 'Full report: ' + location.href.split('?')[0].split('#')[0]);
+    var txt = lines.join('\n');
+    function done() { var t = document.getElementById('refreshed'); var keep = t.textContent; t.textContent = 'Report copied — paste into Teams or email'; setTimeout(function() { t.textContent = keep; }, 2500); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function() { legacyCopy(txt); done(); });
+    else { legacyCopy(txt); done(); }
+  }
+  function legacyCopy(txt) { var ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); }
+  load();
+</script>
+</body>
+</html>

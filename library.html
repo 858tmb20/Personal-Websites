@@ -314,6 +314,8 @@
   .board-col-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bc); flex-shrink: 0; }
   .board-col-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink); }
   .board-col-count { font-size: 0.7rem; font-weight: 600; color: #fff; background: var(--bc); padding: 1px 8px; border-radius: 10px; }
+  .board-col-link { margin-left: auto; font-size: 0.68rem; font-weight: 700; color: var(--muted); text-decoration: none; background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 0.15rem 0.5rem; white-space: nowrap; transition: color 0.12s, border-color 0.12s; }
+  .board-col-link:hover { color: var(--ink); border-color: var(--muted-soft); }
   .dcard { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--bc); border-radius: 9px; padding: 0.85rem; margin-bottom: 0.7rem; }
   .dcard:last-child { margin-bottom: 0; }
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
@@ -2583,12 +2585,16 @@
     var processLink = '<a class="process-link" href="process.html" target="_blank" rel="noopener" aria-label="Process overview — opens the full change process in a new tab" title="Open the full change process (new tab)"><span class="pl-ico">&#128220;</span><span>Process overview</span><span class="pl-arr">&#8599;</span></a>';
     // Metrics dashboard link sits directly under the Waiting-on-EdTech box.
     var dashLink = '<a class="process-link" href="deploy-dashboard.html" target="_blank" rel="noopener" aria-label="Metrics dashboard — average EdTech, PR, CR and cycle times, opens in a new tab" title="Open the metrics dashboard (new tab)"><span class="pl-ico">&#128202;</span><span>Metrics dashboard</span><span class="pl-arr">&#8599;</span></a>';
-    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = processLink + pl + ew + dashLink;
+    // View-only shipped report: everything deployed to Prod with its PR/CR/Jira links.
+    var shippedLink = '<a class="process-link" href="shipped-report.html" target="_blank" rel="noopener" aria-label="Shipped report — view-only list of everything deployed to Prod, opens in a new tab" title="Open the view-only shipped report (new tab)"><span class="pl-ico">&#9989;</span><span>Shipped report</span><span class="pl-arr">&#8599;</span></a>';
+    var pp = document.getElementById('pipelinePath'); if (pp) pp.innerHTML = processLink + pl + ew + dashLink + shippedLink;
     var html = '<div class="board">';
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
       var items = allDeploys.filter(function(d) { return (d.status || 'needs') === col.key; });
-      html += '<div class="board-col" style="--bc:' + col.color + ';"><div class="board-col-head"><span class="board-col-dot"></span><span class="board-col-title">' + col.title + '</span><span class="board-col-count">' + items.length + '</span></div>';
+      // The shipped column header links to the standalone view-only report (all shipped cards + their links).
+      var colLink = (col.key === 'deployed_prod') ? '<a class="board-col-link" href="shipped-report.html" target="_blank" rel="noopener" title="Open the view-only shipped report (new tab)">Report &#8599;</a>' : '';
+      html += '<div class="board-col" style="--bc:' + col.color + ';"><div class="board-col-head"><span class="board-col-dot"></span><span class="board-col-title">' + col.title + '</span><span class="board-col-count">' + items.length + '</span>' + colLink + '</div>';
       if (!items.length) { html += '<div class="board-empty">Nothing here</div>'; }
       else {
         for (var i = 0; i < items.length; i++) {
