@@ -2109,7 +2109,7 @@
     list.sort(function(a, b) { return rank(a) - rank(b); });
     var nFocus = list.filter(function(x) { return x.priority === 'focus'; }).length;
     var nStar = list.filter(function(x) { return x.focused; }).length;
-    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nStar + ' starred \u00b7 ' + nFocus + '/2 in focus';
+    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nStar + ' starred \u00b7 ' + nFocus + '/4 in focus';
     if (!list.length) { document.getElementById('learnList').innerHTML = '<div class="empty"><strong>Nothing yet</strong>Type what you\'re learning above and hit Add.</div>'; return; }
     var html = '<div class="learn-list">';
     for (var i = 0; i < list.length; i++) {
@@ -2157,14 +2157,14 @@
     var prev = !!item.focused; item.focused = !prev; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: item.focused }) }).then(function(res) { if (!res.ok) { item.focused = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.focused = prev; renderLearn(); });
   }
-  // Focus mode: max 2 items, stored in the (previously unused) priority column as 'focus'.
+  // Focus mode: max 4 items, stored in the (previously unused) priority column as 'focus'.
   // Stars = unlimited "this matters" pile; Focus = the 1-2 you're actively working.
   function toggleFocusMode(id) {
     var item = findLearn(id); if (!item) return;
     var isFocus = item.priority === 'focus';
     if (!isFocus) {
       var n = allLearn.filter(function(x) { return x.priority === 'focus'; }).length;
-      if (n >= 2) { showToast('Focus is limited to 2 \u2014 unfocus one first'); return; }
+      if (n >= 4) { showToast('Focus is limited to 4 \u2014 unfocus one first'); return; }
     }
     var prev = item.priority; item.priority = isFocus ? 'medium' : 'focus'; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ priority: item.priority }) }).then(function(res) { if (!res.ok) { item.priority = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.priority = prev; renderLearn(); });
