@@ -43,6 +43,7 @@
   .ship-top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
   .ship-title { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
   .ship-date { font-size: 0.74rem; font-weight: 700; color: var(--green); white-space: nowrap; }
+  .ship-desc { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.35rem; line-height: 1.5; white-space: pre-line; }
   .ship-meta { font-size: 0.74rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.5; }
   .ship-links { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.55rem; }
   .ship-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 700; color: var(--link); background: var(--blue-soft); border-radius: 6px; padding: 0.25rem 0.6rem; text-decoration: none; }
@@ -136,6 +137,7 @@
       if (!links) links = '<span class="ship-link none">No links recorded</span>';
       html += '<div class="ship"><div class="ship-top"><span class="ship-title">' + esc(d.title) + '</span>'
         + '<span class="ship-date">' + (d.deployed_at ? '&#9989; ' + fmtDate(d.deployed_at) : '&#9989; Shipped') + '</span></div>'
+        + (d.description ? '<div class="ship-desc">' + esc(d.description) + '</div>' : '')
         + (meta.length ? '<div class="ship-meta">' + meta.join(' &middot; ') + '</div>' : '')
         + '<div class="ship-links">' + links + '</div></div>';
     });
