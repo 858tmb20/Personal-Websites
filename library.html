@@ -951,6 +951,7 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn-signout" onclick="copyTodoReport()" title="Copy a shareable what-I'm-working-on summary">&#128203; Copy report</button>
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
   </header>
@@ -1894,6 +1895,41 @@
     fetch(SB_URL + '/rest/v1/todos?id=eq.' + id, { method: 'DELETE', headers: H })
       .then(function(res) { if (!res.ok) { allTodos = prevList; renderTodos(); showToast('Could not delete'); } })
       .catch(function() { allTodos = prevList; renderTodos(); });
+  }
+  // Copy-paste To-Do report — plain-text "what I'm working on" for Teams/email,
+  // same idea as the deployment tracker's status report. Focus first, then in
+  // progress, then the backlog by priority; finished items capped to keep it short.
+  function buildTodoReport() {
+    var open = [], done = [];
+    allTodos.forEach(function(t) { (todoStatus(t) === 'done' ? done : open).push(t); });
+    var focus = open.filter(function(t) { return t.focused; });
+    var prog = open.filter(function(t) { return !t.focused && todoStatus(t) === 'progress'; });
+    var rest = open.filter(function(t) { return !t.focused && todoStatus(t) !== 'progress'; })
+      .slice().sort(function(a, b) { return todoPrio(b) - todoPrio(a); });
+    var lines = ["TRENT — WHAT I'M WORKING ON (" + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ')', ''];
+    function suffix(t) {
+      var s = todoPrio(t) ? ' [' + TODO_PRIOS[todoPrio(t)].label.toUpperCase() + ']' : '';
+      if (t.focused && todoStatus(t) === 'progress') s += ' — in progress';
+      return s;
+    }
+    function section(title, items, cap) {
+      if (!items.length) return;
+      lines.push(title + ' (' + items.length + ')');
+      (cap ? items.slice(0, cap) : items).forEach(function(t) { lines.push('• ' + t.text + suffix(t)); });
+      if (cap && items.length > cap) lines.push('…and ' + (items.length - cap) + ' more');
+      lines.push('');
+    }
+    section('🎯 TOP FOCUS', focus);
+    section('▶ IN PROGRESS', prog);
+    section('UP NEXT', rest);
+    section('✅ RECENTLY COMPLETED', done, 8);
+    return lines.join('\n').trim();
+  }
+  function copyTodoReport() {
+    var txt = buildTodoReport();
+    var doneFn = function() { showToast('Report copied — paste into Teams or email'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(doneFn, function() { legacyCopy(txt); doneFn(); });
+    else { legacyCopy(txt); doneFn(); }
   }
   function clearDoneTodos() {
     if (!confirm('Clear all completed items?')) return;
