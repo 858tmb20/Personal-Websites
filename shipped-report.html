@@ -64,7 +64,8 @@
     <div class="hdr-btns">
       <button class="btn" onclick="copyReport()">&#128203; Copy as text</button>
       <button class="btn" onclick="load()">&#8635; Refresh</button>
-      <a class="btn" href="deployment-tracker.html">&#8592; Back to tracker</a>
+      <a class="btn" id="backBtn" href="deployment-tracker.html">&#8592; Back to tracker</a>
+      <button class="btn" id="shareBtn" onclick="copyShareLink()">&#128279; Copy share link</button>
     </div>
   </header>
   <div class="refreshed" id="refreshed"></div>
@@ -143,12 +144,24 @@
     });
     if (curKey !== null) html += '</div>';
     el.innerHTML = html;
-    document.getElementById('note').innerHTML = 'This page is read-only &mdash; add or edit cards on the <a href="deployment-tracker.html" style="color:var(--link);">deployment tracker</a>.'
+    document.getElementById('note').innerHTML = (SHARE ? 'This page is read-only.' : 'This page is read-only &mdash; add or edit cards on the <a href="deployment-tracker.html" style="color:var(--link);">deployment tracker</a>.')
       + (undated ? '<br>' + undated + ' card' + (undated === 1 ? ' was' : 's were') + ' shipped before ship-date tracking began, so ' + (undated === 1 ? 'it has' : 'they have') + ' no date.' : '');
   }
   function kpiTile(label, value, unit, sub, color) {
     var v = value === null ? '&mdash;' : value + (unit ? '<span class="k-unit">' + unit + '</span>' : '');
     return '<div class="kpi" style="--kc:' + color + ';"><div class="k-label">' + label + '</div><div class="k-value">' + v + '</div><div class="k-sub">' + sub + '</div></div>';
+  }
+  var SHARE = location.search.indexOf('share') > -1;
+  if (SHARE) { document.addEventListener('DOMContentLoaded', function() {
+    var b = document.getElementById('backBtn'); if (b) b.style.display = 'none';
+    var sb = document.getElementById('shareBtn'); if (sb) sb.style.display = 'none';
+  }); }
+  function copyShareLink() {
+    var url = location.href.split('?')[0].split('#')[0] + '?share';
+    navigator.clipboard.writeText(url).then(function() {
+      var b = document.getElementById('shareBtn'); var t = b.innerHTML; b.innerHTML = '&#10003; Copied!';
+      setTimeout(function() { b.innerHTML = t; }, 1800);
+    });
   }
   function shipLink(url, label) { return '<a class="ship-link" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + '</a>'; }
 
@@ -168,7 +181,7 @@
       if (d.cr_url) lines.push('   CR:   ' + d.cr_url);
       if (d.jira_url) lines.push('   Jira: ' + d.jira_url);
     });
-    lines.push('', 'Full report: ' + location.href.split('?')[0].split('#')[0]);
+    lines.push('', 'Full report: ' + location.href.split('?')[0].split('#')[0] + '?share');
     var txt = lines.join('\n');
     function done() { var t = document.getElementById('refreshed'); var keep = t.textContent; t.textContent = 'Report copied — paste into Teams or email'; setTimeout(function() { t.textContent = keep; }, 2500); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function() { legacyCopy(txt); done(); });
