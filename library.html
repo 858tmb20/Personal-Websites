@@ -424,12 +424,17 @@
   .todo-prio.low { color: #1F5FD6; background: #EAF1FF; border-color: #B8D0FF; }
   .todo-prio.med { color: #B7791F; background: #FDF4E3; border-color: #F0C879; }
   .todo-prio.high { color: #C0322B; background: #FBE9E9; border-color: #F3C9C7; }
+  .todo-focus { flex-shrink: 0; font-size: 0.85rem; line-height: 1; background: none; border: none; cursor: pointer; padding: 0; filter: grayscale(1); opacity: 0.35; transition: filter 0.12s, opacity 0.12s; justify-self: center; }
+  .todo-focus:hover { opacity: 0.7; }
+  .todo-focus.active { filter: none; opacity: 1; }
+  .todo-item.focused { background: #FFF9EC; box-shadow: inset 3px 0 0 #B7791F; }
+  .todo-foc-n { font-size: 0.68rem; font-weight: 700; color: #B7791F; background: #FDF4E3; border-radius: 9px; padding: 1px 7px; margin-left: 0.3rem; }
   .todo-colsort { margin-left: auto; font-size: 0.68rem; font-weight: 600; color: var(--muted); background: none; border: 1px solid var(--rule); border-radius: var(--radius-sm); padding: 0.15rem 0.5rem; cursor: pointer; font-family: inherit; text-transform: none; letter-spacing: 0; }
   .todo-colsort:hover { color: var(--ink); border-color: var(--muted-soft); }
   .todo-grip { cursor: grab; color: var(--muted-soft); font-size: 0.9rem; flex-shrink: 0; user-select: none; }
   .todo-item[draggable] { cursor: default; }
   .todo-item.dragging { opacity: 0.45; }
-  .todo-item { background: var(--card); padding: 0.55rem 0.9rem; display: grid; grid-template-columns: 18px 24px 24px minmax(0, 1fr) 100px 56px 30px; align-items: center; gap: 0.6rem; }
+  .todo-item { background: var(--card); padding: 0.55rem 0.9rem; display: grid; grid-template-columns: 18px 24px 24px 24px minmax(0, 1fr) 100px 56px 30px; align-items: center; gap: 0.6rem; }
   .todo-item .todo-slot { min-height: 1px; }
   .todo-item .todo-prio { justify-self: center; }
   .todo-item .todo-progress-tag { justify-self: center; text-align: center; }
@@ -1852,11 +1857,29 @@
     showToast('Sorted by priority');
   }
   function findTodo(id) { for (var i = 0; i < allTodos.length; i++) { if (allTodos[i].id === id) return allTodos[i]; } return null; }
+  // Up to 3 items can be marked as "focus" (todos.focused boolean). Focused items pin
+  // to the top of To do; completing one frees its slot automatically.
+  var TODO_FOCUS_MAX = 3;
+  function toggleTodoFocus(id) {
+    var t = findTodo(id); if (!t) return;
+    var prev = !!t.focused;
+    if (!prev) {
+      var n = 0; allTodos.forEach(function(x) { if (x.focused && todoStatus(x) !== 'done') n++; });
+      if (n >= TODO_FOCUS_MAX) { showToast('Focus is full (' + TODO_FOCUS_MAX + ' max) — unfocus something first'); return; }
+    }
+    t.focused = !prev; renderTodos();
+    patchTodo(id, { focused: t.focused }, function() { t.focused = prev; });
+  }
   function markDone(id) {
     var t = findTodo(id); if (!t) return;
     var prev = todoStatus(t), next = (prev === 'done') ? 'open' : 'done';
-    t.status = next; renderTodos();
-    patchTodo(id, { status: next }, function() { t.status = prev; });
+    var prevFoc = !!t.focused;
+    t.status = next;
+    if (next === 'done') t.focused = false; // done items give up their focus slot
+    renderTodos();
+    var fields = { status: next };
+    if (prevFoc && next === 'done') fields.focused = false;
+    patchTodo(id, fields, function() { t.status = prev; t.focused = prevFoc; });
   }
   function toggleProgress(id) {
     var t = findTodo(id); if (!t) return;
@@ -1884,15 +1907,19 @@
   function renderTodos() {
     var open = [], done = [];
     allTodos.forEach(function(t) { (todoStatus(t) === 'done' ? done : open).push(t); });
+    // Focused items float to the top of To do (stable sort keeps drag order within each group)
+    open.sort(function(a, b) { return (b.focused ? 1 : 0) - (a.focused ? 1 : 0); });
+    var nFoc = open.filter(function(t) { return t.focused; }).length;
     document.getElementById('todoCount').textContent = open.length + ' to do \u00b7 ' + done.length + ' done';
     function itemHtml(t) {
       var st = todoStatus(t);
       var stCls = (st === 'done') ? 'done' : (st === 'progress') ? 'progress' : '';
       var progActive = (st === 'progress') ? ' active' : '';
-      return '<div class="todo-item ' + stCls + '" draggable="true" data-todoid="' + esc(t.id) + '">' +
+      return '<div class="todo-item ' + stCls + (t.focused && st !== 'done' ? ' focused' : '') + '" draggable="true" data-todoid="' + esc(t.id) + '">' +
         '<span class="todo-grip" title="Drag to reorder">&#9776;</span>' +
         '<button class="todo-check" data-todocheck="' + esc(t.id) + '" title="' + (st === 'done' ? 'Mark not done' : 'Mark done') + '">&#10003;</button>' +
         (st !== 'done' ? '<button class="todo-prog-btn' + progActive + '" data-todoprog="' + esc(t.id) + '" title="' + (st === 'progress' ? 'Clear in progress' : 'Mark in progress') + '">&#9680;</button>' : '<span class="todo-slot"></span>') +
+        (st !== 'done' ? '<button class="todo-focus' + (t.focused ? ' active' : '') + '" data-todofocus="' + esc(t.id) + '" title="' + (t.focused ? 'Focused — click to unfocus' : 'Mark as a focus (up to 3)') + '">&#127919;</button>' : '<span class="todo-slot"></span>') +
         '<span class="todo-text">' + esc(t.text) + '</span>' +
         (st === 'progress' ? '<span class="todo-progress-tag">In progress</span>' : '<span class="todo-slot todo-slot-status"></span>') +
         '<button class="todo-prio ' + TODO_PRIOS[todoPrio(t)].cls + '" data-todoprio="' + esc(t.id) + '" title="Priority — click to change">' + (todoPrio(t) ? TODO_PRIOS[todoPrio(t)].label : '&#9873;') + '</button>' +
@@ -1905,7 +1932,8 @@
     }
     var clearBtn = done.length ? '<button class="todo-colclear" onclick="clearDoneTodos()" title="Delete all done">clear</button>' : '';
     var sortBtn = open.length > 1 ? '<button class="todo-colsort" onclick="sortTodosByPriority()" title="Sort by priority, high first">sort by priority</button>' : '';
-    document.getElementById('todoList').innerHTML = '<div class="todo-board">' + col('To do', open, 'todo', sortBtn) + col('Done', done, 'done', clearBtn) + '</div>';
+    var focChip = nFoc ? '<span class="todo-foc-n">&#127919; ' + nFoc + '/' + TODO_FOCUS_MAX + '</span>' : '';
+    document.getElementById('todoList').innerHTML = '<div class="todo-board">' + col('To do' + focChip, open, 'todo', sortBtn) + col('Done', done, 'done', clearBtn) + '</div>';
     wireTodoEvents();
   }
   function wireTodoEvents() {
@@ -1913,6 +1941,7 @@
     document.querySelectorAll('.todo-prog-btn[data-todoprog]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleProgress(this.getAttribute('data-todoprog')); }); });
     document.querySelectorAll('.todo-del[data-tododel]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); deleteTodo(this.getAttribute('data-tododel')); }); });
     document.querySelectorAll('.todo-prio[data-todoprio]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); cyclePrio(this.getAttribute('data-todoprio')); }); });
+    document.querySelectorAll('.todo-focus[data-todofocus]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleTodoFocus(this.getAttribute('data-todofocus')); }); });
     document.querySelectorAll('.todo-item[data-todoid]').forEach(function(it) {
       it.addEventListener('dragstart', function(e) { todoDragId = this.getAttribute('data-todoid'); this.classList.add('dragging'); if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', todoDragId); } catch (_) {} } });
       it.addEventListener('dragend', function() { this.classList.remove('dragging'); document.querySelectorAll('.todo-col.drag-over').forEach(function(c) { c.classList.remove('drag-over'); }); });
