@@ -79,7 +79,8 @@
     </div>
     <div class="hdr-btns">
       <button class="btn" onclick="load()">&#8635; Refresh</button>
-      <a class="btn" href="deployment-tracker.html">&#8592; Back to tracker</a>
+      <a class="btn" id="backBtn" href="deployment-tracker.html">&#8592; Back to tracker</a>
+      <button class="btn" id="shareBtn" onclick="copyShareLink()">&#128279; Copy share link</button>
     </div>
   </header>
   <div class="refreshed" id="refreshed"></div>
@@ -100,6 +101,19 @@
 </div>
 <div id="tip"></div>
 <script>
+  var SHARE = location.search.indexOf('share') > -1;
+  if (SHARE) { document.addEventListener('DOMContentLoaded', function() {
+    var b = document.getElementById('backBtn'); if (b) b.style.display = 'none';
+    var sb = document.getElementById('shareBtn'); if (sb) sb.style.display = 'none';
+  }); }
+  function copyShareLink() {
+    var url = location.href.split('?')[0].split('#')[0] + '?share';
+    navigator.clipboard.writeText(url).then(function() {
+      var b = document.getElementById('shareBtn'); var t = b.innerHTML; b.innerHTML = '&#10003; Copied!';
+      setTimeout(function() { b.innerHTML = t; }, 1800);
+    });
+  }
+
   var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
   var H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
