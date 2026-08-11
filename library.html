@@ -298,6 +298,23 @@
   .edtech-wait .ew-foot { margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px solid rgba(240,200,121,0.7); font-size: 0.66rem; font-weight: 700; color: #916312; }
   @media (max-width: 760px) { .tracker-layout { flex-direction: column; } .pipeline-side { width: 100%; position: static; } .pipeline { flex-direction: row; overflow-x: auto; } }
   .tracker-foot { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+  /* Simple View — the management-friendly table (toggle in the tracker header) */
+  .btn-view { font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.55rem 1rem; cursor: pointer; transition: border-color 0.15s; }
+  .btn-view:hover { border-color: var(--muted-soft); }
+  .simple-view { max-width: 920px; margin: 0 auto; }
+  .sv-sum { font-size: 0.82rem; color: var(--muted); margin: 0.25rem 0 1rem; }
+  .sv-card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }
+  .sv-table { width: 100%; border-collapse: collapse; }
+  .sv-table th { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); text-align: left; padding: 0.7rem 1rem; border-bottom: 1px solid var(--rule); background: var(--bg); }
+  .sv-table td { font-size: 0.85rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  .sv-table tr:last-child td { border-bottom: none; }
+  .sv-title { font-weight: 600; color: var(--ink); }
+  .sv-pill { display: inline-block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #fff; background: var(--svc, var(--muted)); border-radius: 20px; padding: 0.22rem 0.65rem; white-space: nowrap; }
+  .sv-now { color: var(--ink-soft); }
+  .sv-now.blocked { color: #C0322B; font-weight: 600; }
+  .sv-age { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .sv-note { font-size: 0.74rem; color: var(--muted-soft); margin-top: 0.75rem; line-height: 1.5; }
+  @media (max-width: 640px) { .sv-table th:nth-child(4), .sv-table td:nth-child(4) { display: none; } }
   .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); gap: 0.75rem; align-items: start; overflow: auto; max-height: calc(100vh - 185px); padding-bottom: 0.5rem; }
   /* Always-visible scrollbars (macOS hides them by default) so the horizontal one is easy to find and reach. */
   .board::-webkit-scrollbar { height: 12px; width: 12px; }
@@ -744,6 +761,8 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- .btn-view (not .btn-signout) so the shared ?tracker view keeps this toggle visible -->
+      <button class="btn-view" id="viewToggleBtn" onclick="toggleTrackerView()" title="Switch between the full board and a simple high-level table">&#128064; Simple view</button>
       <button class="btn-add" onclick="openDeployModal(null)">+ Add Item</button>
       <button class="btn-signout" onclick="copyStatusReport()" title="Copy a readable status summary to paste into Teams or email">&#128203; Copy report</button>
       <button class="btn-signout" onclick="shareTracker(event)">&#128279; Share link</button>
@@ -2583,7 +2602,67 @@
     ro.observe(el);
   }
   function fetchDeploys() { fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allDeploys = Array.isArray(data) ? data : []; allDeploys.forEach(function(d) { d.status = normDeployStatus(d.status); }); renderBoard(); }).catch(function() { document.getElementById('board').innerHTML = '<div class="board-empty">Could not load.</div>'; }); }
+
+  // ===== Simple View: the management-friendly table (no PR/CR jargon, no chips) =====
+  // Reuses the copy-report's plain-English stage names + next-step translations.
+  var trackerView = localStorage.getItem('lib_tracker_view') || 'full'; // 'full' | 'simple'
+  function toggleTrackerView() {
+    trackerView = (trackerView === 'simple') ? 'full' : 'simple';
+    localStorage.setItem('lib_tracker_view', trackerView);
+    renderBoard();
+  }
+  // Show/hide the detail-heavy chrome (left rail, focus banner, footer links) per view.
+  function updateTrackerViewChrome() {
+    var simple = trackerView === 'simple';
+    var pp = document.getElementById('pipelinePath'); if (pp) pp.style.display = simple ? 'none' : '';
+    var fb = document.getElementById('focusBanner'); if (fb) fb.style.display = simple ? 'none' : '';
+    var tf = document.querySelector('#screen-tracker .tracker-foot'); if (tf) tf.style.display = simple ? 'none' : '';
+    var btn = document.getElementById('viewToggleBtn'); if (btn) btn.innerHTML = simple ? '&#9783; Full board' : '&#128064; Simple view';
+  }
+  var SV_STAGES = [
+    { key: 'deploying_prod', label: 'Launching soon', color: '#0E7490' },
+    { key: 'sandbox',        label: 'In testing',     color: '#0891B2' },
+    { key: 'building',       label: 'Being built',    color: '#6B7A99' }
+  ];
+  function renderSimpleView() {
+    var inFlight = [];
+    SV_STAGES.forEach(function(s) {
+      allDeploys.forEach(function(d) { if (normDeployStatus(d.status) === s.key) inFlight.push({ d: d, s: s }); });
+    });
+    var launched = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'deployed_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 30 * 86400000; })
+      .sort(function(a, b) { return new Date(b.deployed_at) - new Date(a.deployed_at); });
+    var stuck = inFlight.filter(function(x) { return x.d.blocked; }).length;
+
+    var html = '<div class="simple-view">';
+    html += '<div class="sv-sum">' + inFlight.length + ' in flight' + (stuck ? ' &middot; ' + stuck + ' stuck' : '') + ' &middot; ' + launched.length + ' launched in the last 30 days</div>';
+    if (!inFlight.length) { html += '<div class="sv-card" style="padding:1rem 1.2rem; font-size:0.85rem; color:var(--muted);">Nothing in flight right now.</div>'; }
+    else {
+      html += '<div class="sv-card"><table class="sv-table"><tr><th>What</th><th>Where it is</th><th>What&rsquo;s happening now</th><th>In flight</th></tr>';
+      inFlight.forEach(function(x) {
+        var d = x.d;
+        var now = d.blocked ? ('&#9940; Stuck' + (d.block_reason ? ' &mdash; ' + esc(fbTrunc(d.block_reason, 80)) : '')) : esc(plainNextStep(d) || 'moving along');
+        html += '<tr><td class="sv-title">' + esc(d.title) + '</td>'
+          + '<td><span class="sv-pill" style="--svc:' + x.s.color + ';">' + x.s.label + '</span></td>'
+          + '<td class="sv-now' + (d.blocked ? ' blocked' : '') + '">' + now + '</td>'
+          + '<td class="sv-age">' + totalLabel(d) + '</td></tr>';
+      });
+      html += '</table></div>';
+    }
+    if (launched.length) {
+      html += '<div class="sv-card"><table class="sv-table"><tr><th>&#9989; Launched recently</th><th>When</th></tr>';
+      launched.forEach(function(d) {
+        html += '<tr><td class="sv-title">' + esc(d.title) + '</td><td class="sv-age">' + new Date(d.deployed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</td></tr>';
+      });
+      html += '</table></div>';
+    }
+    html += '<div class="sv-note">The high-level view. Flip to &ldquo;Full board&rdquo; (top right) for every detail, or see the <a href="shipped-report.html" target="_blank" rel="noopener" style="color:var(--link);">full shipped report</a>.</div>';
+    html += '</div>';
+    document.getElementById('board').innerHTML = html;
+  }
+
   function renderBoard() {
+    updateTrackerViewChrome();
+    if (trackerView === 'simple') { renderSimpleView(); return; }
     var counts = {};
     for (var k = 0; k < DEPLOY_COLS.length; k++) { counts[DEPLOY_COLS[k].key] = 0; }
     allDeploys.forEach(function(d) { var s = d.status || 'needs'; if (counts[s] != null) counts[s]++; });
