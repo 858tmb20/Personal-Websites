@@ -804,7 +804,7 @@
     <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
     <div class="field"><label>Change Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployCrInput" placeholder="https://..." /></div>
     <div class="field"><label>Jira Ticket Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployJiraInput" placeholder="https://wgu.atlassian.net/browse/PRTNR-..." /></div>
-    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building in Sandbox</option><option value="sandbox">Testing in Sandboxes (Dev and QA)</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed — Post-Deploy Steps</option><option value="verified_prod">Verified in Prod</option></select></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building in Sandbox</option><option value="sandbox">Testing in Sandboxes (Dev and QA)</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option><option value="verified_prod">Verified &amp; Post-Deploy Steps Complete</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -2337,8 +2337,8 @@
     { key: 'building',       title: 'Building in Sandbox',                color: '#6B7A99' },
     { key: 'sandbox',        title: 'Testing in Sandboxes (Dev and QA)',  color: '#0891B2' },
     { key: 'deploying_prod', title: 'Deploying to Prod',  color: '#0E7490' },
-    { key: 'deployed_prod',  title: 'Deployed — Post-Deploy Steps',  color: '#B45309' },
-    { key: 'verified_prod',  title: 'Verified in Prod',   color: '#15803D' }
+    { key: 'deployed_prod',  title: 'Deployed to Prod',  color: '#B45309' },
+    { key: 'verified_prod',  title: 'Verified & Post-Deploy Steps Complete',   color: '#15803D' }
   ];
   // Map every legacy status (from the old 8-column board) onto the new 4 columns.
   var DEPLOY_STATUS_MAP = {
