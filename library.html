@@ -340,6 +340,8 @@
   .pd-step.on .pd-text { text-decoration: line-through; opacity: 0.6; }
   .pd-add { margin-top: 0.3rem; background: none; border: 1px dashed var(--muted-soft); border-radius: 6px; color: var(--muted); font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.6rem; cursor: pointer; font-family: inherit; }
   .pd-add:hover { color: var(--ink); border-color: var(--muted); }
+  .todo-linked-note { margin-top: 0.9rem; font-size: 0.78rem; color: var(--muted); cursor: pointer; text-align: center; }
+  .todo-linked-note:hover { color: var(--link); }
   .dcard { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--bc); border-radius: 9px; padding: 0.85rem; margin-bottom: 0.7rem; }
   .dcard:last-child { margin-bottom: 0; }
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
@@ -1964,16 +1966,19 @@
   function clearDoneTodos() {
     if (!confirm('Clear all completed items?')) return;
     var prevList = allTodos.slice();
-    allTodos = allTodos.filter(function(t) { return todoStatus(t) !== 'done'; });
+    // Never bulk-delete steps linked to tracker cards — they're the card's history.
+    allTodos = allTodos.filter(function(t) { return todoStatus(t) !== 'done' || t.deployment_id; });
     renderTodos();
-    fetch(SB_URL + '/rest/v1/todos?status=eq.done', { method: 'DELETE', headers: H })
+    fetch(SB_URL + '/rest/v1/todos?status=eq.done&deployment_id=is.null', { method: 'DELETE', headers: H })
       .then(function(res) { if (!res.ok) { allTodos = prevList; renderTodos(); showToast('Could not clear'); } })
       .catch(function() { allTodos = prevList; renderTodos(); });
   }
   function renderTodos() {
     if (!document.getElementById('todoList') || !document.getElementById('todoCount')) return; // not on the to-do screen (e.g. board checklist writes)
-    var open = [], done = [];
-    allTodos.forEach(function(t) { (todoStatus(t) === 'done' ? done : open).push(t); });
+    var open = [], done = [], linkedN = 0;
+    // To-dos linked to a deployment are managed as post-deploy steps on their tracker card,
+    // so they're hidden here to keep this list personal. Same rows, different home.
+    allTodos.forEach(function(t) { if (t.deployment_id) { linkedN++; return; } (todoStatus(t) === 'done' ? done : open).push(t); });
     // Focused items float to the top of To do (stable sort keeps drag order within each group)
     open.sort(function(a, b) { return (b.focused ? 1 : 0) - (a.focused ? 1 : 0); });
     var nFoc = open.filter(function(t) { return t.focused; }).length;
@@ -2000,7 +2005,8 @@
     var clearBtn = done.length ? '<button class="todo-colclear" onclick="clearDoneTodos()" title="Delete all done">clear</button>' : '';
     var sortBtn = open.length > 1 ? '<button class="todo-colsort" onclick="sortTodosByPriority()" title="Sort by priority, high first">sort by priority</button>' : '';
     var focChip = nFoc ? '<span class="todo-foc-n">&#127919; ' + nFoc + '/' + TODO_FOCUS_MAX + '</span>' : '';
-    document.getElementById('todoList').innerHTML = '<div class="todo-board">' + col('To do' + focChip, open, 'todo', sortBtn) + col('Done', done, 'done', clearBtn) + '</div>';
+    var linkedNote = linkedN ? '<div class="todo-linked-note" onclick="openTracker()" title="Open the Deployment Tracker">&#128279; ' + linkedN + ' post-deploy step' + (linkedN !== 1 ? 's' : '') + ' live on Deployment Tracker cards &rarr;</div>' : '';
+    document.getElementById('todoList').innerHTML = '<div class="todo-board">' + col('To do' + focChip, open, 'todo', sortBtn) + col('Done', done, 'done', clearBtn) + '</div>' + linkedNote;
     wireTodoEvents();
   }
   function wireTodoEvents() {
