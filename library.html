@@ -2484,7 +2484,7 @@
       blocked.forEach(function(d) { lines.push('• ' + d.title + ' — ' + (d.block_reason ? fbTrunc(d.block_reason, 90) : 'blocked') + (totalLabel(d) !== '—' ? ' · ' + totalLabel(d) + ' in flight' : '')); });
       lines.push('');
     }
-    var waiting = allDeploys.filter(function(d) { return normDeployStatus(d.status) !== 'deployed_prod' && !d.blocked && ((d.pr_created && !d.pr_approved) || (d.test_plan_attached && !d.cr_approved)); });
+    var waiting = allDeploys.filter(function(d) { var ws = normDeployStatus(d.status); return ws !== 'deployed_prod' && ws !== 'verified_prod' && !d.blocked && ((d.pr_created && !d.pr_approved) || (d.test_plan_attached && !d.cr_approved)); });
     if (waiting.length) {
       lines.push('⏳ WAITING ON APPROVALS FROM EDTECH (' + waiting.length + ')');
       waiting.forEach(function(d) {
@@ -2592,7 +2592,8 @@
   function totalDays(d) {
     if (!d.created_at) return null;
     var end;
-    if (normDeployStatus(d.status) === 'deployed_prod') { if (!d.deployed_at) return null; end = new Date(d.deployed_at).getTime(); }
+    var st = normDeployStatus(d.status);
+    if (st === 'deployed_prod' || st === 'verified_prod') { if (!d.deployed_at) return null; end = new Date(d.deployed_at).getTime(); }
     else end = Date.now();
     var dc = Math.floor((end - new Date(d.created_at).getTime()) / 86400000);
     return dc < 0 ? 0 : dc;
@@ -2602,7 +2603,8 @@
   function avgTotalDays() {
     var total = 0, n = 0;
     allDeploys.forEach(function(d) {
-      if (normDeployStatus(d.status) === 'deployed_prod' && d.deployed_at && d.created_at) { total += (new Date(d.deployed_at) - new Date(d.created_at)); n++; }
+      var st2 = normDeployStatus(d.status);
+      if ((st2 === 'deployed_prod' || st2 === 'verified_prod') && d.deployed_at && d.created_at) { total += (new Date(d.deployed_at) - new Date(d.created_at)); n++; }
     });
     return n ? Math.round((total / n) / 86400000 * 10) / 10 : null;
   }
