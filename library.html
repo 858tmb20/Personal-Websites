@@ -329,6 +329,17 @@
   .board-col-count { font-size: 0.7rem; font-weight: 600; color: #fff; background: var(--bc); padding: 1px 8px; border-radius: 10px; }
   .board-col-link { margin-left: auto; font-size: 0.68rem; font-weight: 700; color: var(--muted); text-decoration: none; background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 0.15rem 0.5rem; white-space: nowrap; transition: color 0.12s, border-color 0.12s; }
   .board-col-link:hover { color: var(--ink); border-color: var(--muted-soft); }
+  /* Post-deploy step checklist on Deployed cards (rows are linked to-dos) */
+  .pd-steps { margin-top: 0.55rem; border-top: 1px dashed var(--rule); padding-top: 0.5rem; }
+  .pd-cap { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.3rem; }
+  .pd-empty { font-size: 0.76rem; color: var(--muted); font-style: italic; margin-bottom: 0.35rem; }
+  .pd-step { display: flex; align-items: flex-start; gap: 0.4rem; padding: 0.22rem 0.15rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; line-height: 1.3; }
+  .pd-step:hover { background: rgba(127,127,127,0.08); }
+  .pd-step .pd-box { flex: 0 0 auto; width: 0.95rem; height: 0.95rem; margin-top: 0.08rem; border: 1.5px solid var(--muted-soft); border-radius: 4px; font-size: 0.62rem; line-height: 0.85rem; text-align: center; color: transparent; }
+  .pd-step.on .pd-box { background: #15803D; border-color: #15803D; color: #fff; }
+  .pd-step.on .pd-text { text-decoration: line-through; opacity: 0.6; }
+  .pd-add { margin-top: 0.3rem; background: none; border: 1px dashed var(--muted-soft); border-radius: 6px; color: var(--muted); font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.6rem; cursor: pointer; font-family: inherit; }
+  .pd-add:hover { color: var(--ink); border-color: var(--muted); }
   .dcard { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--bc); border-radius: 9px; padding: 0.85rem; margin-bottom: 0.7rem; }
   .dcard:last-child { margin-bottom: 0; }
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
@@ -793,7 +804,7 @@
     <div class="field"><label>Pull Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployUrlInput" placeholder="https://github.com/..." /></div>
     <div class="field"><label>Change Request Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployCrInput" placeholder="https://..." /></div>
     <div class="field"><label>Jira Ticket Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="text" id="deployJiraInput" placeholder="https://wgu.atlassian.net/browse/PRTNR-..." /></div>
-    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building in Sandbox</option><option value="sandbox">Testing in Sandboxes (Dev and QA)</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed to Prod</option></select></div>
+    <div class="field"><label>Status</label><select id="deployStatusInput"><option value="building">Building in Sandbox</option><option value="sandbox">Testing in Sandboxes (Dev and QA)</option><option value="deploying_prod">Deploying to Prod</option><option value="deployed_prod">Deployed — Post-Deploy Steps</option><option value="verified_prod">Verified in Prod</option></select></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveDeploy()">Save</button>
       <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
@@ -1960,6 +1971,7 @@
       .catch(function() { allTodos = prevList; renderTodos(); });
   }
   function renderTodos() {
+    if (!document.getElementById('todoList') || !document.getElementById('todoCount')) return; // not on the to-do screen (e.g. board checklist writes)
     var open = [], done = [];
     allTodos.forEach(function(t) { (todoStatus(t) === 'done' ? done : open).push(t); });
     // Focused items float to the top of To do (stable sort keeps drag order within each group)
@@ -2325,7 +2337,8 @@
     { key: 'building',       title: 'Building in Sandbox',                color: '#6B7A99' },
     { key: 'sandbox',        title: 'Testing in Sandboxes (Dev and QA)',  color: '#0891B2' },
     { key: 'deploying_prod', title: 'Deploying to Prod',  color: '#0E7490' },
-    { key: 'deployed_prod',  title: 'Deployed to Prod',   color: '#15803D' }
+    { key: 'deployed_prod',  title: 'Deployed — Post-Deploy Steps',  color: '#B45309' },
+    { key: 'verified_prod',  title: 'Verified in Prod',   color: '#15803D' }
   ];
   // Map every legacy status (from the old 8-column board) onto the new 4 columns.
   var DEPLOY_STATUS_MAP = {
@@ -2346,9 +2359,10 @@
     { key: 'deployed_dev', label: 'Deployed to Dev', short: 'Dev dep' },
     { key: 'dev',          label: 'Tested in Dev', short: 'Dev test' },
     { key: 'deployed_qa',  label: 'Deployed to QA', short: 'QA dep' },
-    { key: 'qa',           label: 'Tested in QA', short: 'QA test' },
-    { key: 'prod',         label: 'Deployed & tested in Prod', short: 'Prod dep+test' }
+    { key: 'qa',           label: 'Tested in QA', short: 'QA test' }
   ];
+  // (The old "Deployed & tested in Prod" toggle is gone — moving a card into the
+  // "Deployed — Post-Deploy Steps" column IS that statement now. Column = state.)
   // PR/CR milestone checkboxes (order-independent). Persisted to Supabase as booleans.
   // 'CR created' reuses the existing cr_submitted column.
   var DEPLOY_FLAGS = [
@@ -2362,7 +2376,13 @@
   // Returns { t: label, k: 'do'|'wait'|'blocked' } or null (nothing to do — shipped).
   function nextStep(d) {
     if (d.blocked) return { t: 'Unblock' + (d.block_reason ? ' — ' + d.block_reason : ''), k: 'blocked' };
-    if (normDeployStatus(d.status) === 'deployed_prod') return null; // shipped
+    var st = normDeployStatus(d.status);
+    if (st === 'verified_prod') return null; // truly done
+    if (st === 'deployed_prod') {
+      var open = openCardSteps(d).length;
+      if (open) return { t: 'Finish ' + open + ' post-deploy step' + (open !== 1 ? 's' : ''), k: 'do' };
+      return { t: 'All steps done — move to Verified', k: 'do' };
+    }
     if (!d.pr_created) return { t: 'Create the PR', k: 'do' };
     if (!d.pr_approved) return { t: 'Waiting on PR approval', k: 'wait' };
     if (!d.deployed_dev) return { t: 'Deploy to Dev', k: 'do' };
@@ -2372,8 +2392,7 @@
     if (!d.cr_submitted) return { t: 'Create the change request', k: 'do' };
     if (!d.test_plan_attached) return { t: 'Make & attach the test plan to the CR', k: 'do' };
     if (!d.cr_approved) return { t: 'Waiting on CR approval', k: 'wait' };
-    if (!d.prod) return { t: 'Deploy & test in Prod', k: 'do' };
-    return { t: 'Confirm deployed, move to Deployed', k: 'do' };
+    return { t: 'Deploy & smoke-test in Prod, then move the card', k: 'do' };
   }
   // ===== Global "Next step" focus banner =====
   // Ranks every unshipped card's next action into ONE suggestion: blocked cards first,
@@ -2399,10 +2418,10 @@
   function fbTrunc(s, n) { return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s; }
   // ===== Copy-paste status report — business-friendly "what's being worked on" for Teams/email =====
   // Written for non-technical readers: plain-English stages, progress bars, no PR/CR jargon up front.
-  var REPORT_STAGE_TITLES = { building: 'BEING BUILT', sandbox: 'IN TESTING', deploying_prod: 'LAUNCHING SOON' };
+  var REPORT_STAGE_TITLES = { building: 'BEING BUILT', sandbox: 'IN TESTING', deploying_prod: 'LAUNCHING SOON', deployed_prod: 'LIVE — WRAPPING UP' };
   // Progress = completed milestones out of the full build->launch ladder (same flags the cards track).
   function deployProgress(d) {
-    var steps = ['pr_created', 'pr_approved', 'deployed_dev', 'dev', 'deployed_qa', 'qa', 'cr_submitted', 'test_plan_attached', 'cr_approved', 'prod'];
+    var steps = ['pr_created', 'pr_approved', 'deployed_dev', 'dev', 'deployed_qa', 'qa', 'cr_submitted', 'test_plan_attached', 'cr_approved'];
     var done = 0;
     steps.forEach(function(k) { if (d[k]) done++; });
     return done / steps.length;
@@ -2412,6 +2431,8 @@
   function plainNextStep(d) {
     var ns = nextStep(d);
     if (!ns) return null;
+    if (ns.t.indexOf('post-deploy step') >= 0) return 'live — finishing follow-up steps';
+    if (ns.t.indexOf('move to Verified') >= 0) return 'live — confirming all good';
     var map = {
       'Create the PR': 'finishing development',
       'Waiting on PR approval': 'awaiting code review (EdTech)',
@@ -2422,8 +2443,7 @@
       'Create the change request': 'preparing launch approval',
       'Make & attach the test plan to the CR': 'preparing launch approval',
       'Waiting on CR approval': 'awaiting launch approval (EdTech)',
-      'Deploy & test in Prod': 'launching now',
-      'Confirm deployed, move to Deployed': 'final launch checks'
+      'Deploy & smoke-test in Prod, then move the card': 'launching now'
     };
     return map[ns.t] || ns.t;
   }
@@ -2434,7 +2454,7 @@
     var blocked = [];
     for (var c = 0; c < DEPLOY_COLS.length; c++) {
       var col = DEPLOY_COLS[c];
-      if (col.key === 'deployed_prod') continue;
+      if (col.key === 'verified_prod') continue;
       var items = allDeploys.filter(function(d) { return normDeployStatus(d.status) === col.key; });
       if (!items.length) continue;
       lines.push(REPORT_STAGE_TITLES[col.key] || col.title.toUpperCase());
@@ -2463,9 +2483,9 @@
       });
       lines.push('');
     }
-    var recent = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'deployed_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 14 * 86400000; });
+    var recent = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'verified_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 14 * 86400000; });
     if (recent.length) {
-      lines.push('✅ LAUNCHED IN THE LAST 2 WEEKS');
+      lines.push('✅ LAUNCHED & VERIFIED IN THE LAST 2 WEEKS');
       recent.forEach(function(d) { lines.push('• ' + d.title + ' (' + new Date(d.deployed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ')'); });
       lines.push('');
     }
@@ -2601,7 +2621,18 @@
     });
     ro.observe(el);
   }
-  function fetchDeploys() { fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allDeploys = Array.isArray(data) ? data : []; allDeploys.forEach(function(d) { d.status = normDeployStatus(d.status); }); renderBoard(); }).catch(function() { document.getElementById('board').innerHTML = '<div class="board-empty">Could not load.</div>'; }); }
+  function fetchDeploys() {
+    var pDep = fetch(SB_URL + '/rest/v1/deployments?order=created_at.desc', { headers: H }).then(function(r) { return r.json(); });
+    // Post-deploy steps are mirrored from the to-do list, so make sure it's loaded too.
+    var needTodos = !(allTodos && allTodos.length);
+    var pTodos = needTodos ? fetch(SB_URL + '/rest/v1/todos?order=position.asc.nullslast,created_at.desc', { headers: H }).then(function(r) { return r.json(); }).catch(function() { return []; }) : Promise.resolve(allTodos);
+    Promise.all([pDep, pTodos]).then(function(res) {
+      allDeploys = Array.isArray(res[0]) ? res[0] : [];
+      allDeploys.forEach(function(d) { d.status = normDeployStatus(d.status); });
+      if (needTodos && Array.isArray(res[1])) allTodos = res[1];
+      renderBoard();
+    }).catch(function() { document.getElementById('board').innerHTML = '<div class="board-empty">Could not load.</div>'; });
+  }
 
   // ===== Simple View: the management-friendly table (no PR/CR jargon, no chips) =====
   // Reuses the copy-report's plain-English stage names + next-step translations.
@@ -2620,18 +2651,63 @@
     var btn = document.getElementById('viewToggleBtn'); if (btn) btn.innerHTML = simple ? '&#9783; Full board' : '&#128064; Simple view';
   }
   var SV_STAGES = [
+    { key: 'deployed_prod',  label: 'Live — wrapping up', color: '#B45309' },
     { key: 'deploying_prod', label: 'Launching soon', color: '#0E7490' },
     { key: 'sandbox',        label: 'In testing',     color: '#0891B2' },
     { key: 'building',       label: 'Being built',    color: '#6B7A99' }
   ];
+  // ---- Post-deploy steps: mirror matching open to-dos under each feature card ----
+  // Words too generic to reliably identify a feature (avoids false matches).
+  var SV_STEP_STOP = { the:1, and:1, for:1, with:1, fields:1, field:1, flow:1, flows:1, object:1, rule:1, rules:1, validation:1, update:1, updates:1, create:1, created:1, fix:1, fixes:1, custom:1, permission:1, perm:1, page:1, prod:1, dev:1, role:1, into:1, from:1, console:1, approval:1, handlers:1, triggers:1, trigger:1, score:1, value:1, values:1, picklist:1, saved:1, screen:1, base:1 };
+  function cardKeywords(d) {
+    if (d.__kw) return d.__kw;
+    var title = d.title || '';
+    var base = title.replace(/^[A-Za-z]+-\d+\s*:?\s*/, ''); // drop leading "PRTNR-807:"
+    var kws = [];
+    base.split(/[^A-Za-z0-9]+/).forEach(function(w) { var lw = w.toLowerCase(); if (w.length >= 5 && !SV_STEP_STOP[lw]) kws.push(lw); });
+    var key = (title.match(/PRTNR-\d+/) || [])[0]; if (key) kws.push(key.toLowerCase());
+    d.__kw = kws; return kws;
+  }
+  // Assign each open to-do to its single best-matching card (most keyword hits wins).
+  function computeStepMap(cards) {
+    var map = {};
+    if (!allTodos || !allTodos.length) return map;
+    var cardIds = {};
+    cards.forEach(function(d) { cardIds[d.id] = true; });
+    allTodos.forEach(function(t) {
+      if (todoStatus(t) === 'done') return;
+      // Explicitly linked steps win outright; keyword matching is the fallback for old unlinked to-dos.
+      if (t.deployment_id) { if (cardIds[t.deployment_id]) (map[t.deployment_id] = map[t.deployment_id] || []).push(t); return; }
+      var txt = (t.text || '').toLowerCase();
+      var best = null, bestScore = 0;
+      cards.forEach(function(d) {
+        var kws = cardKeywords(d), score = 0, matchLen = 0;
+        kws.forEach(function(k) { if (txt.indexOf(k) >= 0) { score++; if (k.length > matchLen) matchLen = k.length; } });
+        var eff = score * 100 + matchLen;
+        if (score > 0 && eff > bestScore) { bestScore = eff; best = d; }
+      });
+      if (best) { (map[best.id] = map[best.id] || []).push(t); }
+    });
+    return map;
+  }
+  function svStepsRow(steps, cols) {
+    if (!steps || !steps.length) return '';
+    var lis = steps.map(function(t) {
+      var prog = todoStatus(t) === 'progress';
+      return '<li style="margin:0.15rem 0;">' + (t.focused ? '&#127919; ' : '') + esc(fbTrunc(t.text, 100)) + (prog ? ' <em style="opacity:.7;">(in progress)</em>' : '') + '</li>';
+    }).join('');
+    return '<tr class="sv-steprow"><td colspan="' + cols + '" style="padding:0.35rem 0.75rem 0.6rem 1.4rem; background:rgba(127,127,127,0.05);"><div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); margin-bottom:0.2rem;">Post-deploy steps</div><ul style="margin:0; padding-left:1.1rem; font-size:0.82rem; line-height:1.35;">' + lis + '</ul></td></tr>';
+  }
   function renderSimpleView() {
     var inFlight = [];
     SV_STAGES.forEach(function(s) {
       allDeploys.forEach(function(d) { if (normDeployStatus(d.status) === s.key) inFlight.push({ d: d, s: s }); });
     });
-    var launched = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'deployed_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 30 * 86400000; })
+    var launched = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'verified_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 30 * 86400000; })
       .sort(function(a, b) { return new Date(b.deployed_at) - new Date(a.deployed_at); });
     var stuck = inFlight.filter(function(x) { return x.d.blocked; }).length;
+    var stepCards = inFlight.map(function(x) { return x.d; }).concat(launched);
+    var stepMap = computeStepMap(stepCards);
 
     var html = '<div class="simple-view">';
     html += '<div class="sv-sum">' + inFlight.length + ' in flight' + (stuck ? ' &middot; ' + stuck + ' stuck' : '') + ' &middot; ' + launched.length + ' launched in the last 30 days</div>';
@@ -2645,6 +2721,7 @@
           + '<td><span class="sv-pill" style="--svc:' + x.s.color + ';">' + x.s.label + '</span></td>'
           + '<td class="sv-now' + (d.blocked ? ' blocked' : '') + '">' + now + '</td>'
           + '<td class="sv-age">' + totalLabel(d) + '</td></tr>';
+        html += svStepsRow(stepMap[d.id], 4);
       });
       html += '</table></div>';
     }
@@ -2652,6 +2729,7 @@
       html += '<div class="sv-card"><table class="sv-table"><tr><th>&#9989; Launched recently</th><th>When</th></tr>';
       launched.forEach(function(d) {
         html += '<tr><td class="sv-title">' + esc(d.title) + '</td><td class="sv-age">' + new Date(d.deployed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</td></tr>';
+        html += svStepsRow(stepMap[d.id], 2);
       });
       html += '</table></div>';
     }
@@ -2713,7 +2791,7 @@
       var col = DEPLOY_COLS[c];
       var items = allDeploys.filter(function(d) { return (d.status || 'needs') === col.key; });
       // The shipped column header links to the standalone view-only report (all shipped cards + their links).
-      var colLink = (col.key === 'deployed_prod') ? '<a class="board-col-link" href="shipped-report.html" target="_blank" rel="noopener" title="Open the view-only shipped report (new tab)">Report &#8599;</a>' : '';
+      var colLink = (col.key === 'verified_prod') ? '<a class="board-col-link" href="shipped-report.html" target="_blank" rel="noopener" title="Open the view-only shipped report (new tab)">Report &#8599;</a>' : '';
       html += '<div class="board-col" style="--bc:' + col.color + ';"><div class="board-col-head"><span class="board-col-dot"></span><span class="board-col-title">' + col.title + '</span><span class="board-col-count">' + items.length + '</span>' + colLink + '</div>';
       if (!items.length) { html += '<div class="board-empty">Nothing here</div>'; }
       else {
@@ -2737,8 +2815,24 @@
           envsHtml += '<div class="dcard-envs"><span class="blk-chip ' + (bs.blocked ? 'on' : '') + '" data-dblk="' + esc(d.id) + '" title="' + (bs.blocked ? 'Blocked \u2014 click to clear' : 'Click to mark blocked') + '">&#9888; Blocked</span></div>';
           // Reason box shows only when blocked
           var reasonHtml = bs.blocked ? '<textarea class="blk-reason" data-dblkreason="' + esc(d.id) + '" placeholder="What\'s blocking this? (e.g. waiting on CR approval)">' + esc(bs.reason) + '</textarea>' : '';
-          // Deployed-to-Prod cards are finished, so collapse the chip detail to one calm line.
-          var bodyHtml = (col.key === 'deployed_prod') ? '<div class="dcard-done">&#10003; Shipped &mdash; all approved</div>' : (apprHtml + envsHtml + reasonHtml);
+          // Deployed cards show their post-deploy checklist (to-dos linked to this card).
+          // Verified cards are truly finished — one calm line.
+          var bodyHtml;
+          if (col.key === 'verified_prod') {
+            bodyHtml = '<div class="dcard-done">&#10003; Shipped &amp; verified</div>';
+          } else if (col.key === 'deployed_prod') {
+            var steps = cardSteps(d);
+            var stepsHtml = '<div class="pd-steps"><div class="pd-cap">Post-deploy steps</div>';
+            if (!steps.length) stepsHtml += '<div class="pd-empty">No steps yet &mdash; add what has to happen before this is truly done.</div>';
+            steps.forEach(function(t) {
+              var on = todoStatus(t) === 'done';
+              stepsHtml += '<div class="pd-step' + (on ? ' on' : '') + '" data-pdstep="' + esc(t.id) + '" title="Click to mark ' + (on ? 'open' : 'done') + '"><span class="pd-box">&#10003;</span><span class="pd-text">' + esc(t.text) + '</span></div>';
+            });
+            stepsHtml += '<button class="pd-add" data-pdadd="' + esc(d.id) + '">+ Add step</button></div>';
+            bodyHtml = stepsHtml;
+          } else {
+            bodyHtml = apprHtml + envsHtml + reasonHtml;
+          }
           var ns = nextStep(d);
           var nsIcon = ns ? (ns.k === 'blocked' ? '&#9940;' : ns.k === 'wait' ? '&#9203;' : '&#128073;') : '';
           var nsExtra = (ns && ns.k === 'wait') ? (function(){ var lbl = waitLabel(openWaitStart(d)); return lbl ? ' · ' + lbl : ''; })() : '';
@@ -2764,14 +2858,39 @@
     document.querySelectorAll('.env-chip[data-dflag]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleFlag(this.getAttribute('data-dflag'), this.getAttribute('data-field')); }); });
     document.querySelectorAll('.blk-chip[data-dblk]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleBlock(this.getAttribute('data-dblk')); }); });
     document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
+    document.querySelectorAll('.pd-step[data-pdstep]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleCardStep(this.getAttribute('data-pdstep')); }); });
+    document.querySelectorAll('.pd-add[data-pdadd]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); addCardStep(this.getAttribute('data-pdadd')); }); });
     renderFocusBanner();
+  }
+  // ===== Post-deploy steps: to-dos linked to a deployment (todos.deployment_id) =====
+  // One system, two views: these rows are ordinary to-dos, so they also appear in the
+  // To-Do screen; checking them off in either place is the same write.
+  function cardSteps(d) { return (allTodos || []).filter(function(t) { return t.deployment_id === d.id; }); }
+  function openCardSteps(d) { return cardSteps(d).filter(function(t) { return todoStatus(t) !== 'done'; }); }
+  function addCardStep(deployId) {
+    var d = findDeploy(deployId); if (!d) return;
+    var text = prompt('Post-deploy step for "' + d.title + '":'); if (!text || !text.trim()) return;
+    fetch(SB_URL + '/rest/v1/todos', { method: 'POST', headers: Object.assign({}, H, { 'Prefer': 'return=representation' }), body: JSON.stringify({ text: text.trim(), status: 'open', deployment_id: deployId }) })
+      .then(function(r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function(rows) { var row = Array.isArray(rows) ? rows[0] : rows; if (row && row.id) { allTodos.unshift(row); renderBoard(); } })
+      .catch(function() { showToast('Could not add — is the deployment_id column added in Supabase?'); });
+  }
+  function toggleCardStep(todoId) {
+    var t = findTodo(todoId); if (!t) return;
+    var prev = t.status;
+    t.status = (todoStatus(t) === 'done') ? 'open' : 'done';
+    renderBoard();
+    patchTodo(todoId, { status: t.status }, function() { t.status = prev; renderBoard(); });
   }
   function findDeploy(id) { for (var i = 0; i < allDeploys.length; i++) { if (allDeploys[i].id === id) return allDeploys[i]; } return null; }
   function colIndex(key) { for (var i = 0; i < DEPLOY_COLS.length; i++) { if (DEPLOY_COLS[i].key === key) return i; } return 0; }
-  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(normDeployStatus(d.status)) + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key; var prev = d.status, prevDep = d.deployed_at; d.status = newKey; d.deployed_at = (newKey === 'deployed_prod') ? (d.deployed_at || new Date().toISOString()) : null; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey, deployed_at: d.deployed_at }) }).then(function(res) { if (!res.ok) { d.status = prev; d.deployed_at = prevDep; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; d.deployed_at = prevDep; renderBoard(); }); }
+  function moveDeploy(id, dir) { var d = findDeploy(id); if (!d) return; var idx = colIndex(normDeployStatus(d.status)) + dir; if (idx < 0 || idx >= DEPLOY_COLS.length) return; var newKey = DEPLOY_COLS[idx].key;
+    // Verified means the follow-up work is done — warn if steps are still open.
+    if (newKey === 'verified_prod') { var openN = openCardSteps(d).length; if (openN && !confirm(openN + ' post-deploy step' + (openN !== 1 ? 's are' : ' is') + ' still open. Mark Verified anyway?')) return; }
+    var prev = d.status, prevDep = d.deployed_at; d.status = newKey; d.deployed_at = (newKey === 'deployed_prod' || newKey === 'verified_prod') ? (d.deployed_at || new Date().toISOString()) : null; renderBoard(); fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ status: newKey, deployed_at: d.deployed_at }) }).then(function(res) { if (!res.ok) { d.status = prev; d.deployed_at = prevDep; renderBoard(); showToast('Could not save move'); } }).catch(function() { d.status = prev; d.deployed_at = prevDep; renderBoard(); }); }
   function openDeployModal(d) { document.getElementById('deployEditId').value = d ? d.id : ''; document.getElementById('deployModalTitle').textContent = d ? 'Edit Deployment Item' : 'Add Deployment Item'; document.getElementById('deployTitleInput').value = d ? d.title : ''; document.getElementById('deployDescInput').value = (d && d.description) ? d.description : ''; document.getElementById('deployUrlInput').value = (d && d.pr_url) ? d.pr_url : ''; document.getElementById('deployCrInput').value = (d && d.cr_url) ? d.cr_url : ''; document.getElementById('deployJiraInput').value = (d && d.jira_url) ? d.jira_url : ''; document.getElementById('deployStatusInput').value = normDeployStatus((d && d.status) ? d.status : 'building'); document.getElementById('deployModalOverlay').classList.add('open'); setTimeout(function() { document.getElementById('deployTitleInput').focus(); }, 100); }
   function closeDeployModal() { document.getElementById('deployModalOverlay').classList.remove('open'); }
-  function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var description = document.getElementById('deployDescInput').value.trim() || null; var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var crRaw = document.getElementById('deployCrInput').value.trim(); var cr_url = crRaw ? (crRaw.indexOf('http') === 0 ? crRaw : 'https://' + crRaw) : null; var jiraRaw = document.getElementById('deployJiraInput').value.trim(); var jira_url = jiraRaw ? (jiraRaw.indexOf('http') === 0 ? jiraRaw : 'https://' + jiraRaw) : null; var existing = editId ? findDeploy(editId) : null; var deployed_at = (status === 'deployed_prod') ? ((existing && existing.deployed_at) ? existing.deployed_at : new Date().toISOString()) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, description: description, pr_url: pr_url, cr_url: cr_url, jira_url: jira_url, status: status, deployed_at: deployed_at }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
+  function saveDeploy() { var title = document.getElementById('deployTitleInput').value.trim(); var url = document.getElementById('deployUrlInput').value.trim(); var status = document.getElementById('deployStatusInput').value || 'needs'; var editId = document.getElementById('deployEditId').value; if (!title) { showToast('Enter a title'); return; } var description = document.getElementById('deployDescInput').value.trim() || null; var pr_url = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : null; var crRaw = document.getElementById('deployCrInput').value.trim(); var cr_url = crRaw ? (crRaw.indexOf('http') === 0 ? crRaw : 'https://' + crRaw) : null; var jiraRaw = document.getElementById('deployJiraInput').value.trim(); var jira_url = jiraRaw ? (jiraRaw.indexOf('http') === 0 ? jiraRaw : 'https://' + jiraRaw) : null; var existing = editId ? findDeploy(editId) : null; var deployed_at = (status === 'deployed_prod' || status === 'verified_prod') ? ((existing && existing.deployed_at) ? existing.deployed_at : new Date().toISOString()) : null; var method = editId ? 'PATCH' : 'POST'; var endpoint = editId ? SB_URL + '/rest/v1/deployments?id=eq.' + editId : SB_URL + '/rest/v1/deployments'; fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, description: description, pr_url: pr_url, cr_url: cr_url, jira_url: jira_url, status: status, deployed_at: deployed_at }) }).then(function(res) { if (res.ok) { closeDeployModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchDeploys(); } else { showToast('Error saving'); } }); }
   function deleteDeploy(id) { if (!confirm('Delete this deployment item?')) return; fetch(SB_URL + '/rest/v1/deployments?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchDeploys(); }); }
 
   // Copies the shareable tracker-only link (…/library.html?tracker) to the clipboard.
