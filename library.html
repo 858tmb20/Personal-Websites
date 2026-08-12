@@ -342,6 +342,10 @@
   .pd-add:hover { color: var(--ink); border-color: var(--muted); }
   .todo-linked-note { margin-top: 0.9rem; font-size: 0.78rem; color: var(--muted); cursor: pointer; text-align: center; }
   .todo-linked-note:hover { color: var(--link); }
+  .pd-toggle { cursor: pointer; user-select: none; }
+  .pd-toggle:hover { color: var(--ink); }
+  .pd-count { font-weight: 700; color: #B45309; margin-left: 0.25rem; }
+  .pd-count.alldone { color: #15803D; }
   .dcard { position: relative; background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--bc); border-radius: 9px; padding: 0.85rem; margin-bottom: 0.7rem; }
   .dcard:last-child { margin-bottom: 0; }
   .dcard-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 0.5rem; padding-right: 2.6rem; }
@@ -2828,13 +2832,20 @@
             bodyHtml = '<div class="dcard-done">&#10003; Shipped &amp; verified</div>';
           } else if (col.key === 'deployed_prod') {
             var steps = cardSteps(d);
-            var stepsHtml = '<div class="pd-steps"><div class="pd-cap">Post-deploy steps</div>';
-            if (!steps.length) stepsHtml += '<div class="pd-empty">No steps yet &mdash; add what has to happen before this is truly done.</div>';
-            steps.forEach(function(t) {
-              var on = todoStatus(t) === 'done';
-              stepsHtml += '<div class="pd-step' + (on ? ' on' : '') + '" data-pdstep="' + esc(t.id) + '" title="Click to mark ' + (on ? 'open' : 'done') + '"><span class="pd-box">&#10003;</span><span class="pd-text">' + esc(t.text) + '</span></div>';
-            });
-            stepsHtml += '<button class="pd-add" data-pdadd="' + esc(d.id) + '">+ Add step</button></div>';
+            var doneN = steps.filter(function(t) { return todoStatus(t) === 'done'; }).length;
+            var isOpen = !!pdExpanded[d.id] || !steps.length; // no steps -> nothing to hide
+            var arrow = isOpen ? '&#9662;' : '&#9656;';
+            var count = steps.length ? ' <span class="pd-count' + (doneN === steps.length ? ' alldone' : '') + '">' + doneN + '/' + steps.length + '</span>' : '';
+            var stepsHtml = '<div class="pd-steps"><div class="pd-cap pd-toggle" data-pdtoggle="' + esc(d.id) + '" title="' + (isOpen ? 'Collapse' : 'Expand') + ' post-deploy steps">' + arrow + ' Post-deploy steps' + count + '</div>';
+            if (isOpen) {
+              if (!steps.length) stepsHtml += '<div class="pd-empty">No steps yet &mdash; add what has to happen before this is truly done.</div>';
+              steps.forEach(function(t) {
+                var on = todoStatus(t) === 'done';
+                stepsHtml += '<div class="pd-step' + (on ? ' on' : '') + '" data-pdstep="' + esc(t.id) + '" title="Click to mark ' + (on ? 'open' : 'done') + '"><span class="pd-box">&#10003;</span><span class="pd-text">' + esc(t.text) + '</span></div>';
+              });
+              stepsHtml += '<button class="pd-add" data-pdadd="' + esc(d.id) + '">+ Add step</button>';
+            }
+            stepsHtml += '</div>';
             bodyHtml = stepsHtml;
           } else {
             bodyHtml = apprHtml + envsHtml + reasonHtml;
@@ -2866,8 +2877,11 @@
     document.querySelectorAll('.blk-reason[data-dblkreason]').forEach(function(t) { t.addEventListener('blur', function() { saveBlockReason(this.getAttribute('data-dblkreason'), this.value); }); });
     document.querySelectorAll('.pd-step[data-pdstep]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); toggleCardStep(this.getAttribute('data-pdstep')); }); });
     document.querySelectorAll('.pd-add[data-pdadd]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); addCardStep(this.getAttribute('data-pdadd')); }); });
+    document.querySelectorAll('.pd-toggle[data-pdtoggle]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); var id = this.getAttribute('data-pdtoggle'); pdExpanded[id] = !pdExpanded[id]; renderBoard(); }); });
     renderFocusBanner();
   }
+  // Which cards have their post-deploy checklist expanded (session-only; default collapsed).
+  var pdExpanded = {};
   // ===== Post-deploy steps: to-dos linked to a deployment (todos.deployment_id) =====
   // One system, two views: these rows are ordinary to-dos, so they also appear in the
   // To-Do screen; checking them off in either place is the same write.
