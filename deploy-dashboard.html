@@ -119,7 +119,8 @@
   var H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
   var DAY = 86400000;
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-  function shipped(d) { return (d.status || '') === 'deployed_prod' || (d.status || '') === 'deployed'; }
+  // Shipped = in prod: 'deployed_prod' (live, wrapping up) or 'verified_prod' (fully done); 'deployed'/'done' are legacy.
+  function shipped(d) { var s = d.status || ''; return s === 'deployed_prod' || s === 'verified_prod' || s === 'deployed' || s === 'done'; }
 
   // Same wait math as the tracker (library.html): PR = created->approved, CR = test-plan-attached->approved.
   function prWaitMs(d) { if (!d.pr_created || !d.pr_created_at) return null; var end = d.pr_approved_at ? new Date(d.pr_approved_at).getTime() : Date.now(); return Math.max(0, end - new Date(d.pr_created_at).getTime()); }

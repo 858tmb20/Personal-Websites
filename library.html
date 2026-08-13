@@ -2718,8 +2718,8 @@
     var launched = allDeploys.filter(function(d) { return normDeployStatus(d.status) === 'verified_prod' && d.deployed_at && (Date.now() - new Date(d.deployed_at).getTime()) < 30 * 86400000; })
       .sort(function(a, b) { return new Date(b.deployed_at) - new Date(a.deployed_at); });
     var stuck = inFlight.filter(function(x) { return x.d.blocked; }).length;
-    var stepCards = inFlight.map(function(x) { return x.d; }).concat(launched);
-    var stepMap = computeStepMap(stepCards);
+    // No per-card post-deploy step lists here (Trent 2026-08-12: they made this view
+    // messy) — the "Live — wrapping up" pill covers it; details live on the full board.
 
     var html = '<div class="simple-view">';
     html += '<div class="sv-sum">' + inFlight.length + ' in flight' + (stuck ? ' &middot; ' + stuck + ' stuck' : '') + ' &middot; ' + launched.length + ' launched in the last 30 days</div>';
@@ -2733,7 +2733,6 @@
           + '<td><span class="sv-pill" style="--svc:' + x.s.color + ';">' + x.s.label + '</span></td>'
           + '<td class="sv-now' + (d.blocked ? ' blocked' : '') + '">' + now + '</td>'
           + '<td class="sv-age">' + totalLabel(d) + '</td></tr>';
-        html += svStepsRow(stepMap[d.id], 4);
       });
       html += '</table></div>';
     }
@@ -2741,7 +2740,6 @@
       html += '<div class="sv-card"><table class="sv-table"><tr><th>&#9989; Launched recently</th><th>When</th></tr>';
       launched.forEach(function(d) {
         html += '<tr><td class="sv-title">' + esc(d.title) + '</td><td class="sv-age">' + new Date(d.deployed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</td></tr>';
-        html += svStepsRow(stepMap[d.id], 2);
       });
       html += '</table></div>';
     }

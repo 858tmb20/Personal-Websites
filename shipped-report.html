@@ -80,7 +80,11 @@
   var DAY = 86400000;
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-  function shipped(d) { var s = d.status || ''; return s === 'deployed_prod' || s === 'deployed' || s === 'done'; }
+  // Shipped = in prod, whether or not post-deploy steps are wrapped up. The board's last
+  // two columns are 'deployed_prod' (live, wrapping up) and 'verified_prod' (fully done);
+  // 'deployed'/'done' are legacy statuses from the old board.
+  function shipped(d) { var s = d.status || ''; return s === 'deployed_prod' || s === 'verified_prod' || s === 'deployed' || s === 'done'; }
+  function wrappingUp(d) { return (d.status || '') === 'deployed_prod'; }
   function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
   function cycleDays(d) { if (!d.deployed_at || !d.created_at) return null; var dc = Math.floor((new Date(d.deployed_at) - new Date(d.created_at)) / DAY); return dc < 0 ? 0 : dc; }
   // Same EdTech wait math as the tracker: PR = created->approved, CR = test-plan-attached->approved.
@@ -131,6 +135,7 @@
       if (d.created_at) meta.push('Started ' + fmtDate(d.created_at));
       var c = cycleDays(d); if (c !== null) meta.push((c < 1 ? 'shipped same day' : c + 'd start → ship'));
       var e = edtechDays(d); if (e !== null) meta.push(e + 'd of that waiting on EdTech approvals');
+      if (wrappingUp(d)) meta.push('post-deploy steps in progress');
       var links = '';
       links += d.pr_url ? shipLink(d.pr_url, '&#128279; PR') : '';
       links += d.cr_url ? shipLink(d.cr_url, '&#128279; CR') : '';
@@ -176,7 +181,7 @@
         curKey = key;
       }
       var c = cycleDays(d);
-      lines.push('• ' + d.title + (d.deployed_at ? ' — shipped ' + fmtDate(d.deployed_at) : '') + (c !== null && c >= 1 ? ' · ' + c + 'd cycle' : ''));
+      lines.push('• ' + d.title + (d.deployed_at ? ' — shipped ' + fmtDate(d.deployed_at) : '') + (c !== null && c >= 1 ? ' · ' + c + 'd cycle' : '') + (wrappingUp(d) ? ' · post-deploy steps in progress' : ''));
       if (d.pr_url) lines.push('   PR:   ' + d.pr_url);
       if (d.cr_url) lines.push('   CR:   ' + d.cr_url);
       if (d.jira_url) lines.push('   Jira: ' + d.jira_url);
