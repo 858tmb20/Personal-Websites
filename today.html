@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #F4F6F9; --ink: #0F1F3D; --ink-soft: #1E2F52; --muted: #6B7A99; --muted-soft: #94A0B8;
+    --link: #1F6FEB; --rule: #E3E7EE; --rule-soft: #EEF1F6; --card: #FFFFFF;
+    --green: #15803D; --green-soft: #ECFDF5;
+    --blue: #1F6FEB; --blue-soft: #EAF1FF;
+    --amber: #B7791F; --amber-soft: #FDF4E3;
+    --radius: 8px;
+  }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+  header h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.01em; }
+  header .day { font-size: 0.85rem; color: var(--muted); margin-top: 0.2rem; font-weight: 600; }
+  .count-pill { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--blue); background: var(--blue-soft); border: 1px solid #CBDDFB; border-radius: 999px; padding: 0.25rem 0.7rem; white-space: nowrap; }
+  .count-pill.zero { color: var(--green); background: var(--green-soft); border-color: #BBEBD0; }
+
+  .add { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
+  .add input { flex: 1; font: inherit; font-size: 0.95rem; padding: 0.75rem 0.9rem; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--card); color: var(--ink); outline: none; }
+  .add input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  .add button { font: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; background: var(--ink); border: none; border-radius: var(--radius); padding: 0 1.2rem; cursor: pointer; }
+  .add button:hover { background: var(--ink-soft); }
+
+  .pull { display: inline-flex; align-items: center; gap: 0.4rem; font: inherit; font-size: 0.78rem; font-weight: 700; color: var(--amber); background: var(--amber-soft); border: 1px solid #F0DDB4; border-radius: 999px; padding: 0.35rem 0.8rem; cursor: pointer; margin-bottom: 0.9rem; }
+  .pull:hover { filter: brightness(0.97); }
+
+  .item { display: flex; align-items: center; gap: 0.7rem; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.65rem 0.75rem; margin-bottom: 0.45rem; }
+  .item .tick { flex: none; width: 22px; height: 22px; border: 2px solid var(--muted-soft); border-radius: 6px; background: var(--card); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; transition: all 0.1s; }
+  .item .tick:hover { border-color: var(--green); }
+  .item .txt { flex: 1; font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
+  .item .del { flex: none; font: inherit; font-size: 1rem; color: var(--muted-soft); background: none; border: none; cursor: pointer; padding: 0 0.25rem; opacity: 0; transition: opacity 0.1s; }
+  .item:hover .del { opacity: 1; }
+  .item .del:hover { color: #B91C1C; }
+  .item.done { background: var(--rule-soft); border-color: var(--rule-soft); }
+  .item.done .tick { background: var(--green); border-color: var(--green); color: #fff; }
+  .item.done .txt { color: var(--muted-soft); text-decoration: line-through; }
+
+  .toolbar { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
+  .btn-quiet { font: inherit; font-size: 0.76rem; font-weight: 600; color: var(--muted); background: none; border: none; cursor: pointer; }
+  .btn-quiet:hover { color: var(--ink); text-decoration: underline; }
+
+  .empty { background: var(--card); border: 1px dashed var(--rule); border-radius: var(--radius); padding: 1.4rem 1.3rem; font-size: 0.88rem; color: var(--muted); text-align: center; }
+  .loading { font-size: 0.85rem; color: var(--muted); padding: 1rem 0.2rem; }
+
+  .setup { background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--amber); border-radius: var(--radius); padding: 1.1rem 1.2rem; font-size: 0.85rem; line-height: 1.6; }
+  .setup pre { background: var(--rule-soft); border-radius: 6px; padding: 0.8rem; font-size: 0.74rem; overflow-x: auto; margin: 0.7rem 0; }
+  .setup button { font: inherit; font-size: 0.78rem; font-weight: 700; color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.4rem 0.8rem; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>&#9889; Today</h1>
+      <div class="day" id="dayLabel"></div>
+    </div>
+    <span class="count-pill" id="countPill"></span>
+  </header>
+  <div class="add">
+    <input type="text" id="inp" placeholder="Throw something on the pile, press Enter..." autofocus />
+    <button onclick="addItem()">Add</button>
+  </div>
+  <div id="pullWrap"></div>
+  <div id="list"><div class="loading">Loading...</div></div>
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <button class="btn-quiet" onclick="clearDone()">Clear done</button>
+  </div>
+</div>
+<script>
+  var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
+  var H = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
+  var items = [];
+  var renderedFor = '';
+
+  var SETUP_SQL = "create table today_items (\n  id uuid primary key default gen_random_uuid(),\n  created_at timestamptz default now(),\n  item_date date not null,\n  text text not null,\n  done boolean default false\n);\nalter table today_items enable row level security;\ncreate policy \"anon all\" on today_items\n  for all to anon, authenticated using (true) with check (true);";
+
+  function localDate(offsetDays) {
+    var d = new Date();
+    if (offsetDays) d.setDate(d.getDate() + offsetDays);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function dayLabel() {
+    document.getElementById('dayLabel').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+
+  function load() {
+    renderedFor = localDate();
+    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + renderedFor + '&order=done.asc,created_at.asc', { headers: H })
+      .then(function (r) { if (!r.ok) throw r; return r.json(); })
+      .then(function (rows) { items = rows; render(); checkYesterday(); })
+      .catch(function () { showSetup(); });
+  }
+
+  function render() {
+    var list = document.getElementById('list');
+    var open = items.filter(function (i) { return !i.done; });
+    var done = items.filter(function (i) { return i.done; });
+    var pill = document.getElementById('countPill');
+    if (items.length === 0) {
+      list.innerHTML = '<div class="empty">Nothing on the pile yet. Throw something up there and start attacking.</div>';
+      pill.textContent = 'clean slate';
+      pill.className = 'count-pill zero';
+    } else {
+      list.innerHTML = open.concat(done).map(function (i) {
+        return '<div class="item' + (i.done ? ' done' : '') + '">' +
+          '<span class="tick" onclick="toggle(\'' + i.id + '\',' + !i.done + ')">&#10003;</span>' +
+          '<span class="txt">' + esc(i.text) + '</span>' +
+          '<button class="del" onclick="del(\'' + i.id + '\')" title="Remove">&#10005;</button>' +
+          '</div>';
+      }).join('');
+      pill.textContent = open.length === 0 ? 'all done 🎉' : open.length + ' to go';
+      pill.className = 'count-pill' + (open.length === 0 ? ' zero' : '');
+    }
+    document.getElementById('toolbar').style.display = done.length ? 'flex' : 'none';
+  }
+
+  function addItem() {
+    var inp = document.getElementById('inp');
+    var text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    fetch(SB_URL + '/rest/v1/today_items', {
+      method: 'POST', headers: H,
+      body: JSON.stringify({ text: text, item_date: localDate(), done: false })
+    }).then(load);
+    inp.focus();
+  }
+
+  function toggle(id, done) {
+    fetch(SB_URL + '/rest/v1/today_items?id=eq.' + id, { method: 'PATCH', headers: H, body: JSON.stringify({ done: done }) }).then(load);
+  }
+
+  function del(id) {
+    fetch(SB_URL + '/rest/v1/today_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(load);
+  }
+
+  function clearDone() {
+    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + localDate() + '&done=eq.true', { method: 'DELETE', headers: H }).then(load);
+  }
+
+  function checkYesterday() {
+    var y = localDate(-1);
+    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + y + '&done=eq.false&select=id', { headers: H })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) {
+        var w = document.getElementById('pullWrap');
+        w.innerHTML = rows.length
+          ? '<button class="pull" onclick="pullYesterday()">&#8631; Pull in ' + rows.length + ' unfinished from yesterday</button>'
+          : '';
+      });
+  }
+
+  function pullYesterday() {
+    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + localDate(-1) + '&done=eq.false', {
+      method: 'PATCH', headers: H, body: JSON.stringify({ item_date: localDate() })
+    }).then(load);
+  }
+
+  function showSetup() {
+    document.getElementById('list').innerHTML =
+      '<div class="setup"><strong>One-time setup:</strong> the <code>today_items</code> table doesn’t exist yet. ' +
+      'Run this in the Supabase SQL editor, then refresh this page.' +
+      '<pre id="setupSql">' + esc(SETUP_SQL) + '</pre>' +
+      '<button onclick="navigator.clipboard.writeText(document.getElementById(\'setupSql\').textContent).then(function(){ this.textContent=\'Copied!\'; }.bind(this))">Copy SQL</button></div>';
+    document.getElementById('countPill').textContent = 'setup needed';
+  }
+
+  document.getElementById('inp').addEventListener('keydown', function (e) { if (e.key === 'Enter') addItem(); });
+  // If the tab sat open past midnight, refresh onto the new day when it regains focus.
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && renderedFor && renderedFor !== localDate()) load(); });
+
+  dayLabel();
+  load();
+</script>
+</body>
+</html>
