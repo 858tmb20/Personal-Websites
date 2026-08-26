@@ -587,7 +587,11 @@
   /* LEARNING TRACKER */
   .learn-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
   .learn-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
-  .learn-item.is-starred { background: #FFFBEB; }
+  .learn-item.is-upnext { background: #FFFBEB; border-left: 4px solid #F59E0B; padding-left: calc(1.1rem - 4px); }
+  .btn-upnext { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
+  .btn-upnext:hover { border-color: #F59E0B; color: #B45309; }
+  .btn-upnext.on { background: #FFFBEB; border-color: #F59E0B; color: #B45309; }
+  .li-upnext-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #B45309; background: #FFFBEB; border: 1px solid #F59E0B; border-radius: 999px; padding: 0.15rem 0.5rem; }
   .learn-item.is-focus { background: #ECFDF5; border-left: 4px solid #16A34A; padding-left: calc(1.1rem - 4px); }
   .btn-focus { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
   .btn-focus:hover { border-color: #16A34A; color: #15803D; }
@@ -600,8 +604,6 @@
   .btn-done:hover { border-color: #16A34A; color: #15803D; }
   .btn-done.on { background: #ECFDF5; border-color: #16A34A; color: #15803D; }
   .li-done-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #15803D; border: 1px solid #16A34A; border-radius: 999px; padding: 0.15rem 0.5rem; }
-  .li-star { width: 30px; height: 30px; flex-shrink: 0; border: none; background: none; cursor: pointer; font-size: 1.25rem; color: var(--muted-soft); line-height: 1; padding: 0; }
-  .li-star.on { color: #F59E0B; }
   .learn-item .li-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; color: var(--ink); word-break: break-word; }
   .learn-item .li-acts { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
   .idea-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
@@ -871,7 +873,7 @@
     <div class="header-left">
       <div class="header-brand">
         <h1>Learning Tracker</h1>
-        <p>What you're learning &mdash; star what you're focused on</p>
+        <p>What you're learning &mdash; focus on up to 4, queue the rest as Up Next</p>
       </div>
     </div>
     <div class="header-right">
@@ -2199,9 +2201,9 @@
     function rank(x) { return x.priority === 'done' ? 3 : (x.priority === 'focus' ? 0 : (x.focused ? 1 : 2)); }
     list.sort(function(a, b) { return rank(a) - rank(b); });
     var nFocus = list.filter(function(x) { return x.priority === 'focus'; }).length;
-    var nStar = list.filter(function(x) { return x.focused; }).length;
+    var nNext = list.filter(function(x) { return x.focused && x.priority !== 'focus' && x.priority !== 'done'; }).length;
     var nDone = list.filter(function(x) { return x.priority === 'done'; }).length;
-    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nStar + ' starred \u00b7 ' + nFocus + '/4 in focus \u00b7 ' + nDone + ' completed';
+    document.getElementById('learnCount').textContent = list.length + ' item' + (list.length !== 1 ? 's' : '') + ' \u00b7 ' + nFocus + '/4 in focus \u00b7 ' + nNext + ' up next \u00b7 ' + nDone + ' completed';
     if (!list.length) { document.getElementById('learnList').innerHTML = '<div class="empty"><strong>Nothing yet</strong>Type what you\'re learning above and hit Add.</div>'; return; }
     var html = '<div class="learn-list">';
     for (var i = 0; i < list.length; i++) {
@@ -2209,16 +2211,16 @@
       var link = x.url ? '<a class="btn-open" href="' + esc(x.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '';
       var isFocus = x.priority === 'focus';
       var isDone = x.priority === 'done';
-      html += '<div class="learn-item' + (isDone ? ' is-done' : (isFocus ? ' is-focus' : (x.focused ? ' is-starred' : ''))) + '">'
-        + '<button class="li-star' + (x.focused ? ' on' : '') + '" data-lstar="' + esc(x.id) + '" title="Star what you\'re focused on" aria-label="Toggle focus">' + (x.focused ? '&#9733;' : '&#9734;') + '</button>'
+      var isNext = !!x.focused && !isFocus && !isDone;
+      html += '<div class="learn-item' + (isDone ? ' is-done' : (isFocus ? ' is-focus' : (isNext ? ' is-upnext' : ''))) + '">'
         + '<div class="li-title">' + esc(x.title) + '</div>'
-        + (isFocus ? '<span class="li-focus-badge">FOCUS</span>' : '') + (isDone ? '<span class="li-done-badge">DONE \u2713</span>' : '')
-        + '<div class="li-acts">' + link + '' + (isDone ? '' : '<button class="btn-focus' + (isFocus ? ' on' : '') + '" data-lfocus="' + esc(x.id) + '" title="Focus = the 1-2 things you\'re actively working">' + (isFocus ? 'Unfocus' : 'Focus') + '</button>') + '<button class="btn-done' + (isDone ? ' on' : '') + '" data-ldone="' + esc(x.id) + '" title="Mark completed">' + (isDone ? 'Undo' : '\u2713 Done') + '</button><button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
+        + (isFocus ? '<span class="li-focus-badge">FOCUS</span>' : '') + (isNext ? '<span class="li-upnext-badge">UP NEXT</span>' : '') + (isDone ? '<span class="li-done-badge">DONE \u2713</span>' : '')
+        + '<div class="li-acts">' + link + '' + (isDone ? '' : '<button class="btn-focus' + (isFocus ? ' on' : '') + '" data-lfocus="' + esc(x.id) + '" title="Focus = the up-to-4 things you\'re actively working">' + (isFocus ? 'Unfocus' : 'Focus') + '</button>') + (isDone || isFocus ? '' : '<button class="btn-upnext' + (isNext ? ' on' : '') + '" data-lnext="' + esc(x.id) + '" title="Up Next = queued to enter focus when a slot frees">' + (isNext ? 'Remove' : 'Up Next') + '</button>') + '<button class="btn-done' + (isDone ? ' on' : '') + '" data-ldone="' + esc(x.id) + '" title="Mark completed">' + (isDone ? 'Undo' : '\u2713 Done') + '</button><button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
         + '</div>';
     }
     html += '</div>';
     document.getElementById('learnList').innerHTML = html;
-    document.querySelectorAll('[data-lstar]').forEach(function(b) { b.addEventListener('click', function() { toggleFocus(this.getAttribute('data-lstar')); }); });
+    document.querySelectorAll('[data-lnext]').forEach(function(b) { b.addEventListener('click', function() { toggleUpNext(this.getAttribute('data-lnext')); }); });
     document.querySelectorAll('[data-lfocus]').forEach(function(b) { b.addEventListener('click', function() { toggleFocusMode(this.getAttribute('data-lfocus')); }); });
     document.querySelectorAll('[data-ldone]').forEach(function(b) { b.addEventListener('click', function() { toggleDone(this.getAttribute('data-ldone')); }); });
     document.querySelectorAll('[data-ledit]').forEach(function(b) { b.addEventListener('click', function() { openLearnModal(findLearn(this.getAttribute('data-ledit'))); }); });
@@ -2246,7 +2248,8 @@
     var endpoint = editId ? SB_URL + '/rest/v1/learning_items?id=eq.' + editId : SB_URL + '/rest/v1/learning_items';
     fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeLearnModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLearn(); } else { showToast('Error saving'); } });
   }
-  function toggleFocus(id) {
+  // Up Next: the queue behind the focus 4. Reuses the old star column (focused).
+  function toggleUpNext(id) {
     var item = findLearn(id); if (!item) return;
     var prev = !!item.focused; item.focused = !prev; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ focused: item.focused }) }).then(function(res) { if (!res.ok) { item.focused = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.focused = prev; renderLearn(); });
@@ -2258,8 +2261,8 @@
     var prev = item.priority; item.priority = isDone ? 'medium' : 'done'; renderLearn();
     fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ priority: item.priority }) }).then(function(res) { if (!res.ok) { item.priority = prev; renderLearn(); showToast('Could not save'); } else { showToast(isDone ? 'Back on the list' : 'Completed \ud83c\udf89'); } }).catch(function() { item.priority = prev; renderLearn(); });
   }
-  // Focus mode: max 4 items, stored in the (previously unused) priority column as 'focus'.
-  // Stars = unlimited "this matters" pile; Focus = the 1-2 you're actively working.
+  // Focus mode: max 4 items, stored in the priority column as 'focus'.
+  // Up Next (focused column) = the queue; promoting to Focus removes it from the queue.
   function toggleFocusMode(id) {
     var item = findLearn(id); if (!item) return;
     var isFocus = item.priority === 'focus';
@@ -2267,8 +2270,11 @@
       var n = allLearn.filter(function(x) { return x.priority === 'focus'; }).length;
       if (n >= 4) { showToast('Focus is limited to 4 \u2014 unfocus one first'); return; }
     }
-    var prev = item.priority; item.priority = isFocus ? 'medium' : 'focus'; renderLearn();
-    fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ priority: item.priority }) }).then(function(res) { if (!res.ok) { item.priority = prev; renderLearn(); showToast('Could not save'); } }).catch(function() { item.priority = prev; renderLearn(); });
+    var prev = item.priority; var prevNext = !!item.focused;
+    item.priority = isFocus ? 'medium' : 'focus';
+    if (!isFocus) item.focused = false;
+    renderLearn();
+    fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ priority: item.priority, focused: item.focused }) }).then(function(res) { if (!res.ok) { item.priority = prev; item.focused = prevNext; renderLearn(); showToast('Could not save'); } }).catch(function() { item.priority = prev; item.focused = prevNext; renderLearn(); });
   }
   function deleteLearn(id) { if (!confirm('Remove this?')) return; fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Removed'); fetchLearn(); }); }
 
