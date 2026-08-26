@@ -587,6 +587,10 @@
   /* LEARNING TRACKER */
   .learn-list { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
   .learn-item { background: var(--card); padding: 0.95rem 1.1rem; display: flex; align-items: center; gap: 0.85rem; }
+  .li-grip { flex-shrink: 0; cursor: grab; color: var(--muted-soft); font-size: 0.95rem; line-height: 1; user-select: none; -webkit-user-select: none; }
+  .learn-item.dragging { opacity: 0.4; }
+  .learn-item.drag-over-top { box-shadow: inset 0 3px 0 #1F6FEB; }
+  .learn-item.drag-over-bottom { box-shadow: inset 0 -3px 0 #1F6FEB; }
   .learn-item.is-upnext { background: #FFFBEB; border-left: 4px solid #F59E0B; padding-left: calc(1.1rem - 4px); }
   .btn-upnext { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
   .btn-upnext:hover { border-color: #F59E0B; color: #B45309; }
@@ -2197,9 +2201,7 @@
     fetch(SB_URL + '/rest/v1/learning_items?order=created_at.desc', { headers: H }).then(function(r) { if (!r.ok) throw new Error('load'); return r.json(); }).then(function(data) { allLearn = Array.isArray(data) ? data : []; renderLearn(); }).catch(function() { document.getElementById('learnList').innerHTML = '<div class="board-empty">Could not load. If this is the first run, create the learning_items table in Supabase.</div>'; document.getElementById('learnCount').textContent = ''; });
   }
   function renderLearn() {
-    var list = allLearn.slice();
-    function rank(x) { return x.priority === 'done' ? 3 : (x.priority === 'focus' ? 0 : (x.focused ? 1 : 2)); }
-    list.sort(function(a, b) { return rank(a) - rank(b); });
+    var list = sortedLearn();
     var nFocus = list.filter(function(x) { return x.priority === 'focus'; }).length;
     var nNext = list.filter(function(x) { return x.focused && x.priority !== 'focus' && x.priority !== 'done'; }).length;
     var nDone = list.filter(function(x) { return x.priority === 'done'; }).length;
@@ -2212,7 +2214,8 @@
       var isFocus = x.priority === 'focus';
       var isDone = x.priority === 'done';
       var isNext = !!x.focused && !isFocus && !isDone;
-      html += '<div class="learn-item' + (isDone ? ' is-done' : (isFocus ? ' is-focus' : (isNext ? ' is-upnext' : ''))) + '">'
+      html += '<div class="learn-item' + (isDone ? ' is-done' : (isFocus ? ' is-focus' : (isNext ? ' is-upnext' : ''))) + '" draggable="true" data-lid="' + esc(x.id) + '">'
+        + '<span class="li-grip" title="Drag to reorder — drop into a section to change its tag">&#x2630;</span>'
         + '<div class="li-title">' + esc(x.title) + '</div>'
         + (isFocus ? '<span class="li-focus-badge">FOCUS</span>' : '') + (isNext ? '<span class="li-upnext-badge">UP NEXT</span>' : '') + (isDone ? '<span class="li-done-badge">DONE \u2713</span>' : '')
         + '<div class="li-acts">' + link + '' + (isDone ? '' : '<button class="btn-focus' + (isFocus ? ' on' : '') + '" data-lfocus="' + esc(x.id) + '" title="Focus = the up-to-4 things you\'re actively working">' + (isFocus ? 'Unfocus' : 'Focus') + '</button>') + (isDone || isFocus ? '' : '<button class="btn-upnext' + (isNext ? ' on' : '') + '" data-lnext="' + esc(x.id) + '" title="Up Next = queued to enter focus when a slot frees">' + (isNext ? 'Remove' : 'Up Next') + '</button>') + '<button class="btn-done' + (isDone ? ' on' : '') + '" data-ldone="' + esc(x.id) + '" title="Mark completed">' + (isDone ? 'Undo' : '\u2713 Done') + '</button><button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
@@ -2225,6 +2228,53 @@
     document.querySelectorAll('[data-ldone]').forEach(function(b) { b.addEventListener('click', function() { toggleDone(this.getAttribute('data-ldone')); }); });
     document.querySelectorAll('[data-ledit]').forEach(function(b) { b.addEventListener('click', function() { openLearnModal(findLearn(this.getAttribute('data-ledit'))); }); });
     document.querySelectorAll('[data-ldel]').forEach(function(b) { b.addEventListener('click', function() { deleteLearn(this.getAttribute('data-ldel')); }); });
+    wireLearnDrag();
+  }
+  function learnRank(x) { return x.priority === 'done' ? 3 : (x.priority === 'focus' ? 0 : (x.focused ? 1 : 2)); }
+  // Order within a tier: the progress column (repurposed as sort order); items never
+  // dragged fall back to newest-first via created_at. Fallback values are client-only.
+  function learnEff(x) { return (x.progress !== null && x.progress !== undefined) ? x.progress : -new Date(x.created_at).getTime(); }
+  function sortedLearn() {
+    var list = allLearn.slice();
+    list.sort(function(a, b) { return (learnRank(a) - learnRank(b)) || (learnEff(a) - learnEff(b)); });
+    return list;
+  }
+  var learnDragId = null;
+  function clearLearnDragMarks() { document.querySelectorAll('#learnList .learn-item').forEach(function(r) { r.classList.remove('drag-over-top', 'drag-over-bottom'); }); }
+  function wireLearnDrag() {
+    document.querySelectorAll('#learnList .learn-item').forEach(function(row) {
+      row.addEventListener('dragstart', function(e) { learnDragId = this.getAttribute('data-lid'); this.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', learnDragId); } catch (err) {} });
+      row.addEventListener('dragend', function() { this.classList.remove('dragging'); clearLearnDragMarks(); });
+      row.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; var r = this.getBoundingClientRect(); clearLearnDragMarks(); this.classList.add((e.clientY - r.top) < r.height / 2 ? 'drag-over-top' : 'drag-over-bottom'); });
+      row.addEventListener('dragleave', function() { this.classList.remove('drag-over-top', 'drag-over-bottom'); });
+      row.addEventListener('drop', function(e) { e.preventDefault(); var r = this.getBoundingClientRect(); dropLearn(learnDragId, this.getAttribute('data-lid'), (e.clientY - r.top) < r.height / 2); });
+    });
+  }
+  function dropLearn(dragId, targetId, before) {
+    clearLearnDragMarks();
+    if (!dragId || dragId === targetId) return;
+    var item = findLearn(dragId), target = findLearn(targetId);
+    if (!item || !target) return;
+    if (target.priority === 'done' && item.priority !== 'done') { showToast('Drop it above the completed items'); return; }
+    // The dropped item joins the target's section: focus / up next / neither.
+    var wantFocus = target.priority === 'focus';
+    var wantNext = !!target.focused && target.priority !== 'focus' && target.priority !== 'done';
+    if (item.priority !== 'done') {
+      if (wantFocus && item.priority !== 'focus' && allLearn.filter(function(x) { return x.priority === 'focus'; }).length >= 4) { showToast('Focus is limited to 4 — unfocus one first'); return; }
+      item.priority = wantFocus ? 'focus' : (item.priority === 'done' ? 'done' : 'medium');
+      item.focused = wantNext;
+    }
+    // Rebuild the full order with the item moved next to the target, then renumber
+    // everything with small integers (progress is int4 — no fractional midpoints).
+    var order = sortedLearn().filter(function(x) { return x.id !== dragId; });
+    var ti = order.findIndex(function(x) { return x.id === targetId; });
+    order.splice(before ? ti : ti + 1, 0, item);
+    var changed = [];
+    order.forEach(function(x, i) { var v = (i + 1) * 10; if (x.progress !== v) { x.progress = v; changed.push(x); } });
+    renderLearn();
+    Promise.all(changed.map(function(x) {
+      return fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + x.id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ progress: x.progress, priority: x.priority, focused: x.focused }) }).then(function(res) { if (!res.ok) throw new Error('save'); });
+    })).catch(function() { showToast('Could not save the new order'); fetchLearn(); });
   }
   function findLearn(id) { for (var i = 0; i < allLearn.length; i++) { if (allLearn[i].id === id) return allLearn[i]; } return null; }
   function openLearnModal(x) {
