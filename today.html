@@ -47,6 +47,12 @@
   .btn-quiet:hover { color: var(--ink); text-decoration: underline; }
 
   .empty { background: var(--card); border: 1px dashed var(--rule); border-radius: var(--radius); padding: 1.4rem 1.3rem; font-size: 0.88rem; color: var(--muted); text-align: center; }
+  .hist-toggle-wrap { display: flex; justify-content: center; margin-top: 1.6rem; }
+  .hist-day { margin-top: 1.1rem; }
+  .hist-date { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.45rem; }
+  .item .tick.static { cursor: default; }
+  .item .tick.static:hover { border-color: var(--muted-soft); }
+  .item.done .tick.static:hover { border-color: var(--green); }
   .loading { font-size: 0.85rem; color: var(--muted); padding: 1rem 0.2rem; }
 
   .setup { background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--amber); border-radius: var(--radius); padding: 1.1rem 1.2rem; font-size: 0.85rem; line-height: 1.6; }
@@ -71,6 +77,10 @@
   <div class="toolbar" id="toolbar" style="display:none;">
     <button class="btn-quiet" onclick="clearDone()">Clear done</button>
   </div>
+  <div class="hist-toggle-wrap">
+    <button class="btn-quiet" id="histBtn" onclick="toggleHistory()">Show history</button>
+  </div>
+  <div id="history" style="display:none;"></div>
 </div>
 <script>
   var SB_URL = 'https://fnpgduicigxxlvpduugb.supabase.co';
@@ -103,7 +113,11 @@
         return fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + renderedFor + '&order=done.asc,created_at.asc', { headers: H });
       })
       .then(function (r) { if (!r.ok) throw r; return r.json(); })
-      .then(function (rows) { items = rows; render(); })
+      .then(function (rows) {
+        items = rows; render();
+        histLoaded = false;
+        if (document.getElementById('history').style.display !== 'none') loadHistory();
+      })
       .catch(function () { showSetup(); });
   }
 
@@ -152,6 +166,49 @@
 
   function clearDone() {
     fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + localDate() + '&done=eq.true', { method: 'DELETE', headers: H }).then(load);
+  }
+
+  var histLoaded = false;
+
+  function toggleHistory() {
+    var h = document.getElementById('history');
+    var btn = document.getElementById('histBtn');
+    if (h.style.display !== 'none') {
+      h.style.display = 'none';
+      btn.textContent = 'Show history';
+      return;
+    }
+    h.style.display = 'block';
+    btn.textContent = 'Hide history';
+    if (!histLoaded) loadHistory();
+  }
+
+  function loadHistory() {
+    fetch(SB_URL + '/rest/v1/today_items?item_date=lt.' + localDate() + '&order=item_date.desc,created_at.asc', { headers: H })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) {
+        histLoaded = true;
+        var h = document.getElementById('history');
+        if (!rows.length) {
+          h.innerHTML = '<div class="empty">No past days yet.</div>';
+          return;
+        }
+        var byDate = {}, order = [];
+        rows.forEach(function (i) {
+          if (!byDate[i.item_date]) { byDate[i.item_date] = []; order.push(i.item_date); }
+          byDate[i.item_date].push(i);
+        });
+        h.innerHTML = order.map(function (d) {
+          var label = new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+          return '<div class="hist-day"><div class="hist-date">' + label + '</div>' +
+            byDate[d].map(function (i) {
+              return '<div class="item' + (i.done ? ' done' : '') + '">' +
+                '<span class="tick static">&#10003;</span>' +
+                '<span class="txt">' + esc(i.text) + '</span>' +
+                '</div>';
+            }).join('') + '</div>';
+        }).join('');
+      });
   }
 
   function showSetup() {
