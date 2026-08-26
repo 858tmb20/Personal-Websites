@@ -31,9 +31,6 @@
   .add button { font: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; background: var(--ink); border: none; border-radius: var(--radius); padding: 0 1.2rem; cursor: pointer; }
   .add button:hover { background: var(--ink-soft); }
 
-  .pull { display: inline-flex; align-items: center; gap: 0.4rem; font: inherit; font-size: 0.78rem; font-weight: 700; color: var(--amber); background: var(--amber-soft); border: 1px solid #F0DDB4; border-radius: 999px; padding: 0.35rem 0.8rem; cursor: pointer; margin-bottom: 0.9rem; }
-  .pull:hover { filter: brightness(0.97); }
-
   .item { display: flex; align-items: center; gap: 0.7rem; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.65rem 0.75rem; margin-bottom: 0.45rem; }
   .item .tick { flex: none; width: 22px; height: 22px; border: 2px solid var(--muted-soft); border-radius: 6px; background: var(--card); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; transition: all 0.1s; }
   .item .tick:hover { border-color: var(--green); }
@@ -70,7 +67,6 @@
     <input type="text" id="inp" placeholder="Throw something on the pile, press Enter..." autofocus />
     <button onclick="addItem()">Add</button>
   </div>
-  <div id="pullWrap"></div>
   <div id="list"><div class="loading">Loading...</div></div>
   <div class="toolbar" id="toolbar" style="display:none;">
     <button class="btn-quiet" onclick="clearDone()">Clear done</button>
@@ -99,9 +95,15 @@
 
   function load() {
     renderedFor = localDate();
-    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + renderedFor + '&order=done.asc,created_at.asc', { headers: H })
+    // Unfinished items from any past day roll forward into today automatically.
+    fetch(SB_URL + '/rest/v1/today_items?item_date=lt.' + renderedFor + '&done=eq.false', {
+      method: 'PATCH', headers: H, body: JSON.stringify({ item_date: renderedFor })
+    })
+      .then(function () {
+        return fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + renderedFor + '&order=done.asc,created_at.asc', { headers: H });
+      })
       .then(function (r) { if (!r.ok) throw r; return r.json(); })
-      .then(function (rows) { items = rows; render(); checkYesterday(); })
+      .then(function (rows) { items = rows; render(); })
       .catch(function () { showSetup(); });
   }
 
@@ -150,24 +152,6 @@
 
   function clearDone() {
     fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + localDate() + '&done=eq.true', { method: 'DELETE', headers: H }).then(load);
-  }
-
-  function checkYesterday() {
-    var y = localDate(-1);
-    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + y + '&done=eq.false&select=id', { headers: H })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (rows) {
-        var w = document.getElementById('pullWrap');
-        w.innerHTML = rows.length
-          ? '<button class="pull" onclick="pullYesterday()">&#8631; Pull in ' + rows.length + ' unfinished from yesterday</button>'
-          : '';
-      });
-  }
-
-  function pullYesterday() {
-    fetch(SB_URL + '/rest/v1/today_items?item_date=eq.' + localDate(-1) + '&done=eq.false', {
-      method: 'PATCH', headers: H, body: JSON.stringify({ item_date: localDate() })
-    }).then(load);
   }
 
   function showSetup() {
