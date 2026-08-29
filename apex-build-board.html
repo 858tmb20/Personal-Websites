@@ -107,6 +107,11 @@
     font-size: 11.5px; font-weight: 500; letter-spacing: 0.03em;
     background: var(--light-grey); color: var(--fg2); border-radius: 4px; padding: 2px 8px;
   }
+  .apx-lvl { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; border-radius: 4px; padding: 2px 8px; }
+  .apx-lvl.admin { background: var(--light-grey); color: var(--fg2); }
+  .apx-lvl.adv { background: var(--sky-blue); color: var(--midnight); }
+  .apx-lvl.se1 { background: var(--medium-blue); color: var(--white); }
+  .apx-lvl.se2 { background: var(--blue); color: var(--lime); }
   .apx-pill {
     border: 1.5px solid rgba(0,40,85,0.15); border-radius: 999px; padding: 7px 16px;
     font-family: inherit; font-size: 13.5px; font-weight: 700;
@@ -158,71 +163,168 @@ const TIERS = [
     name: "Trigger Fundamentals",
     goal: "Get comfortable with trigger contexts, bulkification, and addError.",
     items: [
-      { id: "t1-1", title: "Welcome Task", desc: "After a Contact is inserted, create a follow-up Task for the Contact's owner, due 7 days out, subject 'Welcome call'. Must work when 200 Contacts are inserted at once.", tags: ["after insert", "Task DML", "bulkification"] },
-      { id: "t1-2", title: "Copy Billing Address", desc: "Before insert/update on Contact: if mailing address is blank, copy the parent Account's billing address onto it. One SOQL query total, no queries in loops.", tags: ["before trigger", "SOQL map"] },
-      { id: "t1-3", title: "No Deleting Closed Won", desc: "Before delete on Opportunity: block deletion of any Closed Won opp with a clear addError message. Non-admins should see it as a friendly validation, not an ugly exception.", tags: ["before delete", "addError"] },
-      { id: "t1-4", title: "Data Janitor", desc: "Before insert/update on Lead: trim whitespace, title-case first/last name, and normalize Phone to (XXX) XXX-XXXX. Leave already-clean records untouched.", tags: ["string methods", "before trigger"] },
-      { id: "t1-5", title: "Duplicate Email Guard", desc: "Before insert on Contact: block the insert if another Contact on the same Account already has that email. Handle the case where two dupes arrive in the same batch.", tags: ["sets", "addError", "edge cases"] },
-      { id: "t1-6", title: "Stamp the Change", desc: "On Opportunity update: whenever StageName changes, append 'Old → New (timestamp, user)' to a long-text Stage_History__c field. Uses Trigger.oldMap.", tags: ["oldMap", "field compare"] }
+      { id: "t1-1", lvl: "se1", title: "Welcome Task", desc: "After a Contact is inserted, create a follow-up Task for the Contact's owner, due 7 days out, subject 'Welcome call'. Must work when 200 Contacts are inserted at once.", tags: ["after insert", "Task DML", "bulkification"] },
+      { id: "t1-2", lvl: "se1", title: "Copy Billing Address", desc: "Before insert/update on Contact: if mailing address is blank, copy the parent Account's billing address onto it. One SOQL query total, no queries in loops.", tags: ["before trigger", "SOQL map"] },
+      { id: "t1-3", lvl: "se1", title: "No Deleting Closed Won", desc: "Before delete on Opportunity: block deletion of any Closed Won opp with a clear addError message. Non-admins should see it as a friendly validation, not an ugly exception.", tags: ["before delete", "addError"] },
+      { id: "t1-4", lvl: "se1", title: "Data Janitor", desc: "Before insert/update on Lead: trim whitespace, title-case first/last name, and normalize Phone to (XXX) XXX-XXXX. Leave already-clean records untouched.", tags: ["string methods", "before trigger"] },
+      { id: "t1-5", lvl: "se1", title: "Duplicate Email Guard", desc: "Before insert on Contact: block the insert if another Contact on the same Account already has that email. Handle the case where two dupes arrive in the same batch.", tags: ["sets", "addError", "edge cases"] },
+      { id: "t1-6", lvl: "se1", title: "Stamp the Change", desc: "On Opportunity update: whenever StageName changes, append 'Old → New (timestamp, user)' to a long-text Stage_History__c field. Uses Trigger.oldMap.", tags: ["oldMap", "field compare"] }
     ]
   },
   {
     name: "SOQL, Collections & Patterns",
     goal: "Maps everywhere, aggregate queries, and the trigger handler pattern.",
     items: [
-      { id: "t2-1", title: "Contact Counter", desc: "Keep Number_of_Contacts__c on Account accurate across insert, delete, undelete, AND reparenting of Contacts. Aggregate SOQL, one update per transaction.", tags: ["aggregate SOQL", "all contexts"] },
-      { id: "t2-2", title: "Open Pipeline Rollup", desc: "Sum the Amount of all open Opportunities into Account.Open_Pipeline__c — no declarative rollup fields allowed. Recalculate on opp insert, update, delete.", tags: ["SUM()", "bulk update"] },
-      { id: "t2-3", title: "One Primary Only", desc: "Primary_Contact__c checkbox on Contact: exactly one per Account. Checking a new one automatically unchecks the previous — without infinite trigger recursion.", tags: ["maps", "recursion guard"] },
-      { id: "t2-4", title: "Owner Change Cascade", desc: "When an Account's owner changes, reassign all open Cases and open Tasks under it to the new owner. Compare old vs new OwnerId; skip untouched accounts.", tags: ["oldMap", "multi-object DML"] },
-      { id: "t2-5", title: "Break It, Then Fix It", desc: "Deliberately write a trigger that updates its own object and recurses. Watch it fail, then fix it with a static variable inside a proper trigger handler class. Refactor one earlier scenario into the handler pattern too.", tags: ["static vars", "handler pattern"] }
+      { id: "t2-1", lvl: "se1", title: "Contact Counter", desc: "Keep Number_of_Contacts__c on Account accurate across insert, delete, undelete, AND reparenting of Contacts. Aggregate SOQL, one update per transaction.", tags: ["aggregate SOQL", "all contexts"] },
+      { id: "t2-2", lvl: "se1", title: "Open Pipeline Rollup", desc: "Sum the Amount of all open Opportunities into Account.Open_Pipeline__c — no declarative rollup fields allowed. Recalculate on opp insert, update, delete.", tags: ["SUM()", "bulk update"] },
+      { id: "t2-3", lvl: "se1", title: "One Primary Only", desc: "Primary_Contact__c checkbox on Contact: exactly one per Account. Checking a new one automatically unchecks the previous — without infinite trigger recursion.", tags: ["maps", "recursion guard"] },
+      { id: "t2-4", lvl: "se1", title: "Owner Change Cascade", desc: "When an Account's owner changes, reassign all open Cases and open Tasks under it to the new owner. Compare old vs new OwnerId; skip untouched accounts.", tags: ["oldMap", "multi-object DML"] },
+      { id: "t2-5", lvl: "se1", title: "Break It, Then Fix It", desc: "Deliberately write a trigger that updates its own object and recurses. Watch it fail, then fix it with a static variable inside a proper trigger handler class. Refactor one earlier scenario into the handler pattern too.", tags: ["static vars", "handler pattern"] }
     ]
   },
   {
     name: "Async Apex",
     goal: "Batch, Queueable, Schedulable, @future, and platform events.",
     items: [
-      { id: "t3-1", title: "Stale Account Sweeper", desc: "Batch job: flag Accounts with no activity in 90 days (check LastActivityDate) by setting Stale__c = true. Use Database.Stateful to count them and email yourself a summary in finish().", tags: ["Batchable", "Stateful", "finish()"] },
-      { id: "t3-2", title: "Contract Expiry Alerts", desc: "Schedulable that runs daily at 6am and kicks off a batch emailing owners of Contracts expiring within 30 days. Write the cron expression by hand before looking it up.", tags: ["Schedulable", "cron", "Messaging"] },
-      { id: "t3-3", title: "Chained Recalc", desc: "Queueable that recalculates a Score__c field on a set of Accounts, then chains a second Queueable that writes a summary log record. Know the chaining depth limit.", tags: ["Queueable", "chaining"] },
-      { id: "t3-4", title: "Future Fire-and-Forget", desc: "Implement an @future method that updates related records after a trigger runs. Then write down three concrete reasons Queueable beats @future, from experience not from a blog.", tags: ["@future", "async limits"] },
-      { id: "t3-5", title: "Big Data Loader", desc: "Anonymous Apex script that generates 10,000 test Accounts with Contacts, then a batch job that finds and hard-deletes them. Your future test scenarios will thank you.", tags: ["bulk DML", "batch delete"] },
-      { id: "t3-6", title: "Platform Event Publisher", desc: "Define a Case_Escalated__e platform event. Publish it from a Case trigger when IsEscalated flips to true; a subscriber trigger on the event updates a counter on the Account.", tags: ["EventBus", "event trigger"] }
+      { id: "t3-1", lvl: "se2", title: "Stale Account Sweeper", desc: "Batch job: flag Accounts with no activity in 90 days (check LastActivityDate) by setting Stale__c = true. Use Database.Stateful to count them and email yourself a summary in finish().", tags: ["Batchable", "Stateful", "finish()"] },
+      { id: "t3-2", lvl: "se2", title: "Contract Expiry Alerts", desc: "Schedulable that runs daily at 6am and kicks off a batch emailing owners of Contracts expiring within 30 days. Write the cron expression by hand before looking it up.", tags: ["Schedulable", "cron", "Messaging"] },
+      { id: "t3-3", lvl: "se2", title: "Chained Recalc", desc: "Queueable that recalculates a Score__c field on a set of Accounts, then chains a second Queueable that writes a summary log record. Know the chaining depth limit.", tags: ["Queueable", "chaining"] },
+      { id: "t3-4", lvl: "se2", title: "Future Fire-and-Forget", desc: "Implement an @future method that updates related records after a trigger runs. Then write down three concrete reasons Queueable beats @future, from experience not from a blog.", tags: ["@future", "async limits"] },
+      { id: "t3-5", lvl: "se2", title: "Big Data Loader", desc: "Anonymous Apex script that generates 10,000 test Accounts with Contacts, then a batch job that finds and hard-deletes them. Your future test scenarios will thank you.", tags: ["bulk DML", "batch delete"] },
+      { id: "t3-6", lvl: "se2", title: "Platform Event Publisher", desc: "Define a Case_Escalated__e platform event. Publish it from a Case trigger when IsEscalated flips to true; a subscriber trigger on the event updates a counter on the Account.", tags: ["EventBus", "event trigger"] }
     ]
   },
   {
     name: "Integrations",
     goal: "Callouts out, REST in, JSON everywhere.",
     items: [
-      { id: "t4-1", title: "ZIP Code Enricher", desc: "Callout to api.zippopotam.us (free, no auth) to fill City and State on a Lead from its ZIP. Wrapper class for the JSON, invoked from a button or Queueable — never directly from a trigger.", tags: ["HttpRequest", "JSON wrapper"] },
-      { id: "t4-2", title: "Daily Exchange Rates", desc: "Scheduled job that pulls USD exchange rates from a free API (frankfurter.app works) and upserts them into a Currency_Rate__c custom object. Batch class implements Database.AllowsCallouts.", tags: ["scheduled callout", "upsert"] },
-      { id: "t4-3", title: "Named Credential Refactor", desc: "Take scenario above and move the endpoint behind a Named Credential + External Credential. No hardcoded URLs left anywhere.", tags: ["Named Credentials", "security"] },
-      { id: "t4-4", title: "Inbound Lead API", desc: "@RestResource endpoint that accepts a JSON POST and creates a Lead. Return 201 with the new Id on success, 400 with a useful error body on bad input. Test it with curl or Postman against your dev org.", tags: ["Apex REST", "status codes"] },
-      { id: "t4-5", title: "Nested JSON Parser", desc: "Call the GitHub public API for a repo (api.github.com/repos/...) and parse the deeply nested response into typed wrapper classes. Store 4-5 fields on a record. Practice null-safe navigation.", tags: ["wrappers", "deserialization"] },
-      { id: "t4-6", title: "Retry & Error Log", desc: "Create a Callout_Log__c object. Wrap your callouts in try/catch, log every failure with request/response details, and build a retry batch that re-attempts failed logs up to 3 times.", tags: ["error handling", "retry pattern"] }
+      { id: "t4-1", lvl: "se1", title: "ZIP Code Enricher", desc: "Callout to api.zippopotam.us (free, no auth) to fill City and State on a Lead from its ZIP. Wrapper class for the JSON, invoked from a button or Queueable — never directly from a trigger.", tags: ["HttpRequest", "JSON wrapper"] },
+      { id: "t4-2", lvl: "se1", title: "Daily Exchange Rates", desc: "Scheduled job that pulls USD exchange rates from a free API (frankfurter.app works) and upserts them into a Currency_Rate__c custom object. Batch class implements Database.AllowsCallouts.", tags: ["scheduled callout", "upsert"] },
+      { id: "t4-3", lvl: "se2", title: "Named Credential Refactor", desc: "Take scenario above and move the endpoint behind a Named Credential + External Credential. No hardcoded URLs left anywhere.", tags: ["Named Credentials", "security"] },
+      { id: "t4-4", lvl: "se1", title: "Inbound Lead API", desc: "@RestResource endpoint that accepts a JSON POST and creates a Lead. Return 201 with the new Id on success, 400 with a useful error body on bad input. Test it with curl or Postman against your dev org.", tags: ["Apex REST", "status codes"] },
+      { id: "t4-5", lvl: "se1", title: "Nested JSON Parser", desc: "Call the GitHub public API for a repo (api.github.com/repos/...) and parse the deeply nested response into typed wrapper classes. Store 4-5 fields on a record. Practice null-safe navigation.", tags: ["wrappers", "deserialization"] },
+      { id: "t4-6", lvl: "se2", title: "Retry & Error Log", desc: "Create a Callout_Log__c object. Wrap your callouts in try/catch, log every failure with request/response details, and build a retry batch that re-attempts failed logs up to 3 times.", tags: ["error handling", "retry pattern"] }
     ]
   },
   {
     name: "Testing & Polish",
     goal: "The part that actually gets you through code review.",
     items: [
-      { id: "t5-1", title: "Test Data Factory", desc: "One reusable TestDataFactory class (makeAccounts, makeContacts, makeOpps...) — then refactor every test you've written so far to use it. No inline test data anywhere.", tags: ["@TestSetup", "factory pattern"] },
-      { id: "t5-2", title: "Mock the Callout", desc: "HttpCalloutMock implementations for your integration scenarios — one success mock, one 500-error mock. Assert your error logging actually fires on failure.", tags: ["Test.setMock", "negative tests"] },
-      { id: "t5-3", title: "Async Test Coverage", desc: "Use Test.startTest/stopTest to force your batch, queueable, and scheduled jobs to execute inside tests. Assert results, not just 'it ran'.", tags: ["startTest", "async testing"] },
-      { id: "t5-4", title: "Bulk Proof", desc: "For your three favorite triggers: a test that pushes 251 records through and asserts SOQL/DML limits stay sane. Use Limits.getQueries() in your assertions.", tags: ["governor limits", "Limits class"] }
+      { id: "t5-1", lvl: "se1", title: "Test Data Factory", desc: "One reusable TestDataFactory class (makeAccounts, makeContacts, makeOpps...) — then refactor every test you've written so far to use it. No inline test data anywhere.", tags: ["@TestSetup", "factory pattern"] },
+      { id: "t5-2", lvl: "se1", title: "Mock the Callout", desc: "HttpCalloutMock implementations for your integration scenarios — one success mock, one 500-error mock. Assert your error logging actually fires on failure.", tags: ["Test.setMock", "negative tests"] },
+      { id: "t5-3", lvl: "se1", title: "Async Test Coverage", desc: "Use Test.startTest/stopTest to force your batch, queueable, and scheduled jobs to execute inside tests. Assert results, not just 'it ran'.", tags: ["startTest", "async testing"] },
+      { id: "t5-4", lvl: "se1", title: "Bulk Proof", desc: "For your three favorite triggers: a test that pushes 251 records through and asserts SOQL/DML limits stay sane. Use Limits.getQueries() in your assertions.", tags: ["governor limits", "Limits class"] }
     ]
   },
   {
     name: "Capstones",
     goal: "Combine everything. These look a lot like real WGU work.",
     items: [
-      { id: "t6-1", title: "Partner Intake Pipeline", desc: "Inbound REST endpoint receives a partner org as JSON and creates Account + Contact + Opportunity in one transaction — all or nothing, with Database.setSavepoint/rollback on any failure.", tags: ["Apex REST", "savepoints", "transactions"] },
-      { id: "t6-2", title: "Nightly Data Quality Audit", desc: "Batch that scans Accounts for missing website/phone and near-duplicate names, writes findings to an Audit_Result__c object, and emails a digest. Basically your day job, automated.", tags: ["batch", "data quality", "email digest"] },
-      { id: "t6-3", title: "Escalation Command Center", desc: "The full stack: escalated Case publishes a platform event → subscriber enqueues a Queueable → Queueable calls an external webhook (webhook.site is free) and logs the result. Mocked tests included.", tags: ["events", "queueable", "callout", "everything"] }
+      { id: "t6-1", lvl: "se2", title: "Partner Intake Pipeline", desc: "Inbound REST endpoint receives a partner org as JSON and creates Account + Contact + Opportunity in one transaction — all or nothing, with Database.setSavepoint/rollback on any failure.", tags: ["Apex REST", "savepoints", "transactions"] },
+      { id: "t6-2", lvl: "se2", title: "Nightly Data Quality Audit", desc: "Batch that scans Accounts for missing website/phone and near-duplicate names, writes findings to an Audit_Result__c object, and emails a digest. Basically your day job, automated.", tags: ["batch", "data quality", "email digest"] },
+      { id: "t6-3", lvl: "se2", title: "Escalation Command Center", desc: "The full stack: escalated Case publishes a platform event → subscriber enqueues a Queueable → Queueable calls an external webhook (webhook.site is free) and logs the result. Mocked tests included.", tags: ["events", "queueable", "callout", "everything"] }
+    ]
+  }
+  ,
+  {
+    name: "Admin Checkpoint",
+    goal: "The declarative floor \u2014 you do this daily, so these are fast proofs, not lessons.",
+    items: [
+      { id: "t7-1", lvl: "admin", title: "Flow Trio", desc: "Build three in one sitting: a before-save record-triggered flow that defaults a field, a screen flow with a decision branch, and an email alert fired from a quick action. All on one custom object.", tags: ["record-triggered flow", "screen flow", "quick actions"] },
+      { id: "t7-2", lvl: "admin", title: "Validation Gauntlet", desc: "Three validation rules: one using ISCHANGED/PRIORVALUE, one cross-field, and one that admins can bypass via a custom permission check. Document when validation rules beat before-triggers.", tags: ["validation rules", "ISCHANGED", "custom permission"] },
+      { id: "t7-3", lvl: "admin", title: "Model & Report", desc: "Custom object with one master-detail and one lookup relationship, a formula field, then a report and dashboard on top. Explain out loud when master-detail beats lookup.", tags: ["objects", "relationships", "reports & dashboards"] },
+      { id: "t7-4", lvl: "admin", title: "Data Loader Round-Trip", desc: "Export 1,000 records, transform them in a sheet, upsert back using an External Id. Say the difference between insert, update, and upsert without notes.", tags: ["Data Loader", "upsert", "External Id"] },
+      { id: "t7-5", lvl: "admin", title: "Access Basics Proof", desc: "Build a test user who can see an object but not one specific field: profile vs permission set vs FLS vs OWD, each doing its own job. Prove it with Login As.", tags: ["profiles", "permission sets", "FLS", "OWD"] }
+    ]
+  },
+  {
+    name: "Advanced Admin",
+    goal: "Complex declarative \u2014 the Advanced Admin column, end to end.",
+    items: [
+      { id: "t8-1", lvl: "adv", title: "Industrial Flow", desc: "A record-triggered flow that calls a subflow, has a fault path that emails you the error, and reads its threshold from Custom Metadata so behavior changes without editing the flow.", tags: ["subflows", "fault paths", "custom metadata"] },
+      { id: "t8-2", lvl: "adv", title: "Scheduled & Event Flows", desc: "A scheduled flow that runs nightly over a filtered record set, plus a platform-event-triggered flow that consumes your Case_Escalated__e event from the async tier.", tags: ["scheduled flow", "PE-triggered flow"] },
+      { id: "t8-3", lvl: "adv", title: "Approval Process", desc: "Two-step approval with entry criteria, field locking during approval, auto-approval for small amounts, and recall. Know what happens to the record at every stage.", tags: ["approval processes", "field locking"] },
+      { id: "t8-4", lvl: "adv", title: "Reporting Power", desc: "A cross-object formula, a rollup summary field, and a custom report type joining three objects. Note where rollup summaries stop working (lookups) and what you reach for instead.", tags: ["cross-object formulas", "rollup summaries", "custom report types"] },
+      { id: "t8-5", lvl: "adv", title: "Sharing Architecture", desc: "Set an object to Private OWD, then open access back up layer by layer: sharing rule, permission set group, manual share. Write down who can see what and why at each step.", tags: ["OWD", "sharing rules", "permission set groups"] },
+      { id: "t8-6", lvl: "adv", title: "Session & Login Guards", desc: "Build a login flow, tighten session settings, turn on field history tracking, and read the Setup Audit Trail to find your own last 10 changes.", tags: ["login flows", "session settings", "audit trail"] },
+      { id: "t8-7", lvl: "adv", title: "Dynamic Forms & Console", desc: "Convert a record page to Dynamic Forms with visibility rules, then configure a console app with a proper workspace setup.", tags: ["dynamic forms", "console"] },
+      { id: "t8-8", lvl: "adv", title: "Sandbox & Metadata Strategy", desc: "Write your sandbox refresh strategy in five sentences. Then convert a field type (e.g. text to picklist) and document exactly what happens to existing data BEFORE you do it.", tags: ["sandbox strategy", "field conversion"] }
+    ]
+  },
+  {
+    name: "LWC & Front-End",
+    goal: "The column your resume was silent on. Simple components first, composition and Jest after.",
+    items: [
+      { id: "t9-1", lvl: "se1", title: "First LWC", desc: "A component on a record page that shows related records via @wire and a getter. No Apex yet \u2014 wire adapters only.", tags: ["@wire", "record page"] },
+      { id: "t9-2", lvl: "se1", title: "Parent to Child", desc: "Parent component passes data down to a child via @api properties. Change the parent, watch the child re-render.", tags: ["@api", "composition"] },
+      { id: "t9-3", lvl: "se1", title: "Child to Parent", desc: "Child fires a CustomEvent, parent handles it. Say it in interview words: down = property, up = event. Not an Aura application event \u2014 a CustomEvent.", tags: ["CustomEvent", "event handler"] },
+      { id: "t9-4", lvl: "se2", title: "Composition Pattern", desc: "A container component that calls Apex imperatively, handles the error with a toast, and feeds two dumb presentational children. This is the pattern the SE II column means by composition.", tags: ["imperative Apex", "container/presentational", "toast"] },
+      { id: "t9-5", lvl: "se2", title: "Jest Tests", desc: "Jest tests for two of your components: assert rendered DOM from mocked data, and assert the CustomEvent actually fires. The JD asks for this by name.", tags: ["Jest", "sfdx-lwc-jest"] },
+      { id: "t9-6", lvl: "se1", title: "Visualforce Relic", desc: "Build a simple Visualforce page with a standard controller and one extension \u2014 then rewrite it as an LWC. That rewrite is your Aura/VF-to-LWC migration rep.", tags: ["Visualforce", "migration"] },
+      { id: "t9-7", lvl: "se2", title: "Experience Cloud Component", desc: "Expose one of your LWCs to Experience Builder (isExposed, targets) and place it on an Experience Cloud page.", tags: ["Experience Cloud", "targets"] }
+    ]
+  },
+  {
+    name: "Apex Security & Auth",
+    goal: "Error out vs strip out, sharing modes, and the OAuth chain.",
+    items: [
+      { id: "t10-1", lvl: "se1", title: "Enforce or Strip", desc: "Run the same query as a limited user twice: WITH SECURITY_ENFORCED (throws) vs Security.stripInaccessible (silently strips). Document when you want each behavior.", tags: ["SECURITY_ENFORCED", "stripInaccessible"] },
+      { id: "t10-2", lvl: "se1", title: "Sharing Modes Proof", desc: "One class each: with sharing, without sharing, inherited sharing. Prove the record-visibility difference with System.runAs tests. Default everything with sharing; justify any without.", tags: ["with sharing", "runAs"] },
+      { id: "t10-3", lvl: "se1", title: "Security Review Drill", desc: "Review two of your earlier triggers like a PR reviewer: CRUD/FLS checks, sharing, SOQL injection (bind variables, escapeSingleQuotes). Write findings as review comments.", tags: ["code review", "SOQL injection"] },
+      { id: "t10-4", lvl: "se2", title: "OAuth End-to-End", desc: "Connected App + External Credential + Named Credential against a real API. Draw the token hops: who authenticates, where the token lives, what refreshes it.", tags: ["Connected Apps", "OAuth", "External Credentials"] },
+      { id: "t10-5", lvl: "se2", title: "Certificates & Auth Providers", desc: "Create a self-signed certificate, explain where the JWT bearer flow uses it, and configure an Auth Provider. Credentials out, Apps in.", tags: ["certificates", "JWT", "auth providers"] }
+    ]
+  },
+  {
+    name: "Advanced Data",
+    goal: "SOSL, describes, polymorphism, and large-data thinking.",
+    items: [
+      { id: "t11-1", lvl: "se1", title: "SOSL Search", desc: "One FIND query across three objects vs three SOQL queries. Say when SOSL wins (org-wide Ctrl+F) and when SOQL does (one-object precision).", tags: ["SOSL", "FIND"] },
+      { id: "t11-2", lvl: "se1", title: "Static Resource Fixtures", desc: "Put a JSON payload and a CSV in static resources; load the CSV with Test.loadData and use the JSON as a callout mock body. No more giant string literals in tests.", tags: ["static resources", "Test.loadData"] },
+      { id: "t11-3", lvl: "se2", title: "Describe the Org", desc: "Use sObject describes to build a generic utility: given any object API name, return its fields, types, and whether the running user can edit each. Dynamic Apex, no hardcoding.", tags: ["describes", "dynamic Apex"] },
+      { id: "t11-4", lvl: "se2", title: "Polymorphic Lookups", desc: "Query Task.WhatId with TYPEOF and handle Account vs Opportunity branches differently. Know why What/Who are special.", tags: ["TYPEOF", "WhatId/WhoId"] },
+      { id: "t11-5", lvl: "se2", title: "Large Data Volume Lab", desc: "Seed 100k+ rows (reuse Big Data Loader), then run a selective vs non-selective query through the Query Plan tool. Write your indexing strategy: what's indexed by default, what you'd request.", tags: ["LDV", "query plan", "indexing"] },
+      { id: "t11-6", lvl: "se2", title: "External & Big Objects", desc: "Connect an external object via OData (Salesforce's sample service works) OR define a big object. Document the access-pattern differences vs normal sObjects: no triggers, limited SOQL, no rollbacks.", tags: ["external objects", "big objects", "OData"] }
+    ]
+  },
+  {
+    name: "Integration Depth",
+    goal: "The SE II integration column: resilience patterns and every event flavor.",
+    items: [
+      { id: "t12-1", lvl: "se2", title: "Circuit Breaker", desc: "Org-wide kill switch in Custom Metadata: auto-flip when a whole batch chunk of callouts fails, every future callout checks it first, a human resets it after root cause. Wire it into your retry batch.", tags: ["circuit breaker", "custom metadata"] },
+      { id: "t12-2", lvl: "se2", title: "Change Data Capture", desc: "Enable CDC on Account and write a change-event trigger. Then say the decision test out loud: sync the data \u2192 CDC, announce a moment \u2192 Platform Event.", tags: ["CDC", "change event trigger"] },
+      { id: "t12-3", lvl: "se2", title: "SOAP Consumer", desc: "Generate Apex from a public WSDL (or hand-build one SOAP envelope callout). Feel the pain, appreciate REST, and be able to say why WSDL still shows up in enterprise work.", tags: ["SOAP", "WSDL"] },
+      { id: "t12-4", lvl: "se1", title: "Inbound Email Service", desc: "An Email Service with a handler class that parses inbound mail and creates a record from it, with a test using a fake InboundEmail.", tags: ["email services", "InboundEmail"] },
+      { id: "t12-5", lvl: "adv", title: "Outbound Message", desc: "Point-and-click outbound message to webhook.site with Remote Site Settings. Contrast with an Apex callout: no code, but no retry control either.", tags: ["outbound messages", "remote site settings"] },
+      { id: "t12-6", lvl: "se2", title: "Publish Behavior Proof", desc: "The interview question that got you: publish one Platform Event After Commit and one Publish Immediately, force a rollback, and prove which event survived. Now you own that answer forever.", tags: ["Publish After Commit", "Publish Immediately", "rollback"] }
+    ]
+  },
+  {
+    name: "Debugging & Ops",
+    goal: "Diagnose like production: logs first, never add-a-debug-and-redeploy.",
+    items: [
+      { id: "t13-1", lvl: "admin", title: "Config or Data?", desc: "Classic admin triage: make a record invisible to a user three different ways (OWD, FLS, list view filter) and diagnose each from the UI alone, fastest check first.", tags: ["troubleshooting", "access triage"] },
+      { id: "t13-2", lvl: "adv", title: "Read the Logs", desc: "Set a trace flag on ANOTHER user, capture their debug logs, and find a failing line you planted \u2014 without touching the code. Know the log levels and what each category shows.", tags: ["trace flags", "debug logs"] },
+      { id: "t13-3", lvl: "se2", title: "Break It, Diagnose It", desc: "Sabotage your retry batch (bad endpoint, bad field), then diagnose using ONLY Apex Jobs, AsyncApexJob queries, and your Callout_Log__c records. No new System.debug allowed \u2014 this is the prod-debugging answer the panel wanted.", tags: ["AsyncApexJob", "Apex Jobs", "prod debugging"] },
+      { id: "t13-4", lvl: "adv", title: "Automation Conflict Hunt", desc: "Make a flow and a trigger fight over the same field, then find the conflict in a debug log by reading order of execution. Walk the Vans while you do it.", tags: ["order of execution", "automation conflicts"] },
+      { id: "t13-5", lvl: "se2", title: "Cross-Transaction Trace", desc: "Follow one record through trigger \u2192 platform event \u2192 Queueable \u2192 callout, across separate transactions, and write the timeline purely from logs and job records. This is 'trace failures across async handoffs' from the JD, verbatim.", tags: ["cross-transaction", "async handoffs"] }
+    ]
+  },
+  {
+    name: "DevOps & Release",
+    goal: "Mostly your day-job strength \u2014 prove it with receipts, plus the package gap.",
+    items: [
+      { id: "t14-1", lvl: "se1", title: "Branch, PR, Deploy", desc: "Feature branch \u2192 PR \u2192 validate against a sandbox \u2192 deploy, your normal flow \u2014 but write down the quality gates you'd add if you owned the pipeline.", tags: ["feature branching", "quality gates"] },
+      { id: "t14-2", lvl: "se1", title: "Coverage With Meaning", desc: "Get your dev org above 75% coverage, then find (or write) one assert-free test and replace it with real assertions. Coverage strategy = meaningful tests, not line-touching.", tags: ["75% coverage", "test strategy"] },
+      { id: "t14-3", lvl: "se2", title: "Environment-Aware Config", desc: "Custom Metadata that holds a different endpoint per environment, so the SAME deployment works in dev, QA, and prod with zero post-deploy edits.", tags: ["environment-aware", "custom metadata"] },
+      { id: "t14-4", lvl: "se2", title: "Unlocked Package", desc: "Carve a small slice of your code into an unlocked package with sfdx and install it in another dev org. Know unlocked vs managed vs change sets in one breath each.", tags: ["unlocked packages", "sfdx"] }
     ]
   }
 ];
 
 const ALL_ITEMS = TIERS.flatMap(function(t) { return t.items; });
+
+const LVL = { admin: "Admin", adv: "Adv Admin", se1: "SE I", se2: "SE II" };
 
 const STATUS = {
   not_started: { label: "Not started", next: "in_progress" },
@@ -315,7 +417,7 @@ function render() {
         + '<div class="apx-card-body">'
         + '<div class="apx-title">' + esc(item.title) + '</div>'
         + '<div class="apx-desc">' + esc(item.desc) + '</div>'
-        + '<div class="apx-tags">' + item.tags.map(function(t) { return '<span class="apx-tag">' + esc(t) + '</span>'; }).join("") + '</div>'
+        + '<div class="apx-tags">' + '<span class="apx-lvl ' + item.lvl + '">' + LVL[item.lvl] + '</span>' + item.tags.map(function(t) { return '<span class="apx-tag">' + esc(t) + '</span>'; }).join("") + '</div>'
         + '</div>'
         + '<button type="button" class="apx-pill apx-status-btn ' + st + '" data-cycle="' + esc(item.id) + '" title="Click to change status">' + STATUS[st].label + '</button>'
         + '</div>';
@@ -324,7 +426,7 @@ function render() {
   });
 
   html += '<footer class="apx-foot">'
-    + '<span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.</span>'
+    + '<span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>Coverage: every Admin, Advanced Admin, SE I, and SE II cell of the WGU Salesforce job family matrix.</span>'
     + '<a href="library.html">&larr; Back to Library</a>'
     + '</footer>';
 
