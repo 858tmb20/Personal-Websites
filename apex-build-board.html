@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apex Build Board</title>
+<style>
+  :root {
+    --wgu-blue: #002855;
+    --ground: #ECEFF4;
+    --section: #ECEFF4;
+    --panel: #F7F9FC;
+    --ink: #2A3543;
+    --ink-soft: #5A6879;
+    --line: #D5DCE5;
+    --chip-bg: #E3EAF3;
+    --chip-ink: #3D5675;
+    --header-ink: #F2F6FB;
+    --header-sub: #AFC0D8;
+    --accent: #4A729E;
+    --bar-fill: #4A729E;
+    --bar-track: #D8DEE7;
+    --tier-num: #718094;
+    --st-ip-bg: #F3E4C4; --st-ip-ink: #77551A;
+    --st-dn-bg: #DBEBDF; --st-dn-ink: #2C6242;
+    --shadow: 0 1px 2px rgba(42, 53, 67, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #161C26;
+      --section: #161C26;
+      --panel: #1F2733;
+      --ink: #D8DFE9;
+      --ink-soft: #96A3B5;
+      --line: #333F4F;
+      --chip-bg: #2A3546;
+      --chip-ink: #B9C7DA;
+      --header-ink: #E7EDF5;
+      --header-sub: #9FB2CC;
+      --accent: #7C9FC7;
+      --bar-fill: #7C9FC7;
+      --bar-track: #2A3442;
+      --tier-num: #7E8DA3;
+      --st-ip-bg: #453615; --st-ip-ink: #DDBA74;
+      --st-dn-bg: #20372A; --st-dn-ink: #93C7A4;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #161C26;
+    --section: #161C26;
+    --panel: #1F2733;
+    --ink: #D8DFE9;
+    --ink-soft: #96A3B5;
+    --line: #333F4F;
+    --chip-bg: #2A3546;
+    --chip-ink: #B9C7DA;
+    --header-ink: #E7EDF5;
+    --header-sub: #9FB2CC;
+    --accent: #7C9FC7;
+    --bar-fill: #7C9FC7;
+    --bar-track: #2A3442;
+    --tier-num: #7E8DA3;
+    --st-ip-bg: #453615; --st-ip-ink: #DDBA74;
+    --st-dn-bg: #20372A; --st-dn-ink: #93C7A4;
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Futura PT", "futura-pt", Futura, Arial, Helvetica, sans-serif;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .hdr {
+    background: var(--wgu-blue);
+    color: var(--header-ink);
+    padding: 36px 24px 28px;
+  }
+  .hdr-inner { max-width: 880px; margin: 0 auto; }
+  .hdr .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--header-sub);
+    margin: 0 0 6px;
+  }
+  .hdr h1 {
+    margin: 0 0 6px;
+    font-size: 32px;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+  .hdr .sub { margin: 0; color: var(--header-sub); font-size: 15.5px; max-width: 62ch; }
+  .summary {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--panel);
+    border-bottom: 2px solid var(--line);
+    padding: 13px 24px;
+  }
+  .summary-inner {
+    max-width: 880px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .count {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700; font-size: 15.5px;
+    white-space: nowrap;
+  }
+  .count .of { color: var(--ink-soft); font-weight: 400; }
+  .bar {
+    flex: 1; min-width: 160px; height: 10px;
+    background: var(--bar-track); border-radius: 5px; overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%; width: 0%;
+    background: var(--bar-fill); border-radius: 5px;
+    transition: width 0.35s ease;
+  }
+  .ip-note { font-size: 13.5px; color: var(--ink-soft); white-space: nowrap; }
+  .band { background: var(--section); }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 24px 56px; }
+  .tier { margin: 0 0 44px; }
+  .tier-head {
+    display: flex; align-items: baseline; gap: 12px;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 8px; margin-bottom: 8px;
+  }
+  .tier-num {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--tier-num); text-transform: uppercase; white-space: nowrap;
+  }
+  .tier-head h2 { margin: 0; font-size: 21px; flex: 1; color: var(--ink); }
+  .tier-prog { font-size: 14px; font-weight: 700; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tier-blurb { margin: 0 0 18px; color: var(--ink-soft); font-size: 15px; max-width: 70ch; }
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .card-top { display: flex; align-items: flex-start; gap: 12px; }
+  .card-title { flex: 1; margin: 0; font-size: 17px; font-weight: 700; color: var(--ink); }
+  .card-title .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 6px; }
+  .card.done .card-title { text-decoration: line-through; text-decoration-thickness: 1.5px; color: var(--ink-soft); }
+  .pill {
+    flex-shrink: 0;
+    font: inherit; font-size: 12.5px; font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    padding: 5px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1.5px solid transparent;
+  }
+  .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pill.ns { background: transparent; color: var(--ink-soft); border-color: var(--line); }
+  .pill.ip { background: var(--st-ip-bg); color: var(--st-ip-ink); }
+  .pill.dn { background: var(--st-dn-bg); color: var(--st-dn-ink); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 9px 0 0; }
+  .chip {
+    background: var(--chip-bg); color: var(--chip-ink);
+    font-size: 12px; font-weight: 700;
+    border-radius: 4px; padding: 2px 9px;
+    letter-spacing: 0.03em;
+  }
+  .card p.desc { margin: 9px 0 0; font-size: 15px; color: var(--ink); max-width: 75ch; }
+  .card p.donewhen { margin: 9px 0 0; font-size: 14px; color: var(--ink-soft); max-width: 75ch; }
+  .card p.donewhen strong { color: var(--ink); font-weight: 700; }
+  footer {
+    max-width: 880px; margin: 0 auto; padding: 0 24px 44px;
+    font-size: 13.5px; color: var(--ink-soft);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  footer button {
+    font: inherit; font-size: 13px;
+    background: none; border: none; padding: 0;
+    color: var(--ink-soft); text-decoration: underline; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-inner">
+    <p class="eyebrow">Apex Training &middot; PD1 Track</p>
+    <h1>Apex Build Board</h1>
+    <p class="sub">Thirty build-it-yourself scenarios, ordered the way the skills actually stack. Click a status pill to cycle Not started &rarr; In progress &rarr; Built &amp; working &mdash; progress saves in this browser.</p>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="summary-inner">
+    <span class="count"><span id="doneCount">0</span><span class="of"> / <span id="totalCount">30</span> built &amp; working</span></span>
+    <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    <span class="ip-note" id="ipNote"></span>
+  </div>
+</div>
+
+<div class="band">
+<main id="board"></main>
+</div>
+
+<footer>
+  <span>Build each one in your TrentDev sandbox, then report back for the edge-case grilling.</span>
+  <a href="library.html" style="color: inherit; font-size: 13px;">&larr; Back to Library</a>
+  <button id="resetBtn" type="button">Reset all progress</button>
+</footer>
+
+<script>
+const TIERS = [
+  {
+    name: "Trigger Fundamentals",
+    blurb: "Contexts, Trigger.new vs Trigger.old, before vs after, addError, and bulkification from record one. Every later tier assumes these are second nature.",
+    items: [
+      { id: "t1-1", title: "Contact inherits Account details",
+        chips: ["before insert", "Trigger.new", "bulkified SOQL"],
+        desc: "When a Contact is inserted with a blank phone or mailing address, copy them from the parent Account. One SOQL for the whole batch \u2014 build a Map of Account Ids first.",
+        done: "Inserting 200 Contacts across 50 Accounts fills the blanks with exactly one query." },
+      { id: "t1-2", title: "Block deleting Accounts with open Opportunities",
+        chips: ["before delete", "Trigger.old", "addError"],
+        desc: "Prevent deletion of any Account that still has open (not Closed Won/Lost) Opportunities. Use addError on the specific records so the rest of the batch still deletes.",
+        done: "A mixed delete of blocked and deletable Accounts partially succeeds, with a clear error on the blocked ones." },
+      { id: "t1-3", title: "Auto-name Opportunities",
+        chips: ["before insert", "before update", "field derivation"],
+        desc: "Enforce a naming convention: \"AccountName - StageName - CloseDate\". Rebuild the name whenever stage or close date changes.",
+        done: "Names stay in convention through inserts and updates without extra DML (it's a before trigger \u2014 just assign the field)." },
+      { id: "t1-4", title: "Cascade Account Type to Contacts",
+        chips: ["after update", "cross-object DML", "oldMap comparison"],
+        desc: "When an Account's Type changes, stamp the new value on a custom field on all its Contacts. Compare Trigger.oldMap to only act on real changes.",
+        done: "Updating 200 Accounts where only 10 changed Type touches only those 10 Accounts' Contacts, in one DML." },
+      { id: "t1-5", title: "High-priority Case follow-up Task",
+        chips: ["after insert", "Task creation", "collection DML"],
+        desc: "When a Case comes in with Priority = High, create a follow-up Task for the Case owner due in 2 business days. Collect all Tasks into one list, one insert.",
+        done: "Bulk-inserting 200 mixed-priority Cases creates Tasks only for the High ones, in a single insert statement." }
+    ]
+  },
+  {
+    name: "SOQL, Collections & Patterns",
+    blurb: "Maps as the unit of thought, aggregate queries, roll-ups without DLRS, the one-trigger-per-object handler pattern \u2014 and one scenario where you cause recursion on purpose so you learn to kill it.",
+    items: [
+      { id: "t2-1", title: "Contact count roll-up on Account",
+        chips: ["aggregate SOQL", "insert/update/delete/undelete", "Map<Id,Integer>"],
+        desc: "Maintain Number_of_Contacts__c on Account from a Contact trigger covering all four contexts (don't forget reparenting \u2014 a Contact moving between Accounts changes two counts).",
+        done: "Counts stay correct through insert, delete, undelete, and moving a Contact to a different Account." },
+      { id: "t2-2", title: "Duplicate email blocker",
+        chips: ["Map<String,Contact>", "single SOQL", "addError"],
+        desc: "Reject new Contacts whose email already exists \u2014 checking both against existing records (one WHERE Email IN query) and against duplicates inside the same batch.",
+        done: "A 200-record insert containing internal dupes and existing-email dupes errors only the right rows, one SOQL total." },
+      { id: "t2-3", title: "Open pipeline roll-up",
+        chips: ["AggregateResult", "SUM/GROUP BY", "after triggers"],
+        desc: "Maintain Open_Pipeline__c on Account = SUM(Amount) of open Opportunities, via aggregate query in an Opportunity trigger.",
+        done: "Closing, reopening, deleting, and reparenting Opportunities all land the right totals." },
+      { id: "t2-4", title: "Refactor to the handler pattern + kill recursion",
+        chips: ["trigger handler class", "static guard", "recursion"],
+        desc: "First, deliberately build a Contact trigger that updates Contacts and re-fires itself \u2014 watch it hit the stack. Then refactor everything from this tier into one trigger per object delegating to a handler class, with a static Set<Id> recursion guard.",
+        done: "You can explain why the static Set survives within one transaction but not across two, and the recursive update runs exactly once." },
+      { id: "t2-5", title: "Latest-Case snapshot on Account",
+        chips: ["ORDER BY", "Map keyed by parent", "first-wins logic"],
+        desc: "Stamp Last_Case_Date__c and Last_Case_Status__c on Account whenever Cases change \u2014 query Cases ORDER BY CreatedDate DESC and keep only the first per Account.",
+        done: "Creating and closing Cases across many Accounts keeps every snapshot accurate in bulk." }
+    ]
+  },
+  {
+    name: "Async Apex",
+    blurb: "Everything that runs later: Batch, Queueable chaining, Schedulable, @future, and Platform Events. Know which tool fits which job \u2014 that question is all over the PD1.",
+    items: [
+      { id: "t3-1", title: "@future phone normalizer",
+        chips: ["@future", "primitive params only", "re-query pattern"],
+        desc: "After Contacts insert, normalize phone formats to (XXX) XXX-XXXX in a @future method. Pass Set<Id>, re-query inside \u2014 learn why you can't pass sObjects.",
+        done: "Phones normalize asynchronously and you can say out loud why @future takes only primitives." },
+      { id: "t3-2", title: "Stale Opportunity flagger (Batch)",
+        chips: ["Database.Batchable", "QueryLocator", "stateful counters"],
+        desc: "A batch that finds open Opportunities untouched for 30+ days, checks a Stale__c flag, and (with Database.Stateful) counts how many it flagged for the finish method.",
+        done: "Runs over 500+ records in scope chunks; finish() logs or emails the total flagged." },
+      { id: "t3-3", title: "Queueable chain",
+        chips: ["Queueable", "System.enqueueJob", "chaining"],
+        desc: "Job 1 stamps a score on a set of Accounts, then enqueues Job 2 which writes a summary record. Chain from execute() \u2014 and learn the one-child-per-job limit.",
+        done: "Both jobs complete in order and you can explain when Queueable beats @future (sObject state, chaining, job id)." },
+      { id: "t3-4", title: "Schedule the nightly batch",
+        chips: ["Schedulable", "cron expression", "System.schedule"],
+        desc: "Wrap the stale-Opportunity batch in a Schedulable and schedule it for 2 AM nightly. Decode every position of the cron string.",
+        done: "Job shows in Scheduled Jobs and you can write a cron for \"every weekday at 6 PM\" from memory." },
+      { id: "t3-5", title: "Platform Event round-trip",
+        chips: ["Platform Events", "EventBus.publish", "event trigger"],
+        desc: "Define Partner_Signup__e, publish it from an Account trigger when a partner-type Account is created, and consume it in an event trigger that creates an onboarding Task.",
+        done: "Creating a partner Account produces the Task via the event bus, and you can explain why events don't roll back the way DML does (and when they do)." }
+    ]
+  },
+  {
+    name: "Integrations",
+    blurb: "Callouts both directions. Zippopotam.us, Frankfurter, and webhook.site are free and need no auth \u2014 perfect for a dev sandbox.",
+    items: [
+      { id: "t4-1", title: "ZIP-code lookup callout",
+        chips: ["HttpRequest GET", "JSON.deserializeUntyped", "Queueable + callouts"],
+        desc: "Given an Account's ZIP, call api.zippopotam.us/us/{zip} and fill City and State. Run it from a Queueable implementing Database.AllowsCallouts \u2014 learn the callout-after-DML rule the hard way.",
+        done: "Entering a ZIP populates city/state asynchronously; a bad ZIP fails gracefully instead of throwing." },
+      { id: "t4-2", title: "Currency conversion via Frankfurter",
+        chips: ["query params", "typed JSON wrapper class", "Decimal handling"],
+        desc: "Call api.frankfurter.app to convert Opportunity Amount from USD to EUR into a custom field. Deserialize into a typed wrapper class this time, not untyped maps.",
+        done: "Amounts convert with a wrapper class, and you can argue typed vs untyped deserialization." },
+      { id: "t4-3", title: "Named Credential refactor",
+        chips: ["Named Credential", "External Credential", "callout: syntax"],
+        desc: "Set up a Named Credential for Zippopotam and refactor scenario 16's hardcoded URL to callout:Zippopotam/us/{zip}. Add the Remote Site Setting comparison to your notes.",
+        done: "The callout works with zero hardcoded endpoints and you can explain what Named Credentials buy you (auth, URL management, no code deploys on endpoint change)." },
+      { id: "t4-4", title: "Inbound REST endpoint",
+        chips: ["@RestResource", "@HttpPost", "RestContext"],
+        desc: "Expose /services/apexrest/leadintake \u2014 accept JSON, validate required fields, create a Lead, return the new Id or a structured error with the right status code.",
+        done: "You can hit it from Workbench REST Explorer with good and bad payloads and get correct 201/400 responses." },
+      { id: "t4-5", title: "Integration error log + retry",
+        chips: ["custom log object", "Queueable retry", "backoff counter"],
+        desc: "Build Integration_Log__c and a callout wrapper that logs every failure (endpoint, status, body) and re-enqueues itself up to 3 times before giving up.",
+        done: "Pointing at a garbage endpoint produces 3 retries, 4 log rows, and a final \"gave up\" status \u2014 no unhandled exceptions." },
+      { id: "t4-6", title: "Closed-Won webhook",
+        chips: ["outbound POST", "JSON.serialize", "webhook.site"],
+        desc: "When an Opportunity goes Closed Won, POST a JSON summary (account, amount, owner) to a webhook.site URL from async context, through your error-log wrapper.",
+        done: "Closing a deal shows the payload arriving on webhook.site, and failures land in Integration_Log__c." }
+    ]
+  },
+  {
+    name: "Testing & Polish",
+    blurb: "The difference between \"it ran once in Execute Anonymous\" and code you'd deploy. PD1 leans hard on this tier.",
+    items: [
+      { id: "t5-1", title: "TestDataFactory",
+        chips: ["@isTest class", "builder methods", "reuse"],
+        desc: "One factory class that builds Accounts, Contacts, Opportunities, and Cases with sensible defaults and overridable fields. Refactor every existing test to use it.",
+        done: "No test class contains a raw new Account(...) anymore; adding a required field means editing one file." },
+      { id: "t5-2", title: "HttpCalloutMock",
+        chips: ["HttpCalloutMock", "Test.setMock", "multi-response mock"],
+        desc: "Mock the Zippopotam and Frankfurter callouts \u2014 one static-resource or inline mock per shape, plus a router mock that answers differently per endpoint for multi-callout tests.",
+        done: "Callout tests pass with real success and failure JSON, and you can explain why tests can't do real callouts." },
+      { id: "t5-3", title: "Async test coverage",
+        chips: ["Test.startTest/stopTest", "batch in tests", "assert after stop"],
+        desc: "Cover the batch, the Queueable chain, and the Schedulable. Learn what stopTest actually does (forces async to run synchronously) and assert on the results, not just \"no exception\".",
+        done: "All async classes are covered with real assertions on the data they changed." },
+      { id: "t5-4", title: "Bulk proof with Limits",
+        chips: ["200-record tests", "Limits class", "governor headroom"],
+        desc: "For your two heaviest triggers, write a 200-record test that asserts Limits.getQueries() and Limits.getDmlStatements() stay at your expected count \u2014 a regression tripwire for future de-bulkification.",
+        done: "Tests fail if someone later adds a query inside a loop." },
+      { id: "t5-5", title: "Negative tests & runAs",
+        chips: ["DmlException assert", "addError verification", "System.runAs"],
+        desc: "Assert your addError messages actually fire (try/catch, check getDmlMessage), and use System.runAs with a minimal-permission user to prove a sharing-sensitive path behaves.",
+        done: "Every validation path has a test that proves the block, not just the happy path." }
+    ]
+  },
+  {
+    name: "Capstones",
+    blurb: "Each one composes three or more tiers. Build these and you have genuine portfolio pieces \u2014 and PD1 essay answers you've personally debugged.",
+    items: [
+      { id: "t6-1", title: "Partner intake pipeline",
+        chips: ["custom object", "Savepoint/rollback", "multi-object DML"],
+        desc: "A Partner_Intake__c record gets validated, then converted into Account + Contact + Opportunity in one transaction. Use Database.setSavepoint and roll back the whole conversion if any step fails, writing the failure reason back to the intake record.",
+        done: "A batch of good and bad intakes converts the good ones and cleanly rolls back the bad \u2014 no orphan Accounts, ever." },
+      { id: "t6-2", title: "Nightly data-quality audit",
+        chips: ["Batch + Schedulable", "aggregate scanning", "email digest"],
+        desc: "A scheduled batch scans Accounts and Contacts for missing critical fields, writes one Audit_Result__c summary per run, and emails a digest. Basically your day job, automated.",
+        done: "Runs nightly unattended; the digest counts match a manual spot check." },
+      { id: "t6-3", title: "Full event-driven chain",
+        chips: ["Platform Event", "Queueable", "callout", "end-to-end tests"],
+        desc: "Account trigger publishes an event, the event trigger enqueues a Queueable, the Queueable calls webhook.site through your retry wrapper and logs the outcome. Then test the entire chain.",
+        done: "One Account edit traverses every hop with logs proving it, and the whole chain has test coverage with mocks." },
+      { id: "t6-4", title: "University sync from an external API",
+        chips: ["scheduled batch callout", "upsert + External Id", "idempotency"],
+        desc: "Pull US universities from universities.hipolabs.com into a University__c object on a schedule, upserting on an External Id field so re-runs never duplicate. (An API full of WGU's peers \u2014 fitting.)",
+        done: "Running the sync twice produces zero duplicates, and you can define \"idempotent\" without looking it up." }
+    ]
+  }
+];
+
+const STATES = ["ns", "ip", "dn"];
+const LABELS = { ns: "Not started", ip: "In progress", dn: "Built & working" };
+const KEY = "apex-build-board-v1";
+
+let progress = {};
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) progress = JSON.parse(raw) || {};
+} catch (e) { progress = {}; }
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) {}
+}
+
+const board = document.getElementById("board");
+let counter = 0;
+
+TIERS.forEach((tier, ti) => {
+  const sec = document.createElement("section");
+  sec.className = "tier";
+  const head = document.createElement("div");
+  head.className = "tier-head";
+  head.innerHTML = '<span class="tier-num">Tier ' + (ti + 1) + '</span><h2></h2><span class="tier-prog" id="tp' + ti + '"></span>';
+  head.querySelector("h2").textContent = tier.name;
+  sec.appendChild(head);
+  const blurb = document.createElement("p");
+  blurb.className = "tier-blurb";
+  blurb.textContent = tier.blurb;
+  sec.appendChild(blurb);
+  const cards = document.createElement("div");
+  cards.className = "cards";
+  tier.items.forEach(item => {
+    counter++;
+    const card = document.createElement("article");
+    card.className = "card";
+    card.dataset.id = item.id;
+    const top = document.createElement("div");
+    top.className = "card-top";
+    const h = document.createElement("h3");
+    h.className = "card-title";
+    const numSpan = document.createElement("span");
+    numSpan.className = "num";
+    numSpan.textContent = counter + ".";
+    h.appendChild(numSpan);
+    h.appendChild(document.createTextNode(item.title));
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "pill";
+    pill.addEventListener("click", () => {
+      const cur = progress[item.id] || "ns";
+      const next = STATES[(STATES.indexOf(cur) + 1) % STATES.length];
+      progress[item.id] = next;
+      save();
+      paint();
+    });
+    top.appendChild(h);
+    top.appendChild(pill);
+    card.appendChild(top);
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    item.chips.forEach(c => {
+      const s = document.createElement("span");
+      s.className = "chip";
+      s.textContent = c;
+      chips.appendChild(s);
+    });
+    card.appendChild(chips);
+    const desc = document.createElement("p");
+    desc.className = "desc";
+    desc.textContent = item.desc;
+    card.appendChild(desc);
+    const dw = document.createElement("p");
+    dw.className = "donewhen";
+    dw.innerHTML = "<strong>Done when:</strong> ";
+    dw.appendChild(document.createTextNode(item.done));
+    card.appendChild(dw);
+    cards.appendChild(card);
+  });
+  sec.appendChild(cards);
+  board.appendChild(sec);
+});
+
+document.getElementById("totalCount").textContent = counter;
+
+function paint() {
+  let done = 0, ip = 0;
+  TIERS.forEach((tier, ti) => {
+    let tierDone = 0;
+    tier.items.forEach(item => {
+      const st = progress[item.id] || "ns";
+      if (st === "dn") { done++; tierDone++; }
+      if (st === "ip") ip++;
+      const card = board.querySelector('[data-id="' + item.id + '"]');
+      card.classList.toggle("done", st === "dn");
+      const pill = card.querySelector(".pill");
+      pill.className = "pill " + st;
+      pill.textContent = LABELS[st];
+      pill.setAttribute("aria-label", item.title + " \u2014 " + LABELS[st] + ". Click to change.");
+    });
+    document.getElementById("tp" + ti).textContent = tierDone + " / " + tier.items.length;
+  });
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("barFill").style.width = (done / counter * 100) + "%";
+  document.getElementById("ipNote").textContent = ip ? ip + " in progress" : "";
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Clear all saved progress?")) return;
+  progress = {};
+  save();
+  paint();
+});
+
+paint();
+</script>
+</body>
+</html>
