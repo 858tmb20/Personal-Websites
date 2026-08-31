@@ -112,6 +112,7 @@
   .apx-lvl.adv { background: var(--sky-blue); color: var(--midnight); }
   .apx-lvl.se1 { background: var(--medium-blue); color: var(--white); }
   .apx-lvl.se2 { background: var(--blue); color: var(--lime); }
+  .apx-lvl.sr { background: var(--midnight); color: var(--sky-blue); border: 1px solid var(--sky-blue); }
   .apx-pill {
     border: 1.5px solid rgba(0,40,85,0.15); border-radius: 999px; padding: 7px 16px;
     font-family: inherit; font-size: 13.5px; font-weight: 700;
@@ -307,7 +308,8 @@ const TIERS = [
       { id: "t13-2", lvl: "adv", title: "Read the Logs", desc: "Set a trace flag on ANOTHER user, capture their debug logs, and find a failing line you planted \u2014 without touching the code. Know the log levels and what each category shows.", tags: ["trace flags", "debug logs"] },
       { id: "t13-3", lvl: "se2", title: "Break It, Diagnose It", desc: "Sabotage your retry batch (bad endpoint, bad field), then diagnose using ONLY Apex Jobs, AsyncApexJob queries, and your Callout_Log__c records. No new System.debug allowed \u2014 this is the prod-debugging answer the panel wanted.", tags: ["AsyncApexJob", "Apex Jobs", "prod debugging"] },
       { id: "t13-4", lvl: "adv", title: "Automation Conflict Hunt", desc: "Make a flow and a trigger fight over the same field, then find the conflict in a debug log by reading order of execution. Walk the Vans while you do it.", tags: ["order of execution", "automation conflicts"] },
-      { id: "t13-5", lvl: "se2", title: "Cross-Transaction Trace", desc: "Follow one record through trigger \u2192 platform event \u2192 Queueable \u2192 callout, across separate transactions, and write the timeline purely from logs and job records. This is 'trace failures across async handoffs' from the JD, verbatim.", tags: ["cross-transaction", "async handoffs"] }
+      { id: "t13-5", lvl: "se2", title: "Cross-Transaction Trace", desc: "Follow one record through trigger \u2192 platform event \u2192 Queueable \u2192 callout, across separate transactions, and write the timeline purely from logs and job records. This is 'trace failures across async handoffs' from the JD, verbatim.", tags: ["cross-transaction", "async handoffs"] },
+      { id: "t13-6", lvl: "se2", title: "Event Log Files Peek", desc: "Pull Event Log Files via the API (or Event Monitoring UI) and find your own logins and API calls in them. This is the 'Analyze Event Logs' cell of the SE II problem-solving row \u2014 know what lives there vs debug logs.", tags: ["Event Log Files", "event monitoring"] }
     ]
   },
   {
@@ -319,12 +321,26 @@ const TIERS = [
       { id: "t14-3", lvl: "se2", title: "Environment-Aware Config", desc: "Custom Metadata that holds a different endpoint per environment, so the SAME deployment works in dev, QA, and prod with zero post-deploy edits.", tags: ["environment-aware", "custom metadata"] },
       { id: "t14-4", lvl: "se2", title: "Unlocked Package", desc: "Carve a small slice of your code into an unlocked package with sfdx and install it in another dev org. Know unlocked vs managed vs change sets in one breath each.", tags: ["unlocked packages", "sfdx"] }
     ]
+  },
+  {
+    name: "Senior Track",
+    goal: "The Senior column: less typing, more designing and documenting. Every item here produces an artifact you can show.",
+    items: [
+      { id: "t15-1", lvl: "sr", title: "Async Decision Guide", desc: "Write the team-facing doc: sync vs @future vs Queueable vs Batch vs Platform Events — a decision tree, the limits table, and one reference implementation of each. This is 'designs async patterns for the team' as a deliverable.", tags: ["architecture doc", "decision tree"] },
+      { id: "t15-2", lvl: "sr", title: "Event Choreography Lab", desc: "One record change flows through CDC → an async trigger → publishes a Platform Event → two independent subscribers react (one Flow, one Apex). Draw the choreography diagram BEFORE building it.", tags: ["CDC + PE + async", "choreography"] },
+      { id: "t15-3", lvl: "sr", title: "The Archive Pipeline", desc: "Design and build data archival: a batch moves aged records into a Big Object, deletes the originals, and a report proves nothing was lost. Include the 5-year storage-forecast math in the design doc.", tags: ["big objects", "archival strategy", "forecasting"] },
+      { id: "t15-4", lvl: "sr", title: "Cross-System Reconciliation", desc: "Nightly batch compares Salesforce Contacts against an external copy (your Supabase database works), writes a diff report to a custom object, and auto-heals the safe mismatches. Cross-system data reconciliation, for real.", tags: ["reconciliation", "integration architecture"] },
+      { id: "t15-5", lvl: "sr", title: "Pipeline From Zero", desc: "Design doc first, then build: a GitHub Actions pipeline for a fresh repo — validation gates, test thresholds, environment promotion, rollback plan. You RUN one daily; a Senior can DESIGN one.", tags: ["CI/CD design", "quality gates", "release strategy"] },
+      { id: "t15-6", lvl: "sr", title: "Limit Forecasting Monitor", desc: "Scheduled job snapshots org limits (API calls, storage, async usage) via the Limits API into a custom object, with a dashboard showing trend lines. Governance limit forecasting made visible.", tags: ["Limits API", "monitoring", "governance"] },
+      { id: "t15-7", lvl: "sr", title: "Component Library Seed", desc: "Extract your LWCs into a shared base-component pattern: one design-token CSS file, a base card component, and two consumers built on it. Write the one-paragraph 'when to add vs reuse' rule.", tags: ["LWC library", "design system"] },
+      { id: "t15-8", lvl: "sr", title: "The RCA Habit", desc: "Write the one-page root-cause doc for your real Bitly fix: timeline, the three layers peeled (token, domain, formula checkbox), the fix, and prevention. Seniors don't just solve incidents — they document them. Repeat for every future incident.", tags: ["RCA", "documentation ownership"] }
+    ]
   }
 ];
 
 const ALL_ITEMS = TIERS.flatMap(function(t) { return t.items; });
 
-const LVL = { admin: "Admin", adv: "Adv Admin", se1: "SE I", se2: "SE II" };
+const LVL = { admin: "Admin", adv: "Adv Admin", se1: "SE I", se2: "SE II", sr: "Senior" };
 
 const STATUS = {
   not_started: { label: "Not started", next: "in_progress" },
@@ -426,7 +442,7 @@ function render() {
   });
 
   html += '<footer class="apx-foot">'
-    + '<span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>Coverage: every Admin, Advanced Admin, SE I, and SE II cell of the WGU Salesforce job family matrix.</span>'
+    + '<span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>Coverage: every Admin, Advanced Admin, SE I, and SE II cell of the WGU Salesforce job family matrix — plus the Senior Track.</span>'
     + '<a href="library.html">&larr; Back to Library</a>'
     + '</footer>';
 
