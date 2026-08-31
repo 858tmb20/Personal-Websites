@@ -576,6 +576,7 @@
   .kt-document { background: #E6F1FB; color: #185FA5; }
   .kt-flowchart { background: #EEEDFE; color: #534AB7; }
   .kt-howto { background: #E7F6EC; color: #15803D; }
+  .kt-cat { background: #F1EBFC; color: #6D28D9; }
   @media (max-width: 720px) {
     .kb-table, .kb-table tbody, .kb-table tr, .kb-table td { display: block; width: 100%; }
     .kb-table thead { display: none; }
@@ -686,6 +687,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openLearn();"><span class="tnl-ico" style="background:#EA580C22;color:#EA580C;">&#127891;</span><span class="tnl-text">Learning Tracker<span class="tnl-sub">What to learn &amp; focus on</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openHandoff();"><span class="tnl-ico" style="background:#7C3AED22;color:#7C3AED;">&#129309;</span><span class="tnl-text">Handoff<span class="tnl-sub">Everything the team needs</span></span></a>
             <a class="topnav-link" href="job-description.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#4F46E522;color:#4F46E5;">&#128203;</span><span class="tnl-text">Job Description<span class="tnl-sub">Your role at a glance</span></span></a>
           </div>
         </div>
@@ -867,6 +869,47 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="saveKb()">Save</button>
       <button class="btn-cancel" onclick="closeKbModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- HANDOFF SCREEN -->
+<div class="screen" id="screen-handoff">
+  <header>
+    <div class="header-left">
+      <div class="header-brand">
+        <h1>Handoff</h1>
+        <p>The handoff guide for the team &mdash; everything they need, grouped by topic</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" onclick="openHandoffModal(null)">+ Add Entry</button>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <div class="todo-sort-row" style="margin-bottom:0.85rem;">
+      <span class="todo-sort-label">Show:</span>
+      <div class="view-toggle" id="handoffFilterRow"><button class="view-btn active">All</button></div>
+    </div>
+    <input type="text" class="search-bar" id="handoffSearchInput" placeholder="Search by title or note..." oninput="renderHandoff()">
+    <div class="count" id="handoffCount"></div>
+    <div id="handoffList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- HANDOFF MODAL -->
+<div class="modal-overlay" id="handoffModalOverlay">
+  <div class="modal">
+    <h2 id="handoffModalTitle">Add Entry</h2>
+    <input type="hidden" id="handoffEditId" value="">
+    <div class="field"><label>Title</label><input type="text" id="handoffTitleInput" placeholder="e.g. Deployment process guide, or Vendor contacts list" /></div>
+    <div class="field"><label>Category <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional &mdash; groups entries, e.g. Jira, Salesforce, Processes)</span></label><input type="text" id="handoffCatInput" list="handoffCatList" placeholder="e.g. Salesforce" /><datalist id="handoffCatList"></datalist></div>
+    <div class="field"><label>Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(OneDrive or any URL)</span></label><input type="text" id="handoffUrlInput" placeholder="https://wgu-my.sharepoint.com/..." /></div>
+    <div class="field"><label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="handoffNoteInput" placeholder="What this is, why it matters, anything the team should know..." style="min-height:100px;"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveHandoff()">Save</button>
+      <button class="btn-cancel" onclick="closeHandoffModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1615,6 +1658,7 @@
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }) },
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }) },
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }) },
+      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#7C3AED', icon: '&#129309;', name: 'Handoff', desc: 'The handoff guide for the team — docs, links, and notes, grouped by topic.', href: '#', onclick: 'event.preventDefault(); openHandoff();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }) },
@@ -1740,6 +1784,7 @@
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('kbModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeKbModal(); });
+  document.getElementById('handoffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeHandoffModal(); });
   document.getElementById('learnModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeLearnModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
@@ -2193,6 +2238,73 @@
     }
   }
   function deleteKb(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchKb(); }); }
+
+  // ===== HANDOFF (handoff table; title + link + note, grouped by freeform category) =====
+  var allHandoff = [];
+  var handoffFilter = 'all';
+  function handoffCat(d) { return (d && d.category && String(d.category).trim()) ? String(d.category).trim() : 'General'; }
+  function handoffCats() { var seen = {}, cats = []; for (var i = 0; i < allHandoff.length; i++) { var c = handoffCat(allHandoff[i]); if (!seen[c]) { seen[c] = true; cats.push(c); } } cats.sort(function(a, b) { return a.localeCompare(b); }); return cats; }
+  function openHandoff() { document.getElementById('handoffSearchInput').value = ''; handoffFilter = 'all'; showScreen('screen-handoff'); fetchHandoff(); }
+  function fetchHandoff() {
+    fetch(SB_URL + '/rest/v1/handoff?order=sort_order.asc,created_at.asc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allHandoff = Array.isArray(data) ? data : []; renderHandoff(); }).catch(function() { document.getElementById('handoffList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
+  }
+  function setHandoffFilter(f) { handoffFilter = f; renderHandoff(); }
+  function renderHandoff() {
+    var cats = handoffCats();
+    if (handoffFilter !== 'all' && cats.indexOf(handoffFilter) === -1) handoffFilter = 'all';
+    var fhtml = '<button class="view-btn' + (handoffFilter === 'all' ? ' active' : '') + '" data-hofilter="all">All</button>';
+    for (var c = 0; c < cats.length; c++) fhtml += '<button class="view-btn' + (handoffFilter === cats[c] ? ' active' : '') + '" data-hofilter="' + esc(cats[c]) + '">' + esc(cats[c]) + '</button>';
+    document.getElementById('handoffFilterRow').innerHTML = fhtml;
+    document.querySelectorAll('[data-hofilter]').forEach(function(b) { b.addEventListener('click', function() { setHandoffFilter(this.getAttribute('data-hofilter')); }); });
+    var q = (document.getElementById('handoffSearchInput').value || '').toLowerCase();
+    var list = allHandoff.filter(function(d) {
+      if (handoffFilter !== 'all' && handoffCat(d) !== handoffFilter) return false;
+      if (!q) return true;
+      return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.content || '').toLowerCase().indexOf(q) > -1 || handoffCat(d).toLowerCase().indexOf(q) > -1;
+    });
+    list.sort(function(a, b) { var ca = handoffCat(a), cb = handoffCat(b); if (ca !== cb) return ca.localeCompare(cb); return (a.sort_order || 0) - (b.sort_order || 0); });
+    document.getElementById('handoffCount').textContent = list.length + ' entr' + (list.length !== 1 ? 'ies' : 'y');
+    if (!list.length) { document.getElementById('handoffList').innerHTML = allHandoff.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>Nothing here yet</strong>Hit &quot;+ Add Entry&quot; to drop in a title and a OneDrive link.</div>'; return; }
+    var html = '<table class="kb-table"><thead><tr><th>Category</th><th>Title</th><th>Note</th><th>Link</th><th></th></tr></thead><tbody>';
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      var res = d.url ? '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
+      html += '<tr><td class="kb-type"><span class="kb-tag kt-cat">' + esc(handoffCat(d)) + '</span></td><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.content || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-hoedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-hodel="' + esc(d.id) + '">&#10005;</button></td></tr>';
+    }
+    html += '</tbody></table>';
+    document.getElementById('handoffList').innerHTML = html;
+    document.querySelectorAll('.btn-edit[data-hoedit]').forEach(function(b) { b.addEventListener('click', function() { openHandoffModal(findHandoff(this.getAttribute('data-hoedit'))); }); });
+    document.querySelectorAll('.btn-delete[data-hodel]').forEach(function(b) { b.addEventListener('click', function() { deleteHandoff(this.getAttribute('data-hodel')); }); });
+  }
+  function findHandoff(id) { for (var i = 0; i < allHandoff.length; i++) { if (String(allHandoff[i].id) === String(id)) return allHandoff[i]; } return null; }
+  function openHandoffModal(d) {
+    document.getElementById('handoffEditId').value = d ? d.id : '';
+    document.getElementById('handoffModalTitle').textContent = d ? 'Edit Entry' : 'Add Entry';
+    document.getElementById('handoffTitleInput').value = d ? d.title : '';
+    document.getElementById('handoffCatInput').value = (d && d.category) ? d.category : '';
+    document.getElementById('handoffUrlInput').value = (d && d.url) ? d.url : '';
+    document.getElementById('handoffNoteInput').value = (d && d.content) ? d.content : '';
+    var dl = document.getElementById('handoffCatList'), cats = handoffCats(), opts = '';
+    for (var i = 0; i < cats.length; i++) { if (cats[i] !== 'General') opts += '<option value="' + esc(cats[i]) + '">'; }
+    dl.innerHTML = opts;
+    document.getElementById('handoffModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('handoffTitleInput').focus(); }, 100);
+  }
+  function closeHandoffModal() { document.getElementById('handoffModalOverlay').classList.remove('open'); }
+  function saveHandoff() {
+    var title = document.getElementById('handoffTitleInput').value.trim();
+    var cat = document.getElementById('handoffCatInput').value.trim();
+    var url = document.getElementById('handoffUrlInput').value.trim();
+    var note = document.getElementById('handoffNoteInput').value.trim();
+    var editId = document.getElementById('handoffEditId').value;
+    if (!title) { showToast('Add a title'); return; }
+    var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
+    var body = { title: title, category: cat || null, url: fullUrl || null, content: note || null };
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/handoff?id=eq.' + editId : SB_URL + '/rest/v1/handoff';
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeHandoffModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchHandoff(); } else { showToast('Error saving'); } });
+  }
+  function deleteHandoff(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/handoff?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchHandoff(); }); }
 
   // ===== LEARNING TRACKER (learning_items table; just title + star) =====
   var allLearn = [];
