@@ -2253,7 +2253,8 @@
   function handoffCat(d) { return (d && d.category && String(d.category).trim()) ? String(d.category).trim() : 'General'; }
   var HANDOFF_TAG_CLS = ['kt-c0', 'kt-c1', 'kt-c2', 'kt-c3', 'kt-c4', 'kt-c5'];
   function handoffCatCls(c) { if (c === 'General') return 'kt-cgen'; var h = 0; for (var i = 0; i < c.length; i++) h = (h * 31 + c.charCodeAt(i)) >>> 0; return HANDOFF_TAG_CLS[h % HANDOFF_TAG_CLS.length]; }
-  function handoffCats() { var seen = {}, cats = []; for (var i = 0; i < allHandoff.length; i++) { var c = handoffCat(allHandoff[i]); if (!seen[c]) { seen[c] = true; cats.push(c); } } cats.sort(function(a, b) { return a.localeCompare(b); }); return cats; }
+  var HANDOFF_DEFAULT_CATS = ['Jira', 'Salesforce', 'Processes'];
+  function handoffCats() { var seen = {}, cats = []; for (var i = 0; i < HANDOFF_DEFAULT_CATS.length; i++) { seen[HANDOFF_DEFAULT_CATS[i]] = true; cats.push(HANDOFF_DEFAULT_CATS[i]); } for (var j = 0; j < allHandoff.length; j++) { var c = handoffCat(allHandoff[j]); if (!seen[c]) { seen[c] = true; cats.push(c); } } cats.sort(function(a, b) { return a.localeCompare(b); }); return cats; }
   function openHandoff() { document.getElementById('handoffSearchInput').value = ''; handoffFilter = 'all'; showScreen('screen-handoff'); fetchHandoff(); }
   function fetchHandoff() {
     fetch(SB_URL + '/rest/v1/handoff?order=sort_order.asc,created_at.asc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allHandoff = Array.isArray(data) ? data : []; renderHandoff(); }).catch(function() { document.getElementById('handoffList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
