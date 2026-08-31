@@ -577,6 +577,13 @@
   .kt-flowchart { background: #EEEDFE; color: #534AB7; }
   .kt-howto { background: #E7F6EC; color: #15803D; }
   .kt-cat { background: #F1EBFC; color: #6D28D9; }
+  .kt-c0 { background: #E6F1FB; color: #185FA5; }
+  .kt-c1 { background: #EEEDFE; color: #534AB7; }
+  .kt-c2 { background: #E7F6EC; color: #15803D; }
+  .kt-c3 { background: #FDF0E6; color: #B45309; }
+  .kt-c4 { background: #FBEAF1; color: #BE185D; }
+  .kt-c5 { background: #E6F7F5; color: #0F766E; }
+  .kt-cgen { background: #EEF1F5; color: #55647A; }
   @media (max-width: 720px) {
     .kb-table, .kb-table tbody, .kb-table tr, .kb-table td { display: block; width: 100%; }
     .kb-table thead { display: none; }
@@ -907,6 +914,7 @@
     <div class="field"><label>Category <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional &mdash; groups entries, e.g. Jira, Salesforce, Processes)</span></label><input type="text" id="handoffCatInput" list="handoffCatList" placeholder="e.g. Salesforce" /><datalist id="handoffCatList"></datalist></div>
     <div class="field"><label>Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(OneDrive or any URL)</span></label><input type="text" id="handoffUrlInput" placeholder="https://wgu-my.sharepoint.com/..." /></div>
     <div class="field"><label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="handoffNoteInput" placeholder="What this is, why it matters, anything the team should know..." style="min-height:100px;"></textarea></div>
+    <div class="field"><label>Attach file <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="file" id="handoffFileInput" /><div id="handoffFileCurrent" style="font-size:0.78rem;color:var(--muted);margin-top:0.35rem;"></div></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="saveHandoff()">Save</button>
       <button class="btn-cancel" onclick="closeHandoffModal()">Cancel</button>
@@ -2243,6 +2251,8 @@
   var allHandoff = [];
   var handoffFilter = 'all';
   function handoffCat(d) { return (d && d.category && String(d.category).trim()) ? String(d.category).trim() : 'General'; }
+  var HANDOFF_TAG_CLS = ['kt-c0', 'kt-c1', 'kt-c2', 'kt-c3', 'kt-c4', 'kt-c5'];
+  function handoffCatCls(c) { if (c === 'General') return 'kt-cgen'; var h = 0; for (var i = 0; i < c.length; i++) h = (h * 31 + c.charCodeAt(i)) >>> 0; return HANDOFF_TAG_CLS[h % HANDOFF_TAG_CLS.length]; }
   function handoffCats() { var seen = {}, cats = []; for (var i = 0; i < allHandoff.length; i++) { var c = handoffCat(allHandoff[i]); if (!seen[c]) { seen[c] = true; cats.push(c); } } cats.sort(function(a, b) { return a.localeCompare(b); }); return cats; }
   function openHandoff() { document.getElementById('handoffSearchInput').value = ''; handoffFilter = 'all'; showScreen('screen-handoff'); fetchHandoff(); }
   function fetchHandoff() {
@@ -2268,8 +2278,11 @@
     var html = '<table class="kb-table"><thead><tr><th>Category</th><th>Title</th><th>Note</th><th>Link</th><th></th></tr></thead><tbody>';
     for (var i = 0; i < list.length; i++) {
       var d = list[i];
-      var res = d.url ? '<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
-      html += '<tr><td class="kb-type"><span class="kb-tag kt-cat">' + esc(handoffCat(d)) + '</span></td><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.content || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-hoedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-hodel="' + esc(d.id) + '">&#10005;</button></td></tr>';
+      var resParts = [];
+      if (d.url) resParts.push('<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>');
+      if (d.file_url) resParts.push('<a class="link-url" href="' + esc(d.file_url) + '" target="_blank" rel="noopener" download>&#128196; ' + esc(d.file_name || 'File') + '</a>');
+      var res = resParts.length ? resParts.join('<br>') : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
+      html += '<tr><td class="kb-type"><span class="kb-tag ' + handoffCatCls(handoffCat(d)) + '">' + esc(handoffCat(d)) + '</span></td><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.content || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-hoedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-hodel="' + esc(d.id) + '">&#10005;</button></td></tr>';
     }
     html += '</tbody></table>';
     document.getElementById('handoffList').innerHTML = html;
@@ -2284,6 +2297,8 @@
     document.getElementById('handoffCatInput').value = (d && d.category) ? d.category : '';
     document.getElementById('handoffUrlInput').value = (d && d.url) ? d.url : '';
     document.getElementById('handoffNoteInput').value = (d && d.content) ? d.content : '';
+    var hfi = document.getElementById('handoffFileInput'); if (hfi) hfi.value = '';
+    document.getElementById('handoffFileCurrent').innerHTML = (d && d.file_name) ? 'Current file: ' + esc(d.file_name) + ' — choose a new one to replace' : '';
     var dl = document.getElementById('handoffCatList'), cats = handoffCats(), opts = '';
     for (var i = 0; i < cats.length; i++) { if (cats[i] !== 'General') opts += '<option value="' + esc(cats[i]) + '">'; }
     dl.innerHTML = opts;
@@ -2299,10 +2314,27 @@
     var editId = document.getElementById('handoffEditId').value;
     if (!title) { showToast('Add a title'); return; }
     var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
-    var body = { title: title, category: cat || null, url: fullUrl || null, content: note || null };
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/handoff?id=eq.' + editId : SB_URL + '/rest/v1/handoff';
-    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeHandoffModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchHandoff(); } else { showToast('Error saving'); } });
+    var fileInput = document.getElementById('handoffFileInput');
+    var file = fileInput && fileInput.files && fileInput.files[0];
+    // File keys only sent when a new file was uploaded — PATCH preserves existing ones, and rows save fine before the file_url/file_name ALTER exists.
+    function saveRow(file_url, file_name) {
+      var body = { title: title, category: cat || null, url: fullUrl || null, content: note || null };
+      if (file_url) { body.file_url = file_url; body.file_name = file_name || null; }
+      fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeHandoffModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchHandoff(); } else { showToast(file_url ? 'Error saving — did you add the file columns to the handoff table?' : 'Error saving'); } });
+    }
+    if (file) {
+      if (file.size > 25 * 1024 * 1024) { showToast('File too large (max 25 MB)'); return; }
+      showToast('Uploading file…');
+      var path = String(Date.now()) + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      var enc = encodeURIComponent(path);
+      fetch(SB_URL + '/storage/v1/object/' + KB_BUCKET + '/' + enc, { method: 'POST', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'true' }, body: file })
+        .then(function(res) { if (!res.ok) { showToast('Upload failed'); return; } saveRow(SB_URL + '/storage/v1/object/public/' + KB_BUCKET + '/' + enc, file.name); })
+        .catch(function() { showToast('Upload failed'); });
+    } else {
+      saveRow(null, null);
+    }
   }
   function deleteHandoff(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/handoff?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchHandoff(); }); }
 
