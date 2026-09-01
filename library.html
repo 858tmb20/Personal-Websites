@@ -1593,7 +1593,7 @@
   }
 
   // Tool card with TYPE + CATEGORY eyebrow (WGU.tools style)
-  function toolCardHTML(l) {
+  function toolCardHTML(l, hideCat) {
     var color = colorForCategory(l.category_id);
     var catName = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Uncategorized';
     var tType = typeLabel(l.link_type);
@@ -1601,7 +1601,7 @@
     var chipInner = fav ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />' : '<span>' + esc(firstLetter(l.title)) + '</span>';
     var desc = l.description ? esc(l.description) : esc(l.url);
     var eyebrow = '<span class="tool-chip">' + chipInner + '</span>' +
-                  '<span class="tool-eyebrow-text">' + esc(tType) + ' <span class="tool-eyebrow-sep">&middot;</span> ' + esc(catName) + '</span>';
+                  '<span class="tool-eyebrow-text">' + esc(tType) + (hideCat ? '' : ' <span class="tool-eyebrow-sep">&middot;</span> ' + esc(catName)) + '</span>';
     return '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
         '<span class="tool-edit"><button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button></span>' +
         '<span class="tool-eyebrow">' + eyebrow + '</span>' +
@@ -1674,14 +1674,28 @@
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' }) }
     ];
 
-    var cards = [];
-    builtins.forEach(function(b) { if (inScope(b.scope)) cards.push(b.card); });
-    links.forEach(function(l) { if (inScope(l.link_type)) cards.push(toolCardHTML(l)); });
+    // GROUPED LAYOUT (2026-09-01): builtin apps first, then one section per link category.
+    var toolCards = [];
+    builtins.forEach(function(b) { if (inScope(b.scope)) toolCards.push(b.card); });
 
-    var scopeLabel = homeFilter === 'work' ? 'Work tools' : homeFilter === 'personal' ? 'Personal tools' : 'All tools';
-    var scopeColor = homeFilter === 'personal' ? '#9333EA' : '#1F6FEB';
-    if (!cards.length) { return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
-    return toolsSection('tools', scopeLabel, scopeColor, cards);
+    var groups = {};
+    var order = [];
+    links.forEach(function(l) {
+      if (!inScope(l.link_type)) return;
+      var name = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Other links';
+      if (!groups[name]) { groups[name] = { color: colorForCategory(l.category_id), cards: [] }; order.push(name); }
+      groups[name].cards.push(toolCardHTML(l, true));
+    });
+    order.sort(function(a, b) { return groups[b].cards.length - groups[a].cards.length; });
+
+    var html = '';
+    if (toolCards.length) html += toolsSection('tools', 'My tools', '#1F6FEB', toolCards);
+    order.forEach(function(name) {
+      var key = 'cat_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      html += toolsSection(key, name, groups[name].color, groups[name].cards);
+    });
+    if (!html) { return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
+    return html;
   }
 
   function launchTileHTML(it, pinned) {
