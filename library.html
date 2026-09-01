@@ -254,6 +254,17 @@
   .tool-edit { position: absolute; top: 0.55rem; right: 0.55rem; display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.12s; }
   .tool-card:hover .tool-edit { opacity: 1; }
   @media (max-width: 600px) { .tools-grid { grid-template-columns: 1fr; } }
+  .tools-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 0.5rem; }
+  .tool-row { display: flex; align-items: center; gap: 0.6rem; background: var(--card); border: 1px solid var(--rule); border-left: 3px solid var(--tc); border-radius: 10px; padding: 0.5rem 0.7rem; text-decoration: none; color: var(--ink); min-width: 0; transition: border-color 0.15s, box-shadow 0.12s; }
+  .tool-row:hover { border-color: var(--tc); box-shadow: 0 3px 10px rgba(15,31,61,0.08); }
+  .tool-row .tr-txt { display: flex; flex-direction: column; min-width: 0; }
+  .tool-row .tr-name { font-size: 0.84rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tool-row .tr-sub { font-size: 0.7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tool-row .tr-arrow { margin-left: auto; color: var(--muted-soft); flex-shrink: 0; }
+  .tool-row .tr-edit { display: none; margin-left: auto; gap: 2px; flex-shrink: 0; }
+  .tool-row:hover .tr-edit { display: inline-flex; }
+  .tool-row:hover .tr-arrow { display: none; }
+  @media (max-width: 600px) { .tools-rows { grid-template-columns: 1fr; } }
   .group-head { display: flex; align-items: center; gap: 0.6rem; margin: 2rem 0 1.1rem; }
   .group-head:first-of-type { margin-top: 0.5rem; }
   .group-bar { width: 5px; height: 22px; border-radius: 3px; background: var(--gc); }
@@ -1610,6 +1621,29 @@
       '</a>';
   }
 
+  // Compact one-line row for external links (bookmarks) — big cards are reserved for the builtin apps
+  function toolRowHTML(l) {
+    var color = colorForCategory(l.category_id);
+    var fav = faviconFor(l.url);
+    var ico = fav ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />' : '<span>' + esc(firstLetter(l.title)) + '</span>';
+    var sub = l.description ? esc(l.description) : esc(l.url);
+    return '<a class="tool-row" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
+        '<span class="tool-chip">' + ico + '</span>' +
+        '<span class="tr-txt"><span class="tr-name">' + esc(l.title) + '</span><span class="tr-sub">' + sub + '</span></span>' +
+        '<span class="tr-edit"><button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button></span>' +
+        '<span class="tr-arrow">&#8599;</span>' +
+      '</a>';
+  }
+
+  // Section of compact rows (no preview cap — rows are small enough to show all)
+  function rowsSectionHTML(title, color, rows) {
+    return '<div class="tsec"><div class="tsec-head" style="--gc:' + color + ';cursor:default;">' +
+        '<span class="group-bar"></span>' +
+        '<span class="group-title">' + esc(title) + '</span>' +
+        '<span class="group-count">' + rows.length + '</span>' +
+      '</div><div class="tools-rows">' + rows.join('') + '</div></div>';
+  }
+
   // Built-in tool cards (Deployment Tracker, Docs, etc.) shown based on scope
   function builtinToolCard(opts) {
     return '<a class="tool-card" href="' + (opts.href || '#') + '"' + (opts.target ? ' target="' + opts.target + '"' : '') + (opts.onclick ? ' onclick="' + opts.onclick + '"' : '') + ' style="--tc:' + opts.color + ';--tc-soft:' + opts.color + '22;">' +
@@ -1684,15 +1718,14 @@
       if (!inScope(l.link_type)) return;
       var name = (l.category_id && catMap[l.category_id]) ? catMap[l.category_id] : 'Other links';
       if (!groups[name]) { groups[name] = { color: colorForCategory(l.category_id), cards: [] }; order.push(name); }
-      groups[name].cards.push(toolCardHTML(l, true));
+      groups[name].cards.push(toolRowHTML(l));
     });
     order.sort(function(a, b) { return groups[b].cards.length - groups[a].cards.length; });
 
     var html = '';
     if (toolCards.length) html += toolsSection('tools', 'My tools', '#1F6FEB', toolCards);
     order.forEach(function(name) {
-      var key = 'cat_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      html += toolsSection(key, name, groups[name].color, groups[name].cards);
+      html += rowsSectionHTML(name, groups[name].color, groups[name].cards);
     });
     if (!html) { return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
     return html;
