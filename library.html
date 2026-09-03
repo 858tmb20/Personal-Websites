@@ -717,6 +717,7 @@
             <a class="topnav-link" onclick="filterHome('personal')"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#9783;</span><span class="tnl-text">All Personal Tools<span class="tnl-sub">Everything tagged Personal</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openPlanner();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128197;</span><span class="tnl-text">Planner<span class="tnl-sub">Plan your week</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openMedical();"><span class="tnl-ico" style="background:#BE123C22;color:#BE123C;">&#128138;</span><span class="tnl-text">Medical Info<span class="tnl-sub">Meds, conditions &amp; contacts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
             <a class="topnav-link" href="cloud-path-checklist.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#38BDF822;color:#0891B2;">&#9729;</span><span class="tnl-text">Cloud Path Launch<span class="tnl-sub">Business launch checklist</span></span></a>
@@ -1003,6 +1004,49 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="saveIdea()">Save</button>
       <button class="btn-cancel" onclick="closeIdeaModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEDICAL INFO SCREEN -->
+<div class="screen" id="screen-medical">
+  <header>
+    <div class="header-left">
+      <div class="header-brand">
+        <h1>Medical Info</h1>
+        <p>Your meds, conditions, allergies &amp; contacts &mdash; all in one place</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-add" onclick="openMedicalModal(null)">+ Add Entry</button>
+      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <div class="count" id="medicalCount"></div>
+    <div id="medicalList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- MEDICAL INFO MODAL -->
+<div class="modal-overlay" id="medicalModalOverlay">
+  <div class="modal">
+    <h2 id="medicalModalTitle">Add Entry</h2>
+    <input type="hidden" id="medicalEditId" value="">
+    <div class="field"><label>Name</label><input type="text" id="medicalTitleInput" placeholder="e.g. Lisinopril, or Dr. Smith" /></div>
+    <div class="field"><label>Type</label><select id="medicalCatInput">
+      <option value="medication">Medication</option>
+      <option value="condition">Condition</option>
+      <option value="allergy">Allergy</option>
+      <option value="doctor">Doctor / Provider</option>
+      <option value="insurance">Insurance</option>
+      <option value="other">Other</option>
+    </select></div>
+    <div class="field"><label>Details <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional &mdash; dose, frequency, phone, policy #...)</span></label><input type="text" id="medicalDetailInput" placeholder="e.g. 10mg, once daily in the morning" /></div>
+    <div class="field"><label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="medicalNoteInput" rows="3" placeholder="Anything else worth remembering..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveMedical()">Save</button>
+      <button class="btn-cancel" onclick="closeMedicalModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1704,6 +1748,7 @@
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }) },
+      { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#BE123C', icon: '&#128138;', name: 'Medical Info', desc: 'Your meds, conditions, allergies, and doctor contacts in one list.', href: '#', onclick: 'event.preventDefault(); openMedical();' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0891B2', icon: '&#9729;', name: 'Cloud Path Launch', desc: 'Your Cloud Path Consulting business launch checklist — check off each step.', href: 'cloud-path-checklist.html', target: '_blank' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' }) }
     ];
@@ -1840,6 +1885,7 @@
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('kbModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeKbModal(); });
   document.getElementById('handoffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeHandoffModal(); });
+  document.getElementById('medicalModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeMedicalModal(); });
   document.getElementById('learnModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeLearnModal(); });
   document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
@@ -1848,7 +1894,7 @@
     var tn = document.getElementById('topnav'); if (tn && !tn.contains(e.target)) closeTopnav();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closeLearnModal(); closePlanModal(); closeAnalyze(); }
+    if (e.key === 'Escape') { closeModal(); closeCategoryModal(); closeFilterMenu(); closeTopnav(); closeDeployModal(); closeKbModal(); closeLearnModal(); closePlanModal(); closeAnalyze(); closeMedicalModal(); }
     if (e.key === '/' && document.getElementById('screen-library').classList.contains('active') && !document.getElementById('modalOverlay').classList.contains('open') && !document.getElementById('categoryModalOverlay').classList.contains('open')) {
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') { e.preventDefault(); document.getElementById('searchInput').focus(); }
@@ -2588,6 +2634,77 @@
     fetch(SB_URL + '/rest/v1/ideas?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ stage: next }) }).then(function(res) { if (!res.ok) { item.stage = prev; renderIdeas(); showToast('Could not save'); } }).catch(function() { item.stage = prev; renderIdeas(); });
   }
   function deleteIdea(id) { if (!confirm('Delete this idea?')) return; fetch(SB_URL + '/rest/v1/ideas?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchIdeas(); }); }
+
+  // ===== MEDICAL INFO =====
+  var allMedical = [];
+  var MED_CATS = ['medication', 'condition', 'allergy', 'doctor', 'insurance', 'other'];
+  var MED_CAT_META = {
+    medication: { label: 'Medication', bg: '#1F6FEB22', fg: '#1F6FEB' },
+    condition:  { label: 'Condition',  bg: '#F59E0B22', fg: '#B45309' },
+    allergy:    { label: 'Allergy',    bg: '#BE123C22', fg: '#BE123C' },
+    doctor:     { label: 'Doctor',     bg: '#0D948822', fg: '#0D9488' },
+    insurance:  { label: 'Insurance',  bg: '#7C3AED22', fg: '#7C3AED' },
+    other:      { label: 'Other',      bg: '#6B7A9922', fg: '#6B7A99' }
+  };
+  function medCatMeta(c) { return MED_CAT_META[c] || MED_CAT_META.other; }
+  function openMedical() { showScreen('screen-medical'); fetchMedical(); }
+  function fetchMedical() {
+    fetch(SB_URL + '/rest/v1/medical?order=created_at.desc', { headers: H }).then(function(r) { if (!r.ok) throw new Error('load'); return r.json(); }).then(function(data) { allMedical = Array.isArray(data) ? data : []; renderMedical(); }).catch(function() { document.getElementById('medicalList').innerHTML = '<div class="board-empty">Could not load. If this is the first run, create the medical table in Supabase.</div>'; document.getElementById('medicalCount').textContent = ''; });
+  }
+  function renderMedical() {
+    var list = allMedical.slice();
+    // Group by type (meds first), newest-first within each type.
+    list.sort(function(a, b) {
+      var ca = MED_CATS.indexOf(a.category); if (ca < 0) ca = MED_CATS.length;
+      var cb = MED_CATS.indexOf(b.category); if (cb < 0) cb = MED_CATS.length;
+      return ca - cb;
+    });
+    document.getElementById('medicalCount').textContent = list.length + ' entr' + (list.length !== 1 ? 'ies' : 'y');
+    if (!list.length) { document.getElementById('medicalList').innerHTML = '<div class="empty"><strong>Nothing here yet</strong>Hit &ldquo;Add Entry&rdquo; to log a medication, condition, allergy, or doctor.</div>'; return; }
+    var html = '<div class="idea-list">';
+    for (var i = 0; i < list.length; i++) {
+      var x = list[i];
+      var m = medCatMeta(x.category);
+      var detail = x.detail ? ' <span style="font-weight:400;color:var(--muted);">&mdash; ' + esc(x.detail) + '</span>' : '';
+      var note = x.note ? '<div class="idea-note">' + esc(x.note) + '</div>' : '';
+      html += '<div class="idea-item">'
+        + '<span class="idea-stage" style="background:' + m.bg + ';color:' + m.fg + ';cursor:default;">' + m.label + '</span>'
+        + '<div class="idea-main"><div class="idea-title">' + esc(x.title) + detail + '</div>' + note + '</div>'
+        + '<div class="idea-acts"><button class="btn-edit" data-medit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-mdel="' + esc(x.id) + '">&#10005;</button></div>'
+        + '</div>';
+    }
+    html += '</div>';
+    document.getElementById('medicalList').innerHTML = html;
+    document.querySelectorAll('[data-medit]').forEach(function(b) { b.addEventListener('click', function() { openMedicalModal(findMedical(this.getAttribute('data-medit'))); }); });
+    document.querySelectorAll('[data-mdel]').forEach(function(b) { b.addEventListener('click', function() { deleteMedical(this.getAttribute('data-mdel')); }); });
+  }
+  function findMedical(id) { for (var i = 0; i < allMedical.length; i++) { if (allMedical[i].id === id) return allMedical[i]; } return null; }
+  function openMedicalModal(x) {
+    document.getElementById('medicalEditId').value = x ? x.id : '';
+    document.getElementById('medicalModalTitle').textContent = x ? 'Edit Entry' : 'Add Entry';
+    document.getElementById('medicalTitleInput').value = x ? x.title : '';
+    document.getElementById('medicalCatInput').value = (x && x.category) ? x.category : 'medication';
+    document.getElementById('medicalDetailInput').value = (x && x.detail) ? x.detail : '';
+    document.getElementById('medicalNoteInput').value = (x && x.note) ? x.note : '';
+    document.getElementById('medicalModalOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('medicalTitleInput').focus(); }, 100);
+  }
+  function closeMedicalModal() { document.getElementById('medicalModalOverlay').classList.remove('open'); }
+  function saveMedical() {
+    var title = document.getElementById('medicalTitleInput').value.trim();
+    if (!title) { showToast('Add a name first'); return; }
+    var body = {
+      title: title,
+      category: document.getElementById('medicalCatInput').value || 'other',
+      detail: document.getElementById('medicalDetailInput').value.trim(),
+      note: document.getElementById('medicalNoteInput').value.trim()
+    };
+    var editId = document.getElementById('medicalEditId').value;
+    var method = editId ? 'PATCH' : 'POST';
+    var endpoint = editId ? SB_URL + '/rest/v1/medical?id=eq.' + editId : SB_URL + '/rest/v1/medical';
+    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeMedicalModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchMedical(); } else { showToast('Error saving'); } });
+  }
+  function deleteMedical(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/medical?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchMedical(); }); }
 
   // ===== DEPLOYMENT TRACKER =====
   // Columns are the physical work stages only. PR/CR progress is tracked by the
