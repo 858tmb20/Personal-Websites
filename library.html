@@ -638,6 +638,10 @@
   .cookbook-pre .cb-inline { background: #04785714; color: #065F46; border-radius: 4px; padding: 0.05em 0.35em; font-family: inherit; font-size: 0.95em; }
   .cb-code { background: #0B1E2D0D; border: 1px solid var(--rule); border-left: 3px solid #047857; border-radius: 6px; padding: 0.75rem 0.95rem; margin: 0.35rem 0; }
   .cb-code pre { margin: 0; font-family: inherit; font-size: 0.97em; white-space: pre-wrap; word-break: break-word; }
+  .cb-toolbar { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; }
+  .cb-tb { background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 0.35rem 0.7rem; font-size: 0.8rem; color: inherit; cursor: pointer; font-family: inherit; }
+  .cb-tb:hover { border-color: #047857; color: #047857; }
+  .cb-tb-hint { font-size: 0.75rem; color: var(--muted); margin-left: 0.3rem; }
   .cb-help { margin-top: 0.6rem; font-size: 0.78rem; color: var(--muted); }
   .cb-help code { background: var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
   .cookbook-editor { width: 100%; box-sizing: border-box; background: var(--card); color: inherit; border: 1px solid #047857; border-radius: var(--radius); padding: 1.4rem 1.6rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.6; tab-size: 4; min-height: 65vh; resize: vertical; outline: none; }
@@ -1066,6 +1070,13 @@
   <div class="board-wrap">
     <div class="cookbook-pre" id="cookbookView"><span class="loading">Loading...</span></div>
     <div class="cb-help" id="cookbookHelp" style="display:none;">Formatting: <code>**bold**</code> &middot; <code>`inline code`</code> &middot; <code>```</code> on its own line before &amp; after a snippet = code block &middot; <code># Heading</code> at line start</div>
+    <div class="cb-toolbar" id="cookbookToolbar" style="display:none;">
+      <button class="cb-tb" onclick="cbWrapSel('**','**')" title="Bold the selected text"><strong>B</strong> Bold</button>
+      <button class="cb-tb" onclick="cbWrapSel('`','`')" title="Turn selection into an inline code chip">` Code</button>
+      <button class="cb-tb" onclick="cbWrapBlock()" title="Turn the selected lines into a code block">&#9636; Code block</button>
+      <button class="cb-tb" onclick="cbHeadSel()" title="Make the selected line a heading"># Heading</button>
+      <span class="cb-tb-hint">Select text, then click</span>
+    </div>
     <textarea class="cookbook-editor" id="cookbookEditor" style="display:none;" spellcheck="false" placeholder="Paste your Apex cookbook here — notes, snippets, gotchas. Plain text, as long as you want."></textarea>
   </div>
 </div>
@@ -2763,6 +2774,32 @@
     document.getElementById('cookbookCancelBtn').style.display = editing ? '' : 'none';
     document.getElementById('cookbookHomeBtn').style.display = editing ? 'none' : '';
     document.getElementById('cookbookHelp').style.display = editing ? '' : 'none';
+    document.getElementById('cookbookToolbar').style.display = editing ? '' : 'none';
+  }
+  function cbSel() {
+    var ed = document.getElementById('cookbookEditor');
+    return { ed: ed, s: ed.selectionStart, e: ed.selectionEnd, v: ed.value };
+  }
+  function cbWrapSel(pre, post) {
+    var x = cbSel();
+    if (x.s === x.e) { showToast('Select some text first, then click the button'); x.ed.focus(); return; }
+    x.ed.value = x.v.slice(0, x.s) + pre + x.v.slice(x.s, x.e) + post + x.v.slice(x.e);
+    x.ed.focus(); x.ed.setSelectionRange(x.s, x.e + pre.length + post.length);
+  }
+  function cbWrapBlock() {
+    var x = cbSel();
+    if (x.s === x.e) { showToast('Select the code lines first, then click the button'); x.ed.focus(); return; }
+    // expand to whole lines so the fences land on their own lines
+    var s = x.v.lastIndexOf('\n', x.s - 1) + 1;
+    var e = x.v.indexOf('\n', x.e); if (e === -1) e = x.v.length;
+    x.ed.value = x.v.slice(0, s) + '```\n' + x.v.slice(s, e) + '\n```' + x.v.slice(e);
+    x.ed.focus(); x.ed.setSelectionRange(s, e + 8);
+  }
+  function cbHeadSel() {
+    var x = cbSel();
+    var s = x.v.lastIndexOf('\n', (x.s === x.e ? x.s : x.s) - 1) + 1;
+    x.ed.value = x.v.slice(0, s) + '# ' + x.v.slice(s);
+    x.ed.focus(); x.ed.setSelectionRange(s, s);
   }
   function enterCookbookEdit() {
     var ed = document.getElementById('cookbookEditor');
