@@ -630,6 +630,9 @@
   .li-pct { font-size: 0.72rem; font-weight: 700; color: var(--muted); min-width: 2.4em; text-align: right; font-variant-numeric: tabular-nums; }
   .learn-item.is-done .li-prog { display: none; }
   @media (max-width: 640px) { .li-prog input[type="range"] { width: 84px; } }
+  .cookbook-pre { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.4rem 1.6rem; margin: 0; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; tab-size: 4; min-height: 55vh; }
+  .cookbook-pre .cb-empty { color: var(--muted); font-family: inherit; font-style: italic; }
+  .cookbook-editor { width: 100%; box-sizing: border-box; background: var(--card); color: inherit; border: 1px solid #047857; border-radius: var(--radius); padding: 1.4rem 1.6rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.6; tab-size: 4; min-height: 65vh; resize: vertical; outline: none; }
   .btn-done { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
   .btn-done:hover { border-color: #16A34A; color: #15803D; }
   .btn-done.on { background: #ECFDF5; border-color: #16A34A; color: #15803D; }
@@ -713,6 +716,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openHandoff();"><span class="tnl-ico" style="background:#7C3AED22;color:#7C3AED;">&#129309;</span><span class="tnl-text">Handoff<span class="tnl-sub">Everything the team needs</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openCookbook();"><span class="tnl-ico" style="background:#04785722;color:#047857;">&#128211;</span><span class="tnl-text">Apex Cookbook<span class="tnl-sub">Your Apex notes &mdash; Cmd+F it</span></span></a>
             <a class="topnav-link" href="job-description.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#4F46E522;color:#4F46E5;">&#128203;</span><span class="tnl-text">Job Description<span class="tnl-sub">Your role at a glance</span></span></a>
           </div>
         </div>
@@ -1032,6 +1036,28 @@
   <div class="board-wrap">
     <div class="count" id="medicalCount"></div>
     <div id="medicalList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-cookbook">
+  <header>
+    <div class="header-left">
+      <div class="header-brand">
+        <h1>Apex Cookbook</h1>
+        <p>One big page of Apex notes &mdash; Cmd+F to find anything</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="count" id="cookbookMeta" style="align-self:center;"></span>
+      <button class="btn-add" id="cookbookEditBtn" onclick="enterCookbookEdit()">&#9998; Edit</button>
+      <button class="btn-add" id="cookbookSaveBtn" onclick="saveCookbook()" style="display:none;">&#10003; Save</button>
+      <button class="btn-signout" id="cookbookCancelBtn" onclick="cancelCookbookEdit()" style="display:none;">Cancel</button>
+      <button class="btn-signout" id="cookbookHomeBtn" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
+    </div>
+  </header>
+  <div class="board-wrap">
+    <pre class="cookbook-pre" id="cookbookView"><span class="loading">Loading...</span></pre>
+    <textarea class="cookbook-editor" id="cookbookEditor" style="display:none;" spellcheck="false" placeholder="Paste your Apex cookbook here — notes, snippets, gotchas. Plain text, as long as you want."></textarea>
   </div>
 </div>
 
@@ -1752,6 +1778,7 @@
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }) },
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#7C3AED', icon: '&#129309;', name: 'Handoff', desc: 'The handoff guide for the team — docs, links, and notes, grouped by topic.', href: '#', onclick: 'event.preventDefault(); openHandoff();' }) },
+      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#047857', icon: '&#128211;', name: 'Apex Cookbook', desc: 'One big searchable page of Apex notes and snippets. Cmd+F is the whole UI.', href: '#', onclick: 'event.preventDefault(); openCookbook();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }) },
@@ -2682,6 +2709,56 @@
     other:      { label: 'Other',      bg: '#6B7A9922', fg: '#6B7A99' }
   };
   function medCatMeta(c) { return MED_CAT_META[c] || MED_CAT_META.other; }
+  // ===== APEX COOKBOOK (apex_cookbook table; single row id=1, one big text blob) =====
+  var cookbookContent = '';
+  function openCookbook() { showScreen('screen-cookbook'); fetchCookbook(); }
+  function fetchCookbook() {
+    fetch(SB_URL + '/rest/v1/apex_cookbook?id=eq.1&select=content,updated_at', { headers: H }).then(function(r) { return r.json(); }).then(function(rows) {
+      if (!Array.isArray(rows) || !rows.length) { document.getElementById('cookbookView').innerHTML = '<span class="cb-empty">Could not load the cookbook — run the anon RLS policy SQL for apex_cookbook in Supabase, then reload.</span>'; return; }
+      cookbookContent = rows[0].content || '';
+      renderCookbook(rows[0].updated_at);
+    }).catch(function() { document.getElementById('cookbookView').innerHTML = '<span class="cb-empty">Could not load.</span>'; });
+  }
+  function renderCookbook(updatedAt) {
+    var view = document.getElementById('cookbookView');
+    if (cookbookContent) { view.textContent = cookbookContent; }
+    else { view.innerHTML = '<span class="cb-empty">Nothing here yet. Hit Edit and paste your Apex cookbook — then Cmd+F finds anything in it.</span>'; }
+    var meta = document.getElementById('cookbookMeta');
+    var chars = cookbookContent.length;
+    meta.textContent = chars ? (chars.toLocaleString() + ' chars' + (updatedAt ? ' · updated ' + new Date(updatedAt).toLocaleDateString() : '')) : '';
+  }
+  function cookbookMode(editing) {
+    document.getElementById('cookbookView').style.display = editing ? 'none' : '';
+    document.getElementById('cookbookEditor').style.display = editing ? '' : 'none';
+    document.getElementById('cookbookEditBtn').style.display = editing ? 'none' : '';
+    document.getElementById('cookbookSaveBtn').style.display = editing ? '' : 'none';
+    document.getElementById('cookbookCancelBtn').style.display = editing ? '' : 'none';
+    document.getElementById('cookbookHomeBtn').style.display = editing ? 'none' : '';
+  }
+  function enterCookbookEdit() {
+    var ed = document.getElementById('cookbookEditor');
+    ed.value = cookbookContent;
+    cookbookMode(true);
+    ed.focus();
+  }
+  function cancelCookbookEdit() {
+    var ed = document.getElementById('cookbookEditor');
+    if (ed.value !== cookbookContent && !confirm('Discard your unsaved changes?')) return;
+    cookbookMode(false);
+  }
+  function saveCookbook() {
+    var val = document.getElementById('cookbookEditor').value;
+    fetch(SB_URL + '/rest/v1/apex_cookbook?id=eq.1', { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=representation' }), body: JSON.stringify({ content: val, updated_at: new Date().toISOString() }) })
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function(rows) {
+        if (!rows.length) { showToast('Saved nothing — check the apex_cookbook RLS policy'); return; }
+        cookbookContent = val;
+        cookbookMode(false);
+        renderCookbook(rows[0].updated_at);
+        showToast('Cookbook saved');
+      })
+      .catch(function() { showToast('Could not save'); });
+  }
   function openMedical() { showScreen('screen-medical'); fetchMedical(); }
   function fetchMedical() {
     fetch(SB_URL + '/rest/v1/medical?order=created_at.desc', { headers: H }).then(function(r) { if (!r.ok) throw new Error('load'); return r.json(); }).then(function(data) { allMedical = Array.isArray(data) ? data : []; renderMedical(); }).catch(function() { document.getElementById('medicalList').innerHTML = '<div class="board-empty">Could not load. If this is the first run, create the medical table in Supabase.</div>'; document.getElementById('medicalCount').textContent = ''; });
