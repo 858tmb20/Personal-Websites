@@ -632,6 +632,14 @@
   @media (max-width: 640px) { .li-prog input[type="range"] { width: 84px; } }
   .cookbook-pre { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.4rem 1.6rem; margin: 0; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; tab-size: 4; min-height: 55vh; }
   .cookbook-pre .cb-empty { color: var(--muted); font-family: inherit; font-style: italic; }
+  .cookbook-pre { white-space: pre-wrap; }
+  .cookbook-pre .cb-h { display: inline; font-family: inherit; font-weight: 800; font-size: 1.02rem; color: #047857; }
+  .cookbook-pre strong { font-weight: 800; }
+  .cookbook-pre .cb-inline { background: #04785714; color: #065F46; border-radius: 4px; padding: 0.05em 0.35em; font-family: inherit; font-size: 0.95em; }
+  .cb-code { background: #0B1E2D0D; border: 1px solid var(--rule); border-left: 3px solid #047857; border-radius: 6px; padding: 0.75rem 0.95rem; margin: 0.35rem 0; }
+  .cb-code pre { margin: 0; font-family: inherit; font-size: 0.97em; white-space: pre-wrap; word-break: break-word; }
+  .cb-help { margin-top: 0.6rem; font-size: 0.78rem; color: var(--muted); }
+  .cb-help code { background: var(--rule); border-radius: 4px; padding: 0.05em 0.3em; }
   .cookbook-editor { width: 100%; box-sizing: border-box; background: var(--card); color: inherit; border: 1px solid #047857; border-radius: var(--radius); padding: 1.4rem 1.6rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.6; tab-size: 4; min-height: 65vh; resize: vertical; outline: none; }
   .btn-done { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
   .btn-done:hover { border-color: #16A34A; color: #15803D; }
@@ -1056,7 +1064,8 @@
     </div>
   </header>
   <div class="board-wrap">
-    <pre class="cookbook-pre" id="cookbookView"><span class="loading">Loading...</span></pre>
+    <div class="cookbook-pre" id="cookbookView"><span class="loading">Loading...</span></div>
+    <div class="cb-help" id="cookbookHelp" style="display:none;">Formatting: <code>**bold**</code> &middot; <code>`inline code`</code> &middot; <code>```</code> on its own line before &amp; after a snippet = code block &middot; <code># Heading</code> at line start</div>
     <textarea class="cookbook-editor" id="cookbookEditor" style="display:none;" spellcheck="false" placeholder="Paste your Apex cookbook here — notes, snippets, gotchas. Plain text, as long as you want."></textarea>
   </div>
 </div>
@@ -2721,11 +2730,30 @@
   }
   function renderCookbook(updatedAt) {
     var view = document.getElementById('cookbookView');
-    if (cookbookContent) { view.textContent = cookbookContent; }
+    if (cookbookContent) { view.innerHTML = cbRender(cookbookContent); }
     else { view.innerHTML = '<span class="cb-empty">Nothing here yet. Hit Edit and paste your Apex cookbook — then Cmd+F finds anything in it.</span>'; }
     var meta = document.getElementById('cookbookMeta');
     var chars = cookbookContent.length;
     meta.textContent = chars ? (chars.toLocaleString() + ' chars' + (updatedAt ? ' · updated ' + new Date(updatedAt).toLocaleDateString() : '')) : '';
+  }
+  // Tiny formatter: **bold**, `inline`, ``` fenced blocks ```, # headings. HTML is escaped first.
+  function cbRender(raw) {
+    var parts = String(raw).split('```'), out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var t = esc(parts[i]);
+      if (i % 2 === 1) {
+        t = t.replace(/^[a-zA-Z]*\n/, '');
+        out.push('<div class="cb-code"><pre>' + t.replace(/\n$/, '') + '</pre></div>');
+      } else {
+        t = t.replace(/`([^`\n]+)`/g, '<code class="cb-inline">$1</code>');
+        t = t.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+        t = t.replace(/^#{1,3} ?(.+)$/gm, '<span class="cb-h">$1</span>');
+        if (i > 0) t = t.replace(/^\n/, '');
+        if (i < parts.length - 1) t = t.replace(/\n$/, '');
+        out.push(t);
+      }
+    }
+    return out.join('');
   }
   function cookbookMode(editing) {
     document.getElementById('cookbookView').style.display = editing ? 'none' : '';
@@ -2734,6 +2762,7 @@
     document.getElementById('cookbookSaveBtn').style.display = editing ? '' : 'none';
     document.getElementById('cookbookCancelBtn').style.display = editing ? '' : 'none';
     document.getElementById('cookbookHomeBtn').style.display = editing ? 'none' : '';
+    document.getElementById('cookbookHelp').style.display = editing ? '' : 'none';
   }
   function enterCookbookEdit() {
     var ed = document.getElementById('cookbookEditor');
