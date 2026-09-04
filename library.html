@@ -623,6 +623,13 @@
   .li-focus-badge { flex-shrink: 0; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; color: #15803D; background: #ECFDF5; border: 1px solid #16A34A; border-radius: 999px; padding: 0.15rem 0.5rem; }
   .learn-item.is-done { opacity: 0.55; }
   .learn-item.is-done .li-title { text-decoration: line-through; font-weight: 400; }
+  .li-prog { display: flex; align-items: center; gap: 0.45rem; flex: 0 0 auto; }
+  .li-prog input[type="range"] { -webkit-appearance: none; appearance: none; width: 130px; height: 6px; border-radius: 999px; background: var(--rule); outline: none; cursor: pointer; }
+  .li-prog input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #1F6FEB; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .li-prog input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #1F6FEB; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .li-pct { font-size: 0.72rem; font-weight: 700; color: var(--muted); min-width: 2.4em; text-align: right; font-variant-numeric: tabular-nums; }
+  .learn-item.is-done .li-prog { display: none; }
+  @media (max-width: 640px) { .li-prog input[type="range"] { width: 84px; } }
   .btn-done { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--muted); cursor: pointer; font-family: inherit; }
   .btn-done:hover { border-color: #16A34A; color: #15803D; }
   .btn-done.on { background: #ECFDF5; border-color: #16A34A; color: #15803D; }
@@ -2455,6 +2462,7 @@
       html += '<div class="learn-item' + (isDone ? ' is-done' : (isFocus ? ' is-focus' : (isNext ? ' is-upnext' : ''))) + '" draggable="true" data-lid="' + esc(x.id) + '">'
         + '<span class="li-grip" title="Drag to reorder — drop into a section to change its tag">&#x2630;</span>'
         + '<div class="li-title">' + esc(x.title) + '</div>'
+        + (isDone ? '' : learnProgHTML(x))
         + (isFocus ? '<span class="li-focus-badge">FOCUS</span>' : '') + (isNext ? '<span class="li-upnext-badge">UP NEXT</span>' : '') + (isDone ? '<span class="li-done-badge">DONE \u2713</span>' : '')
         + '<div class="li-acts">' + link + '' + (isDone ? '' : '<button class="btn-focus' + (isFocus ? ' on' : '') + '" data-lfocus="' + esc(x.id) + '" title="Focus = the up-to-4 things you\'re actively working">' + (isFocus ? 'Unfocus' : 'Focus') + '</button>') + (isDone || isFocus ? '' : '<button class="btn-upnext' + (isNext ? ' on' : '') + '" data-lnext="' + esc(x.id) + '" title="Up Next = queued to enter focus when a slot frees">' + (isNext ? 'Remove' : 'Up Next') + '</button>') + '<button class="btn-done' + (isDone ? ' on' : '') + '" data-ldone="' + esc(x.id) + '" title="Mark completed">' + (isDone ? 'Undo' : '\u2713 Done') + '</button><button class="btn-edit" data-ledit="' + esc(x.id) + '">Edit</button><button class="btn-delete" data-ldel="' + esc(x.id) + '">&#10005;</button></div>'
         + '</div>';
@@ -2466,7 +2474,34 @@
     document.querySelectorAll('[data-ldone]').forEach(function(b) { b.addEventListener('click', function() { toggleDone(this.getAttribute('data-ldone')); }); });
     document.querySelectorAll('[data-ledit]').forEach(function(b) { b.addEventListener('click', function() { openLearnModal(findLearn(this.getAttribute('data-ledit'))); }); });
     document.querySelectorAll('[data-ldel]').forEach(function(b) { b.addEventListener('click', function() { deleteLearn(this.getAttribute('data-ldel')); }); });
+    document.querySelectorAll('#learnList input[data-lpct]').forEach(function(sl) {
+      sl.addEventListener('input', function() { paintLearnProg(this); });
+      sl.addEventListener('change', function() { saveLearnPct(this.getAttribute('data-lpct'), parseInt(this.value, 10) || 0, this); });
+      // A drag on the slider must adjust progress, not reorder the row.
+      sl.addEventListener('mousedown', function(e) { e.stopPropagation(); this.closest('.learn-item').setAttribute('draggable', 'false'); });
+      sl.addEventListener('mouseup', function() { this.closest('.learn-item').setAttribute('draggable', 'true'); });
+      sl.addEventListener('touchstart', function(e) { e.stopPropagation(); this.closest('.learn-item').setAttribute('draggable', 'false'); }, { passive: true });
+      sl.addEventListener('touchend', function() { this.closest('.learn-item').setAttribute('draggable', 'true'); });
+    });
     wireLearnDrag();
+  }
+  function learnPct(x) { var v = parseInt(x && x.pct, 10); return (isNaN(v) || v < 0) ? 0 : (v > 100 ? 100 : v); }
+  function learnProgHTML(x) {
+    var p = learnPct(x);
+    return '<div class="li-prog" title="Progress — drag to adjust"><input type="range" min="0" max="100" step="5" value="' + p + '" data-lpct="' + esc(x.id) + '" style="background: linear-gradient(to right, #1F6FEB ' + p + '%, var(--rule) ' + p + '%);"><span class="li-pct">' + p + '%</span></div>';
+  }
+  function paintLearnProg(sl) {
+    var p = parseInt(sl.value, 10) || 0;
+    sl.style.background = 'linear-gradient(to right, #1F6FEB ' + p + '%, var(--rule) ' + p + '%)';
+    var lbl = sl.parentElement.querySelector('.li-pct'); if (lbl) lbl.textContent = p + '%';
+  }
+  function saveLearnPct(id, v, sl) {
+    var item = findLearn(id); if (!item) return;
+    var prev = learnPct(item);
+    item.pct = v;
+    fetch(SB_URL + '/rest/v1/learning_items?id=eq.' + id, { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ pct: v }) })
+      .then(function(res) { if (!res.ok) throw new Error('save'); })
+      .catch(function() { item.pct = prev; if (sl) { sl.value = prev; paintLearnProg(sl); } showToast('Could not save — is the pct column added in Supabase?'); });
   }
   function learnRank(x) { return x.priority === 'done' ? 3 : (x.priority === 'focus' ? 0 : (x.focused ? 1 : 2)); }
   // Order within a tier: the progress column (repurposed as sort order); items never
