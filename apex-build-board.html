@@ -204,7 +204,12 @@ const TIERS = [
       { id: "t4-3", lvl: "se2", title: "Named Credential Refactor", desc: "Take scenario above and move the endpoint behind a Named Credential + External Credential. No hardcoded URLs left anywhere.", tags: ["Named Credentials", "security"] },
       { id: "t4-4", lvl: "se1", title: "Inbound Lead API", desc: "@RestResource endpoint that accepts a JSON POST and creates a Lead. Return 201 with the new Id on success, 400 with a useful error body on bad input. Test it with curl or Postman against your dev org.", tags: ["Apex REST", "status codes"] },
       { id: "t4-5", lvl: "se1", title: "Nested JSON Parser", desc: "Call the GitHub public API for a repo (api.github.com/repos/...) and parse the deeply nested response into typed wrapper classes. Store 4-5 fields on a record. Practice null-safe navigation.", tags: ["wrappers", "deserialization"] },
-      { id: "t4-6", lvl: "se2", title: "Retry & Error Log", desc: "Create a Callout_Log__c object. Wrap your callouts in try/catch, log every failure with request/response details, and build a retry batch that re-attempts failed logs up to 3 times.", tags: ["error handling", "retry pattern"] }
+      { id: "t4-6", lvl: "se2", title: "Retry & Error Log", desc: "Create a Callout_Log__c object. Wrap your callouts in try/catch, log every failure with request/response details, and build a retry batch that re-attempts failed logs up to 3 times.", tags: ["error handling", "retry pattern"] },
+      { id: "t4-7", lvl: "se1", title: "HW: Payment Link GET (wk1)", desc: "Igor's mock endpoint: GET https://735ef563-176d-431c-85ce-2cc07056ef03.mock.pstmn.io/payments/link — assert status 200, then parse the transaction's IP address out of the JSON. Post the solution (plus the wk1 theory answers: HTTP request/response parts, top 2 payload formats, JSON in your own words) in the weekly chat.", tags: ["cohort wk1", "GET", "JSON parsing"] },
+      { id: "t4-8", lvl: "se1", title: "HW: Stripe Create Customer (wk2)", desc: "Apex method takes a Contact and POSTs it to Stripe /v1/customers in your sandbox — required fields plus at least 2 extras. Heads up: Stripe speaks application/x-www-form-urlencoded, not JSON. Run it a few times and see the customers appear on the dashboard.", tags: ["cohort wk2", "POST", "Stripe"] },
+      { id: "t4-9", lvl: "se2", title: "HW: Stripe Upsert by Email (wk2 opt)", desc: "Method takes a List<Contact> (assume ≤100): for each, search Stripe for a customer with that email — update if found, create if not. Custom exceptions for an empty list and missing required fields.", tags: ["cohort wk2", "upsert", "custom exceptions"] },
+      { id: "t4-10", lvl: "se2", title: "HW: Contact → Stripe on Create (wk3)", desc: "Project 1: a new Contact in Salesforce creates the matching customer in Stripe. Bonus: restructure with the trigger framework and move everything callout-related into its own layer (handler → Queueable → client class).", tags: ["cohort wk3", "trigger + callout"] },
+      { id: "t4-11", lvl: "se2", title: "HW: BJJ Trial Button (wk3 opt)", desc: "Project 2, the gym: a button on the Contact record page that emails the person a personalized message containing a Stripe subscription link for the membership product. Button + Apex + email + Stripe, end to end.", tags: ["cohort wk3", "quick action", "email"] }
     ]
   },
   {
@@ -214,7 +219,8 @@ const TIERS = [
       { id: "t5-1", lvl: "se1", title: "Test Data Factory", desc: "One reusable TestDataFactory class (makeAccounts, makeContacts, makeOpps...) — then refactor every test you've written so far to use it. No inline test data anywhere.", tags: ["@TestSetup", "factory pattern"] },
       { id: "t5-2", lvl: "se1", title: "Mock the Callout", desc: "HttpCalloutMock implementations for your integration scenarios — one success mock, one 500-error mock. Assert your error logging actually fires on failure.", tags: ["Test.setMock", "negative tests"] },
       { id: "t5-3", lvl: "se1", title: "Async Test Coverage", desc: "Use Test.startTest/stopTest to force your batch, queueable, and scheduled jobs to execute inside tests. Assert results, not just 'it ran'.", tags: ["startTest", "async testing"] },
-      { id: "t5-4", lvl: "se1", title: "Bulk Proof", desc: "For your three favorite triggers: a test that pushes 251 records through and asserts SOQL/DML limits stay sane. Use Limits.getQueries() in your assertions.", tags: ["governor limits", "Limits class"] }
+      { id: "t5-4", lvl: "se1", title: "Bulk Proof", desc: "For your three favorite triggers: a test that pushes 251 records through and asserts SOQL/DML limits stay sane. Use Limits.getQueries() in your assertions.", tags: ["governor limits", "Limits class"] },
+      { id: "t5-5", lvl: "se1", title: "HW: Test the Stripe Stack (wk4)", desc: "Tests for every Stripe integration class — success mock, error mock, and the upsert paths. Trigger logic can sit this one out. Aim past 75% with asserts that mean something.", tags: ["cohort wk4", "HttpCalloutMock"] }
     ]
   },
   {
@@ -223,7 +229,8 @@ const TIERS = [
     items: [
       { id: "t6-1", lvl: "se2", title: "Partner Intake Pipeline", desc: "Inbound REST endpoint receives a partner org as JSON and creates Account + Contact + Opportunity in one transaction — all or nothing, with Database.setSavepoint/rollback on any failure.", tags: ["Apex REST", "savepoints", "transactions"] },
       { id: "t6-2", lvl: "se2", title: "Nightly Data Quality Audit", desc: "Batch that scans Accounts for missing website/phone and near-duplicate names, writes findings to an Audit_Result__c object, and emails a digest. Basically your day job, automated.", tags: ["batch", "data quality", "email digest"] },
-      { id: "t6-3", lvl: "se2", title: "Escalation Command Center", desc: "The full stack: escalated Case publishes a platform event → subscriber enqueues a Queueable → Queueable calls an external webhook (webhook.site is free) and logs the result. Mocked tests included.", tags: ["events", "queueable", "callout", "everything"] }
+      { id: "t6-3", lvl: "se2", title: "Escalation Command Center", desc: "The full stack: escalated Case publishes a platform event → subscriber enqueues a Queueable → Queueable calls an external webhook (webhook.site is free) and logs the result. Mocked tests included.", tags: ["events", "queueable", "callout", "everything"] },
+      { id: "t6-4", lvl: "se2", title: "HW: Iron Guard Invoices (capstone)", desc: "Custom Invoice + Invoice Line Item objects; a button fires the integration: create invoice + lines in Stripe, grab the payment link, email it to the student. A Stripe webhook flips the Salesforce Invoice to Paid the moment they pay. Extra: handle created/sent/paid/voided. Tests >75%.", tags: ["cohort capstone", "webhook", "Stripe"] }
     ]
   }
   ,
@@ -273,7 +280,8 @@ const TIERS = [
       { id: "t10-2", lvl: "se1", title: "Sharing Modes Proof", desc: "One class each: with sharing, without sharing, inherited sharing. Prove the record-visibility difference with System.runAs tests. Default everything with sharing; justify any without.", tags: ["with sharing", "runAs"] },
       { id: "t10-3", lvl: "se1", title: "Security Review Drill", desc: "Review two of your earlier triggers like a PR reviewer: CRUD/FLS checks, sharing, SOQL injection (bind variables, escapeSingleQuotes). Write findings as review comments.", tags: ["code review", "SOQL injection"] },
       { id: "t10-4", lvl: "se2", title: "OAuth End-to-End", desc: "Connected App + External Credential + Named Credential against a real API. Draw the token hops: who authenticates, where the token lives, what refreshes it.", tags: ["Connected Apps", "OAuth", "External Credentials"] },
-      { id: "t10-5", lvl: "se2", title: "Certificates & Auth Providers", desc: "Create a self-signed certificate, explain where the JWT bearer flow uses it, and configure an Auth Provider. Credentials out, Apps in.", tags: ["certificates", "JWT", "auth providers"] }
+      { id: "t10-5", lvl: "se2", title: "Certificates & Auth Providers", desc: "Create a self-signed certificate, explain where the JWT bearer flow uses it, and configure an Auth Provider. Credentials out, Apps in.", tags: ["certificates", "JWT", "auth providers"] },
+      { id: "t10-6", lvl: "se1", title: "HW: Token Amnesty (wk5)", desc: "Sweep the org: every integration token and secret moves into Named/External Credentials. Zero hardcoded tokens left anywhere — Apex, custom settings, or labels.", tags: ["cohort wk5", "named credentials"] }
     ]
   },
   {
@@ -297,7 +305,9 @@ const TIERS = [
       { id: "t12-3", lvl: "se2", title: "SOAP Consumer", desc: "Generate Apex from a public WSDL (or hand-build one SOAP envelope callout). Feel the pain, appreciate REST, and be able to say why WSDL still shows up in enterprise work.", tags: ["SOAP", "WSDL"] },
       { id: "t12-4", lvl: "se1", title: "Inbound Email Service", desc: "An Email Service with a handler class that parses inbound mail and creates a record from it, with a test using a fake InboundEmail.", tags: ["email services", "InboundEmail"] },
       { id: "t12-5", lvl: "adv", title: "Outbound Message", desc: "Point-and-click outbound message to webhook.site with Remote Site Settings. Contrast with an Apex callout: no code, but no retry control either.", tags: ["outbound messages", "remote site settings"] },
-      { id: "t12-6", lvl: "se2", title: "Publish Behavior Proof", desc: "The interview question that got you: publish one Platform Event After Commit and one Publish Immediately, force a rollback, and prove which event survived. Now you own that answer forever.", tags: ["Publish After Commit", "Publish Immediately", "rollback"] }
+      { id: "t12-6", lvl: "se2", title: "Publish Behavior Proof", desc: "The interview question that got you: publish one Platform Event After Commit and one Publish Immediately, force a rollback, and prove which event survived. Now you own that answer forever.", tags: ["Publish After Commit", "Publish Immediately", "rollback"] },
+      { id: "t12-7", lvl: "se2", title: "HW: Org-to-Org Lead Sync (wk5 opt)", desc: "Spin up Org A and Org B. A new Lead in Org A with annual revenue over $10M gets sent to Org B — OAuth 2.0, Named Credentials, and an External Client App doing the auth properly.", tags: ["cohort wk5", "OAuth", "org-to-org"] },
+      { id: "t12-8", lvl: "se2", title: "HW: Stripe Webhook Signature (wk7 opt)", desc: "Add Stripe-Signature verification to your webhook receiver: HMAC the raw payload with the endpoint secret, reject mismatches with a 401 (cookbook #31). Stripe's API docs have the exact header format.", tags: ["cohort wk7", "HMAC", "signing"] }
     ]
   },
   {
@@ -309,7 +319,8 @@ const TIERS = [
       { id: "t13-3", lvl: "se2", title: "Break It, Diagnose It", desc: "Sabotage your retry batch (bad endpoint, bad field), then diagnose using ONLY Apex Jobs, AsyncApexJob queries, and your Callout_Log__c records. No new System.debug allowed \u2014 this is the prod-debugging answer the panel wanted.", tags: ["AsyncApexJob", "Apex Jobs", "prod debugging"] },
       { id: "t13-4", lvl: "adv", title: "Automation Conflict Hunt", desc: "Make a flow and a trigger fight over the same field, then find the conflict in a debug log by reading order of execution. Walk the Vans while you do it.", tags: ["order of execution", "automation conflicts"] },
       { id: "t13-5", lvl: "se2", title: "Cross-Transaction Trace", desc: "Follow one record through trigger \u2192 platform event \u2192 Queueable \u2192 callout, across separate transactions, and write the timeline purely from logs and job records. This is 'trace failures across async handoffs' from the JD, verbatim.", tags: ["cross-transaction", "async handoffs"] },
-      { id: "t13-6", lvl: "se2", title: "Event Log Files Peek", desc: "Pull Event Log Files via the API (or Event Monitoring UI) and find your own logins and API calls in them. This is the 'Analyze Event Logs' cell of the SE II problem-solving row \u2014 know what lives there vs debug logs.", tags: ["Event Log Files", "event monitoring"] }
+      { id: "t13-6", lvl: "se2", title: "Event Log Files Peek", desc: "Pull Event Log Files via the API (or Event Monitoring UI) and find your own logins and API calls in them. This is the 'Analyze Event Logs' cell of the SE II problem-solving row \u2014 know what lives there vs debug logs.", tags: ["Event Log Files", "event monitoring"] },
+      { id: "t13-7", lvl: "se2", title: "HW: Roll Your Own Logger, Then Nebula (wk4 opt)", desc: "Build a mini logging framework (platform event → log record, cookbook #27) and wire it into 3 places in the org. Then install Nebula Logger and replace your homegrown calls with it — feel what the package buys you.", tags: ["cohort wk4", "logging", "Nebula"] }
     ]
   },
   {
