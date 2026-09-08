@@ -344,14 +344,28 @@ const TIERS = [
       { id: "t15-5", lvl: "sr", title: "Pipeline From Zero", desc: "Design doc first, then build: a GitHub Actions pipeline for a fresh repo — validation gates, test thresholds, environment promotion, rollback plan. You RUN one daily; a Senior can DESIGN one.", tags: ["CI/CD design", "quality gates", "release strategy"] },
       { id: "t15-6", lvl: "sr", title: "Limit Forecasting Monitor", desc: "Scheduled job snapshots org limits (API calls, storage, async usage) via the Limits API into a custom object, with a dashboard showing trend lines. Governance limit forecasting made visible.", tags: ["Limits API", "monitoring", "governance"] },
       { id: "t15-7", lvl: "sr", title: "Component Library Seed", desc: "Extract your LWCs into a shared base-component pattern: one design-token CSS file, a base card component, and two consumers built on it. Write the one-paragraph 'when to add vs reuse' rule.", tags: ["LWC library", "design system"] },
-      { id: "t15-8", lvl: "sr", title: "The RCA Habit", desc: "Write the one-page root-cause doc for your real Bitly fix: timeline, the three layers peeled (token, domain, formula checkbox), the fix, and prevention. Seniors don't just solve incidents — they document them. Repeat for every future incident.", tags: ["RCA", "documentation ownership"] }
+      { id: "t15-8", lvl: "sr", title: "The RCA Habit", desc: "Write the one-page root-cause doc for your real Bitly fix: timeline, the three layers peeled (token, domain, formula checkbox), the fix, and prevention. Seniors don't just solve incidents — they document them. Repeat for every future incident.", tags: ["RCA", "documentation ownership"] },
+      { id: "t15-9", lvl: "sr", title: "Event Monitoring Security Review", desc: "Pull Event Log Files (API or Event Monitoring UI) and write the security review: who logged in from where, which API clients touch what, and one Shield Platform Encryption recommendation — encrypt what, at what cost, and what breaks (filters, formulas).", tags: ["event monitoring", "Shield", "security architecture"] },
+      { id: "t15-10", lvl: "sr", title: "Order of Execution by Design", desc: "Take one object with a trigger + flow + validation rule and document its full save order. Then redesign it: move logic so nothing fights (before-save flow for defaults, after-save async for side effects). The doc IS the deliverable — OoE as a design input, not trivia.", tags: ["order of execution", "system design"] }
+    ]
+  },
+  {
+    name: "Staff Track",
+    goal: "Governance artifacts: the docs, audits, and strategies a Staff engineer owns. Every deliverable here is written, defended, and reusable by the team.",
+    items: [
+      { id: "t16-1", lvl: "staff", title: "Automation Governance Doc", desc: "The decision framework: when logic belongs in sync Apex, async, Platform Events, or external middleware (Kafka) — plus a tech-debt register of your org's legacy automation (workflow rules, old process builders) with a retirement order and why.", tags: ["governance", "tech debt", "middleware boundary"] },
+      { id: "t16-2", lvl: "staff", title: "Data Contract", desc: "Write the enterprise data contract for one integration you own: which system masters each field, allowed values, update cadence, conflict resolution, and what consumers may rely on. Version it like an API.", tags: ["data governance", "contracts"] },
+      { id: "t16-3", lvl: "staff", title: "FERPA Posture Audit", desc: "Org-wide security posture review with a compliance lens: where student PII lives, who can see it (profiles/perm sets/sharing), where it leaves the org (integrations, reports, exports), and the remediation list ranked by exposure. Very WGU.", tags: ["FERPA", "compliance", "audit"] },
+      { id: "t16-4", lvl: "staff", title: "Front-End Standards Memo", desc: "The standards doc your component library (t15-7) enforces: naming, tokens, accessibility floor, when to build vs reuse — plus the VF/Aura → LWC migration strategy: inventory, ranking by risk/value, and the order you'd migrate.", tags: ["standards", "migration strategy"] },
+      { id: "t16-5", lvl: "staff", title: "API Strategy & Vendor Scorecard", desc: "Two artifacts: (1) the org's API strategy — versioning, error contracts, who may build new endpoints, REST vs events decision rule; (2) a vendor-evaluation scorecard and fill it in for a real choice (e.g. Nebula vs homegrown logging, or two ETL tools).", tags: ["API strategy", "vendor eval"] },
+      { id: "t16-6", lvl: "staff", title: "Org Health Scorecard", desc: "Run the org assessment: test coverage and meaningfulness, limit headroom (from your t15-6 monitor), tech-debt inventory, release cadence, security posture — scored red/amber/green with a one-page remediation plan. The doc a new Staff engineer writes in month one.", tags: ["org assessment", "health scoring", "remediation"] }
     ]
   }
 ];
 
 const ALL_ITEMS = TIERS.flatMap(function(t) { return t.items; });
 
-const LVL = { admin: "Admin", adv: "Adv Admin", se1: "SE I", se2: "SE II", sr: "Senior" };
+const LVL = { admin: "Admin", adv: "Adv Admin", se1: "SE I", se2: "SE II", sr: "Senior", staff: "Staff" };
 
 const STATUS = {
   not_started: { label: "Not started", next: "in_progress" },
