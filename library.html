@@ -1798,7 +1798,6 @@
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }) },
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#7C3AED', icon: '&#129309;', name: 'Handoff', desc: 'The handoff guide for the team — docs, links, and notes, grouped by topic.', href: '#', onclick: 'event.preventDefault(); openHandoff();' }) },
-      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#047857', icon: '&#128211;', name: 'Apex Cookbook', desc: 'One big searchable page of Apex notes and snippets. Cmd+F is the whole UI.', href: '#', onclick: 'event.preventDefault(); openCookbook();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }) },
@@ -1820,6 +1819,17 @@
       if (!groups[name]) { groups[name] = { color: colorForCategory(l.category_id), cards: [] }; order.push(name); }
       groups[name].cards.push(toolRowHTML(l));
     });
+    // Apex Cookbook is a builtin, but it lives with its Salesforce Development friends.
+    var COOKBOOK_ROW = '<a class="tool-row" href="#" onclick="event.preventDefault(); openCookbook();" style="--tc:#047857;--tc-soft:#04785722;">' +
+        '<span class="tool-chip" style="background:#04785722;color:#047857;">&#128211;</span>' +
+        '<span class="tr-txt"><span class="tr-name">Apex Cookbook</span><span class="tr-sub">One big searchable page of Apex notes and snippets</span></span>' +
+        '<span class="tr-arrow">&#8599;</span>' +
+      '</a>';
+    var SFDEV = 'Salesforce Development';
+    if (inScope('work') && (!homeQ || COOKBOOK_ROW.toLowerCase().indexOf(homeQ) > -1)) {
+      if (!groups[SFDEV]) { groups[SFDEV] = { color: '#047857', cards: [] }; order.push(SFDEV); }
+      groups[SFDEV].cards.unshift(COOKBOOK_ROW);
+    }
     order.sort(function(a, b) { return groups[b].cards.length - groups[a].cards.length; });
 
     var html = '';
