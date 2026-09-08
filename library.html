@@ -781,7 +781,7 @@
         </div>
       </div>
     </div>
-    <input type="text" class="search-bar" id="searchInput" placeholder="Search by title or URL...  (press / to jump here)" oninput="applyFilters()">
+    <input type="text" class="search-bar" id="searchInput" placeholder="Search your tools...  (press / to jump here)" oninput="applyFilters()">
     <div class="count" id="count"></div>
     <div id="linksList"><div class="loading">Loading...</div></div>
   </div>
@@ -1353,7 +1353,7 @@
     if (fr) fr.style.display = (currentView === 'dash' || currentView === 'home') ? 'none' : 'block';
     var sb = document.getElementById('searchInput');
     var ct = document.getElementById('count');
-    if (sb) sb.style.display = (currentView === 'home') ? 'none' : 'block';
+    if (sb) sb.style.display = 'block';
     if (ct) ct.style.display = (currentView === 'home') ? 'none' : 'block';
     var mainEl = document.querySelector('#screen-library .main');
     if (mainEl) mainEl.classList.toggle('wide', currentView === 'home');
@@ -1606,7 +1606,7 @@
     var q = document.getElementById('searchInput').value.toLowerCase();
     var filtered = allLinks.slice();
     if (activeTabId !== 'All' && currentView !== 'dash') { filtered = filtered.filter(function(l) { return l.category_id === activeTabId; }); }
-    if (q) filtered = filtered.filter(function(l) { return (l.title||'').toLowerCase().indexOf(q) > -1 || (l.url||'').toLowerCase().indexOf(q) > -1; });
+    if (q) filtered = filtered.filter(function(l) { return (l.title||'').toLowerCase().indexOf(q) > -1 || (l.url||'').toLowerCase().indexOf(q) > -1 || (l.description||'').toLowerCase().indexOf(q) > -1; });
     renderLinks(filtered);
   }
 
@@ -1642,8 +1642,8 @@
   function ownerFirstName() { return 'Trent'; }
 
   function renderHome(allLinksArg) {
-    var links = allLinks.slice();
-    var total = links.length;
+    var links = (allLinksArg || allLinks).slice();
+    var total = allLinks.length;
 
     var greet = '<div class="home-greet">' + greetingWord() + ', <span class="acc">' + esc(ownerFirstName()) + '.</span></div>';
     var statusLine = '<div class="home-status-row">' +
@@ -1764,7 +1764,7 @@
   // that shows only the first TOOLS_PREVIEW_COUNT cards unless expanded.
   function toolsSection(key, title, color, cardArr) {
     if (!cardArr.length) return '';
-    var expanded = !!toolsExpanded[key];
+    var expanded = !!toolsExpanded[key] || !!(document.getElementById('searchInput').value || '').trim();
     var total = cardArr.length;
     var hasMore = total > TOOLS_PREVIEW_COUNT;
     var shown = (expanded || !hasMore) ? cardArr : cardArr.slice(0, TOOLS_PREVIEW_COUNT);
@@ -1808,8 +1808,9 @@
     ];
 
     // GROUPED LAYOUT (2026-09-01): builtin apps first, then one section per link category.
+    var homeQ = (document.getElementById('searchInput').value || '').toLowerCase();
     var toolCards = [];
-    builtins.forEach(function(b) { if (inScope(b.scope)) toolCards.push(b.card); });
+    builtins.forEach(function(b) { if (inScope(b.scope) && (!homeQ || b.card.toLowerCase().indexOf(homeQ) > -1)) toolCards.push(b.card); });
 
     var groups = {};
     var order = [];
