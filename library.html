@@ -424,27 +424,10 @@
   .blk-reason::placeholder { color: var(--muted-soft); }
   /* ===== END BLOCKED INDICATOR ===== */
 
-  /* PLANNER */
-  .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; align-items: start; }
-  @media (max-width: 1100px) { .planner-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .planner-grid { grid-template-columns: 1fr; } }
-  .pday { background: var(--card); border: 1px solid var(--rule); border-radius: 11px; padding: 0.85rem; min-height: 180px; display: flex; flex-direction: column; }
-  .pday.is-today { border-color: var(--link); box-shadow: 0 0 0 2px rgba(31,111,235,0.15); }
-  .pday.is-weekend { background: #FBFCFE; }
-  .pday-head { display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 0.7rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--rule-soft); }
-  .pday-num { font-size: 1.25rem; font-weight: 800; color: var(--ink); line-height: 1; }
-  .pday.is-today .pday-num { color: var(--link); }
-  .pday-dow { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-  .pday-items { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; }
-  .pitem { position: relative; background: var(--bg); border-radius: 7px; padding: 0.5rem 0.6rem; padding-right: 1.6rem; cursor: pointer; transition: background 0.12s; }
-  .pitem:hover { background: #E9F0FD; }
-  .pitem-time { font-size: 0.68rem; font-weight: 700; color: var(--link); margin-bottom: 0.1rem; }
-  .pitem-title { font-size: 0.78rem; color: var(--ink); line-height: 1.3; word-break: break-word; }
-  .pitem-del { position: absolute; top: 0.35rem; right: 0.35rem; width: 18px; height: 18px; padding: 0; border: none; background: none; color: var(--muted-soft); font-size: 0.7rem; cursor: pointer; line-height: 1; opacity: 0; border-radius: 4px; }
-  .pitem:hover .pitem-del { opacity: 1; }
-  .pitem-del:hover { color: var(--danger); }
-  .pday-add { margin-top: 0.5rem; padding: 0.4rem; background: none; border: 1px dashed var(--rule); border-radius: 6px; color: var(--muted); font-size: 0.74rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.12s; }
-  .pday-add:hover { border-color: var(--link); color: var(--link); }
+  /* SCRATCH PAD */
+  .scratch-editor { width: 100%; box-sizing: border-box; background: var(--card); color: inherit; border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.4rem 1.6rem; font-family: inherit; font-size: 0.92rem; line-height: 1.6; min-height: 65vh; resize: vertical; outline: none; transition: border-color 0.12s, box-shadow 0.12s; }
+  .scratch-editor:focus { border-color: #DB2777; box-shadow: 0 0 0 3px rgba(219,39,119,0.1); }
+  .scratch-editor:disabled { opacity: 0.6; }
 
   /* ===== TO-DO / NOTES ===== */
   .todo-add { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
@@ -588,13 +571,6 @@
   .kt-flowchart { background: #EEEDFE; color: #534AB7; }
   .kt-howto { background: #E7F6EC; color: #15803D; }
   .kt-cat { background: #F1EBFC; color: #6D28D9; }
-  .kt-c0 { background: #E6F1FB; color: #185FA5; }
-  .kt-c1 { background: #EEEDFE; color: #534AB7; }
-  .kt-c2 { background: #E7F6EC; color: #15803D; }
-  .kt-c3 { background: #FDF0E6; color: #B45309; }
-  .kt-c4 { background: #FBEAF1; color: #BE185D; }
-  .kt-c5 { background: #E6F7F5; color: #0F766E; }
-  .kt-cgen { background: #EEF1F5; color: #55647A; }
   @media (max-width: 720px) {
     .kb-table, .kb-table tbody, .kb-table tr, .kb-table td { display: block; width: 100%; }
     .kb-table thead { display: none; }
@@ -727,7 +703,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openLearn();"><span class="tnl-ico" style="background:#EA580C22;color:#EA580C;">&#127891;</span><span class="tnl-text">Learning Tracker<span class="tnl-sub">What to learn &amp; focus on</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#0891B222;color:#0891B2;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
-            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openHandoff();"><span class="tnl-ico" style="background:#7C3AED22;color:#7C3AED;">&#129309;</span><span class="tnl-text">Handoff<span class="tnl-sub">Everything the team needs</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openScratch();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128221;</span><span class="tnl-text">Scratch Pad<span class="tnl-sub">Type anything &mdash; autosaves</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openCookbook();"><span class="tnl-ico" style="background:#04785722;color:#047857;">&#128211;</span><span class="tnl-text">Apex Cookbook<span class="tnl-sub">Your Apex notes &mdash; Cmd+F it</span></span></a>
             <a class="topnav-link" href="job-description.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" style="background:#4F46E522;color:#4F46E5;">&#128203;</span><span class="tnl-text">Job Description<span class="tnl-sub">Your role at a glance</span></span></a>
           </div>
@@ -739,7 +715,7 @@
           <div class="topnav-menu" id="menuPersonal">
             <a class="topnav-link" onclick="filterHome('personal')"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#9783;</span><span class="tnl-text">All Personal Tools<span class="tnl-sub">Everything tagged Personal</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" style="background:#16A34A22;color:#16A34A;">&#9745;</span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
-            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openPlanner();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128197;</span><span class="tnl-text">Planner<span class="tnl-sub">Plan your week</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openScratch();"><span class="tnl-ico" style="background:#DB277722;color:#DB2777;">&#128221;</span><span class="tnl-text">Scratch Pad<span class="tnl-sub">Type anything &mdash; autosaves</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openMedical();"><span class="tnl-ico" style="background:#BE123C22;color:#BE123C;">&#128138;</span><span class="tnl-text">Medical Info<span class="tnl-sub">Meds, conditions &amp; contacts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" style="background:#F59E0B22;color:#B45309;">&#128161;</span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" style="background:#9333EA22;color:#9333EA;">&#128196;</span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
@@ -915,45 +891,21 @@
   </div>
 </div>
 
-<!-- HANDOFF SCREEN -->
-<div class="screen" id="screen-handoff">
+<!-- SCRATCH PAD SCREEN -->
+<div class="screen" id="screen-scratch">
   <header>
     <div class="header-left">
       <div class="header-brand">
-        <h1>Handoff</h1>
-        <p>The handoff guide for the team &mdash; everything they need, grouped by topic</p>
+        <h1>Scratch Pad</h1>
+        <p id="scratchStatus">Loading...</p>
       </div>
     </div>
     <div class="header-right">
-      <button class="btn-add" onclick="openHandoffModal(null)">+ Add Entry</button>
       <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
     </div>
   </header>
   <div class="board-wrap">
-    <div class="todo-sort-row" style="margin-bottom:0.85rem;">
-      <span class="todo-sort-label">Show:</span>
-      <div class="view-toggle" id="handoffFilterRow"><button class="view-btn active">All</button></div>
-    </div>
-    <input type="text" class="search-bar" id="handoffSearchInput" placeholder="Search by title or note..." oninput="renderHandoff()">
-    <div class="count" id="handoffCount"></div>
-    <div id="handoffList"><div class="loading">Loading...</div></div>
-  </div>
-</div>
-
-<!-- HANDOFF MODAL -->
-<div class="modal-overlay" id="handoffModalOverlay">
-  <div class="modal">
-    <h2 id="handoffModalTitle">Add Entry</h2>
-    <input type="hidden" id="handoffEditId" value="">
-    <div class="field"><label>Title</label><input type="text" id="handoffTitleInput" placeholder="e.g. Deployment process guide, or Vendor contacts list" /></div>
-    <div class="field"><label>Category <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional &mdash; groups entries, e.g. Jira, Salesforce, Processes)</span></label><input type="text" id="handoffCatInput" list="handoffCatList" placeholder="e.g. Salesforce" /><datalist id="handoffCatList"></datalist></div>
-    <div class="field"><label>Link <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(OneDrive or any URL)</span></label><input type="text" id="handoffUrlInput" placeholder="https://wgu-my.sharepoint.com/..." /></div>
-    <div class="field"><label>Note <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><textarea id="handoffNoteInput" placeholder="What this is, why it matters, anything the team should know..." style="min-height:100px;"></textarea></div>
-    <div class="field"><label>Attach file <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="file" id="handoffFileInput" /><div id="handoffFileCurrent" style="font-size:0.78rem;color:var(--muted);margin-top:0.35rem;"></div></div>
-    <div class="modal-actions">
-      <button class="btn-save" onclick="saveHandoff()">Save</button>
-      <button class="btn-cancel" onclick="closeHandoffModal()">Cancel</button>
-    </div>
+    <textarea class="scratch-editor" id="scratchEditor" spellcheck="true" placeholder="Type anything. It saves on its own." oninput="scratchInput()" onblur="saveScratch()"></textarea>
   </div>
 </div>
 
@@ -1100,44 +1052,6 @@
     <div class="modal-actions">
       <button class="btn-save" onclick="saveMedical()">Save</button>
       <button class="btn-cancel" onclick="closeMedicalModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- PLANNER SCREEN -->
-<div class="screen" id="screen-planner">
-  <header>
-    <div class="header-left">
-      <div class="header-brand">
-        <h1 id="plannerMonthLabel">Planner</h1>
-        <p id="plannerWeekLabel"></p>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="view-toggle">
-        <button class="view-btn" onclick="plannerShift(-1)" title="Previous week">&larr;</button>
-        <button class="view-btn" onclick="plannerToday()" title="This week">Today</button>
-        <button class="view-btn" onclick="plannerShift(1)" title="Next week">&rarr;</button>
-      </div>
-      <button class="btn-signout" onclick="setView('home'); showScreen('screen-library');">&#8962; Home</button>
-    </div>
-  </header>
-  <div class="board-wrap">
-    <div id="plannerGrid"><div class="loading">Loading...</div></div>
-  </div>
-</div>
-
-<!-- PLANNER ITEM MODAL -->
-<div class="modal-overlay" id="planModalOverlay">
-  <div class="modal">
-    <h2 id="planModalTitle">Add to Planner</h2>
-    <input type="hidden" id="planEditId" value="">
-    <input type="hidden" id="planDate" value="">
-    <div class="field"><label id="planDateLabel">Item</label><input type="text" id="planTitleInput" placeholder="e.g. Volleyball at the gym" /></div>
-    <div class="field"><label>Time <span style="text-transform:none;font-weight:400;color:var(--muted-soft);">(optional)</span></label><input type="time" id="planTimeInput" /></div>
-    <div class="modal-actions">
-      <button class="btn-save" onclick="savePlan()">Save</button>
-      <button class="btn-cancel" onclick="closePlanModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1797,10 +1711,9 @@
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#16A34A', icon: '&#9745;', name: 'To-Do & Notes', desc: 'Quick checklist. Jot things down and check them off.', href: '#', onclick: 'event.preventDefault(); openTodo();' }) },
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#0891B2', icon: '&#128196;', name: 'Docs & Guides', desc: 'Docs, links, specs, and how-to guides, all in one place.', href: '#', onclick: 'event.preventDefault(); openKb();' }) },
       { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#B45309', icon: '&#128161;', name: 'Idea Tracker', desc: 'Catch shower thoughts. Jot an idea now, triage it into stages later.', href: '#', onclick: 'event.preventDefault(); openIdeas();' }) },
-      { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#7C3AED', icon: '&#129309;', name: 'Handoff', desc: 'The handoff guide for the team — docs, links, and notes, grouped by topic.', href: '#', onclick: 'event.preventDefault(); openHandoff();' }) },
+      { scope: 'both', card: builtinToolCard({ type: 'Work + Personal', color: '#DB2777', icon: '&#128221;', name: 'Scratch Pad', desc: 'A blank page for quick notes. Type anything \u2014 it saves as you type.', href: '#', onclick: 'event.preventDefault(); openScratch();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#EA580C', icon: '&#127891;', name: 'Learning Tracker', desc: 'What you\'re learning, and what you\'re focused on.', href: '#', onclick: 'event.preventDefault(); openLearn();' }) },
       { scope: 'work', card: builtinToolCard({ type: 'Work', color: '#4F46E5', icon: '&#128203;', name: 'Job Description', desc: 'Your role at a glance — the admin, dev, and consulting hats.', href: 'job-description.html', target: '_blank' }) },
-      { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#DB2777', icon: '&#128197;', name: 'Planner', desc: 'Plan your week. Add items to any day.', href: '#', onclick: 'event.preventDefault(); openPlanner();' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#BE123C', icon: '&#128138;', name: 'Medical Info', desc: 'Your meds, conditions, allergies, and doctor contacts in one list.', href: '#', onclick: 'event.preventDefault(); openMedical();' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0891B2', icon: '&#9729;', name: 'Cloud Path Launch', desc: 'Your Cloud Path Consulting business launch checklist — check off each step.', href: 'cloud-path-checklist.html', target: '_blank' }) },
       { scope: 'personal', card: builtinToolCard({ type: 'Personal', color: '#0D9488', icon: '&#127919;', name: 'Skills & Niche', desc: 'Add your skills, rate them, and spot where your consulting niche lives.', href: 'skills-inventory.html', target: '_blank' }) }
@@ -1949,10 +1862,8 @@
   document.getElementById('categoryModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeCategoryModal(); });
   document.getElementById('deployModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeDeployModal(); });
   document.getElementById('kbModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeKbModal(); });
-  document.getElementById('handoffModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeHandoffModal(); });
   document.getElementById('medicalModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeMedicalModal(); });
   document.getElementById('learnModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeLearnModal(); });
-  document.getElementById('planModalOverlay').addEventListener('click', function(e) { if (e.target === this) closePlanModal(); });
   document.getElementById('analyzeModalOverlay').addEventListener('click', function(e) { if (e.target === this) { closeAnalyze(); fetchLinks(); } });
   document.addEventListener('click', function(e) {
     var wrap = document.querySelector('.filter-wrap'); if (wrap && !wrap.contains(e.target)) closeFilterMenu();
@@ -2267,75 +2178,6 @@
     if (!patchedMoved) patchTodo(id, { status: t.status });
   }
 
-  // ===== PLANNER =====
-  var allPlans = [];
-  var plannerWeekStart = null;
-  function startOfWeek(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); var day = (x.getDay() + 6) % 7; x.setDate(x.getDate() - day); return x; }
-  function ymd(d) { var m = ('0' + (d.getMonth() + 1)).slice(-2); var day = ('0' + d.getDate()).slice(-2); return d.getFullYear() + '-' + m + '-' + day; }
-  function fmtTime(t) { if (!t) return ''; var parts = t.split(':'); if (parts.length < 2) return t; var h = parseInt(parts[0], 10), min = parts[1]; var ap = h >= 12 ? 'PM' : 'AM'; var h12 = h % 12; if (h12 === 0) h12 = 12; return h12 + ':' + min + ' ' + ap; }
-  function openPlanner() { if (!plannerWeekStart) plannerWeekStart = startOfWeek(new Date()); showScreen('screen-planner'); fetchPlans(); }
-  function plannerShift(weeks) { plannerWeekStart.setDate(plannerWeekStart.getDate() + weeks * 7); plannerWeekStart = new Date(plannerWeekStart); fetchPlans(); }
-  function plannerToday() { plannerWeekStart = startOfWeek(new Date()); fetchPlans(); }
-  function fetchPlans() {
-    var start = ymd(plannerWeekStart);
-    var endD = new Date(plannerWeekStart); endD.setDate(endD.getDate() + 6);
-    var end = ymd(endD);
-    fetch(SB_URL + '/rest/v1/planner?day=gte.' + start + '&day=lte.' + end + '&order=time.asc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allPlans = Array.isArray(data) ? data : []; renderPlanner(); }).catch(function() { document.getElementById('plannerGrid').innerHTML = '<div class="board-empty">Could not load. Is the "planner" table created?</div>'; });
-  }
-  function renderPlanner() {
-    var DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    var todayStr = ymd(new Date());
-    var endD = new Date(plannerWeekStart); endD.setDate(endD.getDate() + 6);
-    var startMonth = MON[plannerWeekStart.getMonth()];
-    var endMonth = MON[endD.getMonth()];
-    document.getElementById('plannerMonthLabel').textContent = startMonth + ' ' + plannerWeekStart.getFullYear();
-    var range = (startMonth === endMonth) ? (startMonth + ' ' + plannerWeekStart.getDate() + '\u2013' + endD.getDate()) : (startMonth + ' ' + plannerWeekStart.getDate() + ' \u2013 ' + endMonth + ' ' + endD.getDate());
-    document.getElementById('plannerWeekLabel').textContent = range;
-    var html = '<div class="planner-grid">';
-    for (var i = 0; i < 7; i++) {
-      var d = new Date(plannerWeekStart); d.setDate(d.getDate() + i);
-      var ds = ymd(d);
-      var items = allPlans.filter(function(p) { return p.day === ds; });
-      html += '<div class="pday' + (ds === todayStr ? ' is-today' : '') + (i >= 5 ? ' is-weekend' : '') + '"><div class="pday-head"><span class="pday-num">' + d.getDate() + '</span><span class="pday-dow">' + DOW[i] + '</span></div><div class="pday-items">';
-      for (var k = 0; k < items.length; k++) { var it = items[k]; html += '<div class="pitem" data-pedit="' + esc(it.id) + '">' + (it.time ? '<div class="pitem-time">' + esc(fmtTime(it.time)) + '</div>' : '') + '<div class="pitem-title">' + esc(it.title) + '</div><button class="pitem-del" data-pdel="' + esc(it.id) + '" title="Delete">&#10005;</button></div>'; }
-      html += '</div><button class="pday-add" data-padd="' + ds + '">+ Add</button></div>';
-    }
-    html += '</div>';
-    document.getElementById('plannerGrid').innerHTML = html;
-    document.querySelectorAll('.pday-add[data-padd]').forEach(function(b) { b.addEventListener('click', function() { openPlanModal(null, this.getAttribute('data-padd')); }); });
-    document.querySelectorAll('.pitem[data-pedit]').forEach(function(el) { el.addEventListener('click', function(e) { if (e.target.classList.contains('pitem-del')) return; openPlanModal(findPlan(this.getAttribute('data-pedit')), null); }); });
-    document.querySelectorAll('.pitem-del[data-pdel]').forEach(function(b) { b.addEventListener('click', function(e) { e.stopPropagation(); deletePlan(this.getAttribute('data-pdel')); }); });
-  }
-  function findPlan(id) { for (var i = 0; i < allPlans.length; i++) { if (allPlans[i].id === id) return allPlans[i]; } return null; }
-  function openPlanModal(p, dateStr) {
-    document.getElementById('planEditId').value = p ? p.id : '';
-    document.getElementById('planDate').value = p ? p.day : (dateStr || '');
-    document.getElementById('planModalTitle').textContent = p ? 'Edit Planner Item' : 'Add to Planner';
-    document.getElementById('planTitleInput').value = p ? p.title : '';
-    document.getElementById('planTimeInput').value = (p && p.time) ? p.time.slice(0,5) : '';
-    var dParts = (p ? p.day : dateStr).split('-');
-    var dObj = new Date(parseInt(dParts[0],10), parseInt(dParts[1],10)-1, parseInt(dParts[2],10));
-    var DOWf = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    var MONf = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    document.getElementById('planDateLabel').textContent = DOWf[dObj.getDay()] + ', ' + MONf[dObj.getMonth()] + ' ' + dObj.getDate();
-    document.getElementById('planModalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('planTitleInput').focus(); }, 100);
-  }
-  function closePlanModal() { document.getElementById('planModalOverlay').classList.remove('open'); }
-  function savePlan() {
-    var title = document.getElementById('planTitleInput').value.trim();
-    var time = document.getElementById('planTimeInput').value || null;
-    var day = document.getElementById('planDate').value;
-    var editId = document.getElementById('planEditId').value;
-    if (!title) { showToast('Enter something'); return; }
-    if (!day) { showToast('No date set'); return; }
-    var method = editId ? 'PATCH' : 'POST';
-    var endpoint = editId ? SB_URL + '/rest/v1/planner?id=eq.' + editId : SB_URL + '/rest/v1/planner';
-    fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, time: time, day: day }) }).then(function(res) { if (res.ok) { closePlanModal(); showToast(editId ? 'Updated!' : 'Added!'); fetchPlans(); } else { showToast('Error saving'); } });
-  }
-  function deletePlan(id) { if (!confirm('Delete this item?')) return; fetch(SB_URL + '/rest/v1/planner?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchPlans(); }); }
-
   // ===== DOCS & GUIDES (docs, links, and how-to guides; stored in documents table) =====
   var allKb = [];
   var kbFilter = 'all';
@@ -2405,97 +2247,39 @@
   }
   function deleteKb(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/documents?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchKb(); }); }
 
-  // ===== HANDOFF (handoff table; title + link + note, grouped by freeform category) =====
-  var allHandoff = [];
-  var handoffFilter = 'all';
-  function handoffCat(d) { return (d && d.category && String(d.category).trim()) ? String(d.category).trim() : 'General'; }
-  var HANDOFF_TAG_CLS = ['kt-c0', 'kt-c1', 'kt-c2', 'kt-c3', 'kt-c4', 'kt-c5'];
-  function handoffCatCls(c) { if (c === 'General') return 'kt-cgen'; var h = 0; for (var i = 0; i < c.length; i++) h = (h * 31 + c.charCodeAt(i)) >>> 0; return HANDOFF_TAG_CLS[h % HANDOFF_TAG_CLS.length]; }
-  var HANDOFF_DEFAULT_CATS = ['Jira', 'Salesforce', 'Processes'];
-  function handoffCats() { var seen = {}, cats = []; for (var i = 0; i < HANDOFF_DEFAULT_CATS.length; i++) { seen[HANDOFF_DEFAULT_CATS[i]] = true; cats.push(HANDOFF_DEFAULT_CATS[i]); } for (var j = 0; j < allHandoff.length; j++) { var c = handoffCat(allHandoff[j]); if (!seen[c]) { seen[c] = true; cats.push(c); } } cats.sort(function(a, b) { return a.localeCompare(b); }); return cats; }
-  function openHandoff() { document.getElementById('handoffSearchInput').value = ''; handoffFilter = 'all'; showScreen('screen-handoff'); fetchHandoff(); }
-  function fetchHandoff() {
-    fetch(SB_URL + '/rest/v1/handoff?order=sort_order.asc,created_at.asc', { headers: H }).then(function(r) { return r.json(); }).then(function(data) { allHandoff = Array.isArray(data) ? data : []; renderHandoff(); }).catch(function() { document.getElementById('handoffList').innerHTML = '<div class="board-empty">Could not load.</div>'; });
+  // ===== SCRATCH PAD (scratchpad table; single row id=1, autosaves as you type) =====
+  var scratchLoaded = false;
+  var scratchSaveTimer = null;
+  var scratchLastSaved = '';
+  function setScratchStatus(t) { document.getElementById('scratchStatus').textContent = t; }
+  function openScratch() { showScreen('screen-scratch'); fetchScratch(); }
+  function fetchScratch() {
+    var ed = document.getElementById('scratchEditor');
+    fetch(SB_URL + '/rest/v1/scratchpad?id=eq.1&select=content', { headers: H }).then(function(r) { return r.json(); }).then(function(rows) {
+      if (!Array.isArray(rows) || !rows.length) { scratchLoaded = false; ed.disabled = true; setScratchStatus('Create the scratchpad table in Supabase first, then reload.'); return; }
+      scratchLoaded = true; ed.disabled = false;
+      scratchLastSaved = rows[0].content || '';
+      ed.value = scratchLastSaved;
+      setScratchStatus('All changes saved');
+    }).catch(function() { setScratchStatus('Could not load.'); });
   }
-  function setHandoffFilter(f) { handoffFilter = f; renderHandoff(); }
-  function renderHandoff() {
-    var cats = handoffCats();
-    if (handoffFilter !== 'all' && cats.indexOf(handoffFilter) === -1) handoffFilter = 'all';
-    var fhtml = '<button class="view-btn' + (handoffFilter === 'all' ? ' active' : '') + '" data-hofilter="all">All</button>';
-    for (var c = 0; c < cats.length; c++) fhtml += '<button class="view-btn' + (handoffFilter === cats[c] ? ' active' : '') + '" data-hofilter="' + esc(cats[c]) + '">' + esc(cats[c]) + '</button>';
-    document.getElementById('handoffFilterRow').innerHTML = fhtml;
-    document.querySelectorAll('[data-hofilter]').forEach(function(b) { b.addEventListener('click', function() { setHandoffFilter(this.getAttribute('data-hofilter')); }); });
-    var q = (document.getElementById('handoffSearchInput').value || '').toLowerCase();
-    var list = allHandoff.filter(function(d) {
-      if (handoffFilter !== 'all' && handoffCat(d) !== handoffFilter) return false;
-      if (!q) return true;
-      return (d.title || '').toLowerCase().indexOf(q) > -1 || (d.content || '').toLowerCase().indexOf(q) > -1 || handoffCat(d).toLowerCase().indexOf(q) > -1;
-    });
-    list.sort(function(a, b) { var ca = handoffCat(a), cb = handoffCat(b); if (ca !== cb) return ca.localeCompare(cb); return (a.sort_order || 0) - (b.sort_order || 0); });
-    document.getElementById('handoffCount').textContent = list.length + ' entr' + (list.length !== 1 ? 'ies' : 'y');
-    if (!list.length) { document.getElementById('handoffList').innerHTML = allHandoff.length ? '<div class="empty"><strong>No matches</strong></div>' : '<div class="empty"><strong>Nothing here yet</strong>Hit &quot;+ Add Entry&quot; to drop in a title and a OneDrive link.</div>'; return; }
-    var html = '<table class="kb-table"><thead><tr><th>Category</th><th>Title</th><th>Note</th><th>Link</th><th></th></tr></thead><tbody>';
-    for (var i = 0; i < list.length; i++) {
-      var d = list[i];
-      var resParts = [];
-      if (d.url) resParts.push('<a class="link-url" href="' + esc(d.url) + '" target="_blank" rel="noopener">Open &#8599;</a>');
-      if (d.file_url) resParts.push('<a class="link-url" href="' + esc(d.file_url) + '" target="_blank" rel="noopener" download>&#128196; ' + esc(d.file_name || 'File') + '</a>');
-      var res = resParts.length ? resParts.join('<br>') : '<span style="color:var(--muted-soft);font-size:0.8rem;">&mdash;</span>';
-      html += '<tr><td class="kb-type"><span class="kb-tag ' + handoffCatCls(handoffCat(d)) + '">' + esc(handoffCat(d)) + '</span></td><td class="kb-howto">' + esc(d.title) + '</td><td class="kb-desc">' + esc(d.content || '') + '</td><td class="kb-res">' + res + '</td><td class="kb-acts"><button class="btn-edit" data-hoedit="' + esc(d.id) + '">Edit</button> <button class="btn-delete" data-hodel="' + esc(d.id) + '">&#10005;</button></td></tr>';
-    }
-    html += '</tbody></table>';
-    document.getElementById('handoffList').innerHTML = html;
-    document.querySelectorAll('.btn-edit[data-hoedit]').forEach(function(b) { b.addEventListener('click', function() { openHandoffModal(findHandoff(this.getAttribute('data-hoedit'))); }); });
-    document.querySelectorAll('.btn-delete[data-hodel]').forEach(function(b) { b.addEventListener('click', function() { deleteHandoff(this.getAttribute('data-hodel')); }); });
+  function scratchInput() {
+    if (!scratchLoaded) return;
+    setScratchStatus('Typing\u2026');
+    clearTimeout(scratchSaveTimer);
+    scratchSaveTimer = setTimeout(saveScratch, 1000);
   }
-  function findHandoff(id) { for (var i = 0; i < allHandoff.length; i++) { if (String(allHandoff[i].id) === String(id)) return allHandoff[i]; } return null; }
-  function openHandoffModal(d) {
-    document.getElementById('handoffEditId').value = d ? d.id : '';
-    document.getElementById('handoffModalTitle').textContent = d ? 'Edit Entry' : 'Add Entry';
-    document.getElementById('handoffTitleInput').value = d ? d.title : '';
-    document.getElementById('handoffCatInput').value = (d && d.category) ? d.category : '';
-    document.getElementById('handoffUrlInput').value = (d && d.url) ? d.url : '';
-    document.getElementById('handoffNoteInput').value = (d && d.content) ? d.content : '';
-    var hfi = document.getElementById('handoffFileInput'); if (hfi) hfi.value = '';
-    document.getElementById('handoffFileCurrent').innerHTML = (d && d.file_name) ? 'Current file: ' + esc(d.file_name) + ' — choose a new one to replace' : '';
-    var dl = document.getElementById('handoffCatList'), cats = handoffCats(), opts = '';
-    for (var i = 0; i < cats.length; i++) { if (cats[i] !== 'General') opts += '<option value="' + esc(cats[i]) + '">'; }
-    dl.innerHTML = opts;
-    document.getElementById('handoffModalOverlay').classList.add('open');
-    setTimeout(function() { document.getElementById('handoffTitleInput').focus(); }, 100);
+  function saveScratch() {
+    if (!scratchLoaded) return;
+    clearTimeout(scratchSaveTimer);
+    var val = document.getElementById('scratchEditor').value;
+    if (val === scratchLastSaved) { setScratchStatus('All changes saved'); return; }
+    setScratchStatus('Saving\u2026');
+    fetch(SB_URL + '/rest/v1/scratchpad?id=eq.1', { method: 'PATCH', headers: Object.assign({}, H, { 'Prefer': 'return=representation' }), body: JSON.stringify({ content: val, updated_at: new Date().toISOString() }) })
+      .then(function(res) { if (!res.ok) throw new Error('save'); return res.json(); })
+      .then(function(rows) { if (!rows.length) { setScratchStatus('Not saved \u2014 check the scratchpad RLS policy'); return; } scratchLastSaved = val; setScratchStatus('All changes saved'); })
+      .catch(function() { setScratchStatus('Could not save \u2014 check your connection'); });
   }
-  function closeHandoffModal() { document.getElementById('handoffModalOverlay').classList.remove('open'); }
-  function saveHandoff() {
-    var title = document.getElementById('handoffTitleInput').value.trim();
-    var cat = document.getElementById('handoffCatInput').value.trim();
-    var url = document.getElementById('handoffUrlInput').value.trim();
-    var note = document.getElementById('handoffNoteInput').value.trim();
-    var editId = document.getElementById('handoffEditId').value;
-    if (!title) { showToast('Add a title'); return; }
-    var fullUrl = url ? (url.indexOf('http') === 0 ? url : 'https://' + url) : '';
-    var method = editId ? 'PATCH' : 'POST';
-    var endpoint = editId ? SB_URL + '/rest/v1/handoff?id=eq.' + editId : SB_URL + '/rest/v1/handoff';
-    var fileInput = document.getElementById('handoffFileInput');
-    var file = fileInput && fileInput.files && fileInput.files[0];
-    // File keys only sent when a new file was uploaded — PATCH preserves existing ones, and rows save fine before the file_url/file_name ALTER exists.
-    function saveRow(file_url, file_name) {
-      var body = { title: title, category: cat || null, url: fullUrl || null, content: note || null };
-      if (file_url) { body.file_url = file_url; body.file_name = file_name || null; }
-      fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify(body) }).then(function(res) { if (res.ok) { closeHandoffModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchHandoff(); } else { showToast(file_url ? 'Error saving — did you add the file columns to the handoff table?' : 'Error saving'); } });
-    }
-    if (file) {
-      if (file.size > 25 * 1024 * 1024) { showToast('File too large (max 25 MB)'); return; }
-      showToast('Uploading file…');
-      var path = String(Date.now()) + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      var enc = encodeURIComponent(path);
-      fetch(SB_URL + '/storage/v1/object/' + KB_BUCKET + '/' + enc, { method: 'POST', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'true' }, body: file })
-        .then(function(res) { if (!res.ok) { showToast('Upload failed'); return; } saveRow(SB_URL + '/storage/v1/object/public/' + KB_BUCKET + '/' + enc, file.name); })
-        .catch(function() { showToast('Upload failed'); });
-    } else {
-      saveRow(null, null);
-    }
-  }
-  function deleteHandoff(id) { if (!confirm('Delete this entry?')) return; fetch(SB_URL + '/rest/v1/handoff?id=eq.' + id, { method: 'DELETE', headers: H }).then(function() { showToast('Deleted'); fetchHandoff(); }); }
 
   // ===== LEARNING TRACKER (learning_items table; just title + star) =====
   var allLearn = [];
