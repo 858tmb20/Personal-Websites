@@ -148,6 +148,7 @@
 
 <div class="apx-filterbar">
   <div class="apx-filter-inner" id="filterBar">
+    <a href="apex-practice.html" style="font-size:14px;font-weight:500;color:var(--fg2);">Practice Reps &rarr;</a>
     <span class="apx-filter-spacer"></span>
     <span class="apx-save-note" id="saveNote">Progress saves automatically</span>
     <button type="button" class="apx-reset apx-status-btn" id="resetBtn">Reset all</button>
@@ -468,7 +469,7 @@ function render() {
 
   html += '<footer class="apx-foot">'
     + '<span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>Coverage: every Admin, Advanced Admin, SE I, and SE II cell of the WGU Salesforce job family matrix — plus the Senior Track.</span>'
-    + '<a href="library.html">&larr; Back to Library</a>'
+    + '<span><a href="apex-practice.html">Practice Reps &rarr;</a> &nbsp;&middot;&nbsp; <a href="library.html">&larr; Back to Library</a></span>'
     + '</footer>';
 
   document.getElementById("board").innerHTML = html;

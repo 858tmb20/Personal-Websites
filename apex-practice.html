@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apex Practice Reps</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&family=Newsreader:wght@500;600&display=swap">
+<style>
+  :root {
+    --midnight: #001731;
+    --blue: #002855;
+    --medium-blue: #0070F0;
+    --sky-blue: #46B1EF;
+    --lime: #97E152;
+    --light-blue: #EEF6F9;
+    --light-grey: #F1F1F1;
+    --grey: #A7A7A7;
+    --fg2: #264468;
+    --white: #FFFFFF;
+    --hairline: rgba(0, 40, 85, 0.12);
+    --trap-bg: #FFF7E8;
+    --trap-edge: #B45309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--white);
+    color: var(--blue);
+    font-family: 'Jost', 'Futura PT', 'Trebuchet MS', Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .apx-status-btn { transition: transform 120ms cubic-bezier(0.2,0,0.2,1), box-shadow 120ms; cursor: pointer; }
+  .apx-status-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,23,49,0.10); }
+  .apx-status-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,112,240,0.35); }
+  @media (prefers-reduced-motion: reduce) { .apx-status-btn, .apx-bar { transition: none !important; } }
+
+  header.apx-hdr {
+    background: linear-gradient(180deg, var(--midnight) 0%, var(--blue) 100%);
+    color: var(--white);
+    padding: 40px 24px 32px;
+  }
+  .apx-hdr-inner { max-width: 860px; margin: 0 auto; }
+  .apx-eyebrow {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--sky-blue); margin-bottom: 10px;
+  }
+  .apx-hdr-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .apx-hdr h1 {
+    font-size: clamp(28px, 5vw, 44px); line-height: 1.05;
+    font-weight: 800; margin: 0; letter-spacing: -0.01em;
+  }
+  .apx-hdr-sub { max-width: 56ch; font-size: 15px; color: #BBD0E8; margin: 12px 0 0; line-height: 1.5; }
+  .apx-count-wrap { text-align: right; }
+  .apx-count {
+    font-family: 'Newsreader', Georgia, serif; font-weight: 600;
+    font-size: clamp(40px, 7vw, 64px); line-height: 1; color: var(--lime);
+  }
+  .apx-count .apx-of { font-size: 0.5em; color: #BBD0E8; }
+  .apx-count-sub { font-size: 14px; color: #BBD0E8; margin-top: 4px; }
+  .apx-track { margin-top: 24px; height: 10px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; }
+  .apx-bar { height: 100%; width: 0%; background: var(--lime); border-radius: 999px; transition: width 420ms cubic-bezier(0.2,0.8,0.2,1); }
+
+  .apx-filterbar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--white); border-bottom: 1px solid var(--hairline); padding: 12px 24px;
+  }
+  .apx-filter-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .apx-filter-inner a { font-size: 14px; font-weight: 500; color: var(--fg2); }
+  .apx-filter-spacer { flex: 1; }
+  .apx-save-note { font-size: 13px; color: var(--grey); }
+  .apx-reset {
+    border: 1px solid rgba(0,40,85,0.2); border-radius: 999px; padding: 5px 14px;
+    font-family: inherit; font-size: 13px; font-weight: 500; background: var(--white); color: var(--fg2);
+  }
+
+  main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .apx-rules {
+    border: 1px solid var(--hairline); border-left: 4px solid var(--medium-blue);
+    border-radius: 8px; background: var(--light-blue); padding: 18px 22px; margin-bottom: 44px;
+  }
+  .apx-rules h2 { font-size: 15px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 10px; color: var(--medium-blue); }
+  .apx-rules ul { margin: 0; padding-left: 20px; display: grid; gap: 7px; font-size: 15px; color: var(--fg2); line-height: 1.45; }
+
+  section.apx-tier { margin-bottom: 48px; }
+  .apx-tier-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .apx-tier-num {
+    font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 28px;
+    color: var(--medium-blue); min-width: 40px;
+  }
+  .apx-tier-num.complete { color: var(--lime); }
+  .apx-tier-head h2 { font-size: 24px; font-weight: 800; margin: 0; }
+  .apx-tier-count { font-size: 14px; color: var(--grey); margin-left: auto; white-space: nowrap; }
+  .apx-tier-goal { margin: 0 0 16px 52px; font-size: 15px; color: var(--fg2); }
+  .apx-cards { display: flex; flex-direction: column; gap: 14px; }
+
+  .apx-card {
+    border: 1px solid var(--hairline);
+    border-left: 4px solid var(--hairline);
+    border-radius: 8px; padding: 18px 20px; background: var(--white);
+    transition: box-shadow 220ms cubic-bezier(0.2,0,0.2,1);
+  }
+  .apx-card:hover { box-shadow: 0 4px 12px rgba(0,23,49,0.10); }
+  .apx-card.in_progress { border-left-color: var(--medium-blue); }
+  .apx-card.done { border-color: var(--lime); border-left: 4px solid var(--lime); background: var(--light-blue); }
+  .apx-card-top { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .apx-card-title-wrap { flex: 1 1 380px; min-width: 0; }
+  .apx-title { font-size: 18px; font-weight: 700; }
+  .apx-card.done .apx-title { text-decoration: line-through; text-decoration-color: var(--grey); text-decoration-thickness: 1.5px; }
+  .apx-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .apx-tag {
+    font-size: 11.5px; font-weight: 500; letter-spacing: 0.03em;
+    background: var(--light-grey); color: var(--fg2); border-radius: 4px; padding: 2px 8px;
+  }
+  .apx-lvl { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; border-radius: 4px; padding: 2px 8px; }
+  .apx-lvl.foundation { background: var(--light-grey); color: var(--fg2); }
+  .apx-lvl.working { background: var(--sky-blue); color: var(--midnight); }
+  .apx-lvl.stretch { background: var(--blue); color: var(--lime); }
+  .apx-pill {
+    border: 1.5px solid rgba(0,40,85,0.15); border-radius: 999px; padding: 7px 16px;
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    background: var(--light-grey); color: var(--fg2);
+    white-space: nowrap; align-self: center;
+  }
+  .apx-pill.in_progress { background: #E4F0FE; color: var(--medium-blue); border-color: var(--medium-blue); }
+  .apx-pill.done { background: var(--lime); color: var(--blue); border-color: var(--lime); }
+
+  .apx-body { font-size: 14.5px; line-height: 1.5; color: var(--fg2); }
+  .apx-body p { margin: 12px 0 0; }
+  .apx-label {
+    font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--medium-blue); margin: 14px 0 4px;
+  }
+  .apx-body ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+  .apx-body code {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.86em;
+    background: var(--light-grey); color: var(--blue); border-radius: 4px; padding: 1px 5px;
+  }
+  .apx-card.done .apx-body code { background: rgba(0,40,85,0.08); }
+  .apx-body pre {
+    background: var(--midnight); color: #D8E6F4;
+    border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 10px 0 0;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12.5px; line-height: 1.5;
+  }
+  .apx-body pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  .apx-trap {
+    background: var(--trap-bg); border-left: 3px solid var(--trap-edge);
+    border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 14px;
+  }
+  .apx-trap b { color: var(--trap-edge); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .apx-trap p { margin: 4px 0 0; }
+
+  footer.apx-foot {
+    border-top: 1px solid var(--hairline); padding-top: 20px;
+    font-size: 14px; color: var(--grey);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  footer.apx-foot a { color: var(--fg2); }
+</style>
+</head>
+<body>
+
+<header class="apx-hdr">
+  <div class="apx-hdr-inner">
+    <div class="apx-eyebrow">Apex Training &middot; Real-World Reps</div>
+    <div class="apx-hdr-row">
+      <h1>Apex Practice<br>Reps</h1>
+      <div class="apx-count-wrap">
+        <div class="apx-count"><span id="doneCount">0</span><span class="apx-of">/<span id="totalCount">15</span></span></div>
+        <div class="apx-count-sub" id="countSub">built &amp; working</div>
+      </div>
+    </div>
+    <p class="apx-hdr-sub">Fifteen problems shaped like the tickets Salesforce developers actually get — each with the trap that makes it real and "done when" criteria to verify in TrentDev. Deeper cuts than the Build Board tiles: work these when you want the full rep, not the checklist.</p>
+    <div class="apx-track"><div class="apx-bar" id="bar"></div></div>
+  </div>
+</header>
+
+<div class="apx-filterbar">
+  <div class="apx-filter-inner">
+    <a href="apex-build-board.html">&larr; Apex Build Board</a>
+    <span class="apx-filter-spacer"></span>
+    <span class="apx-save-note" id="saveNote">Progress saves automatically</span>
+    <button type="button" class="apx-reset apx-status-btn" id="resetBtn">Reset all</button>
+  </div>
+</div>
+
+<main>
+
+<div class="apx-rules">
+  <h2>House rules — every problem, no exceptions</h2>
+  <ul>
+    <li><strong>Test with 200 records.</strong> Insert them in one DML call inside <code>Test.startTest()</code>. If it only works for one record, it doesn't work.</li>
+    <li><strong>One trigger per object, logic in a handler class.</strong> The trigger file is 3–10 lines that delegate.</li>
+    <li><strong>No <code>SeeAllData=true</code>.</strong> Build your own data in every test.</li>
+    <li><strong>Assert limits, not just outcomes.</strong> <code>Assert.isTrue(Limits.getQueries() &lt;= 2)</code> after your bulk run catches SOQL-in-loop regressions forever.</li>
+    <li><strong>Ship the test in the same sitting as the code.</strong> That's the habit that separates admin-who-codes from developer.</li>
+  </ul>
+</div>
+
+<!-- ============ TIER 1 ============ -->
+<section class="apx-tier" data-tier="1">
+  <div class="apx-tier-head"><span class="apx-tier-num">01</span><h2>Triggers, the daily bread</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">80% of real Apex tickets live here.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="p1">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">1 &middot; Rollup without DLRS</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Foundation</span><span class="apx-tag">trigger handler</span><span class="apx-tag">maps</span><span class="apx-tag">aggregate SOQL</span><span class="apx-tag">bulkification</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p1">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Partner managers want <code>Active_Contact_Count__c</code> on Account to always equal the number of that Account's Contacts where <code>Active__c = true</code>. No managed packages, no DLRS — pure Apex.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Trigger on Contact for insert, update, delete, <em>and undelete</em>, delegating to <code>ContactTriggerHandler</code>.</li>
+        <li>Recalculate with one <code>AggregateResult</code> query per transaction, keyed by <code>AccountId</code>.</li>
+        <li>On update, only recalc if <code>Active__c</code> or <code>AccountId</code> actually changed.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>When a Contact is <em>reparented</em> (AccountId changes), both the old and the new Account need a recalc. Collect Account IDs from <code>Trigger.oldMap</code> and <code>Trigger.newMap</code>. Almost every first attempt misses the old parent.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>A test moves 200 Contacts between two Accounts in one DML and both counts are right.</li>
+        <li>Undeleting a Contact from the Recycle Bin bumps the count.</li>
+        <li>Whole transaction uses ≤ 2 SOQL queries, asserted in the test.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p2">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">2 &middot; Lock the closed record</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Foundation</span><span class="apx-tag">addError</span><span class="apx-tag">custom permissions</span><span class="apx-tag">Trigger.oldMap</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p2">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Once an Opportunity hits Closed Won, nobody edits <code>Amount</code> or <code>CloseDate</code> — except users holding a custom permission called <code>Edit_Closed_Opportunities</code>. Validation rules got too tangled; do it in Apex.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Before-update logic that compares old vs. new values and calls <code>record.addError()</code> on violations.</li>
+        <li>Gate the bypass with <code>FeatureManagement.checkPermission('Edit_Closed_Opportunities')</code> — never a profile-name string check.</li>
+        <li>Create the Custom Permission and a Permission Set in TrentDev; assign it to yourself to test the bypass live.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p><code>addError</code> in a bulk update must block only the offending records — the clean ones in the same batch must still save. Test with a mixed batch and partial-success DML (<code>Database.update(records, false)</code>) to prove it.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Mixed batch of 200 (half violating) saves exactly the clean half.</li>
+        <li><code>System.runAs</code> tests cover both a blocked user and a permitted one.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p3">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">3 &middot; Duplicate junction blocker</div>
+        <div class="apx-tags"><span class="apx-lvl working">Working level</span><span class="apx-tag">junction objects</span><span class="apx-tag">in-memory dedupe</span><span class="apx-tag">composite keys</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p3">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> You have a junction object <code>Program_Enrollment__c</code> linking Contact to <code>Program__c</code>. Users keep creating duplicates. Block any insert that would create a second enrollment for the same Contact + Program pair.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Before-insert handler that builds a composite key (<code>ContactId + '|' + ProgramId</code>) per record.</li>
+        <li>One query for existing enrollments matching any incoming key; <code>addError</code> on collisions.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>Two duplicates <em>inside the same insert batch</em> won't be caught by querying the database — neither exists yet. You need a second check: dedupe within <code>Trigger.new</code> itself using a Set of keys as you iterate. This exact miss is a classic code-review catch.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>A test inserting the same pair twice in one list blocks the second.</li>
+        <li>A test inserting a pair that already exists in the database blocks it.</li>
+        <li>Stretch: also enforce it with a unique text field (external ID) and explain in a comment which defense is authoritative and why you keep both.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ TIER 2 ============ -->
+<section class="apx-tier" data-tier="2">
+  <div class="apx-tier-head"><span class="apx-tier-num">02</span><h2>SOQL &amp; collections under pressure</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Where governor limits are won or lost.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="p4">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">4 &middot; The escalation summary</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Foundation</span><span class="apx-tag">Map&lt;Id, List&lt;&gt;&gt;</span><span class="apx-tag">GROUP BY</span><span class="apx-tag">one-pass building</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p4">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Support leadership wants a method the team can call from anywhere: given a set of Account IDs, return each Account's open Case count and its single oldest open Case. One class, two public methods.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li><code>Map&lt;Id, Integer&gt; getOpenCaseCounts(Set&lt;Id&gt;)</code> using one aggregate query (<code>COUNT(Id) ... GROUP BY AccountId</code>).</li>
+        <li><code>Map&lt;Id, Case&gt; getOldestOpenCase(Set&lt;Id&gt;)</code> — one query ordered by <code>CreatedDate ASC</code>, then keep only the first Case you see per Account while iterating.</li>
+        <li>No loops containing SOQL. No second pass over the query results.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>The oldest-case method tempts you toward a query per Account. The idiom to burn in: query everything ordered, iterate once, and use <code>map.containsKey()</code> to keep only the first hit. This pattern shows up weekly in real work.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Works for an Account with zero cases (absent from map, not null-crashing).</li>
+        <li>Test asserts exactly 1 query per method call via <code>Limits.getQueries()</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p5">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">5 &middot; Fix this real, bad trigger</div>
+        <div class="apx-tags"><span class="apx-lvl working">Working level</span><span class="apx-tag">refactoring</span><span class="apx-tag">SOQL-in-loop</span><span class="apx-tag">DML-in-loop</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p5">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> This trigger is live in "production" and dies with <em>Too many SOQL queries: 101</em> every time Data Loader runs. Deploy it to TrentDev, reproduce the failure with a 200-record insert, then refactor it into a handler that passes.</p>
+<pre><code>trigger TaskOnNewContact on Contact (after insert) {
+    for (Contact c : Trigger.new) {
+        Account a = [SELECT Id, OwnerId, Type FROM Account
+                     WHERE Id = :c.AccountId];
+        if (a.Type == 'Partner') {
+            Task t = new Task(
+                Subject = 'Welcome call: ' + c.LastName,
+                WhoId = c.Id, OwnerId = a.OwnerId,
+                ActivityDate = Date.today().addDays(3));
+            insert t;
+        }
+    }
+}</code></pre>
+      <div class="apx-trap"><b>The trap</b><p>Beyond the obvious query-and-DML-in-loop: the original crashes on Contacts with a null <code>AccountId</code> — the query returns nothing and the assignment throws. Your refactor has to survive orphan Contacts. Reproducing the failure <em>first</em> is part of the rep; read the debug log and find the limit line.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>200 Contacts (some with null AccountId, some non-Partner) insert cleanly: 1 query, 1 DML.</li>
+        <li>You've kept a copy of the before/after debug logs — that's your interview story.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ TIER 3 ============ -->
+<section class="apx-tier" data-tier="3">
+  <div class="apx-tier-head"><span class="apx-tier-num">03</span><h2>Async Apex</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Nightly jobs and anything touching an API.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="p6">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">6 &middot; The nightly stale-partner sweep</div>
+        <div class="apx-tags"><span class="apx-lvl working">Working level</span><span class="apx-tag">Database.Batchable</span><span class="apx-tag">Schedulable</span><span class="apx-tag">stateful counters</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p6">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Every night, flag Accounts of Type 'Partner' with no completed Activity in 120 days by setting <code>Engagement_Status__c = 'Dormant'</code>, and clear the flag on any that have re-engaged. Log a one-line summary when done.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>One class implementing both <code>Database.Batchable&lt;SObject&gt;</code> and <code>Schedulable</code>.</li>
+        <li><code>Database.Stateful</code> to count flagged/unflagged across batches; report both in <code>finish()</code>.</li>
+        <li>Schedule it from Anonymous Apex with a CRON string you write by hand (1 a.m. daily) — no copy-paste.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>"No activity in 120 days" is not queryable in the batch's start locator without a semi-join that gets expensive. Decide: <code>NOT IN (SELECT ...)</code> anti-join vs. querying activities in <code>execute()</code> per chunk. There's a defensible answer either way — write a comment defending yours. Also: <code>Test.startTest/stopTest</code> runs exactly one batch chunk, so your test data must fit one scope.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Test proves both directions: a dormant account gets flagged, a re-engaged one gets cleared.</li>
+        <li>It's actually scheduled in TrentDev and you can find it under Setup → Scheduled Jobs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p7">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">7 &middot; Queueable sync after save</div>
+        <div class="apx-tags"><span class="apx-lvl working">Working level</span><span class="apx-tag">Queueable</span><span class="apx-tag">AllowsCallouts</span><span class="apx-tag">trigger → async handoff</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p7">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> When a Partner Account's <code>Tier__c</code> changes, POST the Account's Id, Name, and new tier as JSON to an external partner-portal API. Triggers can't make callouts, so architect the handoff.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>After-update handler collects changed Accounts and enqueues one <code>Queueable</code> implementing <code>Database.AllowsCallouts</code> carrying the whole list — never one job per record.</li>
+        <li>Endpoint behind a Named Credential (point it at <code>https://httpbin.org</code> in TrentDev, POST to <code>/post</code>).</li>
+        <li>On non-200, write an <code>Integration_Log__c</code> record with the payload — never swallow the failure silently.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>200 Accounts updated = 1 enqueued job, not 200 — assert <code>Limits.getQueueableJobs() == 1</code>. And a callout body over ~100 records may need chunking: have the Queueable process N and re-enqueue itself for the rest. Chained enqueues throw in tests unless the chain check is guarded with <code>Test.isRunningTest()</code>.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Test with an <code>HttpCalloutMock</code> covers 200-success and 500-failure paths; failure produces a log record.</li>
+        <li>One live run in TrentDev shows the httpbin echo in the debug log.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ TIER 4 ============ -->
+<section class="apx-tier" data-tier="4">
+  <div class="apx-tier-head"><span class="apx-tier-num">04</span><h2>Integration</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">The work that gets you pulled into architecture meetings.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="p8">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">8 &middot; Outbound callout, done properly</div>
+        <div class="apx-tags"><span class="apx-lvl working">Working level</span><span class="apx-tag">HttpRequest</span><span class="apx-tag">JSON.deserialize</span><span class="apx-tag">wrapper classes</span><span class="apx-tag">HttpCalloutMock</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p8">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Build <code>ZipLookupService.getCityState(String zip)</code> that calls <code>https://api.zippopotam.us/us/{zip}</code> and returns a typed result object — city, state, or a structured error. This is the reusable-callout-wrapper pattern you'll copy for every future integration.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Inner wrapper classes matching the JSON shape; deserialize with <code>JSON.deserialize</code> into them — no <code>Map&lt;String, Object&gt;</code> spelunking.</li>
+        <li>Handle 404 (bad zip), non-200, and a timeout (<code>setTimeout</code>, catch <code>CalloutException</code>) as distinct outcomes in the returned result object — the caller should never need try/catch.</li>
+        <li>A single <code>HttpCalloutMock</code> class that can be configured per-test to return any status/body.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>The API's JSON key is <code>"post code"</code> — with a space. You can't name an Apex property that, so you'll hit the deserialize-vs-untyped-parse decision every real integration eventually forces. Solve it (parse untyped for just that field, or drop the field) and comment why.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Four tests: success, 404, 500, timeout — each asserting the typed result, not just "no exception."</li>
+        <li>One anonymous-Apex live call works after you add the Remote Site Setting / Named Credential.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p9">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">9 &middot; Inbound REST endpoint</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Stretch</span><span class="apx-tag">@RestResource</span><span class="apx-tag">upsert semantics</span><span class="apx-tag">status codes</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p9">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> A partner's system needs to push lead referrals into Salesforce. Expose <code>POST /services/apexrest/referrals</code> accepting a JSON array of referrals (email, name, company, partner code). Upsert Leads on email; respond with per-record results.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li><code>@RestResource</code> class with a request/response wrapper: each input row gets back <code>{email, status: created|updated|error, message}</code>.</li>
+        <li>Set real status codes via <code>RestContext.response.statusCode</code>: 200 all-good, 207-style partial (or 400 with detail) when some rows fail, 400 for unparseable body.</li>
+        <li>Malformed JSON must return a clean error body, never an unhandled exception page.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>Partial success is the whole problem. Use <code>Database.upsert(leads, Lead.Email, false)</code> and walk the <code>Database.UpsertResult</code> array to build per-row responses — index alignment between inputs and results is on you, and it breaks the moment you filter the list before DML without tracking the mapping.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Tests build <code>RestContext.request</code> by hand and cover clean, mixed, and garbage payloads.</li>
+        <li>You've hit the real endpoint in TrentDev once with curl or Workbench and read the response.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p10">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">10 &middot; Invocable Apex for Flow</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Foundation</span><span class="apx-tag">@InvocableMethod</span><span class="apx-tag">@InvocableVariable</span><span class="apx-tag">flow bulkification</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p10">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Admins want Flows to fetch "days since last completed activity" for a record. Build an invocable action they can drop into any record-triggered Flow.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Request class (<code>recordId</code>) and response class (<code>daysSince</code>, <code>hasActivities</code>) with <code>@InvocableVariable(required=true)</code> and honest labels/descriptions — admins read those.</li>
+        <li>The method takes <code>List&lt;Request&gt;</code> and returns <code>List&lt;Response&gt;</code> in the same order.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>When a record-triggered Flow fires on a bulk save, Salesforce hands your method <em>all</em> interviews as one list. If you wrote it single-record-minded with a query inside a loop, a Data Loader run detonates it. One query for all requests, one pass to answer. Also: output order must match input order — Flow maps by index.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Test calls it with 200 requests and asserts 1 query.</li>
+        <li>You built an actual Flow in TrentDev that uses it and displays the result — see it from the admin's side.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ TIER 5 ============ -->
+<section class="apx-tier" data-tier="5">
+  <div class="apx-tier-head"><span class="apx-tier-num">05</span><h2>Testing &amp; legacy rescue</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">What senior devs actually spend their week on.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="p11">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">11 &middot; Build the TestDataFactory</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Foundation</span><span class="apx-tag">@IsTest utilities</span><span class="apx-tag">builder methods</span><span class="apx-tag">refactoring tests</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p11">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Your tests from problems 1–10 all hand-roll Accounts and Contacts. Build one <code>@IsTest public class TestDataFactory</code> and refactor at least three earlier test classes to use it.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Methods like <code>createPartnerAccounts(Integer n, Boolean doInsert)</code> — count-parameterized, insert-optional, returning the list.</li>
+        <li>A graph method: <code>createAccountWithContacts(Integer nContacts)</code> for the common shape.</li>
+        <li>Sensible defaults for every required field so callers only override what the test is about.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>The <code>doInsert</code> flag matters: tests that assert trigger behavior need uninserted records to insert inside <code>Test.startTest()</code>, while setup data should insert immediately. Factories without the flag push everyone back to hand-rolling. Also decide where <code>@TestSetup</code> fits alongside the factory — write your rule of thumb as a class-level comment.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Three refactored test classes still pass and each got shorter.</li>
+        <li>Someone could add a new object to the factory by pattern-matching your existing methods.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p12">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">12 &middot; The recursion bomb</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Stretch</span><span class="apx-tag">trigger recursion</span><span class="apx-tag">static guards</span><span class="apx-tag">testing someone else's code</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p12">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> This trigger shipped with zero tests. First write tests that <em>expose</em> its bugs (they should fail against the code as-is), then fix the code until they pass. Deploy it to TrentDev exactly as written first.</p>
+<pre><code>trigger AccountTierSync on Account (after update) {
+    List&lt;Account&gt; toUpdate = new List&lt;Account&gt;();
+    for (Account a : Trigger.new) {
+        if (a.Tier__c == 'Gold') {
+            toUpdate.add(new Account(
+                Id = a.Id,
+                Support_Level__c = 'Premium',
+                Last_Tier_Change__c = System.now()));
+        }
+    }
+    update toUpdate;   // same object, same trigger...
+}</code></pre>
+      <div class="apx-trap"><b>The trap</b><p>There are at least two bugs: the update re-fires the trigger (recursion — it only halts because <code>Last_Tier_Change__c</code> keeps changing until limits kill it), and non-Gold accounts never get their Support Level <em>downgraded</em>, which is silently wrong per the implied requirement. Fix recursion with a static <code>Set&lt;Id&gt;</code> of processed records — not a boolean, which breaks on multi-chunk batches over 200 records. Better yet, ask whether a before-update assignment removes the DML entirely.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Your test suite fails against the original and passes against the fix.</li>
+        <li>You can explain in two sentences why a static boolean guard is subtly wrong and a static Set is right.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p13">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">13 &middot; Email-to-Task logger</div>
+        <div class="apx-tags"><span class="apx-lvl working">Working level</span><span class="apx-tag">Task subtypes</span><span class="apx-tag">service class design</span><span class="apx-tag">idempotency</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p13">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Straight from your real EAC world: build <code>EmailLogService.logEmail(...)</code> that records a sent email against a Contact as a Task with <code>TaskSubtype = 'Email'</code>, subject, description, and activity date — and never logs the same message twice (dedupe on a caller-supplied message key stored in a custom field).</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Bulk signature: takes a list of request objects, returns per-request created/skipped/error results.</li>
+        <li>One query on the message-key field to find already-logged messages; skip those.</li>
+        <li>Fail soft: one bad request (missing ContactId) errors in its result row without sinking the batch.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p><code>TaskSubtype</code> is write-once-on-create — you cannot flip an existing Task to an Email subtype later. And your dedupe key needs a queryable custom field; the tempting system fields in this area are read-only, as you've already discovered on the real project. Design the field, don't fight the platform.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Calling it twice with the same keys creates Tasks once and reports "skipped" the second time.</li>
+        <li>The tasks render under the Contact's Activity timeline as emails in TrentDev — go look.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p14">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">14 &middot; Config accessor with caching</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Stretch</span><span class="apx-tag">static caching</span><span class="apx-tag">custom metadata</span><span class="apx-tag">config-driven code</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p14">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Several classes query a <code>Partner_Config__mdt</code> custom metadata type for tier thresholds. Build a <code>PartnerConfig</code> accessor class so the whole transaction reads metadata once, callers get typed values with defaults, and a bad/missing config row can't throw a null pointer three classes away.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>The custom metadata type itself in TrentDev with 3–4 rows.</li>
+        <li>Lazy-loading static map: first call populates, every later call in the transaction is free.</li>
+        <li>Typed getters with defaults: <code>PartnerConfig.getGoldThreshold()</code> returns a sane number even if the row is missing.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>Statics reset per transaction, not per session — know exactly what that means before you rely on it. And in tests you can't insert custom metadata: either use the real rows (fine for config) or add a <code>@TestVisible</code> override seam. Choosing that seam consciously is the rep.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Two different classes call it; debug log shows one metadata query total.</li>
+        <li>A test proves the default path when config is absent (via the override seam).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="p15">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">15 &middot; The capstone: campaign attribution sweep</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Stretch</span><span class="apx-tag">everything above</span><span class="apx-tag">design doc</span><span class="apx-tag">your real domain</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="p15">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The ticket:</strong> Combine the tiers. A nightly job finds Campaigns missing a <code>Refer_ID__c</code> (your Accutics world), calls an external tagging API for each untagged campaign (mock it with httpbin), writes the returned ID back, logs failures to <code>Integration_Log__c</code>, and emails a summary. An invocable action lets admins trigger a single campaign's tagging from a Flow button.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Batchable + AllowsCallouts for the sweep; Schedulable for nightly; Queueable + invocable for the one-off path — sharing one callout service class between both paths.</li>
+        <li>Callout limits are 100 per transaction: batch scope must respect that. State your scope size and why in a comment.</li>
+        <li>Write a half-page design doc <em>first</em>: classes, responsibilities, failure modes. Then build to it.</li>
+      </ul>
+      <div class="apx-trap"><b>The trap</b><p>The single-campaign path and the sweep will drift apart unless the callout + write-back lives in exactly one service class both entry points call. If you find yourself copying a method between them, stop and refactor. This one-service/many-entry-points shape is the architecture answer to half the questions you'll ever get asked.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Both paths run in TrentDev against the mock endpoint; failures land in the log object.</li>
+        <li>Full test suite passes at 90%+ coverage without a single test that exists only for coverage.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<footer class="apx-foot">
+  <span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>Cadence: two problems a week. A rep isn't done until the test asserts limits and the thing runs in TrentDev. Problems 5 and 12 become interview stories — keep the before/after debug logs.</span>
+  <span><a href="apex-build-board.html">&larr; Apex Build Board</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></span>
+</footer>
+
+</main>
+
+<script>
+const STORAGE_KEY = "apex-practice-v1";
+
+const STATUS = {
+  not_started: { label: "Not started", next: "in_progress" },
+  in_progress: { label: "In progress", next: "done" },
+  done: { label: "Built & working", next: "not_started" }
+};
+
+let statuses = {};
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.statuses) statuses = parsed.statuses;
+  }
+} catch (e) { statuses = {}; }
+
+function persist() {
+  const note = document.getElementById("saveNote");
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses }));
+    note.textContent = "Progress saves automatically";
+    note.style.color = "";
+  } catch (e) {
+    note.textContent = "Save failed — progress may not persist";
+    note.style.color = "#B3261E";
+  }
+}
+
+function stOf(id) { return statuses[id] || "not_started"; }
+
+function paint() {
+  const cards = document.querySelectorAll("[data-item]");
+  let done = 0, ip = 0;
+  cards.forEach(function(card) {
+    const id = card.getAttribute("data-item");
+    const st = stOf(id);
+    card.classList.remove("in_progress", "done");
+    if (st !== "not_started") card.classList.add(st);
+    const pill = card.querySelector("[data-cycle]");
+    pill.classList.remove("in_progress", "done");
+    if (st !== "not_started") pill.classList.add(st);
+    pill.textContent = STATUS[st].label;
+    if (st === "done") done++;
+    if (st === "in_progress") ip++;
+  });
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("totalCount").textContent = cards.length;
+  document.getElementById("countSub").innerHTML = "built &amp; working" + (ip > 0 ? " &middot; " + ip + " in progress" : "");
+  document.getElementById("bar").style.width = Math.round(done / cards.length * 100) + "%";
+
+  document.querySelectorAll("section.apx-tier").forEach(function(sec) {
+    const items = sec.querySelectorAll("[data-item]");
+    let tierDone = 0;
+    items.forEach(function(c) { if (stOf(c.getAttribute("data-item")) === "done") tierDone++; });
+    sec.querySelector(".apx-tier-count").textContent = tierDone + "/" + items.length;
+    sec.querySelector(".apx-tier-num").classList.toggle("complete", tierDone === items.length);
+  });
+}
+
+document.querySelectorAll("[data-cycle]").forEach(function(b) {
+  b.addEventListener("click", function() {
+    const id = this.getAttribute("data-cycle");
+    statuses[id] = STATUS[stOf(id)].next;
+    persist();
+    paint();
+  });
+});
+
+document.getElementById("resetBtn").addEventListener("click", function() {
+  if (!window.confirm("Reset all progress? This clears every problem back to Not started.")) return;
+  statuses = {};
+  persist();
+  paint();
+});
+
+paint();
+</script>
+</body>
+</html>
