@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apex Basics</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&family=Newsreader:wght@500;600&display=swap">
+<style>
+  :root {
+    --midnight: #001731;
+    --blue: #002855;
+    --medium-blue: #0070F0;
+    --sky-blue: #46B1EF;
+    --lime: #97E152;
+    --light-blue: #EEF6F9;
+    --light-grey: #F1F1F1;
+    --grey: #A7A7A7;
+    --fg2: #264468;
+    --white: #FFFFFF;
+    --hairline: rgba(0, 40, 85, 0.12);
+    --trap-bg: #FFF7E8;
+    --trap-edge: #B45309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--white);
+    color: var(--blue);
+    font-family: 'Jost', 'Futura PT', 'Trebuchet MS', Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .apx-status-btn { transition: transform 120ms cubic-bezier(0.2,0,0.2,1), box-shadow 120ms; cursor: pointer; }
+  .apx-status-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,23,49,0.10); }
+  .apx-status-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,112,240,0.35); }
+  @media (prefers-reduced-motion: reduce) { .apx-status-btn, .apx-bar { transition: none !important; } }
+
+  header.apx-hdr {
+    background: linear-gradient(180deg, var(--midnight) 0%, var(--blue) 100%);
+    color: var(--white);
+    padding: 40px 24px 32px;
+  }
+  .apx-hdr-inner { max-width: 860px; margin: 0 auto; }
+  .apx-eyebrow {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--sky-blue); margin-bottom: 10px;
+  }
+  .apx-hdr-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .apx-hdr h1 {
+    font-size: clamp(28px, 5vw, 44px); line-height: 1.05;
+    font-weight: 800; margin: 0; letter-spacing: -0.01em;
+  }
+  .apx-hdr-sub { max-width: 56ch; font-size: 15px; color: #BBD0E8; margin: 12px 0 0; line-height: 1.5; }
+  .apx-count-wrap { text-align: right; }
+  .apx-count {
+    font-family: 'Newsreader', Georgia, serif; font-weight: 600;
+    font-size: clamp(40px, 7vw, 64px); line-height: 1; color: var(--lime);
+  }
+  .apx-count .apx-of { font-size: 0.5em; color: #BBD0E8; }
+  .apx-count-sub { font-size: 14px; color: #BBD0E8; margin-top: 4px; }
+  .apx-track { margin-top: 24px; height: 10px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; }
+  .apx-bar { height: 100%; width: 0%; background: var(--lime); border-radius: 999px; transition: width 420ms cubic-bezier(0.2,0.8,0.2,1); }
+
+  .apx-filterbar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--white); border-bottom: 1px solid var(--hairline); padding: 12px 24px;
+  }
+  .apx-filter-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .apx-filter-inner a { font-size: 14px; font-weight: 500; color: var(--fg2); }
+  .apx-filter-spacer { flex: 1; }
+  .apx-save-note { font-size: 13px; color: var(--grey); }
+  .apx-reset {
+    border: 1px solid rgba(0,40,85,0.2); border-radius: 999px; padding: 5px 14px;
+    font-family: inherit; font-size: 13px; font-weight: 500; background: var(--white); color: var(--fg2);
+  }
+
+  main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .apx-rules {
+    border: 1px solid var(--hairline); border-left: 4px solid var(--medium-blue);
+    border-radius: 8px; background: var(--light-blue); padding: 18px 22px; margin-bottom: 44px;
+  }
+  .apx-rules h2 { font-size: 15px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 10px; color: var(--medium-blue); }
+  .apx-rules ul { margin: 0; padding-left: 20px; display: grid; gap: 7px; font-size: 15px; color: var(--fg2); line-height: 1.45; }
+
+  section.apx-tier { margin-bottom: 48px; }
+  .apx-tier-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .apx-tier-num {
+    font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 28px;
+    color: var(--medium-blue); min-width: 40px;
+  }
+  .apx-tier-num.complete { color: var(--lime); }
+  .apx-tier-head h2 { font-size: 24px; font-weight: 800; margin: 0; }
+  .apx-tier-count { font-size: 14px; color: var(--grey); margin-left: auto; white-space: nowrap; }
+  .apx-tier-goal { margin: 0 0 16px 52px; font-size: 15px; color: var(--fg2); }
+  .apx-cards { display: flex; flex-direction: column; gap: 14px; }
+
+  .apx-card {
+    border: 1px solid var(--hairline);
+    border-left: 4px solid var(--hairline);
+    border-radius: 8px; padding: 18px 20px; background: var(--white);
+    transition: box-shadow 220ms cubic-bezier(0.2,0,0.2,1);
+  }
+  .apx-card:hover { box-shadow: 0 4px 12px rgba(0,23,49,0.10); }
+  .apx-card.in_progress { border-left-color: var(--medium-blue); }
+  .apx-card.done { border-color: var(--lime); border-left: 4px solid var(--lime); background: var(--light-blue); }
+  .apx-card-top { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .apx-card-title-wrap { flex: 1 1 380px; min-width: 0; }
+  .apx-title { font-size: 18px; font-weight: 700; }
+  .apx-card.done .apx-title { text-decoration: line-through; text-decoration-color: var(--grey); text-decoration-thickness: 1.5px; }
+  .apx-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .apx-tag {
+    font-size: 11.5px; font-weight: 500; letter-spacing: 0.03em;
+    background: var(--light-grey); color: var(--fg2); border-radius: 4px; padding: 2px 8px;
+  }
+  .apx-lvl { font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; border-radius: 4px; padding: 2px 8px; }
+  .apx-lvl.foundation { background: var(--light-grey); color: var(--fg2); }
+  .apx-lvl.working { background: var(--sky-blue); color: var(--midnight); }
+  .apx-lvl.stretch { background: var(--blue); color: var(--lime); }
+  .apx-pill {
+    border: 1.5px solid rgba(0,40,85,0.15); border-radius: 999px; padding: 7px 16px;
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    background: var(--light-grey); color: var(--fg2);
+    white-space: nowrap; align-self: center;
+  }
+  .apx-pill.in_progress { background: #E4F0FE; color: var(--medium-blue); border-color: var(--medium-blue); }
+  .apx-pill.done { background: var(--lime); color: var(--blue); border-color: var(--lime); }
+
+  .apx-body { font-size: 14.5px; line-height: 1.5; color: var(--fg2); }
+  .apx-body p { margin: 12px 0 0; }
+  .apx-label {
+    font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--medium-blue); margin: 14px 0 4px;
+  }
+  .apx-body ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+  .apx-body code {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.86em;
+    background: var(--light-grey); color: var(--blue); border-radius: 4px; padding: 1px 5px;
+  }
+  .apx-card.done .apx-body code { background: rgba(0,40,85,0.08); }
+  .apx-body pre {
+    background: var(--midnight); color: #D8E6F4;
+    border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 10px 0 0;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12.5px; line-height: 1.5;
+  }
+  .apx-body pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  .apx-trap {
+    background: var(--trap-bg); border-left: 3px solid var(--trap-edge);
+    border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 14px;
+  }
+  .apx-trap b { color: var(--trap-edge); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .apx-trap p { margin: 4px 0 0; }
+
+  footer.apx-foot {
+    border-top: 1px solid var(--hairline); padding-top: 20px;
+    font-size: 14px; color: var(--grey);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  footer.apx-foot a { color: var(--fg2); }
+  .apx-run { background: var(--midnight); color: #E8EDF7; border-radius: 6px; padding: 10px 13px; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; line-height: 1.55; white-space: pre-wrap; overflow-x: auto; margin: 4px 0 0; }
+  .apx-run code { background: none; padding: 0; color: inherit; font-size: inherit; }
+</style>
+</head>
+<body>
+
+<header class="apx-hdr">
+  <div class="apx-hdr-inner">
+    <div class="apx-eyebrow">Apex Training &middot; Entry Level</div>
+    <div class="apx-hdr-row">
+      <h1>Apex<br>Basics</h1>
+      <div class="apx-count-wrap">
+        <div class="apx-count"><span id="doneCount">0</span><span class="apx-of">/<span id="totalCount">12</span></span></div>
+        <div class="apx-count-sub" id="countSub">built &amp; working</div>
+      </div>
+    </div>
+    <p class="apx-hdr-sub">Twelve small drills for getting into VS Code and actually shipping something to your sandbox. No frameworks, no architecture, no handler patterns — write a file, deploy it, run it, see the result. Work these before the Practice Reps, which assume you already have the loop working.</p>
+    <div class="apx-track"><div class="apx-bar" id="bar"></div></div>
+  </div>
+</header>
+
+<div class="apx-filterbar">
+  <div class="apx-filter-inner">
+    <a href="apex-practice.html">Apex Practice Reps &rarr;</a>
+    <span class="apx-filter-spacer"></span>
+    <span class="apx-save-note" id="saveNote">Progress saves automatically</span>
+    <button type="button" class="apx-reset apx-status-btn" id="resetBtn">Reset all</button>
+  </div>
+</div>
+
+<main>
+
+<div class="apx-rules">
+  <h2>How to work these</h2>
+  <ul>
+    <li><strong>It does not have to be good.</strong> Nothing here is going to production. The only failure is not opening VS Code.</li>
+    <li><strong>Deploy every single one.</strong> Right-click the file &rarr; <em>SFDX: Deploy Source to Org</em>, or <code>sf project deploy start -d force-app</code>. Code that only exists locally does not count.</li>
+    <li><strong>Run it and look at the output.</strong> <em>SFDX: Execute Anonymous Apex</em>, then read the debug log. Seeing your own <code>System.debug</code> come back is the whole point.</li>
+    <li><strong>Sandbox only.</strong> These drills insert and delete records. Point at TrentDev, never production.</li>
+    <li><strong>One sitting each.</strong> If a drill takes more than 20 minutes, you have wandered off the drill — cut it back down.</li>
+  </ul>
+</div>
+
+<!-- ============ GROUP 00 ============ -->
+<section class="apx-tier" data-tier="1">
+  <div class="apx-tier-head"><span class="apx-tier-num">00</span><h2>Close the loop</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Before any Apex matters, the pipe from VS Code to your sandbox has to work.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="b1">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">1 &middot; Hello, sandbox</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">deploy</span><span class="apx-tag">Execute Anonymous</span><span class="apx-tag">debug log</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b1">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Prove the pipe works end to end. One class, one method, one debug line — written locally, deployed to your sandbox, and executed.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>In VS Code: <code>Cmd+Shift+P</code> &rarr; <em>SFDX: Create Apex Class</em> &rarr; name it <code>HelloApex</code>.</li>
+        <li>Give it one method: <code>public static void sayHi()</code> that calls <code>System.debug('Hi from ' + UserInfo.getName());</code></li>
+        <li>Right-click the file &rarr; <em>SFDX: Deploy Source to Org</em>.</li>
+      </ul>
+      <div class="apx-label">Run it</div>
+      <div class="apx-run">HelloApex.sayHi();</div>
+      <div class="apx-trap"><b>Worth knowing</b><p>If the deploy fails before you have written anything real, that is still a win — the error is about your org connection, not your code. Fix that first, because every other drill depends on it.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>The class appears in Setup &rarr; Apex Classes in your sandbox.</li>
+        <li>You can find your debug line in the log output.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b2">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">2 &middot; Your first test class</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">@isTest</span><span class="apx-tag">Assert</span><span class="apx-tag">coverage</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b2">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Apex will not deploy to production without test coverage. Learn the shape of a test now, while the thing being tested is trivial.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Create <code>HelloApexTest</code> and annotate the class <code>@isTest</code>.</li>
+        <li>One method: <code>@isTest static void testSayHi()</code> that calls <code>HelloApex.sayHi();</code></li>
+        <li>Add one assertion — even <code>Assert.areEqual(1, 1);</code> counts for today.</li>
+        <li>Run it: Command Palette &rarr; <em>SFDX: Run Apex Tests</em>.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>A test that asserts nothing still passes. That is the habit worth breaking early — write the assert line first, even a silly one, so the muscle is there when the code is real.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>The test passes green in the VS Code output.</li>
+        <li><code>HelloApex</code> shows coverage in Setup &rarr; Apex Classes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b3">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">3 &middot; Break it on purpose</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">errors</span><span class="apx-tag">reading logs</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b3">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> You will read far more error messages than you write lines of code. Practice reading them while the stakes are zero.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Delete a semicolon in <code>HelloApex</code>. Deploy. Read the error.</li>
+        <li>Rename the method in the class but not in the test. Deploy. Read that error.</li>
+        <li>Reference a field that does not exist, like <code>Account.Nonsense__c</code>. Deploy. Read that one too.</li>
+      </ul>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>For each error you can point at the file and line before scrolling up to look.</li>
+        <li>You can tell a compile error apart from a test failure at a glance.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ GROUP 01 ============ -->
+<section class="apx-tier" data-tier="2">
+  <div class="apx-tier-head"><span class="apx-tier-num">01</span><h2>Data you hold onto</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Variables and collections. Small, dull, and the foundation of everything after it.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="b4">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">4 &middot; Variables and types</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Fundamentals</span><span class="apx-tag">String</span><span class="apx-tag">Integer</span><span class="apx-tag">Decimal</span><span class="apx-tag">Date</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b4">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Apex is typed — you declare what a thing is before you use it. Get the six types you will actually touch into your fingers.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>New class <code>BasicsVars</code> with one static method <code>run()</code>.</li>
+        <li>Declare and debug a <code>String</code>, <code>Integer</code>, <code>Decimal</code>, <code>Boolean</code>, <code>Date</code>, and an <code>Id</code>.</li>
+        <li>Concatenate a String and an Integer in one debug line and notice what Apex does with it.</li>
+      </ul>
+      <div class="apx-label">Run it</div>
+      <div class="apx-run">BasicsVars.run();</div>
+      <div class="apx-trap"><b>Worth knowing</b><p>Use <code>Decimal</code>, not <code>Double</code>, for anything involving money. Salesforce currency fields come back as Decimal, and mixing the two is a rounding bug waiting for a quarter-end close.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Six debug lines, all with the values you expected.</li>
+        <li>You know which type an Id is and why it is not just a String.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b5">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">5 &middot; List, Set, Map</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Fundamentals</span><span class="apx-tag">collections</span><span class="apx-tag">dedupe</span><span class="apx-tag">key lookup</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b5">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Three collections. A surprising share of Apex bugs come down to having picked the wrong one.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Build a <code>List&lt;String&gt;</code> of five names, two of them duplicates. Debug <code>.size()</code>.</li>
+        <li>Pour the same five into a <code>Set&lt;String&gt;</code>. Debug <code>.size()</code> again.</li>
+        <li>Build a <code>Map&lt;String, Integer&gt;</code> of name &rarr; name length. Pull one value out by key, without looping.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>The Map is the one that pays off most. Nearly every "why is this so slow" Apex fix is someone replacing a nested loop with a Map lookup.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>You can say out loud why the List and Set sizes differ.</li>
+        <li>You got a value out of the Map by key with no loop involved.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b6">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">6 &middot; Loops and conditionals</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Fundamentals</span><span class="apx-tag">for</span><span class="apx-tag">if</span><span class="apx-tag">running total</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b6">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Loop a collection, make a decision inside it, and keep a running total across the iterations.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Method that builds a <code>List&lt;Integer&gt;</code> holding 1 through 20.</li>
+        <li><code>for</code> loop over it; <code>if</code> the number is even, add it to a running total.</li>
+        <li>Debug the total, then write it again using a <code>for (Integer i = 0; i &lt; 20; i++)</code> style loop.</li>
+      </ul>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Both loop styles produce 110.</li>
+        <li>You know which of the two you find easier to read.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ GROUP 02 ============ -->
+<section class="apx-tier" data-tier="3">
+  <div class="apx-tier-head"><span class="apx-tier-num">02</span><h2>Talking to the database</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">SOQL reads, DML writes. This is where Apex stops being a toy.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="b7">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">7 &middot; Your first SOQL query</div>
+        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">SOQL</span><span class="apx-tag">SELECT</span><span class="apx-tag">loop</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b7">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Read real data out of your org and prove it matches what the UI shows you.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li><code>List&lt;Account&gt; accts = [SELECT Id, Name FROM Account LIMIT 5];</code></li>
+        <li>Debug <code>accts.size()</code>, then loop and debug each Name.</li>
+        <li>Open the Accounts tab and compare.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>SOQL only returns the fields you name in the SELECT. Touching <code>acct.Phone</code> when you never selected Phone throws at runtime, not at compile time — one of the most common first bugs.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Names in the log match the Accounts tab.</li>
+        <li>If you got zero rows, you knew to go create an Account first.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b8">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">8 &middot; Filter, sort, limit</div>
+        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">WHERE</span><span class="apx-tag">ORDER BY</span><span class="apx-tag">bind variable</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b8">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> A query with no WHERE clause is rarely the query you actually wanted.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Query Accounts <code>WHERE Name LIKE 'A%'</code>.</li>
+        <li>Add <code>ORDER BY Name ASC</code> and <code>LIMIT 10</code>.</li>
+        <li>Then put a String in a variable and query <code>WHERE Name = :myVar</code>.</li>
+      </ul>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Three working queries, each returning what you predicted.</li>
+        <li>You can explain what the colon does in a bind variable.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b9">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">9 &middot; Your first DML</div>
+        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">insert</span><span class="apx-tag">update</span><span class="apx-tag">delete</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b9">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Write data into the org — insert, update, delete — and watch each one land in the UI.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li><code>Account a = new Account(Name = 'Apex Test Co');</code> then <code>insert a;</code></li>
+        <li>Debug <code>a.Id</code> — note it was blank before the insert and populated after.</li>
+        <li>Change the Name and <code>update a;</code>, then <code>delete a;</code> and go find it in the Recycle Bin.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>Sandbox only, never production. This is exactly the drill where a stray Execute Anonymous run goes somewhere you did not mean — check which org is connected before you hit run.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>You watched the record appear, change, and vanish in the Salesforce UI.</li>
+        <li>You can explain where the Id came from and when it got set.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b10">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">10 &middot; Query, change, update as a list</div>
+        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">bulkification</span><span class="apx-tag">governor limits</span><span class="apx-tag">DML</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b10">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> The single most important habit in Apex — one DML call for many records, never one call per record.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Query 10 Accounts into a <code>List&lt;Account&gt;</code>.</li>
+        <li>Loop them and set <code>Description = 'Touched by Apex'</code>.</li>
+        <li>Outside the loop, call <code>update accts;</code> once.</li>
+        <li>Now write the bad version with <code>update a;</code> inside the loop. Run both and compare <code>Limits.getDmlStatements()</code>.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>This is the difference every Salesforce interview question is fishing for. Bulkification just means: collect first, act once, outside the loop.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>The good version uses 1 DML statement; the bad version uses 10.</li>
+        <li>You can state the limit from memory — 150 DML statements per transaction.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ GROUP 03 ============ -->
+<section class="apx-tier" data-tier="4">
+  <div class="apx-tier-head"><span class="apx-tier-num">03</span><h2>Your first trigger</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">No handler class, no framework, no architecture lecture. Make a trigger fire, then test it.</p>
+  <div class="apx-cards">
+
+  <div class="apx-card" data-item="b11">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">11 &middot; A trigger that fills in a blank</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Putting it together</span><span class="apx-tag">before insert</span><span class="apx-tag">Trigger.new</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b11">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> See a trigger fire. The smallest possible one that does something you can actually see in the UI.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li><em>SFDX: Create Apex Trigger</em> &rarr; <code>AccountTrigger</code> on Account, <code>before insert</code>.</li>
+        <li>Inside, loop <code>Trigger.new</code>; if <code>a.Description</code> is blank, set it to <code>'Created ' + Date.today().format()</code>.</li>
+        <li>Deploy, then create an Account in the UI with the Description left empty.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p><code>before insert</code> means you can just set the field — no update statement needed, because the record has not been written yet. The same logic in <code>after insert</code> would cost you an entire extra DML call.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>The new Account shows your generated Description, saved with no second DML.</li>
+        <li>You can explain why <code>before</code> was the right context here.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b12">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">12 &middot; Test the trigger, then bulk it</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Putting it together</span><span class="apx-tag">Test.startTest</span><span class="apx-tag">200 records</span><span class="apx-tag">assert</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b12">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The drill:</strong> Prove the trigger works for one record. Then prove it still works for two hundred in a single insert.</p>
+      <div class="apx-label">Build</div>
+      <ul>
+        <li>Test class: insert one Account with no Description, query it back, assert the Description is not blank.</li>
+        <li>Second method: build a <code>List&lt;Account&gt;</code> of 200 and insert them in one call.</li>
+        <li>Wrap the inserts in <code>Test.startTest()</code> / <code>Test.stopTest()</code>, then assert all 200 got a Description.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>If the 200-record test fails, you have found a real bulkification bug in your own trigger. That is not a setback — finding it yourself is the entire point of the drill, and it is the bridge to the Practice Reps.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Both test methods pass.</li>
+        <li>You understand why the 200 case is the one that matters.</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<footer class="apx-foot">
+  <span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>These are warm-ups, not portfolio pieces. Once all twelve are green, the Practice Reps will feel like the same moves at a bigger size.</span>
+  <span><a href="apex-practice.html">Apex Practice Reps &rarr;</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></span>
+</footer>
+
+</main>
+
+<script>
+const STORAGE_KEY = "apex-basics-v1";
+
+const STATUS = {
+  not_started: { label: "Not started", next: "in_progress" },
+  in_progress: { label: "In progress", next: "done" },
+  done: { label: "Built & working", next: "not_started" }
+};
+
+let statuses = {};
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.statuses) statuses = parsed.statuses;
+  }
+} catch (e) { statuses = {}; }
+
+function persist() {
+  const note = document.getElementById("saveNote");
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses }));
+    note.textContent = "Progress saves automatically";
+    note.style.color = "";
+  } catch (e) {
+    note.textContent = "Save failed — progress may not persist";
+    note.style.color = "#B3261E";
+  }
+}
+
+function stOf(id) { return statuses[id] || "not_started"; }
+
+function paint() {
+  const cards = document.querySelectorAll("[data-item]");
+  let done = 0, ip = 0;
+  cards.forEach(function(card) {
+    const id = card.getAttribute("data-item");
+    const st = stOf(id);
+    card.classList.remove("in_progress", "done");
+    if (st !== "not_started") card.classList.add(st);
+    const pill = card.querySelector("[data-cycle]");
+    pill.classList.remove("in_progress", "done");
+    if (st !== "not_started") pill.classList.add(st);
+    pill.textContent = STATUS[st].label;
+    if (st === "done") done++;
+    if (st === "in_progress") ip++;
+  });
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("totalCount").textContent = cards.length;
+  document.getElementById("countSub").innerHTML = "built &amp; working" + (ip > 0 ? " &middot; " + ip + " in progress" : "");
+  document.getElementById("bar").style.width = Math.round(done / cards.length * 100) + "%";
+
+  document.querySelectorAll("section.apx-tier").forEach(function(sec) {
+    const items = sec.querySelectorAll("[data-item]");
+    let tierDone = 0;
+    items.forEach(function(c) { if (stOf(c.getAttribute("data-item")) === "done") tierDone++; });
+    sec.querySelector(".apx-tier-count").textContent = tierDone + "/" + items.length;
+    sec.querySelector(".apx-tier-num").classList.toggle("complete", tierDone === items.length);
+  });
+}
+
+document.querySelectorAll("[data-cycle]").forEach(function(b) {
+  b.addEventListener("click", function() {
+    const id = this.getAttribute("data-cycle");
+    statuses[id] = STATUS[stOf(id)].next;
+    persist();
+    paint();
+  });
+});
+
+document.getElementById("resetBtn").addEventListener("click", function() {
+  if (!window.confirm("Reset all progress? This clears every problem back to Not started.")) return;
+  statuses = {};
+  persist();
+  paint();
+});
+
+paint();
+</script>
+</body>
+</html>
