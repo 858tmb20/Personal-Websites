@@ -173,7 +173,7 @@
         <div class="apx-count-sub" id="countSub">built &amp; working</div>
       </div>
     </div>
-    <p class="apx-hdr-sub">Twelve small drills for getting into VS Code and actually shipping something to your sandbox. No frameworks, no architecture, no handler patterns — write a file, deploy it, run it, see the result. Work these before the Practice Reps, which assume you already have the loop working.</p>
+    <p class="apx-hdr-sub">Twelve small business scenarios. Read the ask, write the trigger, write the handler, deploy it, watch it fire. Every one is a trigger plus a handler class — nothing else. They start with one object and one field and end with recursion guards, so by the last one the Practice Reps will read like the same moves at a bigger size.</p>
     <div class="apx-track"><div class="apx-bar" id="bar"></div></div>
   </div>
 </header>
@@ -192,43 +192,45 @@
 <div class="apx-rules">
   <h2>How to work these</h2>
   <ul>
-    <li><strong>It does not have to be good.</strong> Nothing here is going to production. The only failure is not opening VS Code.</li>
-    <li><strong>Deploy every single one.</strong> Right-click the file &rarr; <em>SFDX: Deploy Source to Org</em>, or <code>sf project deploy start -d force-app</code>. Code that only exists locally does not count.</li>
-    <li><strong>Run it and look at the output.</strong> <em>SFDX: Execute Anonymous Apex</em>, then read the debug log. Seeing your own <code>System.debug</code> come back is the whole point.</li>
-    <li><strong>Sandbox only.</strong> These drills insert and delete records. Point at TrentDev, never production.</li>
-    <li><strong>One sitting each.</strong> If a drill takes more than 20 minutes, you have wandered off the drill — cut it back down.</li>
+    <li><strong>Always two files.</strong> A trigger that delegates in one line, and a handler class that holds the logic. Even when the logic is three lines and the split feels silly — that is the habit being drilled.</li>
+    <li><strong>It does not have to be good.</strong> Nothing here ships. Skip the service layer, skip the feature flags, skip the framework. Trigger, handler, done.</li>
+    <li><strong>Deploy every one.</strong> Right-click &rarr; <em>SFDX: Deploy Source to Org</em>, or <code>sf project deploy start -d force-app</code>. Then make the change in the UI and watch it happen.</li>
+    <li><strong>Custom fields as you go.</strong> A few scenarios need a checkbox or number field that does not exist yet. Create it in Setup when you hit it — that is part of the rep.</li>
+    <li><strong>Sandbox only.</strong> TrentDev, never production.</li>
   </ul>
 </div>
 
 <!-- ============ GROUP 00 ============ -->
 <section class="apx-tier" data-tier="1">
-  <div class="apx-tier-head"><span class="apx-tier-num">00</span><h2>Close the loop</h2><span class="apx-tier-count"></span></div>
-  <p class="apx-tier-goal">Before any Apex matters, the pipe from VS Code to your sandbox has to work.</p>
+  <div class="apx-tier-head"><span class="apx-tier-num">00</span><h2>One object, one field</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Before-triggers on a single record. No queries, no other objects — just get the two-file habit into your hands.</p>
   <div class="apx-cards">
 
   <div class="apx-card" data-item="b1">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">1 &middot; Hello, sandbox</div>
-        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">deploy</span><span class="apx-tag">Execute Anonymous</span><span class="apx-tag">debug log</span></div>
+        <div class="apx-title">1 &middot; Default the Rating on new Accounts</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">before insert</span><span class="apx-tag">Trigger.new</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b1">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Prove the pipe works end to end. One class, one method, one debug line — written locally, deployed to your sandbox, and executed.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> Partner managers keep creating Accounts with the Rating left empty, and the reports look broken. When an Account is created with no Rating, it should default to <code>Warm</code>.</p>
+      <div class="apx-label">The trigger</div>
       <ul>
-        <li>In VS Code: <code>Cmd+Shift+P</code> &rarr; <em>SFDX: Create Apex Class</em> &rarr; name it <code>HelloApex</code>.</li>
-        <li>Give it one method: <code>public static void sayHi()</code> that calls <code>System.debug('Hi from ' + UserInfo.getName());</code></li>
-        <li>Right-click the file &rarr; <em>SFDX: Deploy Source to Org</em>.</li>
+        <li><code>AccountTrigger</code> on Account, <code>before insert</code>.</li>
+        <li>One line inside: <code>AccountTriggerHandler.handleBeforeInsert(Trigger.new);</code></li>
       </ul>
-      <div class="apx-label">Run it</div>
-      <div class="apx-run">HelloApex.sayHi();</div>
-      <div class="apx-trap"><b>Worth knowing</b><p>If the deploy fails before you have written anything real, that is still a win — the error is about your org connection, not your code. Fix that first, because every other drill depends on it.</p></div>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li><code>handleBeforeInsert(List&lt;Account&gt; newAccounts)</code> loops the list.</li>
+        <li>If <code>acc.Rating</code> is blank, set it to <code>'Warm'</code>. That is the whole method.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>No <code>update</code> statement anywhere. In a <code>before</code> trigger the record has not been written yet, so assigning the field is enough — Salesforce saves what you leave in <code>Trigger.new</code>.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>The class appears in Setup &rarr; Apex Classes in your sandbox.</li>
-        <li>You can find your debug line in the log output.</li>
+        <li>You create an Account in the UI with Rating empty and it saves as Warm.</li>
+        <li>An Account created <em>with</em> a Rating keeps the one you typed.</li>
       </ul>
     </div>
   </div>
@@ -236,25 +238,28 @@
   <div class="apx-card" data-item="b2">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">2 &middot; Your first test class</div>
-        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">@isTest</span><span class="apx-tag">Assert</span><span class="apx-tag">coverage</span></div>
+        <div class="apx-title">2 &middot; Clean up the partner code on save</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">before insert</span><span class="apx-tag">before update</span><span class="apx-tag">two contexts</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b2">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Apex will not deploy to production without test coverage. Learn the shape of a test now, while the thing being tested is trivial.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> Everyone types the partner code differently — lowercase, trailing spaces, mixed case. Whenever an Account is saved, the code should end up trimmed and uppercase, no matter how it was typed.</p>
+      <div class="apx-label">The trigger</div>
       <ul>
-        <li>Create <code>HelloApexTest</code> and annotate the class <code>@isTest</code>.</li>
-        <li>One method: <code>@isTest static void testSayHi()</code> that calls <code>HelloApex.sayHi();</code></li>
-        <li>Add one assertion — even <code>Assert.areEqual(1, 1);</code> counts for today.</li>
-        <li>Run it: Command Palette &rarr; <em>SFDX: Run Apex Tests</em>.</li>
+        <li>Add <code>before update</code> to your existing <code>AccountTrigger</code>.</li>
+        <li>Route both contexts to the same handler method — the logic is identical for insert and update.</li>
       </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p>A test that asserts nothing still passes. That is the habit worth breaking early — write the assert line first, even a silly one, so the muscle is there when the code is real.</p></div>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li><code>normalizeCode(List&lt;Account&gt; accounts)</code> — loop, and if the field is not null, set it to <code>code.trim().toUpperCase()</code>.</li>
+        <li>Use any text field you like. <code>AccountNumber</code> works without creating anything.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>This is your first taste of one handler method serving two trigger contexts. Notice you did not need <code>Trigger.old</code> — you are not comparing anything, just cleaning whatever came in.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>The test passes green in the VS Code output.</li>
-        <li><code>HelloApex</code> shows coverage in Setup &rarr; Apex Classes.</li>
+        <li>Typing <code>  abc-123  </code> saves as <code>ABC-123</code> on both create and edit.</li>
+        <li>Saving an Account with the field empty does not blow up with a null error.</li>
       </ul>
     </div>
   </div>
@@ -262,23 +267,29 @@
   <div class="apx-card" data-item="b3">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">3 &middot; Break it on purpose</div>
-        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">errors</span><span class="apx-tag">reading logs</span></div>
+        <div class="apx-title">3 &middot; Only act when the field actually changed</div>
+        <div class="apx-tags"><span class="apx-lvl foundation">Start here</span><span class="apx-tag">Trigger.oldMap</span><span class="apx-tag">change detection</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b3">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> You will read far more error messages than you write lines of code. Practice reading them while the stakes are zero.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> When a Contact's Email changes, stamp a date field with today so we know when their contact info was last touched. Editing any <em>other</em> field on the Contact should leave that date alone.</p>
+      <div class="apx-label">The trigger</div>
       <ul>
-        <li>Delete a semicolon in <code>HelloApex</code>. Deploy. Read the error.</li>
-        <li>Rename the method in the class but not in the test. Deploy. Read that error.</li>
-        <li>Reference a field that does not exist, like <code>Account.Nonsense__c</code>. Deploy. Read that one too.</li>
+        <li><code>ContactTrigger</code> on Contact, <code>before update</code>.</li>
+        <li>Pass both collections: <code>ContactTriggerHandler.stampEmailChange(Trigger.new, Trigger.oldMap);</code></li>
       </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Signature takes <code>List&lt;Contact&gt; newContacts, Map&lt;Id, Contact&gt; oldMap</code>.</li>
+        <li>For each Contact, compare <code>con.Email</code> to <code>oldMap.get(con.Id).Email</code>.</li>
+        <li>Only when they differ, set your date field to <code>Date.today()</code>.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>This comparison is the single most reused pattern in Apex. Without it, a trigger fires its logic on every save of every record forever — which is how a simple stamp turns into a performance incident.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>For each error you can point at the file and line before scrolling up to look.</li>
-        <li>You can tell a compile error apart from a test failure at a glance.</li>
+        <li>Changing the Email sets the date.</li>
+        <li>Changing only the Title leaves the date exactly as it was.</li>
       </ul>
     </div>
   </div>
@@ -288,33 +299,37 @@
 
 <!-- ============ GROUP 01 ============ -->
 <section class="apx-tier" data-tier="2">
-  <div class="apx-tier-head"><span class="apx-tier-num">01</span><h2>Data you hold onto</h2><span class="apx-tier-count"></span></div>
-  <p class="apx-tier-goal">Variables and collections. Small, dull, and the foundation of everything after it.</p>
+  <div class="apx-tier-head"><span class="apx-tier-num">01</span><h2>Reach to the parent</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">After-triggers that write to a different object. Collect ids, query once, update once.</p>
   <div class="apx-cards">
 
   <div class="apx-card" data-item="b4">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">4 &middot; Variables and types</div>
-        <div class="apx-tags"><span class="apx-lvl foundation">Fundamentals</span><span class="apx-tag">String</span><span class="apx-tag">Integer</span><span class="apx-tag">Decimal</span><span class="apx-tag">Date</span></div>
+        <div class="apx-title">4 &middot; Contact phone changes &rarr; copy it to the Account</div>
+        <div class="apx-tags"><span class="apx-lvl working">Cross-object</span><span class="apx-tag">after update</span><span class="apx-tag">parent update</span><span class="apx-tag">Map</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b4">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Apex is typed — you declare what a thing is before you use it. Get the six types you will actually touch into your fingers.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> When a Contact's Phone is updated, push that number onto the parent Account's Phone field so the Account always shows the most recently updated contact number.</p>
+      <div class="apx-label">The trigger</div>
       <ul>
-        <li>New class <code>BasicsVars</code> with one static method <code>run()</code>.</li>
-        <li>Declare and debug a <code>String</code>, <code>Integer</code>, <code>Decimal</code>, <code>Boolean</code>, <code>Date</code>, and an <code>Id</code>.</li>
-        <li>Concatenate a String and an Integer in one debug line and notice what Apex does with it.</li>
+        <li><code>ContactTrigger</code>, add <code>after update</code>.</li>
+        <li>Delegate with <code>Trigger.new</code> and <code>Trigger.oldMap</code>.</li>
       </ul>
-      <div class="apx-label">Run it</div>
-      <div class="apx-run">BasicsVars.run();</div>
-      <div class="apx-trap"><b>Worth knowing</b><p>Use <code>Decimal</code>, not <code>Double</code>, for anything involving money. Salesforce currency fields come back as Decimal, and mixing the two is a rounding bug waiting for a quarter-end close.</p></div>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Loop Contacts; skip any whose Phone did not change (drill 3's pattern) or whose <code>AccountId</code> is null.</li>
+        <li>Build a <code>Map&lt;Id, String&gt;</code> of AccountId &rarr; new phone.</li>
+        <li>Build a <code>List&lt;Account&gt;</code> from that map using <code>new Account(Id = accId, Phone = phone)</code> — no query needed.</li>
+        <li>One <code>update</code> call on the list, outside every loop.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>You can update a record you never queried, as long as you have its Id. Constructing <code>new Account(Id = ...)</code> saves you an entire SOQL query, and it is the normal way to do parent updates.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>Six debug lines, all with the values you expected.</li>
-        <li>You know which type an Id is and why it is not just a String.</li>
+        <li>Editing a Contact's Phone updates the Account within the same save.</li>
+        <li>Editing a Contact with no Account attached does not throw.</li>
       </ul>
     </div>
   </div>
@@ -322,24 +337,32 @@
   <div class="apx-card" data-item="b5">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">5 &middot; List, Set, Map</div>
-        <div class="apx-tags"><span class="apx-lvl foundation">Fundamentals</span><span class="apx-tag">collections</span><span class="apx-tag">dedupe</span><span class="apx-tag">key lookup</span></div>
+        <div class="apx-title">5 &middot; Opportunity goes Closed Won &rarr; flag the Account</div>
+        <div class="apx-tags"><span class="apx-lvl working">Cross-object</span><span class="apx-tag">stage change</span><span class="apx-tag">checkbox</span><span class="apx-tag">date stamp</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b5">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Three collections. A surprising share of Apex bugs come down to having picked the wrong one.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> The moment an Opportunity flips to Closed Won, the parent Account should be marked as a signed partner — a checkbox ticked and a date field set to today. Once marked, later edits should not un-mark it.</p>
+      <div class="apx-label">Setup first</div>
       <ul>
-        <li>Build a <code>List&lt;String&gt;</code> of five names, two of them duplicates. Debug <code>.size()</code>.</li>
-        <li>Pour the same five into a <code>Set&lt;String&gt;</code>. Debug <code>.size()</code> again.</li>
-        <li>Build a <code>Map&lt;String, Integer&gt;</code> of name &rarr; name length. Pull one value out by key, without looping.</li>
+        <li>On Account, create <code>Is_Signed_Partner__c</code> (checkbox) and <code>First_Won_Date__c</code> (date).</li>
       </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p>The Map is the one that pays off most. Nearly every "why is this so slow" Apex fix is someone replacing a nested loop with a Map lookup.</p></div>
+      <div class="apx-label">The trigger</div>
+      <ul>
+        <li><code>OpportunityTrigger</code> on Opportunity, <code>after update</code>.</li>
+      </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>For each Opportunity, check the stage <em>became</em> Closed Won: new is <code>'Closed Won'</code> and old was not.</li>
+        <li>Collect the <code>AccountId</code>s into a <code>Set&lt;Id&gt;</code>.</li>
+        <li>Build Accounts with the checkbox true and the date set to <code>Date.today()</code>, then one <code>update</code>.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>"Became Closed Won" is not the same as "is Closed Won." Without the old-value check, every later edit to an already-won Opportunity re-stamps the date, and your "first won" field quietly becomes "most recently edited."</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>You can say out loud why the List and Set sizes differ.</li>
-        <li>You got a value out of the Map by key with no loop involved.</li>
+        <li>Moving an Opportunity to Closed Won ticks the box and sets the date.</li>
+        <li>Editing the Opportunity's name afterwards leaves the date unchanged.</li>
       </ul>
     </div>
   </div>
@@ -347,23 +370,34 @@
   <div class="apx-card" data-item="b6">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">6 &middot; Loops and conditionals</div>
-        <div class="apx-tags"><span class="apx-lvl foundation">Fundamentals</span><span class="apx-tag">for</span><span class="apx-tag">if</span><span class="apx-tag">running total</span></div>
+        <div class="apx-title">6 &middot; Keep a live Contact count on the Account</div>
+        <div class="apx-tags"><span class="apx-lvl working">Cross-object</span><span class="apx-tag">after insert</span><span class="apx-tag">after delete</span><span class="apx-tag">aggregate</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b6">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Loop a collection, make a decision inside it, and keep a running total across the iterations.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> Account owners want a number field showing how many Contacts the Account has, kept accurate as Contacts are added and removed.</p>
+      <div class="apx-label">Setup first</div>
       <ul>
-        <li>Method that builds a <code>List&lt;Integer&gt;</code> holding 1 through 20.</li>
-        <li><code>for</code> loop over it; <code>if</code> the number is even, add it to a running total.</li>
-        <li>Debug the total, then write it again using a <code>for (Integer i = 0; i &lt; 20; i++)</code> style loop.</li>
+        <li>On Account, create <code>Contact_Count__c</code> (number, 0 decimals).</li>
       </ul>
+      <div class="apx-label">The trigger</div>
+      <ul>
+        <li><code>ContactTrigger</code>, add <code>after insert</code> and <code>after delete</code>.</li>
+        <li>On insert read <code>Trigger.new</code>; on delete read <code>Trigger.old</code> — <code>Trigger.new</code> is null in a delete.</li>
+      </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Collect affected AccountIds into a <code>Set&lt;Id&gt;</code>.</li>
+        <li>One query: <code>SELECT AccountId, COUNT(Id) c FROM Contact WHERE AccountId IN :accIds GROUP BY AccountId</code>.</li>
+        <li>Seed a map with <code>0</code> for every id first, then overwrite from the query results.</li>
+        <li>Build the Account list and <code>update</code> once.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>That zero-seeding step is the bug everyone hits. An Account whose last Contact was just deleted returns <em>no row</em> from the aggregate query — so without seeding, it keeps its old count forever.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>Both loop styles produce 110.</li>
-        <li>You know which of the two you find easier to read.</li>
+        <li>Adding a Contact increments the count; deleting one decrements it.</li>
+        <li>Deleting the last Contact leaves the Account showing 0, not 1.</li>
       </ul>
     </div>
   </div>
@@ -373,31 +407,39 @@
 
 <!-- ============ GROUP 02 ============ -->
 <section class="apx-tier" data-tier="3">
-  <div class="apx-tier-head"><span class="apx-tier-num">02</span><h2>Talking to the database</h2><span class="apx-tier-count"></span></div>
-  <p class="apx-tier-goal">SOQL reads, DML writes. This is where Apex stops being a toy.</p>
+  <div class="apx-tier-head"><span class="apx-tier-num">02</span><h2>Guardrails</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Triggers that stop bad data or enforce a "only one of these" rule.</p>
   <div class="apx-cards">
 
   <div class="apx-card" data-item="b7">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">7 &middot; Your first SOQL query</div>
-        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">SOQL</span><span class="apx-tag">SELECT</span><span class="apx-tag">loop</span></div>
+        <div class="apx-title">7 &middot; Only one primary Contact per Account</div>
+        <div class="apx-tags"><span class="apx-lvl working">Guardrail</span><span class="apx-tag">one-of rule</span><span class="apx-tag">sibling update</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b7">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Read real data out of your org and prove it matches what the UI shows you.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> Each Account should have exactly one primary Contact. When someone marks a Contact as primary, every other Contact on that Account should be un-marked automatically — no error message, just make it true.</p>
+      <div class="apx-label">Setup first</div>
       <ul>
-        <li><code>List&lt;Account&gt; accts = [SELECT Id, Name FROM Account LIMIT 5];</code></li>
-        <li>Debug <code>accts.size()</code>, then loop and debug each Name.</li>
-        <li>Open the Accounts tab and compare.</li>
+        <li>On Contact, create <code>Is_Primary__c</code> (checkbox).</li>
       </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p>SOQL only returns the fields you name in the SELECT. Touching <code>acct.Phone</code> when you never selected Phone throws at runtime, not at compile time — one of the most common first bugs.</p></div>
+      <div class="apx-label">The trigger</div>
+      <ul>
+        <li><code>ContactTrigger</code>, <code>after insert</code> and <code>after update</code>.</li>
+      </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Find Contacts where <code>Is_Primary__c</code> just became true. Collect their AccountIds and their own Ids.</li>
+        <li>Query the siblings: Contacts on those Accounts, <code>Is_Primary__c = true</code>, <code>Id NOT IN</code> the ones just marked.</li>
+        <li>Set those to false and <code>update</code> once.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>Your handler updates Contacts from inside a Contact trigger, so the trigger fires again on those records. It happens to settle here because the second pass finds nothing to change — but this is exactly the setup that becomes drill 12.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>Names in the log match the Accounts tab.</li>
-        <li>If you got zero rows, you knew to go create an Account first.</li>
+        <li>Marking a second Contact primary silently un-marks the first.</li>
+        <li>An Account with three Contacts never shows two primaries at once.</li>
       </ul>
     </div>
   </div>
@@ -405,23 +447,28 @@
   <div class="apx-card" data-item="b8">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">8 &middot; Filter, sort, limit</div>
-        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">WHERE</span><span class="apx-tag">ORDER BY</span><span class="apx-tag">bind variable</span></div>
+        <div class="apx-title">8 &middot; Block Closed Won without a primary Contact</div>
+        <div class="apx-tags"><span class="apx-lvl working">Guardrail</span><span class="apx-tag">addError</span><span class="apx-tag">before update</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b8">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> A query with no WHERE clause is rarely the query you actually wanted.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> An Opportunity must not be moved to Closed Won unless its Account has a primary Contact on file. If it does not, stop the save and tell the user why.</p>
+      <div class="apx-label">The trigger</div>
       <ul>
-        <li>Query Accounts <code>WHERE Name LIKE 'A%'</code>.</li>
-        <li>Add <code>ORDER BY Name ASC</code> and <code>LIMIT 10</code>.</li>
-        <li>Then put a String in a variable and query <code>WHERE Name = :myVar</code>.</li>
+        <li><code>OpportunityTrigger</code>, <code>before update</code>.</li>
       </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Find Opportunities becoming Closed Won; collect their AccountIds.</li>
+        <li>One query for primary Contacts on those Accounts; build a <code>Set&lt;Id&gt;</code> of Accounts that have one.</li>
+        <li>For any Opportunity whose Account is not in that set, call <code>opp.addError('Add a primary Contact before closing this deal.');</code></li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p><code>addError</code> on the record blocks just that record and shows the message on the page. In a 200-record load the other 199 still save — which is usually what you want, and always worth knowing before someone asks.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>Three working queries, each returning what you predicted.</li>
-        <li>You can explain what the colon does in a bind variable.</li>
+        <li>Closing without a primary Contact shows your message and does not save.</li>
+        <li>Adding a primary Contact then closing works.</li>
       </ul>
     </div>
   </div>
@@ -429,50 +476,28 @@
   <div class="apx-card" data-item="b9">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">9 &middot; Your first DML</div>
-        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">insert</span><span class="apx-tag">update</span><span class="apx-tag">delete</span></div>
+        <div class="apx-title">9 &middot; Stop deletion of Accounts with open Opportunities</div>
+        <div class="apx-tags"><span class="apx-lvl working">Guardrail</span><span class="apx-tag">before delete</span><span class="apx-tag">Trigger.old</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b9">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Write data into the org — insert, update, delete — and watch each one land in the UI.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> Accounts with open Opportunities should not be deletable. Someone cleaning up test data keeps wiping out live pipeline.</p>
+      <div class="apx-label">The trigger</div>
       <ul>
-        <li><code>Account a = new Account(Name = 'Apex Test Co');</code> then <code>insert a;</code></li>
-        <li>Debug <code>a.Id</code> — note it was blank before the insert and populated after.</li>
-        <li>Change the Name and <code>update a;</code>, then <code>delete a;</code> and go find it in the Recycle Bin.</li>
+        <li><code>AccountTrigger</code>, add <code>before delete</code>.</li>
+        <li>Only <code>Trigger.old</code> exists in this context.</li>
       </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p>Sandbox only, never production. This is exactly the drill where a stray Execute Anonymous run goes somewhere you did not mean — check which org is connected before you hit run.</p></div>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Query Opportunities where <code>AccountId IN :Trigger.old</code> keySet and <code>IsClosed = false</code>.</li>
+        <li>Build a <code>Set&lt;Id&gt;</code> of Accounts that have one.</li>
+        <li><code>addError</code> on each Account in that set, naming how many open Opportunities it has.</li>
+      </ul>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>You watched the record appear, change, and vanish in the Salesforce UI.</li>
-        <li>You can explain where the Id came from and when it got set.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="apx-card" data-item="b10">
-    <div class="apx-card-top">
-      <div class="apx-card-title-wrap">
-        <div class="apx-title">10 &middot; Query, change, update as a list</div>
-        <div class="apx-tags"><span class="apx-lvl working">Core skill</span><span class="apx-tag">bulkification</span><span class="apx-tag">governor limits</span><span class="apx-tag">DML</span></div>
-      </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b10">Not started</button>
-    </div>
-    <div class="apx-body">
-      <p><strong>The drill:</strong> The single most important habit in Apex — one DML call for many records, never one call per record.</p>
-      <div class="apx-label">Build</div>
-      <ul>
-        <li>Query 10 Accounts into a <code>List&lt;Account&gt;</code>.</li>
-        <li>Loop them and set <code>Description = 'Touched by Apex'</code>.</li>
-        <li>Outside the loop, call <code>update accts;</code> once.</li>
-        <li>Now write the bad version with <code>update a;</code> inside the loop. Run both and compare <code>Limits.getDmlStatements()</code>.</li>
-      </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p>This is the difference every Salesforce interview question is fishing for. Bulkification just means: collect first, act once, outside the loop.</p></div>
-      <div class="apx-label">Done when</div>
-      <ul>
-        <li>The good version uses 1 DML statement; the bad version uses 10.</li>
-        <li>You can state the limit from memory — 150 DML statements per transaction.</li>
+        <li>Deleting an Account with an open Opportunity is refused with your message.</li>
+        <li>An Account whose Opportunities are all closed deletes fine.</li>
       </ul>
     </div>
   </div>
@@ -482,31 +507,68 @@
 
 <!-- ============ GROUP 03 ============ -->
 <section class="apx-tier" data-tier="4">
-  <div class="apx-tier-head"><span class="apx-tier-num">03</span><h2>Your first trigger</h2><span class="apx-tier-count"></span></div>
-  <p class="apx-tier-goal">No handler class, no framework, no architecture lecture. Make a trigger fire, then test it.</p>
+  <div class="apx-tier-head"><span class="apx-tier-num">03</span><h2>The ones that bite</h2><span class="apx-tier-count"></span></div>
+  <p class="apx-tier-goal">Reparenting, cascades, and recursion — the three things that turn a working trigger into a broken one.</p>
   <div class="apx-cards">
+
+  <div class="apx-card" data-item="b10">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">10 &middot; A Contact moves to a different Account</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Trap</span><span class="apx-tag">reparenting</span><span class="apx-tag">old + new parent</span></div>
+      </div>
+      <button type="button" class="apx-pill apx-status-btn" data-cycle="b10">Not started</button>
+    </div>
+    <div class="apx-body">
+      <p><strong>The scenario:</strong> Your Contact count from drill 6 is wrong whenever someone moves a Contact from one Account to another. The old Account keeps counting them, the new one never starts. Fix it.</p>
+      <div class="apx-label">The trigger</div>
+      <ul>
+        <li><code>ContactTrigger</code>, <code>after update</code> — you already have it.</li>
+      </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>When <code>AccountId</code> changed, add <em>both</em> the old and the new AccountId to your recalculation set.</li>
+        <li>Pull the old one from <code>Trigger.oldMap</code>, the new one from the record in <code>Trigger.new</code>.</li>
+        <li>Everything downstream — the aggregate query, the seeding, the single update — stays exactly as it was.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>Almost every first attempt at a rollup misses the old parent. Reach for this the moment a lookup field can change: the record left something behind, and that something needs recalculating too.</p></div>
+      <div class="apx-label">Done when</div>
+      <ul>
+        <li>Moving a Contact between two Accounts leaves both counts correct.</li>
+        <li>Moving 200 Contacts in one update still leaves both correct.</li>
+      </ul>
+    </div>
+  </div>
 
   <div class="apx-card" data-item="b11">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">11 &middot; A trigger that fills in a blank</div>
-        <div class="apx-tags"><span class="apx-lvl stretch">Putting it together</span><span class="apx-tag">before insert</span><span class="apx-tag">Trigger.new</span></div>
+        <div class="apx-title">11 &middot; Account goes Inactive &rarr; deactivate its Contacts</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Trap</span><span class="apx-tag">cascade</span><span class="apx-tag">child query</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b11">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> See a trigger fire. The smallest possible one that does something you can actually see in the UI.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> When an Account's status changes to Inactive, every Contact on it should be marked inactive too. Changing the Account back to Active should <em>not</em> reactivate them — that stays a human decision.</p>
+      <div class="apx-label">Setup first</div>
       <ul>
-        <li><em>SFDX: Create Apex Trigger</em> &rarr; <code>AccountTrigger</code> on Account, <code>before insert</code>.</li>
-        <li>Inside, loop <code>Trigger.new</code>; if <code>a.Description</code> is blank, set it to <code>'Created ' + Date.today().format()</code>.</li>
-        <li>Deploy, then create an Account in the UI with the Description left empty.</li>
+        <li>On Contact, create <code>Is_Active__c</code> (checkbox, default true). Use Account's standard <code>Type</code> or a picklist of your own for the status.</li>
       </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p><code>before insert</code> means you can just set the field — no update statement needed, because the record has not been written yet. The same logic in <code>after insert</code> would cost you an entire extra DML call.</p></div>
+      <div class="apx-label">The trigger</div>
+      <ul>
+        <li><code>AccountTrigger</code>, <code>after update</code>.</li>
+      </ul>
+      <div class="apx-label">The handler</div>
+      <ul>
+        <li>Collect Accounts whose status <em>became</em> Inactive.</li>
+        <li>Query their Contacts where <code>Is_Active__c = true</code> — no point updating ones already false.</li>
+        <li>Set false on each, one <code>update</code>.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>Filtering the child query to only records that actually need changing is not a micro-optimisation. It keeps your DML row count down, and on an Account with thousands of Contacts it is the difference between working and hitting a governor limit.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>The new Account shows your generated Description, saved with no second DML.</li>
-        <li>You can explain why <code>before</code> was the right context here.</li>
+        <li>Flipping an Account to Inactive deactivates all its Contacts in one save.</li>
+        <li>Flipping it back to Active leaves them deactivated.</li>
       </ul>
     </div>
   </div>
@@ -514,24 +576,29 @@
   <div class="apx-card" data-item="b12">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">12 &middot; Test the trigger, then bulk it</div>
-        <div class="apx-tags"><span class="apx-lvl stretch">Putting it together</span><span class="apx-tag">Test.startTest</span><span class="apx-tag">200 records</span><span class="apx-tag">assert</span></div>
+        <div class="apx-title">12 &middot; Stop your own trigger re-firing</div>
+        <div class="apx-tags"><span class="apx-lvl stretch">Trap</span><span class="apx-tag">recursion</span><span class="apx-tag">static Boolean</span></div>
       </div>
       <button type="button" class="apx-pill apx-status-btn" data-cycle="b12">Not started</button>
     </div>
     <div class="apx-body">
-      <p><strong>The drill:</strong> Prove the trigger works for one record. Then prove it still works for two hundred in a single insert.</p>
-      <div class="apx-label">Build</div>
+      <p><strong>The scenario:</strong> Make the primary-Contact rule from drill 7 misbehave on purpose, then fix it. Add a second piece of logic to the Contact handler that also updates Contacts, and watch the two bounce off each other until Salesforce throws a limit error.</p>
+      <div class="apx-label">Break it</div>
       <ul>
-        <li>Test class: insert one Account with no Description, query it back, assert the Description is not blank.</li>
-        <li>Second method: build a <code>List&lt;Account&gt;</code> of 200 and insert them in one call.</li>
-        <li>Wrap the inserts in <code>Test.startTest()</code> / <code>Test.stopTest()</code>, then assert all 200 got a Description.</li>
+        <li>In the Contact handler, on after update, have it set a field on the same Contacts it was handed and <code>update</code> them.</li>
+        <li>Edit a Contact. Read the error you get.</li>
       </ul>
-      <div class="apx-trap"><b>Worth knowing</b><p>If the 200-record test fails, you have found a real bulkification bug in your own trigger. That is not a setback — finding it yourself is the entire point of the drill, and it is the bridge to the Practice Reps.</p></div>
+      <div class="apx-label">Fix it</div>
+      <ul>
+        <li>Add <code>public static Boolean hasRun = false;</code> to the handler.</li>
+        <li>Return immediately if it is true; set it true before doing any DML.</li>
+        <li>Deploy and confirm the edit now saves.</li>
+      </ul>
+      <div class="apx-trap"><b>Worth knowing</b><p>A static variable lives for one transaction, which is exactly the window you need. This is also the pattern's weakness — guarding too broadly means the trigger skips records it should have processed in a genuine second pass, which is why real frameworks make the guard per-context rather than one flag for everything.</p></div>
       <div class="apx-label">Done when</div>
       <ul>
-        <li>Both test methods pass.</li>
-        <li>You understand why the 200 case is the one that matters.</li>
+        <li>You saw the recursion error with your own name on it.</li>
+        <li>The guard fixes it, and you can explain why a static resets between transactions.</li>
       </ul>
     </div>
   </div>
@@ -540,7 +607,7 @@
 </section>
 
 <footer class="apx-foot">
-  <span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>These are warm-ups, not portfolio pieces. Once all twelve are green, the Practice Reps will feel like the same moves at a bigger size.</span>
+  <span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>Every drill here is a trigger plus a handler and nothing else. Once all twelve are green, the Practice Reps are the same shape with service classes and real bulk tests on top.</span>
   <span><a href="apex-practice.html">Apex Practice Reps &rarr;</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></span>
 </footer>
 
