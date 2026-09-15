@@ -158,6 +158,33 @@
   }
   footer.apx-foot a { color: var(--fg2); }
   .apx-need { font-size: 13px; color: var(--grey); font-style: italic; margin-top: 8px !important; }
+
+  /* --- flag to redo --- */
+  .apx-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; align-self: center; }
+  .apx-flag {
+    border: 1.5px solid rgba(0,40,85,0.15); border-radius: 999px;
+    width: 34px; height: 34px; line-height: 1; padding: 0;
+    font-family: inherit; font-size: 16px; background: var(--white); color: var(--grey);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .apx-flag:hover { color: var(--trap-edge); border-color: rgba(180,83,9,0.45); }
+  .apx-flag.on { background: var(--trap-bg); color: var(--trap-edge); border-color: var(--trap-edge); }
+  .apx-card.is-flagged { border-left: 4px solid var(--trap-edge) !important; }
+  .apx-card.is-flagged .apx-title::after {
+    content: "redo"; margin-left: 10px; vertical-align: middle;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--trap-bg); color: var(--trap-edge); border-radius: 4px; padding: 2px 7px;
+  }
+  .apx-redo {
+    border: 1.5px solid var(--trap-edge); border-radius: 999px; padding: 5px 14px;
+    font-family: inherit; font-size: 13px; font-weight: 700;
+    background: var(--trap-bg); color: var(--trap-edge); white-space: nowrap;
+  }
+  .apx-redo[hidden] { display: none; }
+  .apx-redo.active { background: var(--trap-edge); color: var(--white); }
+  body.redo-only .apx-card:not(.is-flagged) { display: none; }
+  body.redo-only section.apx-tier.no-flagged { display: none; }
+  body.redo-only .apx-rules { display: none; }
 </style>
 </head>
 <body>
@@ -182,6 +209,7 @@
     <a href="apex-practice.html">Apex Practice Reps &rarr;</a>
     <span class="apx-filter-spacer"></span>
     <span class="apx-save-note" id="saveNote">Progress saves automatically</span>
+    <button type="button" class="apx-redo apx-status-btn" id="redoBtn" hidden>&#9873; 0 to redo</button>
     <button type="button" class="apx-reset apx-status-btn" id="resetBtn">Reset all</button>
   </div>
 </div>
@@ -198,7 +226,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">1 &middot; Default the Rating</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b1">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b1" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b1">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>When an Account is created with no Rating, set it to Warm.</p>
@@ -210,7 +241,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">2 &middot; Clean the partner code</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b2">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b2" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b2">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>Whenever an Account is saved &mdash; created or edited &mdash; its partner code should end up trimmed and uppercase.</p>
@@ -222,7 +256,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">3 &middot; Stamp the email change</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b3">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b3" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b3">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>When a Contact's Email changes, set a date field to today. Editing any other field on the Contact must leave that date alone.</p>
@@ -242,7 +279,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">4 &middot; Push the phone up</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b4">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b4" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b4">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>When a Contact's Phone is updated, copy it onto the parent Account's Phone.</p>
@@ -254,7 +294,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">5 &middot; Flag the Account on Closed Won</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b5">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b5" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b5">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>When an Opportunity becomes Closed Won, mark its Account as a signed partner and record the date. Later edits to that Opportunity must not change the date.</p>
@@ -267,7 +310,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">6 &middot; Live Contact count</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b6">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b6" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b6">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>Keep a number field on Account equal to how many Contacts it has, as Contacts are added and deleted.</p>
@@ -288,7 +334,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">7 &middot; One primary Contact</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b7">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b7" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b7">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>An Account can only have one primary Contact. When someone marks a Contact primary, un-mark every other Contact on that Account. No error &mdash; just make it true.</p>
@@ -301,7 +350,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">8 &middot; Block the close</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b8">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b8" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b8">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>An Opportunity cannot go Closed Won unless its Account has a primary Contact. Stop the save and tell the user why.</p>
@@ -313,7 +365,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">9 &middot; Protect the Account</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b9">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b9" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b9">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>An Account with open Opportunities cannot be deleted.</p>
@@ -333,7 +388,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">10 &middot; Contact changes Account</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b10">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b10" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b10">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>Your count from drill 6 goes wrong when a Contact is moved from one Account to another. Make both Accounts end up correct.</p>
@@ -345,7 +403,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">11 &middot; Cascade the deactivation</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b11">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b11" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b11">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>When an Account's status changes to Inactive, mark all its Contacts inactive too. Setting the Account back to Active must not reactivate them.</p>
@@ -358,7 +419,10 @@
       <div class="apx-card-title-wrap">
         <div class="apx-title">12 &middot; Stop the re-fire</div>
       </div>
-      <button type="button" class="apx-pill apx-status-btn" data-cycle="b12">Not started</button>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b12" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b12">Not started</button>
+      </div>
     </div>
     <div class="apx-body">
       <p>Make your Contact handler update the same Contacts it was handed. Run it, read the error you get, then stop it happening without removing the update.</p>
@@ -385,18 +449,20 @@ const STATUS = {
 };
 
 let statuses = {};
+let flags = {};
 try {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
     const parsed = JSON.parse(raw);
     if (parsed && parsed.statuses) statuses = parsed.statuses;
+    if (parsed && parsed.flags) flags = parsed.flags;
   }
-} catch (e) { statuses = {}; }
+} catch (e) { statuses = {}; flags = {}; }
 
 function persist() {
   const note = document.getElementById("saveNote");
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses, flags: flags }));
     note.textContent = "Progress saves automatically";
     note.style.color = "";
   } catch (e) {
@@ -406,6 +472,7 @@ function persist() {
 }
 
 function stOf(id) { return statuses[id] || "not_started"; }
+function isFlagged(id) { return flags[id] === true; }
 
 function paint() {
   const cards = document.querySelectorAll("[data-item]");
@@ -419,6 +486,10 @@ function paint() {
     pill.classList.remove("in_progress", "done");
     if (st !== "not_started") pill.classList.add(st);
     pill.textContent = STATUS[st].label;
+    const fl = isFlagged(id);
+    card.classList.toggle("is-flagged", fl);
+    const fb = card.querySelector("[data-flag]");
+    if (fb) { fb.classList.toggle("on", fl); fb.setAttribute("aria-pressed", fl ? "true" : "false"); }
     if (st === "done") done++;
     if (st === "in_progress") ip++;
   });
@@ -433,7 +504,16 @@ function paint() {
     items.forEach(function(c) { if (stOf(c.getAttribute("data-item")) === "done") tierDone++; });
     sec.querySelector(".apx-tier-count").textContent = tierDone + "/" + items.length;
     sec.querySelector(".apx-tier-num").classList.toggle("complete", tierDone === items.length);
+    let secFlagged = 0;
+    items.forEach(function(c) { if (isFlagged(c.getAttribute("data-item"))) secFlagged++; });
+    sec.classList.toggle("no-flagged", secFlagged === 0);
   });
+
+  const nFlag = Object.keys(flags).filter(function(k) { return flags[k]; }).length;
+  const rb = document.getElementById("redoBtn");
+  rb.innerHTML = "&#9873; " + nFlag + " to redo";
+  rb.hidden = nFlag === 0;
+  if (nFlag === 0) { document.body.classList.remove("redo-only"); rb.classList.remove("active"); }
 }
 
 document.querySelectorAll("[data-cycle]").forEach(function(b) {
@@ -445,9 +525,25 @@ document.querySelectorAll("[data-cycle]").forEach(function(b) {
   });
 });
 
+document.querySelectorAll("[data-flag]").forEach(function(b) {
+  b.addEventListener("click", function() {
+    const id = this.getAttribute("data-flag");
+    if (flags[id]) { delete flags[id]; } else { flags[id] = true; }
+    persist();
+    paint();
+  });
+});
+
+document.getElementById("redoBtn").addEventListener("click", function() {
+  const on = document.body.classList.toggle("redo-only");
+  this.classList.toggle("active", on);
+});
+
 document.getElementById("resetBtn").addEventListener("click", function() {
-  if (!window.confirm("Reset all progress? This clears every problem back to Not started.")) return;
+  if (!window.confirm("Reset all progress? This clears every problem back to Not started and removes all redo flags.")) return;
   statuses = {};
+  flags = {};
+  document.body.classList.remove("redo-only");
   persist();
   paint();
 });
