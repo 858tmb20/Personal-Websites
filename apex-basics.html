@@ -195,11 +195,11 @@
     <div class="apx-hdr-row">
       <h1>Apex<br>Basics</h1>
       <div class="apx-count-wrap">
-        <div class="apx-count"><span id="doneCount">0</span><span class="apx-of">/<span id="totalCount">12</span></span></div>
+        <div class="apx-count"><span id="doneCount">0</span><span class="apx-of">/<span id="totalCount">28</span></span></div>
         <div class="apx-count-sub" id="countSub">built &amp; working</div>
       </div>
     </div>
-    <p class="apx-hdr-sub">Twelve scenarios. Build a trigger and a handler for each. Figure out the rest yourself.</p>
+    <p class="apx-hdr-sub">28 scenarios, easiest first. Build a trigger and a handler for each. Figure out the rest yourself.</p>
     <div class="apx-track"><div class="apx-bar" id="bar"></div></div>
   </div>
 </header>
@@ -236,10 +236,40 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b13">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">2 &middot; Default the Industry</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b13" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b13">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>When an Account is created without an Industry, set it to Education.</p>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b15">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">3 &middot; Tidy the email</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b15" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b15">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Whenever a Contact is saved, strip any leading or trailing spaces from the Email and make it lowercase.</p>
+    </div>
+  </div>
+
   <div class="apx-card" data-item="b2">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">2 &middot; Clean the partner code</div>
+        <div class="apx-title">4 &middot; Clean the partner code</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b2" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -251,10 +281,80 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b14">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">5 &middot; Fill Shipping from Billing</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b14" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b14">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>When an Account is saved with a Billing address but no Shipping address, copy Billing into Shipping.</p>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b16">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">6 &middot; Build the full name</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b16" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b16">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Whenever a Contact is saved, fill a text field with the First and Last name joined together.</p>
+      <p class="apx-need">Needs a text field on Contact.</p>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b18">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">7 &middot; Default the Close Date</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b18" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b18">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>When an Opportunity is created with no Close Date, set it to 30 days from today.</p>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b17">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">8 &middot; Mark the big deals</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b17" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b17">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>When an Opportunity is saved with an Amount over 100,000, tick a High Value checkbox. Under that, untick it.</p>
+      <p class="apx-need">Needs a checkbox on Opportunity.</p>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- ============ GROUP 01 ============ -->
+<section class="apx-tier" data-tier="2">
+  <div class="apx-tier-head"><span class="apx-tier-num">01</span><h2>Only when it changes</h2><span class="apx-tier-count"></span></div>
+  <div class="apx-cards">
+
   <div class="apx-card" data-item="b3">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">3 &middot; Stamp the email change</div>
+        <div class="apx-title">9 &middot; Stamp the email change</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b3" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -266,18 +366,65 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b19">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">10 &middot; Track the handoff</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b19" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b19">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>When an Account's Owner changes, record the date it changed and who it came from.</p>
+      <p class="apx-need">Needs a date field and a text field on Account.</p>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b20">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">11 &middot; Count the stage moves</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b20" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b20">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Every time an Opportunity's Stage changes, add one to a counter field on that Opportunity.</p>
+      <p class="apx-need">Needs a number field on Opportunity.</p>
+    </div>
+  </div>
+
   </div>
 </section>
 
-<!-- ============ GROUP 01 ============ -->
-<section class="apx-tier" data-tier="2">
-  <div class="apx-tier-head"><span class="apx-tier-num">01</span><h2>Reach to the parent</h2><span class="apx-tier-count"></span></div>
+<!-- ============ GROUP 02 ============ -->
+<section class="apx-tier" data-tier="3">
+  <div class="apx-tier-head"><span class="apx-tier-num">02</span><h2>Reach to the parent</h2><span class="apx-tier-count"></span></div>
   <div class="apx-cards">
+
+  <div class="apx-card" data-item="b22">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">12 &middot; Inherit the city</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b22" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b22">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>When a Contact is created, copy its Account's Billing City into the Contact's Mailing City.</p>
+    </div>
+  </div>
 
   <div class="apx-card" data-item="b4">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">4 &middot; Push the phone up</div>
+        <div class="apx-title">13 &middot; Push the phone up</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b4" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -292,7 +439,7 @@
   <div class="apx-card" data-item="b5">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">5 &middot; Flag the Account on Closed Won</div>
+        <div class="apx-title">14 &middot; Flag the Account on Closed Won</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b5" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -305,10 +452,26 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b23">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">15 &middot; Newest Contact date</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b23" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b23">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Keep a date field on Account showing when its most recent Contact was added.</p>
+      <p class="apx-need">Needs a date field on Account.</p>
+    </div>
+  </div>
+
   <div class="apx-card" data-item="b6">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">6 &middot; Live Contact count</div>
+        <div class="apx-title">16 &middot; Live Contact count</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b6" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -321,18 +484,49 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b24">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">17 &middot; Sum the won deals</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b24" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b24">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Keep a currency field on Account equal to the total Amount of its Closed Won Opportunities.</p>
+      <p class="apx-need">Needs a currency field on Account.</p>
+    </div>
+  </div>
+
   </div>
 </section>
 
-<!-- ============ GROUP 02 ============ -->
-<section class="apx-tier" data-tier="3">
-  <div class="apx-tier-head"><span class="apx-tier-num">02</span><h2>Guardrails</h2><span class="apx-tier-count"></span></div>
+<!-- ============ GROUP 03 ============ -->
+<section class="apx-tier" data-tier="4">
+  <div class="apx-tier-head"><span class="apx-tier-num">03</span><h2>Guardrails</h2><span class="apx-tier-count"></span></div>
   <div class="apx-cards">
+
+  <div class="apx-card" data-item="b25">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">18 &middot; Every Contact needs an email</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b25" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b25">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>A Contact cannot be saved without an Email. Stop the save and say so.</p>
+    </div>
+  </div>
 
   <div class="apx-card" data-item="b7">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">7 &middot; One primary Contact</div>
+        <div class="apx-title">19 &middot; One primary Contact</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b7" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -348,7 +542,7 @@
   <div class="apx-card" data-item="b8">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">8 &middot; Block the close</div>
+        <div class="apx-title">20 &middot; Block the close</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b8" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -360,10 +554,25 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b26">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">21 &middot; Lock the name</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b26" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b26">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Once an Account is marked a signed partner, its Name can no longer be changed.</p>
+    </div>
+  </div>
+
   <div class="apx-card" data-item="b9">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">9 &middot; Protect the Account</div>
+        <div class="apx-title">22 &middot; Protect the Account</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b9" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -375,18 +584,33 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b27">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">23 &middot; Cap the Contacts</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b27" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b27">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>An Account cannot have more than 50 Contacts. Block the save that would push it over.</p>
+    </div>
+  </div>
+
   </div>
 </section>
 
-<!-- ============ GROUP 03 ============ -->
-<section class="apx-tier" data-tier="4">
-  <div class="apx-tier-head"><span class="apx-tier-num">03</span><h2>The ones that bite</h2><span class="apx-tier-count"></span></div>
+<!-- ============ GROUP 04 ============ -->
+<section class="apx-tier" data-tier="5">
+  <div class="apx-tier-head"><span class="apx-tier-num">04</span><h2>The ones that bite</h2><span class="apx-tier-count"></span></div>
   <div class="apx-cards">
 
   <div class="apx-card" data-item="b10">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">10 &middot; Contact changes Account</div>
+        <div class="apx-title">24 &middot; Contact changes Account</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b10" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -394,14 +618,14 @@
       </div>
     </div>
     <div class="apx-body">
-      <p>Your count from drill 6 goes wrong when a Contact is moved from one Account to another. Make both Accounts end up correct.</p>
+      <p>Your Live Contact count goes wrong when a Contact is moved from one Account to another. Make both Accounts end up correct.</p>
     </div>
   </div>
 
   <div class="apx-card" data-item="b11">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">11 &middot; Cascade the deactivation</div>
+        <div class="apx-title">25 &middot; Cascade the deactivation</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b11" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -414,10 +638,25 @@
     </div>
   </div>
 
+  <div class="apx-card" data-item="b28">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">26 &middot; Survive two hundred</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b28" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b28">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Take any drill you have already built and insert 200 records in one DML. Fix whatever breaks.</p>
+    </div>
+  </div>
+
   <div class="apx-card" data-item="b12">
     <div class="apx-card-top">
       <div class="apx-card-title-wrap">
-        <div class="apx-title">12 &middot; Stop the re-fire</div>
+        <div class="apx-title">27 &middot; Stop the re-fire</div>
       </div>
       <div class="apx-card-actions">
         <button type="button" class="apx-flag apx-status-btn" data-flag="b12" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
@@ -426,6 +665,21 @@
     </div>
     <div class="apx-body">
       <p>Make your Contact handler update the same Contacts it was handed. Run it, read the error you get, then stop it happening without removing the update.</p>
+    </div>
+  </div>
+
+  <div class="apx-card" data-item="b29">
+    <div class="apx-card-top">
+      <div class="apx-card-title-wrap">
+        <div class="apx-title">28 &middot; Before or after</div>
+      </div>
+      <div class="apx-card-actions">
+        <button type="button" class="apx-flag apx-status-btn" data-flag="b29" title="Flag to come back to" aria-label="Flag to come back to" aria-pressed="false">&#9873;</button>
+        <button type="button" class="apx-pill apx-status-btn" data-cycle="b29">Not started</button>
+      </div>
+    </div>
+    <div class="apx-body">
+      <p>Move your Rating default from before insert to after insert. Work out why it stops working, then say what before and after actually mean.</p>
     </div>
   </div>
 
