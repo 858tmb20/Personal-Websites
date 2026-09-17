@@ -159,6 +159,22 @@
   footer.apx-foot a { color: var(--fg2); }
   .apx-need { font-size: 13px; color: var(--grey); font-style: italic; margin-top: 8px !important; }
 
+  /* --- trigger + handler names --- */
+  .apx-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .apx-name label {
+    display: block; font-size: 11.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--medium-blue); margin-bottom: 4px;
+  }
+  .apx-name input {
+    width: 100%; border: 1px solid rgba(0,40,85,0.18); border-radius: 6px; padding: 7px 10px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 13px;
+    background: var(--light-blue); color: var(--blue);
+  }
+  .apx-name input::placeholder { color: var(--grey); }
+  .apx-name input:focus { outline: none; border-color: var(--medium-blue); box-shadow: 0 0 0 3px rgba(0,112,240,0.18); }
+  .apx-card.done .apx-name input { background: var(--white); }
+  @media (max-width: 560px) { .apx-names { grid-template-columns: 1fr; } }
+
   /* --- flag to redo --- */
   .apx-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; align-self: center; }
   .apx-flag {
@@ -704,19 +720,21 @@ const STATUS = {
 
 let statuses = {};
 let flags = {};
+let names = {};
 try {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
     const parsed = JSON.parse(raw);
     if (parsed && parsed.statuses) statuses = parsed.statuses;
     if (parsed && parsed.flags) flags = parsed.flags;
+    if (parsed && parsed.names) names = parsed.names;
   }
-} catch (e) { statuses = {}; flags = {}; }
+} catch (e) { statuses = {}; flags = {}; names = {}; }
 
 function persist() {
   const note = document.getElementById("saveNote");
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses, flags: flags }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses, flags: flags, names: names }));
     note.textContent = "Progress saves automatically";
     note.style.color = "";
   } catch (e) {
@@ -770,6 +788,37 @@ function paint() {
   if (nFlag === 0) { document.body.classList.remove("redo-only"); rb.classList.remove("active"); }
 }
 
+document.querySelectorAll("[data-item]").forEach(function(card) {
+  const id = card.getAttribute("data-item");
+  const wrap = document.createElement("div");
+  wrap.className = "apx-names";
+  [["trigger", "Trigger", "e.g. AccountTrigger"], ["handler", "Handler", "e.g. AccountTriggerHandler"]].forEach(function(f) {
+    const box = document.createElement("div");
+    box.className = "apx-name";
+    const inputId = "name-" + id + "-" + f[0];
+    const label = document.createElement("label");
+    label.htmlFor = inputId;
+    label.textContent = f[1];
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = inputId;
+    input.placeholder = f[2];
+    input.spellcheck = false;
+    input.autocomplete = "off";
+    input.value = (names[id] && names[id][f[0]]) || "";
+    input.addEventListener("input", function() {
+      if (!names[id]) names[id] = {};
+      names[id][f[0]] = this.value;
+      if (!names[id].trigger && !names[id].handler) delete names[id];
+      persist();
+    });
+    box.appendChild(label);
+    box.appendChild(input);
+    wrap.appendChild(box);
+  });
+  card.querySelector(".apx-body").appendChild(wrap);
+});
+
 document.querySelectorAll("[data-cycle]").forEach(function(b) {
   b.addEventListener("click", function() {
     const id = this.getAttribute("data-cycle");
@@ -794,9 +843,11 @@ document.getElementById("redoBtn").addEventListener("click", function() {
 });
 
 document.getElementById("resetBtn").addEventListener("click", function() {
-  if (!window.confirm("Reset all progress? This clears every problem back to Not started and removes all redo flags.")) return;
+  if (!window.confirm("Reset all progress? This clears every problem back to Not started, removes all redo flags, and erases the trigger and handler names.")) return;
   statuses = {};
   flags = {};
+  names = {};
+  document.querySelectorAll(".apx-name input").forEach(function(i) { i.value = ""; });
   document.body.classList.remove("redo-only");
   persist();
   paint();
