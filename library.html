@@ -1177,7 +1177,29 @@
     if (idx < 0) return '#6B7A99';
     return SECTION_COLORS[idx % SECTION_COLORS.length];
   }
+  // Desktop-app links (grokbot://, vscode://, ...) open the app instead of a new tab
+  function isAppUrl(url) { return /^[a-z][a-z0-9+.-]*:\/\//i.test(url || '') && !/^https?:/i.test(url); }
+  function linkOpenAttrs(url, title) {
+    return isAppUrl(url) ? ' data-app="' + esc(title) + '" onclick="return launchApp(event,this)"' : ' target="_blank" rel="noopener"';
+  }
+  // Browsers can't check what's installed, so try the app and watch for the page losing focus
+  // (app or its "Open?" prompt took over). No focus change within 1.5s = probably not installed.
+  function launchApp(e, el) {
+    e.preventDefault();
+    var left = false;
+    function gone() { left = true; }
+    window.addEventListener('blur', gone);
+    document.addEventListener('visibilitychange', gone);
+    window.location.href = el.getAttribute('href');
+    setTimeout(function() {
+      window.removeEventListener('blur', gone);
+      document.removeEventListener('visibilitychange', gone);
+      if (!left && document.hasFocus()) showToast((el.getAttribute('data-app') || 'That app') + " isn't installed on this computer");
+    }, 1500);
+    return false;
+  }
   function faviconFor(url) {
+    if (isAppUrl(url)) return '';
     try { var h = new URL(url).hostname; return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(h) + '&sz=64'; }
     catch (e) { return ''; }
   }
@@ -1624,7 +1646,7 @@
     var desc = l.description ? esc(l.description) : esc(l.url);
     var eyebrow = '<span class="tool-chip">' + chipInner + '</span>' +
                   '<span class="tool-eyebrow-text">' + esc(tType) + (hideCat ? '' : ' <span class="tool-eyebrow-sep">&middot;</span> ' + esc(catName)) + '</span>';
-    return '<a class="tool-card" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
+    return '<a class="tool-card" href="' + esc(l.url) + '"' + linkOpenAttrs(l.url, l.title) + ' style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
         '<span class="tool-edit"><button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button></span>' +
         '<span class="tool-eyebrow">' + eyebrow + '</span>' +
         '<span class="tool-name">' + esc(l.title) + '</span>' +
@@ -1638,7 +1660,7 @@
     var fav = faviconFor(l.url);
     var ico = fav ? '<img src="' + esc(fav) + '" alt="" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span>' + esc(firstLetter(l.title)) + '</span>\';" />' : '<span>' + esc(firstLetter(l.title)) + '</span>';
     var sub = l.description ? esc(l.description) : esc(l.url);
-    return '<a class="tool-row" href="' + esc(l.url) + '" target="_blank" rel="noopener" style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
+    return '<a class="tool-row" href="' + esc(l.url) + '"' + linkOpenAttrs(l.url, l.title) + ' style="--tc:' + color + ';--tc-soft:' + color + '22;">' +
         '<span class="tool-chip">' + ico + '</span>' +
         '<span class="tr-txt"><span class="tr-name">' + esc(l.title) + '</span><span class="tr-sub">' + sub + '</span></span>' +
         '<span class="tr-edit"><button class="launch-mini" data-edit="' + esc(l.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(l.id) + '" title="Delete">&#10005;</button></span>' +
@@ -1762,7 +1784,7 @@
       var st = statusByKey(it.status);
       statusHTML = '<span class="launch-status ' + st.cls + '" data-status="' + esc(it.id) + '" title="Click to change status"><span class="sdot"></span><span class="slabel">' + esc(st.label) + '</span></span>';
     }
-    return '<a class="launch" href="' + esc(it.url) + '" target="_blank" rel="noopener">' +
+    return '<a class="launch" href="' + esc(it.url) + '"' + linkOpenAttrs(it.url, it.title) + '>' +
         '<button class="launch-star ' + (pinned ? 'pinned' : '') + '" data-pin="' + esc(it.id) + '" title="' + (pinned ? 'Unpin' : 'Pin to top') + '">' + (pinned ? '&#9733;' : '&#9734;') + '</button>' +
         '<span class="launch-edit"><button class="launch-mini" data-edit="' + esc(it.id) + '" title="Edit">&#9998;</button><button class="launch-mini del" data-del="' + esc(it.id) + '" title="Delete">&#10005;</button></span>' +
         '<span class="launch-ico">' + icoInner + '</span><span class="launch-name">' + esc(it.title) + '</span>' + statusHTML + '</a>';
@@ -1847,7 +1869,7 @@
     var link_type = document.getElementById('linkTypeInput').value || 'work';
     var editId = document.getElementById('editId').value;
     if (!title || !url) { showToast('Fill in both fields'); return; }
-    var fullUrl = url.indexOf('http') === 0 ? url : 'https://' + url;
+    var fullUrl = (url.indexOf('http') === 0 || isAppUrl(url)) ? url : 'https://' + url;
     var method = editId ? 'PATCH' : 'POST';
     var endpoint = editId ? SB_URL + '/rest/v1/links?id=eq.' + editId : SB_URL + '/rest/v1/links';
     fetch(endpoint, { method: method, headers: Object.assign({}, H, { 'Prefer': 'return=minimal' }), body: JSON.stringify({ title: title, url: fullUrl, description: description || null, category_id: category_id, link_type: link_type }) }).then(function(res) { if (res.ok) { closeModal(); showToast(editId ? 'Updated!' : 'Saved!'); fetchLinks(); } else { showToast('Error saving'); } });
