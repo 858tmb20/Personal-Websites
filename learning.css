@@ -63,6 +63,9 @@ main { max-width: 860px; margin: 0 auto; padding: 28px 24px 64px; display: grid;
 .lp-btn.lp-go { background: var(--c4); border-color: var(--c4); color: #F3FBF7; padding: 9px 20px; }
 .lp-btn.lp-go:hover { background: #267A5B; color: #F3FBF7; }
 
+/* motto */
+.lp-motto { margin: 0; font-family: 'Newsreader', Georgia, serif; font-size: 19px; font-style: italic; color: var(--fg2); text-align: center; }
+
 /* path strip */
 .lp-path { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 14px; }
 .lp-stage { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--hairline); background: var(--card); color: var(--fg2); font-weight: 600; }
