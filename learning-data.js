@@ -123,6 +123,8 @@ var LP_WEEKS = [
         focus: "an Apex class with a constructor that never sets its fields, a method that should return a value but doesn't, and `this` missing where a parameter shadows a field", arch: "What belongs in a constructor, and what doesn't?" },
       { title: "Static and access modifiers", v: lpClip("stat"), also: [lpClip("stat2"), lpClip("priv"), lpClip("pub"), lpClip("prot"), lpClip("glob")], prog: "Warren Module 3: Access Modifiers \u00b7 Homework Help 1.3: Writing Clean Code",
         focus: "an Apex class with a static variable used where each instance needs its own value, a private method called from outside, and a class marked global for no reason", arch: "Why does a recursion guard in a trigger have to be static? And why should everything be as private as possible?" },
+      { title: "Interfaces", v: lpClip("iface", "2:45", "27:38"), prog: "Warren Module 3 (review: Objects and Classes) \u00b7 on the PD1 outline under Basic Apex",
+        focus: "a class full of if/else on a type string that should be an interface, and a class that claims to implement an interface but misses a method", arch: "Where would an interface make code easier to change? Name one real place (hint: trigger handlers, Batchable, Queueable are all interfaces)." },
       { title: "Math, String and Date classes", v: lpClip("strdoc"), prog: "Warren Module 3: The Math, String, and Date Classes (main lesson; no YouTube version) \u00b7 Quiz on the Math, String, and Date Classes",
         focus: "Apex that formats a name with the wrong String methods, adds days to a Date incorrectly, and rounds money with the wrong Math method", arch: "Why store dates as Date/Datetime instead of Strings? What breaks if you don't?" },
       { title: "Git and GitHub for Salesforce", v: lpClip("git"), also: [lpClip("cicd")], prog: "Warren Module 2: Version Control and GitHub \u00b7 Git Commands \u00b7 Module 6: Git Branching and Merging \u00b7 Module 7: DevOps and CI/CD",
@@ -211,7 +213,7 @@ var LP_WEEKS = [
     goal: "Write tests that prove behavior (not just coverage), including 200-record and negative cases.",
     program: "Warren Kickstart Module 11 (Test Classes) · Igor Integration Mastery Week 4: Logging & Tests",
     days: [
-      { title: "Your first test and assertions", v: lpClip("test", "0:00", "23:06"), prog: "Warren Module 11: Getting Started with Apex Testing · Apex Unit Tests",
+      { title: "Your first test and assertions", v: lpClip("test", "0:00", "23:06"), also: [lpClip("gpttest")], prog: "Warren Module 11: Getting Started with Apex Testing · Apex Unit Tests",
         focus: "a test class with no real asserts that still gets 100% coverage", arch: "Coverage is 95% and prod still broke. What does coverage not tell you?" },
       { title: "@TestSetup and a test data factory", v: lpClip("test", "23:06", "47:18"), prog: "Warren Module 11: Creating Test Data and using TestSetup",
         focus: "tests that copy-paste record setup and depend on org data", arch: "Why should a team share one test data factory? What goes wrong without it?" },
@@ -219,8 +221,6 @@ var LP_WEEKS = [
         focus: "a test using SeeAllData=true and Test.isRunningTest() in production code", arch: "Why is SeeAllData=true dangerous during a deployment?" },
       { title: "Testing callouts with mocks", v: lpClip("test", "1:02:32", "1:20:46"), prog: "Warren Module 11: Testing Callouts and Mocking",
         focus: "a callout test with no HttpCalloutMock and no status-code check", arch: "What should a callout test prove besides “it didn't crash”?" },
-      { title: "Build day: have AI write tests, then review them", v: lpClip("gpttest"), prog: "Warren Module 11: Testing Triggers · Homework Help 11.1",
-        focus: "an AI-written trigger test that inserts 1 record and asserts nothing useful", arch: "Write the one test you'd demand in a code review before approving a trigger." },
       { title: "Developer tools and deploying code", v: lpClip("replay"), prog: "Warren PD1 Certification Training 7: Leveraging Salesforce Developer Tools \u00b7 Training 10: Workbench Overview \u00b7 Training 11: Code Deployment \u00b7 Module 7: DevOps and CI/CD",
         focus: "a deployment package missing a test class and a field the Apex depends on", arch: "Change sets, the Salesforce CLI, or a pipeline like Copado: what's each one good for?", quiz: "5 Focus on Force questions on developer tools (Dev Console, Workbench, CLI) and deployment." }
     ] },
@@ -282,7 +282,7 @@ var LP_WEEKS = [
       { title: "User Interface: LWC recap + Visualforce basics", v: lpClip("lwc", "41:00", "53:30"), also: [lpClip("thAura")], prog: "Warren PD Certification Training 12: Visualforce and Lightning Web Components (covers the Visualforce part the video skips)",
         focus: "a Visualforce page with a custom controller that runs SOQL in a getter, plus an LWC with a caching mistake", arch: "LWC, Aura or Visualforce: why does LWC win for new work, and when would you still touch Visualforce?", quiz: "Trailhead official Cert Prep: User Interface (25%). Know Aura basics, launching a Flow from Apex, and LWCs in Flow screens (lightning__FlowScreen). Then: Focus on Force: User Interface quiz. Visualforce is still on the exam: know standard vs. custom controllers and extensions." },
       { title: "Testing, Debugging & Deployment", v: lpClip("test", "56:27", "1:02:32"), also: [lpClip("thDevCon")], prog: "Warren PD1 Certification Training 7, 9, 10, 11",
-        focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Trailhead official Cert Prep: Testing, Debugging, and Deployment (20%). Know sandbox types, scratch orgs, Salesforce DX and the CLI, and monitoring async jobs. Then: Focus on Force: Testing, Debugging & Deployment quiz" }
+        focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Trailhead official Cert Prep: Testing, Debugging, and Deployment (20%). Know sandbox types, scratch orgs, Salesforce DX and the CLI, monitoring flows and async jobs, and how to test a Flow. Then: Focus on Force: Testing, Debugging & Deployment quiz" }
     ] },
   { n: 13, title: "Final prep and the exam", lang: "PD1",
     goal: "Two more practice exams, one light review, then pass PD1.",
@@ -302,7 +302,6 @@ var LP_WEEKS = [
 var LP_LATER = [
   { name: "PD2", intro: "After PD1. Same daily loop; these become the weeks.",
     items: [
-      { t: "Interfaces in Apex", v: lpClip("iface") },
       { t: "SOLID design principles", v: lpClip("solid") },
       { t: "Apex design patterns and separation of concerns", v: lpClip("common") },
       { t: "Advanced testing: DML mocking and the Stub API", v: lpClip("dmlmock") },
@@ -330,7 +329,7 @@ var LP_PROJECTS = [
 ];
 // What was checked against, and what was left out on purpose.
 var LP_COVERAGE = {
-  checked: "Every lesson in Warren's Developer Kickstart Program (Getting Started, Modules 1\u201316), all 30 episodes of Coding With The Force's Apex Master Class plus their Beginner Apex Tutorials playlist, every topic in Igor's Learn Apex (Syntax and Basics, SOQL, Triggers, Async, Integrations), and Salesforce's official PD1 exam topics (the four Trailhead Cert Prep modules). The official topics added Agentforce for Developers, invocable Apex, formula fields vs. roll-ups, Aura basics and deployment environments, which none of the three programs teach.",
+  checked: "Every lesson in Warren's Developer Kickstart Program (Getting Started, Modules 1\u201316), all 30 episodes of Coding With The Force's Apex Master Class plus their Beginner Apex Tutorials playlist, every topic in Igor's Learn Apex (Syntax and Basics, SOQL, Triggers, Async, Integrations), Salesforce's official PD1 exam topics (the four Trailhead Cert Prep modules), and Focus on Force's PD1 study guide outline. The official topics added Agentforce for Developers, invocable Apex, formula fields vs. roll-ups, Aura basics and deployment environments, which none of the three programs teach.",
   left: [
     "Warren's career lessons (LinkedIn, resumes, job search, interviews, portfolio, Scrum, career paths): career skills, not Apex, and you already have the job.",
     "Coding With The Force Ep. 6 (IntelliJ + IC2 setup): old tooling; VS Code replaced it.",
