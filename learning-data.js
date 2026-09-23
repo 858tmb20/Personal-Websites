@@ -63,7 +63,7 @@ var LP_VIDEOS = {
   thAfd: { id: "", ch: "Trailhead (official)", title: "Agentforce for Developers", len: 30, url: "https://trailhead.salesforce.com/content/learn/modules/einstein-for-developers" },
   thForm:{ id: "", ch: "Trailhead (official)", title: "Formulas and Validation", len: 60, url: "https://trailhead.salesforce.com/content/learn/modules/point_click_business_logic" },
   thAura:{ id: "", ch: "Trailhead (official)", title: "Quick Start: Aura Components", len: 30, url: "https://trailhead.salesforce.com/content/learn/projects/quickstart-lightning-components" },
-  thDevCon:{ id: "", ch: "Trailhead (official)", title: "Developer Console Basics", len: 60, url: "https://trailhead.salesforce.com/content/learn/modules/developer_console" },
+  thDevCon:{ id: "", ch: "Trailhead (official)", title: "Org Development Model (sandboxes, scratch orgs, deployment)", len: 60, url: "https://trailhead.salesforce.com/content/learn/modules/org-development-model" },
   prims: { id: "AlU7ITcqXwA", ch: CWTF, title: "Apex Master Class Ep. 9: Primitive Data Types in Apex", len: 25 },
   ops:   { id: "DCVgtNPZSqw", ch: CWTF, title: "Apex Master Class Ep. 15: Operators in Apex", len: 16 },
   ifelse:{ id: "Mr-03GLeZk0", ch: CWTF, title: "Apex Master Class Ep. 26: Conditional Statements (If/Else)", len: 15 },
