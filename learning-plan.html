@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&family=Newsreader:wght@500;600&display=swap">
+<style>
+  :root {
+    --midnight: #001731;
+    --blue: #002855;
+    --medium-blue: #2F74C9;
+    --sky-blue: #46B1EF;
+    --lime: #97E152;
+    --ground: #F3F6F9;
+    --card: #FAFBFC;
+    --light-blue: #E8F0F6;
+    --grey: #8E9AA8;
+    --fg: #1F3A5C;
+    --fg2: #3B5575;
+    --hairline: rgba(0, 40, 85, 0.12);
+    --c1: #2F74C9; --c2: #6A5ACD; --c3: #B7791F; --c4: #2F8F6B; --c5: #B5476B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--fg);
+    font-family: 'Jost', 'Futura PT', 'Trebuchet MS', Arial, sans-serif; min-height: 100vh;
+  }
+  header.lp-hdr {
+    background: linear-gradient(180deg, var(--midnight) 0%, var(--blue) 100%);
+    color: #EAF1F8; padding: 40px 24px 32px;
+  }
+  .lp-inner { max-width: 860px; margin: 0 auto; }
+  .lp-eyebrow { font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sky-blue); margin-bottom: 10px; }
+  .lp-hdr h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  .lp-hdr-sub { max-width: 60ch; font-size: 15px; color: #BBD0E8; margin: 12px 0 0; line-height: 1.5; }
+
+  .lp-bar { border-bottom: 1px solid var(--hairline); background: var(--card); padding: 12px 24px; }
+  .lp-bar .lp-inner { display: flex; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+  .lp-bar a { color: var(--fg2); font-weight: 500; }
+  .lp-spacer { flex: 1; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; display: grid; gap: 22px; }
+  .lp-card { background: var(--card); border: 1px solid var(--hairline); border-radius: 10px; padding: 20px 22px; }
+  .lp-card h2 { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 12px; color: var(--medium-blue); }
+  .lp-note { font-size: 14px; color: var(--grey); margin: 10px 0 0; }
+
+  /* this week */
+  .lp-week { border-left: 4px solid var(--lime); }
+  .lp-week-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .lp-week-num { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 40px; line-height: 1; color: var(--blue); }
+  .lp-week-num small { font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey); display: block; }
+  .lp-topic {
+    flex: 1 1 280px; font: inherit; font-size: 20px; font-weight: 700; color: var(--blue);
+    border: 1px solid transparent; border-radius: 6px; padding: 6px 10px; background: transparent;
+  }
+  .lp-topic:hover { border-color: var(--hairline); }
+  .lp-topic:focus { outline: none; border-color: var(--medium-blue); background: var(--light-blue); }
+  .lp-btn {
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--fg2); background: var(--light-blue);
+    border: 1px solid var(--hairline); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  .lp-btn:hover { border-color: var(--medium-blue); color: var(--medium-blue); }
+  .lp-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(47,116,201,0.3); }
+
+  /* time split */
+  .lp-stack { display: flex; height: 18px; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+  .lp-stack span { display: block; height: 100%; }
+  .lp-split { display: grid; gap: 10px; }
+  .lp-split-row { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; }
+  .lp-pct { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 22px; text-align: right; }
+  .lp-split-row div { font-size: 16px; color: var(--fg); }
+  .lp-split-row div i { font-style: normal; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+
+  /* daily */
+  .lp-daily-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .lp-daily-head h2 { margin: 0; }
+  .lp-daily-head span { font-size: 14px; color: var(--grey); }
+  .lp-daily-head .lp-streak { margin-left: auto; font-weight: 600; color: var(--fg2); }
+  .lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .lp-steps label {
+    display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--hairline); background: var(--ground); cursor: pointer; font-size: 16px;
+  }
+  .lp-steps input { width: 18px; height: 18px; accent-color: var(--c4); flex-shrink: 0; }
+  .lp-steps input:checked + span { text-decoration: line-through; color: var(--grey); }
+
+  /* order */
+  .lp-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lp-step {
+    border: 1px solid var(--hairline); border-radius: 8px; padding: 10px 16px; background: var(--ground);
+    font-weight: 700; font-size: 16px; cursor: pointer; font-family: inherit; color: var(--fg);
+  }
+  .lp-step.now { border-color: var(--medium-blue); background: var(--light-blue); color: var(--medium-blue); }
+  .lp-step.done { color: var(--grey); text-decoration: line-through; }
+  .lp-arrow { color: var(--grey); font-size: 18px; }
+
+  footer { max-width: 860px; margin: 0 auto; padding: 0 24px 40px; font-size: 14px; color: var(--grey); }
+  footer a { color: var(--fg2); }
+
+  @media (max-width: 560px) { .lp-arrow { display: none; } .lp-path { display: grid; } }
+</style>
+</head>
+<body>
+
+<header class="lp-hdr">
+  <div class="lp-inner">
+    <div class="lp-eyebrow">Salesforce Learning</div>
+    <h1>Learning Plan</h1>
+    <p class="lp-hdr-sub">One topic each week. Start with bulkification and governor limits.</p>
+  </div>
+</header>
+
+<div class="lp-bar">
+  <div class="lp-inner">
+    <a href="apex-basics.html">Apex Basics</a> &middot;
+    <a href="apex-practice.html">Apex Practice Reps</a>
+    <span class="lp-spacer"></span>
+    <a href="library.html">Library</a>
+  </div>
+</div>
+
+<main>
+
+  <section class="lp-card lp-week">
+    <h2>This week</h2>
+    <div class="lp-week-row">
+      <div class="lp-week-num"><small>Week</small><span id="weekNum">1</span></div>
+      <input class="lp-topic" id="topic" type="text" spellcheck="false" aria-label="This week's topic">
+      <button type="button" class="lp-btn" id="nextWeek">Next week &rarr;</button>
+    </div>
+    <p class="lp-note">Click the topic to change it. "Next week" moves the counter and clears the topic.</p>
+  </section>
+
+  <section class="lp-card">
+    <h2>Time split</h2>
+    <div class="lp-stack" id="stack" aria-hidden="true"></div>
+    <div class="lp-split" id="split"></div>
+  </section>
+
+  <section class="lp-card">
+    <div class="lp-daily-head">
+      <h2>Daily practice</h2><span>20&ndash;30 min</span>
+      <span class="lp-streak" id="streak"></span>
+    </div>
+    <ul class="lp-steps" id="steps"></ul>
+    <p class="lp-note">Boxes clear each morning.</p>
+  </section>
+
+  <section class="lp-card">
+    <h2>Order</h2>
+    <div class="lp-path" id="path"></div>
+    <p class="lp-note">Click a step to mark it done.</p>
+  </section>
+
+</main>
+
+<footer>Saved in this browser. &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
+
+<script>
+const KEY = "learning-plan-v1";
+const SPLIT = [
+  [40, "Review code", "var(--c1)"],
+  [25, "Study PD1 / PD2", "var(--c2)"],
+  [15, "Architect thinking", "var(--c3)"],
+  [10, "Build with AI", "var(--c4)"],
+  [10, "Hand-write code", "var(--c5)"]
+];
+const STEPS = [
+  "AI writes buggy code on this week's topic",
+  "Find the bugs and explain them",
+  "Rewrite one piece by hand"
+];
+const PATH = ["PD1", "PD2", "Architect certs"];
+
+let st = { week: 1, topic: "Bulkification & governor limits", day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
+try { const raw = localStorage.getItem(KEY); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+
+function ymd(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+const today = ymd(new Date());
+const yest = ymd(new Date(Date.now() - 864e5));
+if (st.day !== today) { st.day = today; st.checks = []; }
+if (st.lastFull !== today && st.lastFull !== yest) st.streak = 0;
+save();
+
+// this week
+const topic = document.getElementById("topic");
+document.getElementById("weekNum").textContent = st.week;
+topic.value = st.topic;
+topic.placeholder = "What's this week's topic?";
+topic.addEventListener("input", function() { st.topic = this.value; save(); });
+document.getElementById("nextWeek").addEventListener("click", function() {
+  st.week += 1; st.topic = ""; save();
+  document.getElementById("weekNum").textContent = st.week;
+  topic.value = ""; topic.focus();
+});
+
+// time split
+document.getElementById("stack").innerHTML = SPLIT.map(function(s) { return '<span style="width:' + s[0] + '%;background:' + s[2] + '"></span>'; }).join("");
+document.getElementById("split").innerHTML = SPLIT.map(function(s) {
+  return '<div class="lp-split-row"><span class="lp-pct" style="color:' + s[2] + '">' + s[0] + '%</span><div><i style="background:' + s[2] + '"></i>' + s[1] + '</div></div>';
+}).join("");
+
+// daily
+const stepsEl = document.getElementById("steps");
+function paintStreak() {
+  document.getElementById("streak").textContent = st.streak ? st.streak + "-day streak" : "";
+}
+STEPS.forEach(function(text, i) {
+  const li = document.createElement("li");
+  li.innerHTML = '<label><input type="checkbox"><span></span></label>';
+  li.querySelector("span").textContent = text;
+  const cb = li.querySelector("input");
+  cb.checked = !!st.checks[i];
+  cb.addEventListener("change", function() {
+    st.checks[i] = this.checked;
+    const full = STEPS.every(function(_, j) { return st.checks[j]; });
+    if (full && st.lastFull !== today) { st.streak = (st.lastFull === yest ? st.streak : 0) + 1; st.lastFull = today; }
+    save(); paintStreak();
+  });
+  stepsEl.appendChild(li);
+});
+paintStreak();
+
+// order
+const pathEl = document.getElementById("path");
+function paintPath() {
+  pathEl.innerHTML = "";
+  PATH.forEach(function(p, i) {
+    if (i) { const a = document.createElement("span"); a.className = "lp-arrow"; a.innerHTML = "&rarr;"; pathEl.appendChild(a); }
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "lp-step" + (i < st.certs ? " done" : i === st.certs ? " now" : "");
+    b.textContent = p;
+    b.addEventListener("click", function() { st.certs = (st.certs === i + 1) ? i : i + 1; save(); paintPath(); });
+    pathEl.appendChild(b);
+  });
+}
+paintPath();
+</script>
+</body>
+</html>
