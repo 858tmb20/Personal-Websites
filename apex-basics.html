@@ -159,8 +159,8 @@
   footer.apx-foot a { color: var(--fg2); }
   .apx-need { font-size: 13px; color: var(--grey); font-style: italic; margin-top: 8px !important; }
 
-  /* --- trigger + handler names --- */
-  .apx-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  /* --- trigger + handler + test class names --- */
+  .apx-names { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
   .apx-name label {
     display: block; font-size: 11.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--medium-blue); margin-bottom: 4px;
@@ -173,7 +173,7 @@
   .apx-name input::placeholder { color: var(--grey); }
   .apx-name input:focus { outline: none; border-color: var(--medium-blue); box-shadow: 0 0 0 3px rgba(0,112,240,0.18); }
   .apx-card.done .apx-name input { background: var(--white); }
-  @media (max-width: 560px) { .apx-names { grid-template-columns: 1fr; } }
+  @media (max-width: 720px) { .apx-names { grid-template-columns: 1fr; } }
 
   /* --- flag to redo --- */
   .apx-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; align-self: center; }
@@ -215,7 +215,7 @@
         <div class="apx-count-sub" id="countSub">built &amp; working</div>
       </div>
     </div>
-    <p class="apx-hdr-sub">28 scenarios, easiest first. Build a trigger and a handler for each. Figure out the rest yourself.</p>
+    <p class="apx-hdr-sub">28 scenarios, easiest first. Build a trigger, a handler, and a test class for each. Figure out the rest yourself.</p>
     <div class="apx-track"><div class="apx-bar" id="bar"></div></div>
   </div>
 </header>
@@ -792,7 +792,7 @@ document.querySelectorAll("[data-item]").forEach(function(card) {
   const id = card.getAttribute("data-item");
   const wrap = document.createElement("div");
   wrap.className = "apx-names";
-  [["trigger", "Trigger", "e.g. AccountTrigger"], ["handler", "Handler", "e.g. AccountTriggerHandler"]].forEach(function(f) {
+  [["trigger", "Trigger", "e.g. AccountTrigger"], ["handler", "Handler", "e.g. AccountTriggerHandler"], ["test", "Test class", "e.g. AccountTriggerHandlerTest"]].forEach(function(f) {
     const box = document.createElement("div");
     box.className = "apx-name";
     const inputId = "name-" + id + "-" + f[0];
@@ -809,7 +809,7 @@ document.querySelectorAll("[data-item]").forEach(function(card) {
     input.addEventListener("input", function() {
       if (!names[id]) names[id] = {};
       names[id][f[0]] = this.value;
-      if (!names[id].trigger && !names[id].handler) delete names[id];
+      if (!names[id].trigger && !names[id].handler && !names[id].test) delete names[id];
       persist();
     });
     box.appendChild(label);
@@ -843,7 +843,7 @@ document.getElementById("redoBtn").addEventListener("click", function() {
 });
 
 document.getElementById("resetBtn").addEventListener("click", function() {
-  if (!window.confirm("Reset all progress? This clears every problem back to Not started, removes all redo flags, and erases the trigger and handler names.")) return;
+  if (!window.confirm("Reset all progress? This clears every problem back to Not started, removes all redo flags, and erases the trigger, handler, and test class names.")) return;
   statuses = {};
   flags = {};
   names = {};
