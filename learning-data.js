@@ -31,6 +31,11 @@ var LP_VIDEOS = {
   common:{ id: "HQrVEX4oE3A", ch: CWTF, title: "The Complete Guide To The Apex Common Library", len: 454 },
   cta:   { id: "y5d8BVuXg2s", ch: CWTF, title: "An Overview of the Salesforce CTA Review Board", len: 41 },
   scan:  { id: "jiY_kgs6oAo", ch: CWTF, title: "How to Automatically Scan your Code for Problems in VS Code", len: 18 },
+  maps:  { id: "hs9xKfsHp5M", ch: CWTF, title: "Apex Master Class Ep. 19: What are Maps in Apex?", len: 15 },
+  lists: { id: "pABf4BpQfwo", ch: CWTF, title: "Apex Master Class Ep. 17: What are Lists in Apex?", len: 17 },
+  sets:  { id: "ZA7JMAQqLwU", ch: CWTF, title: "Apex Master Class Ep. 18: What are Sets in Apex?", len: 13 },
+  loops: { id: "0apfPdZd2fM", ch: CWTF, title: "Apex Master Class Ep. 29: How to Write For Loops", len: 22 },
+  loopbp:{ id: "540ZObWR2to", ch: CWTF, title: "Apex Master Class Ep. 30: Collection Iteration Best Practices", len: 16 },
   aireview: { id: "HD-t58qtTIs", ch: WW, title: "He gave AI a 40-hour Salesforce code review", len: 64 }
 };
 
@@ -44,16 +49,25 @@ function lpClip(key, from, to) {
 }
 
 // Week order follows Warren's Developer Kickstart Program:
-// DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
+// Collections & loops (M2) -> DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
 var LP_PHASES = [
-  { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6] },
-  { name: "LWC fluency", weeks: [7, 8] },
-  { name: "Security", weeks: [9] },
-  { name: "Pass PD1", weeks: [10, 11] }
+  { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6, 7] },
+  { name: "LWC fluency", weeks: [8, 9] },
+  { name: "Security", weeks: [10] },
+  { name: "Pass PD1", weeks: [11, 12] }
 ];
 
 var LP_WEEKS = [
-  { n: 1, title: "DML, exceptions & debugging", lang: "Apex",
+  { n: 1, title: "Collections & loops", lang: "Apex",
+    goal: "Pick the right collection (List, Set, Map) and write loops that don't waste queries.",
+    program: "Warren Kickstart Module 2 (Collections, Flow Control, Loops) \u00b7 Igor Learn Apex: Syntax and Basics",
+    days: [
+      { title: "Collections: List, Set and Map", v: lpClip("maps"), also: [lpClip("lists"), lpClip("sets")], prog: "Warren Module 2: Introduction to Collections and Lists \u00b7 Sets \u00b7 Maps",
+        focus: "Apex that uses a List where it needs a Set (duplicates) and loops a List to find records instead of using a Map", arch: "You have 10,000 Contacts and need each one's Account fast. Which collection, keyed by what, and why?" },
+      { title: "Loops: for, for-each, while and SOQL for-loops", v: lpClip("loops"), also: [lpClip("loopbp")], prog: "Warren Module 2: Loops (Traditional For Loop) \u00b7 Jump Statements and Return",
+        focus: "Apex loops with an off-by-one error, a list modified while looping over it, and a query inside the loop", arch: "When would you use a SOQL for-loop instead of querying into a List first?" }
+    ] },
+  { n: 2, title: "DML, exceptions & debugging", lang: "Apex",
     goal: "Save data safely, handle failures on purpose, and find bugs fast.",
     program: "Warren Kickstart Module 4 (DML) + Module 6 (Debugging) · Igor Learn Apex: Syntax and Basics",
     days: [
@@ -68,7 +82,7 @@ var LP_WEEKS = [
       { title: "Build day: have AI write Apex, then review it", v: lpClip("gptdbg"), prog: "Warren Module 6: Debugging Q&A Live Session",
         focus: "Apex with a MIXED_DML_OPERATION error and a null pointer exception", arch: "What's the one thing you now check first in any AI-written Apex?" }
     ] },
-  { n: 2, title: "SOQL & SOSL", lang: "Apex",
+  { n: 3, title: "SOQL & SOSL", lang: "Apex",
     goal: "Query parent and child data in Apex, with bind variables, without a query in a loop.",
     program: "Warren Kickstart Module 5 (SOQL Parts 1–3) · Igor Learn Apex: SOQL",
     days: [
@@ -83,7 +97,7 @@ var LP_WEEKS = [
       { title: "SOSL and SOQL injection", v: lpClip("soql", "2:15:58", "2:57:03"), prog: "Igor Learn Apex: SOQL module (finish it)",
         focus: "a search feature using SOSL and dynamic SOQL that is open to injection", arch: "Search box across Accounts, Contacts and Leads: SOQL or SOSL? Why?" }
     ] },
-  { n: 3, title: "Triggers & bulkification", lang: "Apex",
+  { n: 4, title: "Triggers & bulkification", lang: "Apex",
     goal: "Write a trigger + handler that survives 200 records without hitting a limit.",
     program: "Warren Kickstart Module 7 (Trigger Basics) + Module 8 (Trigger Best Practices) · Igor Learn Apex: Triggers in Apex",
     days: [
@@ -98,7 +112,7 @@ var LP_WEEKS = [
       { title: "Trigger handlers and frameworks", v: lpClip("trig", "1:20:37", "1:35:22"), prog: "Warren Module 8: Recursion and Cascading · Cohort 13 recording: Trigger Frameworks",
         focus: "a trigger with all its logic in the trigger body and a recursion loop", arch: "What does a trigger handler buy you when there are 5 developers on one org?" }
     ] },
-  { n: 4, title: "Asynchronous Apex", lang: "Apex",
+  { n: 5, title: "Asynchronous Apex", lang: "Apex",
     goal: "Pick the right async tool (future, queueable, batch, schedule) and explain why.",
     program: "Warren Kickstart Module 9 (Asynchronous Apex) · Igor Learn Apex: Asynchronous Apex · Igor Integration Mastery Bonus #5",
     days: [
@@ -113,7 +127,7 @@ var LP_WEEKS = [
       { title: "Batch Apex, plus events and CDC", v: lpClip("async", "1:03:24", "1:25:04"), prog: "Warren Module 9: Batch Apex",
         focus: "a Batch class with a query inside execute() and no Database.Stateful for a running total", arch: "Batch or Platform Event for syncing changed Accounts to another team? Why?" }
     ] },
-  { n: 5, title: "Apex integrations", lang: "Apex",
+  { n: 6, title: "Apex integrations", lang: "Apex",
     goal: "Call an outside API from Apex safely, and test it without hitting the real API.",
     program: "Warren Kickstart Module 10 (Integrations) · Igor Integration Mastery Weeks 1–2 (finish them) + Week 5 (Auth)",
     days: [
@@ -128,7 +142,7 @@ var LP_WEEKS = [
       { title: "Build day: have AI write an integration, then review it", v: lpClip("gptint"), prog: "Warren Module 10: JSON and Sending/Parsing Data · Homework Help 10.1",
         focus: "an AI-written callout made after DML in the same transaction", arch: "Sending new Leads to an outside system: callout from the trigger, async, or Platform Event?" }
     ] },
-  { n: 6, title: "Testing", lang: "Apex",
+  { n: 7, title: "Testing", lang: "Apex",
     goal: "Write tests that prove behavior (not just coverage), including 200-record and negative cases.",
     program: "Warren Kickstart Module 11 (Test Classes) · Igor Integration Mastery Week 4: Logging & Tests",
     days: [
@@ -143,7 +157,7 @@ var LP_WEEKS = [
       { title: "Build day: have AI write tests, then review them", v: lpClip("gpttest"), prog: "Warren Module 11: Testing Triggers · Homework Help 11.1",
         focus: "an AI-written trigger test that inserts 1 record and asserts nothing useful", arch: "Write the one test you'd demand in a code review before approving a trigger." }
     ] },
-  { n: 7, title: "LWC basics", lang: "LWC",
+  { n: 8, title: "LWC basics", lang: "LWC",
     goal: "Build a component that shows record data with @api, @wire, and an Apex call.",
     program: "Warren Kickstart Module 12 (LWCs Part 1 & 2) · Igor Learn LWC · Warren JavaScript Developer 101",
     days: [
@@ -158,7 +172,7 @@ var LP_WEEKS = [
       { title: "Calling Apex imperatively", v: lpClip("lwc", "1:14:11", "1:31:23"), prog: "Igor Learn LWC: calling Apex",
         focus: "an LWC calling a non-cacheable Apex method with @wire and no error handling", arch: "@wire or an imperative call: when would you pick each?" }
     ] },
-  { n: 8, title: "LWC communication & debugging", lang: "LWC",
+  { n: 9, title: "LWC communication & debugging", lang: "LWC",
     goal: "Make components talk to each other, and debug them in the browser.",
     program: "Warren Kickstart Module 12 (Conditional Rendering, Parent-Child Communication) · Igor Learn LWC",
     days: [
@@ -173,7 +187,7 @@ var LP_WEEKS = [
       { title: "Error handling in LWC and JavaScript", v: lpClip("exc", "25:14", "36:27"), prog: "Warren Module 12: Quiz on Lightning Web Components",
         focus: "an LWC that shows a blank screen when Apex throws", arch: "What should a user see when your component's Apex call fails?" }
     ] },
-  { n: 9, title: "Security", lang: "Apex",
+  { n: 10, title: "Security", lang: "Apex",
     goal: "Write Apex that respects who can see what.",
     program: "Warren PD1 Certification Training 8: Securing User Interface and Data Access",
     days: [
@@ -184,7 +198,7 @@ var LP_WEEKS = [
       { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: \u201cHe gave AI a 40-hour code review\u201d (YouTube)",
         focus: "an Apex controller with a SOQL injection, no CRUD check and a hardcoded Id", arch: "What would you put on a code-review checklist for your team? Top 5." }
     ] },
-  { n: 10, title: "PD1 review by exam section", lang: "PD1",
+  { n: 11, title: "PD1 review by exam section", lang: "PD1",
     goal: "Go through every PD1 exam section once, then take your first full practice exam.",
     program: "Warren PD1 Certification Training 1\u201312 \u00b7 Focus on Force PD1",
     days: [
@@ -199,7 +213,7 @@ var LP_WEEKS = [
       { title: "Practice exam #1", v: lpClip("mock"), prog: "Warren Modules 13\u201316: Structuring PD1 Study and How To Know When You're Ready",
         focus: "the topic you missed most on today's exam", arch: "Which section cost you the most points, and why?", quiz: "Focus on Force: full PD1 practice exam #1. Under 68%? That's when Igor's PD1 prep course is worth it." }
     ] },
-  { n: 11, title: "Final prep and the exam", lang: "PD1",
+  { n: 12, title: "Final prep and the exam", lang: "PD1",
     goal: "Fix your weak spots, prove you're ready on two more practice exams, then pass PD1.",
     program: "Warren Modules 13\u201316: Taking the Platform Developer I Certification Exam \u00b7 Focus on Force",
     days: [

@@ -66,7 +66,7 @@
 <main id="viewSyl" hidden>
   <section class="lp-card">
     <h2>How this is laid out</h2>
-    <p class="sy-goal" style="margin:0 0 12px">One 45-minute lesson a day, Monday to Saturday, from Sep 24 to Nov 23, in the same order as Warren's Developer Kickstart Program: DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Nov 24, 25 and 28 are catch-up days. PD1 exam: Monday, Nov 30. Then PD2 and Architect. Click any lesson to open it.</p>
+    <p class="sy-goal" style="margin:0 0 12px">One 45-minute lesson a day, Monday to Saturday, from Sep 24 to Nov 25, in the same order as Warren's Developer Kickstart Program: collections &amp; loops &rarr; DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Sundays and Nov 28 are catch-up days. PD1 exam: Monday, Nov 30. Then PD2 and Architect. Click any lesson to open it.</p>
     <div class="lp-split">
       <div><b style="color:var(--c2)">1</b> Watch the video (Warren, Coding With The Force, or Igor). If you have the lesson in your program, watch that instead.</div>
       <div><b style="color:var(--c1)">2</b> Review code: AI writes buggy code on the topic, and you find and explain the bugs.</div>
@@ -153,6 +153,16 @@ function paint() {
     txt.appendChild(el("small", null, d.v.ch + (d.v.from ? " · watch " + d.v.from + (d.v.to ? " to " + d.v.to : " to the end") : "")));
     a.appendChild(txt);
     b.appendChild(a);
+    if (d.also) {
+      var al = el("p", "lp-alt");
+      al.appendChild(el("b", null, "Rusty? Also watch: "));
+      d.also.forEach(function(v, i) {
+        if (i) al.appendChild(document.createTextNode(" \u00b7 "));
+        var x = el("a", null, v.title + " (" + v.mins + " min)"); x.href = v.url; x.target = "_blank"; x.rel = "noopener";
+        al.appendChild(x);
+      });
+      b.appendChild(al);
+    }
     if (d.v.mins > 25) b.appendChild(el("p", "lp-hint", "Long one (" + d.v.mins + " min). Watch at 1.5\u00d7 to fit it in about " + Math.round(d.v.mins / 1.5) + " min."));
     var alt = el("p", "lp-alt");
     alt.appendChild(el("b", null, "Or in your program: "));
