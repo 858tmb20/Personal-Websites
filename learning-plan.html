@@ -60,8 +60,22 @@
     font: inherit; font-size: 13px; font-weight: 600; color: var(--fg2); background: var(--light-blue);
     border: 1px solid var(--hairline); border-radius: 999px; padding: 6px 14px; cursor: pointer;
   }
-  .lp-btn:hover { border-color: var(--medium-blue); color: var(--medium-blue); }
+  .lp-btn:disabled { opacity: 0.4; cursor: default; }
+  .lp-btn:hover:not(:disabled) { border-color: var(--medium-blue); color: var(--medium-blue); }
   .lp-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(47,116,201,0.3); }
+
+  .lp-week-num .lp-of { font-size: 0.5em; color: var(--grey); }
+  .lp-weeks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+  .lp-weeks button {
+    width: 100%; display: flex; gap: 10px; align-items: baseline; text-align: left; font: inherit; font-size: 15px;
+    color: var(--fg); background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 6px 8px; cursor: pointer;
+  }
+  .lp-weeks button:hover { border-color: var(--hairline); }
+  .lp-weeks b { font-size: 12px; font-weight: 800; color: var(--grey); min-width: 22px; }
+  .lp-weeks .past { color: var(--grey); text-decoration: line-through; }
+  .lp-weeks .now { background: var(--light-blue); border-color: var(--medium-blue); color: var(--medium-blue); font-weight: 700; }
+  .lp-weeks .now b { color: var(--medium-blue); }
+  @media (max-width: 560px) { .lp-weeks { grid-template-columns: 1fr; } }
 
   /* time split */
   .lp-stack { display: flex; height: 18px; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
@@ -107,7 +121,7 @@
   <div class="lp-inner">
     <div class="lp-eyebrow">Salesforce Learning</div>
     <h1>Learning Plan</h1>
-    <p class="lp-hdr-sub">One topic each week. Start with bulkification and governor limits.</p>
+    <p class="lp-hdr-sub">12 weeks, one topic each. Start with bulkification and governor limits.</p>
   </div>
 </header>
 
@@ -125,11 +139,17 @@
   <section class="lp-card lp-week">
     <h2>This week</h2>
     <div class="lp-week-row">
-      <div class="lp-week-num"><small>Week</small><span id="weekNum">1</span></div>
+      <div class="lp-week-num"><small>Week</small><span id="weekNum">1</span><span class="lp-of">/12</span></div>
       <input class="lp-topic" id="topic" type="text" spellcheck="false" aria-label="This week's topic">
+      <button type="button" class="lp-btn" id="prevWeek">&larr; Back</button>
       <button type="button" class="lp-btn" id="nextWeek">Next week &rarr;</button>
     </div>
-    <p class="lp-note">Click the topic to change it. "Next week" moves the counter and clears the topic.</p>
+    <p class="lp-note">Click the topic to rename it. Weeks 1&ndash;9 cover PD1, 10&ndash;11 lean PD2, 12 is architect thinking.</p>
+  </section>
+
+  <section class="lp-card">
+    <h2>12 weeks</h2>
+    <ol class="lp-weeks" id="weeks"></ol>
   </section>
 
   <section class="lp-card">
@@ -172,8 +192,22 @@ const STEPS = [
   "Rewrite one piece by hand"
 ];
 const PATH = ["PD1", "PD2", "Architect certs"];
+const TOPICS = [
+  "Bulkification & governor limits",
+  "Triggers & order of execution",
+  "SOQL & SOSL",
+  "DML, transactions & exceptions",
+  "Testing & test data",
+  "Security: sharing, CRUD & FLS",
+  "Async Apex: future, queueable, batch, scheduled",
+  "LWC basics & calling Apex",
+  "Flow vs. Apex: when to use which",
+  "Integration: REST callouts & named credentials",
+  "Platform events & design patterns",
+  "Architect thinking: data model & large data volumes"
+];
 
-let st = { week: 1, topic: "Bulkification & governor limits", day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
+let st = { week: 1, topics: {}, day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
 try { const raw = localStorage.getItem(KEY); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
 
@@ -185,16 +219,34 @@ if (st.lastFull !== today && st.lastFull !== yest) st.streak = 0;
 save();
 
 // this week
+if (!st.topics) st.topics = {};
+delete st.topic;
+st.week = Math.min(Math.max(st.week || 1, 1), TOPICS.length);
 const topic = document.getElementById("topic");
-document.getElementById("weekNum").textContent = st.week;
-topic.value = st.topic;
-topic.placeholder = "What's this week's topic?";
-topic.addEventListener("input", function() { st.topic = this.value; save(); });
-document.getElementById("nextWeek").addEventListener("click", function() {
-  st.week += 1; st.topic = ""; save();
+function topicOf(w) { return st.topics[w] != null ? st.topics[w] : TOPICS[w - 1]; }
+function paintWeek() {
   document.getElementById("weekNum").textContent = st.week;
-  topic.value = ""; topic.focus();
+  topic.value = topicOf(st.week);
+  document.getElementById("prevWeek").disabled = st.week === 1;
+  document.getElementById("nextWeek").disabled = st.week === TOPICS.length;
+  document.getElementById("weeks").innerHTML = TOPICS.map(function(_, i) {
+    const w = i + 1, cls = w < st.week ? "past" : w === st.week ? "now" : "";
+    return '<li><button type="button" class="' + cls + '" data-week="' + w + '"><b>' + w + '</b><span></span></button></li>';
+  }).join("");
+  document.querySelectorAll("#weeks button").forEach(function(b) {
+    b.querySelector("span").textContent = topicOf(+b.dataset.week);
+    b.addEventListener("click", function() { st.week = +this.dataset.week; save(); paintWeek(); });
+  });
+}
+topic.placeholder = "What's this week's topic?";
+topic.addEventListener("input", function() {
+  if (this.value === TOPICS[st.week - 1]) delete st.topics[st.week]; else st.topics[st.week] = this.value;
+  save();
+  document.querySelector('#weeks [data-week="' + st.week + '"] span').textContent = this.value;
 });
+document.getElementById("prevWeek").addEventListener("click", function() { st.week -= 1; save(); paintWeek(); });
+document.getElementById("nextWeek").addEventListener("click", function() { st.week += 1; save(); paintWeek(); });
+paintWeek();
 
 // time split
 document.getElementById("stack").innerHTML = SPLIT.map(function(s) { return '<span style="width:' + s[0] + '%;background:' + s[2] + '"></span>'; }).join("");
