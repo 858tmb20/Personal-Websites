@@ -142,7 +142,8 @@ main { max-width: 860px; margin: 0 auto; padding: 28px 24px 64px; display: grid;
 .sy-day.now .d { color: var(--c4); }
 .sy-day.now a.t { font-weight: 700; color: var(--blue); }
 .sy-later li { margin-bottom: 6px; font-size: 15px; }
-.sy-later ul { margin: 8px 0 0; padding-left: 20px; }
+.sy-later ul, .sy-later-list { margin: 8px 0 0; padding-left: 20px; }
+.sy-later-list li { margin-bottom: 6px; font-size: 14.5px; color: var(--fg2); }
 
 footer { max-width: 860px; margin: 0 auto; padding: 0 24px 40px; font-size: 14px; color: var(--grey); }
 footer a { color: var(--fg2); }

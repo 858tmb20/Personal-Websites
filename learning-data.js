@@ -31,6 +31,34 @@ var LP_VIDEOS = {
   common:{ id: "HQrVEX4oE3A", ch: CWTF, title: "The Complete Guide To The Apex Common Library", len: 454 },
   cta:   { id: "y5d8BVuXg2s", ch: CWTF, title: "An Overview of the Salesforce CTA Review Board", len: 41 },
   scan:  { id: "jiY_kgs6oAo", ch: CWTF, title: "How to Automatically Scan your Code for Problems in VS Code", len: 18 },
+  wwsetup:{ id: "BT4IRLrsBlg", ch: WW, title: "Install VS Code, Salesforce CLI/SFDX, and Connect to an Org", len: 10 },
+  devorg:{ id: "5nzX_Vlpi3k", ch: CWTF, title: "Apex Master Class Ep. 2: Set Up a Free Developer Org", len: 7 },
+  expect:{ id: "zKidSyBn-3Q", ch: CWTF, title: "Apex Master Class Ep. 1: What to Expect as a Salesforce Developer", len: 21 },
+  whatapex:{ id: "iWkCmAf-Ksg", ch: CWTF, title: "Apex Master Class Ep. 3: What is Apex?", len: 14 },
+  ide:   { id: "CviswPJ08PQ", ch: CWTF, title: "Apex Master Class Ep. 4: What Is An IDE?", len: 12 },
+  vscode:{ id: "uhuGpLWXdE8", ch: CWTF, title: "Apex Master Class Ep. 5: Set Up VS Code for Salesforce", len: 29 },
+  vars:  { id: "r4eqAZgTQqE", ch: CWTF, title: "Apex Master Class Ep. 8: What are Variables?", len: 10 },
+  complex:{ id: "TKLDPaBEMuQ", ch: CWTF, title: "Apex Master Class Ep. 10: Non-Primitive / Complex Data Types", len: 25 },
+  scope: { id: "SuulwoT5dZA", ch: CWTF, title: "Apex Master Class Ep. 11: Variable Scope", len: 9 },
+  inst:  { id: "o2_FKE-GdIM", ch: CWTF, title: "Apex Master Class Ep. 14: How to Instantiate a Class", len: 10 },
+  colls: { id: "vkBjNVZnXtA", ch: CWTF, title: "Apex Master Class Ep. 16: What are Collections?", len: 7 },
+  stat2: { id: "ozMKmnHydyI", ch: CWTF, title: "Apex Master Class Ep. 21: When to use Static", len: 13 },
+  glob:  { id: "eIkXfpoGI70", ch: CWTF, title: "Apex Master Class Ep. 22: The Global Keyword", len: 9 },
+  pub:   { id: "O62z0MdAHdg", ch: CWTF, title: "Apex Master Class Ep. 23: The Public Keyword", len: 7 },
+  prot:  { id: "JIEdZKq1HG4", ch: CWTF, title: "Apex Master Class Ep. 24: The Protected Keyword", len: 11 },
+  priv:  { id: "1AiyjRto_14", ch: CWTF, title: "Apex Master Class Ep. 25: The Private Keyword", len: 11 },
+  sw:    { id: "4WRbd8Si6f4", ch: CWTF, title: "Apex Master Class Ep. 27: Switch Statements", len: 10 },
+  swvif: { id: "iDXBAJanvPg", ch: CWTF, title: "Apex Master Class Ep. 28: Switch vs. If/Else", len: 13 },
+  safenav:{ id: "wpJsi3d6QHI", ch: CWTF, title: "The Apex Safe Navigation Operator", len: 19 },
+  strdoc:{ id: "", ch: "Salesforce docs", title: "Apex Reference: String Class", len: 20, url: "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_string.htm" },
+  git:   { id: "SHGf_9NN4Sg", ch: WW, title: "Sync a GitHub Repo to a Local Salesforce SFDX Project & Org", len: 9 },
+  cicd:  { id: "qegFqum-M9o", ch: CWTF, title: "Salesforce DevOps: Build a CI/CD Pipeline with GitHub", len: 65 },
+  dload: { id: "P7I_IS-qXAY", ch: WW, title: "Install Salesforce Data Loader and Insert Accounts", len: 7 },
+  replay:{ id: "iWXvnylWuR8", ch: CWTF, title: "Use the Apex Replay Debugger in VS Code", len: 26 },
+  lwc1:  { id: "7hbaoMtp4pU", ch: CWTF, title: "LWC Master Class Ep. 1: What are LWCs and When to use them", len: 35 },
+  dom:   { id: "S9rwvfQzDVw", ch: CWTF, title: "LWC Master Class Ep. 2: What is the DOM?", len: 38 },
+  html:  { id: "ZRq6ioymFlA", ch: CWTF, title: "LWC Master Class Ep. 3: What is HTML?", len: 32 },
+  css:   { id: "rMRk3KqjHJ8", ch: CWTF, title: "LWC Master Class Ep. 4: What is CSS?", len: 30 },
   prims: { id: "AlU7ITcqXwA", ch: CWTF, title: "Apex Master Class Ep. 9: Primitive Data Types in Apex", len: 25 },
   ops:   { id: "DCVgtNPZSqw", ch: CWTF, title: "Apex Master Class Ep. 15: Operators in Apex", len: 16 },
   ifelse:{ id: "Mr-03GLeZk0", ch: CWTF, title: "Apex Master Class Ep. 26: Conditional Statements (If/Else)", len: 15 },
@@ -51,49 +79,68 @@ function lpClip(key, from, to) {
   var v = LP_VIDEOS[key];
   var s = lpSecs(from);
   var mins = Math.round(((to ? lpSecs(to) : v.len * 60) - s) / 60);
-  return { key: key, id: v.id, ch: v.ch, title: v.title, from: from || "", to: to || "", mins: mins,
-    url: "https://www.youtube.com/watch?v=" + v.id + (s ? "&t=" + s + "s" : "") };
+  return { key: key, id: v.id, ch: v.ch, title: v.title, from: from || "", to: to || "", mins: mins, doc: !!v.url,
+    url: v.url || ("https://www.youtube.com/watch?v=" + v.id + (s ? "&t=" + s + "s" : "")) };
 }
 
 // Week order follows Warren's Developer Kickstart Program:
-// Foundations (M1-3) -> DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
+// Setup + foundations (Getting Started, M1-3) -> data model + DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
 var LP_PHASES = [
-  { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6, 7] },
-  { name: "LWC fluency", weeks: [8, 9] },
-  { name: "Security", weeks: [10] },
-  { name: "Pass PD1", weeks: [11, 12] }
+  { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6, 7, 8] },
+  { name: "LWC fluency", weeks: [9, 10] },
+  { name: "Security", weeks: [11] },
+  { name: "Pass PD1", weeks: [12, 13] }
 ];
 
 var LP_WEEKS = [
-  { n: 1, title: "Apex foundations", lang: "Apex",
-    goal: "Solid basics: data types, collections, loops, and classes. The stuff every other week is built on.",
-    program: "Warren Kickstart Modules 1\u20133 (Variables, Collections, Loops, Classes) \u00b7 Igor Learn Apex: Syntax and Basics",
+  { n: 1, title: "Apex foundations: setup and data", lang: "Apex",
+    goal: "Get your tools set up, then learn how Apex stores data: variables, types, sObjects, and collections.",
+    program: "Warren Kickstart Getting Started + Modules 1\u20132 \u00b7 Igor Learn Apex: Syntax and Basics (Variables, sObjects, If/Else/Switch, Lists, Maps)",
     days: [
-      { title: "Variables, data types, operators and if/else", v: lpClip("prims"), also: [lpClip("ops"), lpClip("ifelse")], prog: "Warren Module 1: Variables, Data Types, and Operators \u00b7 Module 2: Flow Control (If statements)",
-        focus: "Apex with a null pointer on an uninitialized variable, integer division that loses decimals, and a String compared with == on the wrong case", arch: "Why does Apex treat an uninitialized Integer as null instead of 0, and where does that bite you in a trigger?" },
-      { title: "Collections: List, Set and Map", v: lpClip("maps"), also: [lpClip("lists"), lpClip("sets")], prog: "Warren Module 2: Introduction to Collections and Lists \u00b7 Sets \u00b7 Maps",
-        focus: "Apex that uses a List where it needs a Set (duplicates) and loops a List to find records instead of using a Map", arch: "You have 10,000 Contacts and need each one's Account fast. Which collection, keyed by what, and why?" },
-      { title: "Loops: for, for-each, while and SOQL for-loops", v: lpClip("loops"), also: [lpClip("loopbp")], prog: "Warren Module 2: Loops (Traditional For Loop) \u00b7 Jump Statements and Return",
-        focus: "Apex loops with an off-by-one error, a list modified while looping over it, and a query inside the loop", arch: "When would you use a SOQL for-loop instead of querying into a List first?" },
-      { title: "Classes, methods, constructors and static", v: lpClip("cls"), also: [lpClip("meth"), lpClip("ctor"), lpClip("stat")], prog: "Warren Module 3: Objects and Classes \u00b7 Methods Parts 1\u20132 \u00b7 Constructors \u00b7 Access Modifiers \u00b7 The Math, String, and Date Classes",
-        focus: "an Apex class with a constructor that never sets its fields, a static variable used where each instance needs its own value, and a private method called from outside", arch: "Why does a recursion guard in a trigger have to be static? What would break if it weren't?" }
+      { title: "Setup: dev org, VS Code, Salesforce CLI and Anonymous Apex", v: lpClip("wwsetup"), also: [lpClip("devorg"), lpClip("vscode"), lpClip("expect"), lpClip("whatapex"), lpClip("ide")], prog: "Warren Getting Started: What are Salesforce and Salesforce Development? \u00b7 VS Code and Salesforce DX \u00b7 Homework Help 1.2: Troubleshooting VS Code \u00b7 Homework Help 2.1: Using Apex Anonymous",
+        focus: "an Anonymous Apex script that inserts a record, with a typo in a field API name, a missing semicolon and a debug statement that prints the wrong variable", arch: "Why do developers work in a sandbox or scratch org instead of production? What could go wrong otherwise?" },
+      { title: "Variables and primitive data types", v: lpClip("prims"), also: [lpClip("vars"), lpClip("scope")], prog: "Warren Module 1: Variables, Integers, and Strings \u00b7 Apex Data Types: Comments, Compatibility, Null Values, and Dates \u00b7 Homework Help 1.1: Scoping and Current Date",
+        focus: "Apex with a null pointer on an uninitialized variable, integer division that loses decimals, and a variable used outside its scope", arch: "Why does Apex treat an uninitialized Integer as null instead of 0, and where does that bite you in a trigger?" },
+      { title: "Complex data types, sObjects and casting", v: lpClip("complex"), prog: "Warren Module 4: Instantiating Salesforce Objects \u00b7 Homework Help 3.2: Apex Casting \u00b7 Igor Learn Apex: sObjects",
+        focus: "Apex that builds sObjects with wrong field types, casts a generic sObject to the wrong type, and reads a field that was never queried", arch: "When would you use the generic sObject type instead of Account or Contact?" },
+      { title: "Operators, if/else, switch and safe navigation", v: lpClip("ifelse"), also: [lpClip("ops"), lpClip("sw"), lpClip("swvif"), lpClip("safenav")], prog: "Warren Module 1: Operators \u00b7 Order of Operations \u00b7 Module 2: Flow Control (If Statements) \u00b7 Igor Learn Apex: If / Else / Switch",
+        focus: "Apex with an if/else chain that should be a switch, a String compared with == on the wrong case, and a null check that the safe navigation operator would replace", arch: "When is a switch statement clearer than if/else? Give one real example." },
+      { title: "Collections: List, Set and Map", v: lpClip("maps"), also: [lpClip("colls"), lpClip("lists"), lpClip("sets")], prog: "Warren Module 2: Introduction to Collections and Lists \u00b7 Sets \u00b7 Maps",
+        focus: "Apex that uses a List where it needs a Set (duplicates) and loops a List to find records instead of using a Map", arch: "You have 10,000 Contacts and need each one's Account fast. Which collection, keyed by what, and why?" }
     ] },
-  { n: 2, title: "DML, exceptions & debugging", lang: "Apex",
-    goal: "Save data safely, handle failures on purpose, and find bugs fast.",
+  { n: 2, title: "Apex foundations: loops, classes and tools", lang: "Apex",
+    goal: "Write loops and classes cleanly, use Apex's built-in classes, and save your work in Git.",
+    program: "Warren Kickstart Modules 2, 3 and 6 (Git) \u00b7 Igor Learn Apex: Syntax and Basics (Classes, Methods, Loops, For Each)",
+    days: [
+      { title: "Loops: for, for-each, while and SOQL for-loops", v: lpClip("loops"), also: [lpClip("loopbp")], prog: "Warren Module 2: Loops (Traditional For Loop) \u00b7 Jump Statements and Return (break, continue)",
+        focus: "Apex loops with an off-by-one error, a list modified while looping over it, and a query inside the loop", arch: "When would you use a SOQL for-loop instead of querying into a List first?" },
+      { title: "Classes, objects, methods and constructors", v: lpClip("cls"), also: [lpClip("meth"), lpClip("ctor"), lpClip("inst")], prog: "Warren Module 3: Objects and Classes \u00b7 Methods Parts 1\u20132 \u00b7 Constructors \u00b7 Homework Help 3.1: Constructors and This \u00b7 Igor Learn Apex: Classes, Methods",
+        focus: "an Apex class with a constructor that never sets its fields, a method that should return a value but doesn't, and `this` missing where a parameter shadows a field", arch: "What belongs in a constructor, and what doesn't?" },
+      { title: "Static and access modifiers", v: lpClip("stat"), also: [lpClip("stat2"), lpClip("priv"), lpClip("pub"), lpClip("prot"), lpClip("glob")], prog: "Warren Module 3: Access Modifiers \u00b7 Homework Help 1.3: Writing Clean Code",
+        focus: "an Apex class with a static variable used where each instance needs its own value, a private method called from outside, and a class marked global for no reason", arch: "Why does a recursion guard in a trigger have to be static? And why should everything be as private as possible?" },
+      { title: "Math, String and Date classes", v: lpClip("strdoc"), prog: "Warren Module 3: The Math, String, and Date Classes (main lesson; no YouTube version) \u00b7 Quiz on the Math, String, and Date Classes",
+        focus: "Apex that formats a name with the wrong String methods, adds days to a Date incorrectly, and rounds money with the wrong Math method", arch: "Why store dates as Date/Datetime instead of Strings? What breaks if you don't?" },
+      { title: "Git and GitHub for Salesforce", v: lpClip("git"), also: [lpClip("cicd")], prog: "Warren Module 2: Version Control and GitHub \u00b7 Git Commands \u00b7 Module 6: Git Branching and Merging \u00b7 Module 7: DevOps and CI/CD",
+        focus: null, arch: "Why does every change go through a branch and a pull request instead of straight to main?", quiz: "Git practice: in your practice project, make a branch, commit a small class, push it, and open a pull request." }
+    ] },
+  { n: 3, title: "Data, DML, exceptions & debugging", lang: "Apex",
+    goal: "Understand the data model, save data safely, handle failures on purpose, and find bugs fast.",
     program: "Warren Kickstart Module 4 (DML) + Module 6 (Debugging) · Igor Learn Apex: Syntax and Basics",
     days: [
+      { title: "Data model and loading data", v: lpClip("dload"), prog: "Warren PD1 Certification Training 2: Mastering Data Models and Handling Data Import/Export \u00b7 Homework Help 5.2: Deploying Fields, Downloading Metadata",
+        focus: "Apex that sets a lookup with a Name instead of an Id and inserts children whose master-detail parent doesn't exist", arch: "Lookup or master-detail? What changes for sharing, deletes and roll-ups?", quiz: "5 Focus on Force questions on data modeling and data import (Data Loader vs. Data Import Wizard)." },
       { title: "DML: insert, update, upsert, parent + child in one save", v: lpClip("dml1"), prog: "Warren Module 4: Intro to DML · Homework Help 4.2: How Upserts Work",
         focus: "DML that inserts children before parents and upserts on the wrong key", arch: "Upsert on an External Id vs. query-then-update: when is each the right call?" },
       { title: "Try / catch / finally and exception types", v: lpClip("exc", "1:27", "21:50"), prog: "Warren PD1 Certification Training 6: Exception Handling",
         focus: "Apex that catches generic Exception everywhere and swallows errors", arch: "When should a save stop completely, and when should it save what it can?" },
       { title: "Custom exceptions and errors you can't catch", v: lpClip("exc", "21:50", "48:39"), prog: "Warren Module 6: Troubleshooting and Debugging",
         focus: "a service class that returns error strings instead of throwing custom exceptions", arch: "Why throw a custom exception instead of returning an error string? Who benefits?" },
-      { title: "How to debug: System.debug, logs, finding bottlenecks", v: lpClip("dbg", "2:21", "35:54"), prog: "Warren Module 6: Getting Started with Debugging Apex",
+      { title: "How to debug: System.debug, logs, finding bottlenecks", v: lpClip("dbg", "2:21", "35:54"), also: [lpClip("replay")], prog: "Warren Module 6: Getting Started with Debugging Apex",
         focus: "slow Apex with a hidden query-in-loop and a null pointer", arch: "A user says “it's slow sometimes.” What's your first step, and what log would you pull?" },
       { title: "Build day: have AI write Apex, then review it", v: lpClip("gptdbg"), prog: "Warren Module 6: Debugging Q&A Live Session",
         focus: "Apex with a MIXED_DML_OPERATION error and a null pointer exception", arch: "What's the one thing you now check first in any AI-written Apex?" }
     ] },
-  { n: 3, title: "SOQL & SOSL", lang: "Apex",
+  { n: 4, title: "SOQL & SOSL", lang: "Apex",
     goal: "Query parent and child data in Apex, with bind variables, without a query in a loop.",
     program: "Warren Kickstart Module 5 (SOQL Parts 1–3) · Igor Learn Apex: SOQL",
     days: [
@@ -108,7 +155,7 @@ var LP_WEEKS = [
       { title: "SOSL and SOQL injection", v: lpClip("soql", "2:15:58", "2:57:03"), prog: "Igor Learn Apex: SOQL module (finish it)",
         focus: "a search feature using SOSL and dynamic SOQL that is open to injection", arch: "Search box across Accounts, Contacts and Leads: SOQL or SOSL? Why?" }
     ] },
-  { n: 4, title: "Triggers & bulkification", lang: "Apex",
+  { n: 5, title: "Triggers & bulkification", lang: "Apex",
     goal: "Write a trigger + handler that survives 200 records without hitting a limit.",
     program: "Warren Kickstart Module 7 (Trigger Basics) + Module 8 (Trigger Best Practices) · Igor Learn Apex: Triggers in Apex",
     days: [
@@ -123,7 +170,7 @@ var LP_WEEKS = [
       { title: "Trigger handlers and frameworks", v: lpClip("trig", "1:20:37", "1:35:22"), prog: "Warren Module 8: Recursion and Cascading · Cohort 13 recording: Trigger Frameworks",
         focus: "a trigger with all its logic in the trigger body and a recursion loop", arch: "What does a trigger handler buy you when there are 5 developers on one org?" }
     ] },
-  { n: 5, title: "Asynchronous Apex", lang: "Apex",
+  { n: 6, title: "Asynchronous Apex", lang: "Apex",
     goal: "Pick the right async tool (future, queueable, batch, schedule) and explain why.",
     program: "Warren Kickstart Module 9 (Asynchronous Apex) · Igor Learn Apex: Asynchronous Apex · Igor Integration Mastery Bonus #5",
     days: [
@@ -138,7 +185,7 @@ var LP_WEEKS = [
       { title: "Batch Apex, plus events and CDC", v: lpClip("async", "1:03:24", "1:25:04"), prog: "Warren Module 9: Batch Apex",
         focus: "a Batch class with a query inside execute() and no Database.Stateful for a running total", arch: "Batch or Platform Event for syncing changed Accounts to another team? Why?" }
     ] },
-  { n: 6, title: "Apex integrations", lang: "Apex",
+  { n: 7, title: "Apex integrations", lang: "Apex",
     goal: "Call an outside API from Apex safely, and test it without hitting the real API.",
     program: "Warren Kickstart Module 10 (Integrations) · Igor Integration Mastery Weeks 1–2 (finish them) + Week 5 (Auth)",
     days: [
@@ -146,6 +193,8 @@ var LP_WEEKS = [
         focus: "a GET callout with a hardcoded URL and no status-code check", arch: "What should happen when the outside API is down for an hour?" },
       { title: "POST requests and JSON wrapper classes", v: lpClip("post"), prog: "Igor Integration Mastery Week #2: Post Requests · Warren Module 10: The Integration POST Method",
         focus: "a POST callout that builds JSON by string concatenation and deserializes into the wrong type", arch: "Why use a wrapper class instead of Map<String, Object> for JSON?" },
+      { title: "Callouts from triggers", v: lpClip("async", "37:58", "47:34"), prog: "Igor Integration Mastery Week #3: Requests from Triggers \u00b7 Warren Module 9: Future Methods",
+        focus: "a trigger that makes an HTTP callout directly instead of handing it to @future(callout=true) or a Queueable", arch: "Why can't a trigger make a callout directly, and which async tool would you hand it to?" },
       { title: "Named Credentials", v: lpClip("named"), prog: "Igor Integration Mastery Week #5: Authentication",
         focus: "a callout with the API key hardcoded in Apex", arch: "Why do Named Credentials matter for security and for deployments between sandboxes?" },
       { title: "Custom authentication", v: lpClip("auth"), prog: "Igor Integration Mastery Week #5: Authentication",
@@ -153,7 +202,7 @@ var LP_WEEKS = [
       { title: "Build day: have AI write an integration, then review it", v: lpClip("gptint"), prog: "Warren Module 10: JSON and Sending/Parsing Data · Homework Help 10.1",
         focus: "an AI-written callout made after DML in the same transaction", arch: "Sending new Leads to an outside system: callout from the trigger, async, or Platform Event?" }
     ] },
-  { n: 7, title: "Testing", lang: "Apex",
+  { n: 8, title: "Testing", lang: "Apex",
     goal: "Write tests that prove behavior (not just coverage), including 200-record and negative cases.",
     program: "Warren Kickstart Module 11 (Test Classes) · Igor Integration Mastery Week 4: Logging & Tests",
     days: [
@@ -166,13 +215,19 @@ var LP_WEEKS = [
       { title: "Testing callouts with mocks", v: lpClip("test", "1:02:32", "1:20:46"), prog: "Warren Module 11: Testing Callouts and Mocking",
         focus: "a callout test with no HttpCalloutMock and no status-code check", arch: "What should a callout test prove besides “it didn't crash”?" },
       { title: "Build day: have AI write tests, then review them", v: lpClip("gpttest"), prog: "Warren Module 11: Testing Triggers · Homework Help 11.1",
-        focus: "an AI-written trigger test that inserts 1 record and asserts nothing useful", arch: "Write the one test you'd demand in a code review before approving a trigger." }
+        focus: "an AI-written trigger test that inserts 1 record and asserts nothing useful", arch: "Write the one test you'd demand in a code review before approving a trigger." },
+      { title: "Developer tools and deploying code", v: lpClip("replay"), prog: "Warren PD1 Certification Training 7: Leveraging Salesforce Developer Tools \u00b7 Training 10: Workbench Overview \u00b7 Training 11: Code Deployment \u00b7 Module 7: DevOps and CI/CD",
+        focus: "a deployment package missing a test class and a field the Apex depends on", arch: "Change sets, the Salesforce CLI, or a pipeline like Copado: what's each one good for?", quiz: "5 Focus on Force questions on developer tools (Dev Console, Workbench, CLI) and deployment." }
     ] },
-  { n: 8, title: "LWC basics", lang: "LWC",
+  { n: 9, title: "Web basics and LWC", lang: "LWC",
     goal: "Build a component that shows record data with @api, @wire, and an Apex call.",
     program: "Warren Kickstart Module 12 (LWCs Part 1 & 2) · Igor Learn LWC · Warren JavaScript Developer 101",
     days: [
-      { title: "What LWCs are, the four files, putting one on a page", v: lpClip("lwc", "2:09", "20:19"), prog: "Warren Module 12: LWCs Part 1",
+      { title: "Web basics: HTML, CSS and the DOM", v: lpClip("html"), also: [lpClip("dom"), lpClip("css")], prog: "Warren Getting Started (optional): HTML and JavaScript",
+        focus: "an HTML template with unclosed tags, a CSS class that never applies, and an element the JavaScript can't find", arch: "What is the DOM, and why does LWC's shadow DOM stop you reaching into another component?" },
+      { title: "JavaScript for LWC", v: lpClip("lwc", "31:52", "41:00"), prog: "Warren JavaScript Developer 101 (main lesson: it teaches the JavaScript LWC actually uses)",
+        focus: "JavaScript with var instead of let/const, == instead of ===, and an async call without await or .then", arch: "Why does LWC use modern JavaScript (let/const, arrow functions, promises) instead of old-style JS?" },
+      { title: "What LWCs are, the four files, putting one on a page", v: lpClip("lwc", "2:09", "20:19"), also: [lpClip("lwc1")], prog: "Warren Module 12: LWCs Part 1",
         focus: "an LWC whose meta.xml is missing the target for a record page", arch: "LWC or Screen Flow for a simple form? When does code win?" },
       { title: "Templates, base components, data binding", v: lpClip("lwc", "22:15", "41:00"), prog: "Warren Module 12: LWC Reference Components",
         focus: "an LWC with wrong template bindings and an object property that never re-renders", arch: "Why use lightning-* base components instead of plain HTML?" },
@@ -183,7 +238,7 @@ var LP_WEEKS = [
       { title: "Calling Apex imperatively", v: lpClip("lwc", "1:14:11", "1:31:23"), prog: "Igor Learn LWC: calling Apex",
         focus: "an LWC calling a non-cacheable Apex method with @wire and no error handling", arch: "@wire or an imperative call: when would you pick each?" }
     ] },
-  { n: 9, title: "LWC communication & debugging", lang: "LWC",
+  { n: 10, title: "LWC communication & debugging", lang: "LWC",
     goal: "Make components talk to each other, and debug them in the browser.",
     program: "Warren Kickstart Module 12 (Conditional Rendering, Parent-Child Communication) · Igor Learn LWC",
     days: [
@@ -198,7 +253,7 @@ var LP_WEEKS = [
       { title: "Error handling in LWC and JavaScript", v: lpClip("exc", "25:14", "36:27"), prog: "Warren Module 12: Quiz on Lightning Web Components",
         focus: "an LWC that shows a blank screen when Apex throws", arch: "What should a user see when your component's Apex call fails?" }
     ] },
-  { n: 10, title: "Security", lang: "Apex",
+  { n: 11, title: "Security", lang: "Apex",
     goal: "Write Apex that respects who can see what.",
     program: "Warren PD1 Certification Training 8: Securing User Interface and Data Access",
     days: [
@@ -209,10 +264,12 @@ var LP_WEEKS = [
       { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: \u201cHe gave AI a 40-hour code review\u201d (YouTube)",
         focus: "an Apex controller with a SOQL injection, no CRUD check and a hardcoded Id", arch: "What would you put on a code-review checklist for your team? Top 5." }
     ] },
-  { n: 11, title: "PD1 review by exam section", lang: "PD1",
-    goal: "Go through every PD1 exam section once, then take your first full practice exam.",
+  { n: 12, title: "PD1 review by exam section", lang: "PD1",
+    goal: "Take a practice exam to see where you stand, then review every PD1 section.",
     program: "Warren PD1 Certification Training 1\u201312 \u00b7 Focus on Force PD1",
     days: [
+      { title: "Practice exam #1", v: lpClip("mock"), prog: "Warren Modules 13\u201316: Structuring PD1 Study and How To Know When You're Ready",
+        focus: "the topic you missed most on today's exam", arch: "Which section cost you the most points? That tells you where to spend the next four lessons.", quiz: "Focus on Force: full PD1 practice exam #1. Under 68%? That's when Igor's PD1 prep course is worth it." },
       { title: "Developer Fundamentals", v: lpClip("trig", "8:10", "12:59"), prog: "Warren PD1 Certification Training 1 & 2 (multi-tenancy, data models)",
         focus: "Apex doing work a Flow or validation rule should do", arch: "Why does multi-tenancy force governor limits to exist?", quiz: "Focus on Force: Developer Fundamentals quiz" },
       { title: "Process Automation & Logic", v: lpClip("trig", "5:03", "8:10"), prog: "Warren PD1 Certification Training 3\u20136",
@@ -220,22 +277,20 @@ var LP_WEEKS = [
       { title: "User Interface: LWC recap + Visualforce basics", v: lpClip("lwc", "41:00", "53:30"), prog: "Warren PD Certification Training 12: Visualforce and Lightning Web Components (covers the Visualforce part the video skips)",
         focus: "a Visualforce page with a custom controller that runs SOQL in a getter, plus an LWC with a caching mistake", arch: "LWC, Aura or Visualforce: why does LWC win for new work, and when would you still touch Visualforce?", quiz: "Focus on Force: User Interface quiz. Visualforce is still on the exam: know standard vs. custom controllers and extensions." },
       { title: "Testing, Debugging & Deployment", v: lpClip("test", "56:27", "1:02:32"), prog: "Warren PD1 Certification Training 7, 9, 10, 11",
-        focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Focus on Force: Testing, Debugging & Deployment quiz" },
-      { title: "Practice exam #1", v: lpClip("mock"), prog: "Warren Modules 13\u201316: Structuring PD1 Study and How To Know When You're Ready",
-        focus: "the topic you missed most on today's exam", arch: "Which section cost you the most points, and why?", quiz: "Focus on Force: full PD1 practice exam #1. Under 68%? That's when Igor's PD1 prep course is worth it." }
+        focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Focus on Force: Testing, Debugging & Deployment quiz" }
     ] },
-  { n: 12, title: "Final prep and the exam", lang: "PD1",
-    goal: "Fix your weak spots, prove you're ready on two more practice exams, then pass PD1.",
+  { n: 13, title: "Final prep and the exam", lang: "PD1",
+    goal: "Two more practice exams, one light review, then pass PD1.",
     program: "Warren Modules 13\u201316: Taking the Platform Developer I Certification Exam \u00b7 Focus on Force",
     days: [
-      { title: "Weak spots from practice exam #1", v: lpClip("trig", "1:04:36", "1:20:37"), prog: "Rewatch the syllabus lesson for your weakest topic \u00b7 Warren: Concepts/Topics that might be on the Exam",
-        focus: "your two weakest topics from practice exam #1", arch: "Explain your weakest topic like you're teaching it to a new admin.", quiz: "Focus on Force: quizzes on your two weakest topics" },
       { title: "Practice exam #2", v: lpClip("mocksr", "0:00", "25:00"), prog: "Warren: Platform Developer 1 Practice Exams/Resources",
         focus: "the topic you missed most on today's exam", arch: "Did your score move? What changed?", quiz: "Focus on Force: full PD1 practice exam #2" },
       { title: "Practice exam #3", v: lpClip("mockjr"), prog: "Warren: Platform Developer 1 Practice Exams/Resources",
         focus: "anything you missed today", arch: "Scoring 75%+ on both? You're ready.", quiz: "Focus on Force: full PD1 practice exam #3" },
+      { title: "Light review of your misses", v: lpClip("trig", "1:15:35", "1:20:37"), pin: "2026-11-29", prog: "Warren: Cloud Code PD1 Slides \u00b7 Concepts/Topics that might be on the Exam",
+        focus: "your weakest topic across all three practice exams", arch: "Skim your miss list once, then stop. No new material the night before.", quiz: "Focus on Force: redo only the questions you missed. 45 minutes, then rest." },
       { title: "Take PD1", v: lpClip("mock"), prog: "Warren: What To Do When You Pass / If You Fail", exam: true,
-        focus: null, arch: "You're done with phase one. Next up: PD2.", quiz: "Take the Platform Developer I exam. Sunday (Nov 29): skim your miss list once and rest, no new material." }
+        focus: null, arch: "You're done with phase one. Next up: PD2.", quiz: "Take the Platform Developer I exam." }
     ] }
 ];
 
@@ -260,6 +315,26 @@ var LP_LATER = [
     ] }
 ];
 
+// Bigger hands-on projects from the three programs. Too long for a 45-minute day; do them on Sundays or after PD1.
+var LP_PROJECTS = [
+  { t: "Camp Apex (campapex.org): short Apex coding drills", when: "Any time, alongside weeks 1\u20132" },
+  { t: "Lightning Challenges (lightningchallenges.com): Apex practice problems", when: "Any time, alongside weeks 1\u20135" },
+  { t: "Igor Learn Apex project: Bank Account Management", when: "After week 2" },
+  { t: "Warren Kickstart Capstone Project (Weeks 1\u20133 + final review)", when: "After week 8, or after PD1" },
+  { t: "Apex Specialist Superbadge (Trailhead)", when: "After week 8 (needs triggers, async, callouts and tests)" }
+];
+// What was checked against, and what was left out on purpose.
+var LP_COVERAGE = {
+  checked: "Every lesson in Warren's Developer Kickstart Program (Getting Started, Modules 1\u201316), all 30 episodes of Coding With The Force's Apex Master Class plus their Beginner Apex Tutorials playlist, and every topic in Igor's Learn Apex (Syntax and Basics, SOQL, Triggers, Async, Integrations).",
+  left: [
+    "Warren's career lessons (LinkedIn, resumes, job search, interviews, portfolio, Scrum, career paths): career skills, not Apex, and you already have the job.",
+    "Coding With The Force Ep. 6 (IntelliJ + IC2 setup): old tooling; VS Code replaced it.",
+    "Harvard CS50 (Warren's optional prework): a full intro-to-CS course, far bigger than this plan.",
+    "Igor's Learn Apex \u201cAdditional Topics\u201d section: locked without a login, so I couldn't see what's in it. Check it when you log in.",
+    "Webhooks, events & signing, logging, and the Integration Architect prep: in the PD2 and Architect phases below, not skipped."
+  ]
+};
+
 // Flatten to one list of days, in order.
 var LP_DAYS = [];
 LP_WEEKS.forEach(function(w) {
@@ -272,17 +347,18 @@ function lpDebugPrompt(d, week) {
     "Don't tell me where they are. When I reply with what I found, grade me and show anything I missed.";
 }
 
-// Schedule: one lesson a day Mon\u2013Sat from LP_START, skipping LP_SKIP. The exam lesson is pinned to LP_EXAM.
-var LP_START = "2026-09-24", LP_EXAM = "2026-11-30", LP_SKIP = ["2026-11-26", "2026-11-27"];
+// Schedule: one lesson Mon\u2013Fri, two on Saturdays, Sundays off, skipping LP_SKIP. The exam lesson is pinned to LP_EXAM; a lesson with `pin` gets that date.
+var LP_START = "2026-09-24", LP_EXAM = "2026-11-30", LP_SKIP = ["2026-11-26"];
 function lpYmd(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function lpDate(ymd) { var p = ymd.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
 var LP_DATES = (function() {
-  var out = [], d = lpDate(LP_START);
+  var out = [], d = lpDate(LP_START), used = 0;
   LP_DAYS.forEach(function(item) {
     if (item.d.exam) { out.push(lpDate(LP_EXAM)); return; }
-    while (d.getDay() === 0 || LP_SKIP.indexOf(lpYmd(d)) !== -1) d.setDate(d.getDate() + 1);
+    if (item.d.pin) { out.push(lpDate(item.d.pin)); return; }
+    while (d.getDay() === 0 || LP_SKIP.indexOf(lpYmd(d)) !== -1 || used >= (d.getDay() === 6 ? 2 : 1)) { d.setDate(d.getDate() + 1); used = 0; }
     out.push(new Date(d));
-    d.setDate(d.getDate() + 1);
+    used++;
   });
   return out;
 })();

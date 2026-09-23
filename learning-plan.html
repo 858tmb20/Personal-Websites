@@ -66,7 +66,7 @@
 <main id="viewSyl" hidden>
   <section class="lp-card">
     <h2>How this is laid out</h2>
-    <p class="sy-goal" style="margin:0 0 12px">One 45-minute lesson a day, Monday to Saturday, from Sep 24 to Nov 28, in the same order as Warren's Developer Kickstart Program: foundations &rarr; DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Sundays are catch-up days. PD1 exam: Monday, Nov 30. Then PD2 and Architect. Click any lesson to open it.</p>
+    <p class="sy-goal" style="margin:0 0 12px">One 45-minute lesson Monday to Friday and two on Saturdays (about 90 minutes), from <span id="sylFrom"></span> to <span id="sylTo"></span>, in the same order as Warren's Developer Kickstart Program: setup &amp; foundations &rarr; data model &amp; DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Sundays are free for catch-up; Thanksgiving is off. PD1 exam: <span id="sylExam"></span>. Then PD2 and Architect. Click any lesson to open it.</p>
     <div class="lp-split">
       <div><b style="color:var(--c2)">1</b> Watch the video (Warren, Coding With The Force, or Igor). If you have the lesson in your program, watch that instead.</div>
       <div><b style="color:var(--c1)">2</b> Review code: AI writes buggy code on the topic, and you find and explain the bugs.</div>
@@ -110,7 +110,9 @@ function paint() {
   document.getElementById("next").textContent = st.day === LP_DAYS.length - 1 ? "Done — on to PD2" : "Done — next lesson →";
   paintPath(w);
   var planned = LP_DATES[st.day];
-  document.getElementById("planned").textContent = (d.exam ? "Exam day: " : "Planned for ") + lpFmt(planned);
+  var sameDay = LP_DATES.filter(function(x) { return lpYmd(x) === lpYmd(planned); }).length;
+  var nth = LP_DATES.slice(0, st.day + 1).filter(function(x) { return lpYmd(x) === lpYmd(planned); }).length;
+  document.getElementById("planned").textContent = (d.exam ? "Exam day: " : "Planned for ") + lpFmt(planned) + (sameDay > 1 && !d.exam ? " (lesson " + nth + " of " + sameDay + " that day)" : "");
   var due = lpDueIndex(), stEl = document.getElementById("status");
   var gap = due - st.day;
   if (due < 0) { stEl.textContent = "Starts " + lpFmt(LP_DATES[0]); stEl.className = "lp-status ok"; }
@@ -147,10 +149,10 @@ function paint() {
   step(0, "Watch + PD1 questions", "~25 min", function(b) {
     var a = el("a", "lp-watch");
     a.href = d.v.url; a.target = "_blank"; a.rel = "noopener";
-    a.appendChild(el("span", "lp-play", "▶"));
+    a.appendChild(el("span", "lp-play", d.v.doc ? "\u2197" : "\u25B6"));
     var txt = el("span", "lp-watch-txt");
     txt.appendChild(el("b", null, d.v.title));
-    txt.appendChild(el("small", null, d.v.ch + (d.v.from ? " · watch " + d.v.from + (d.v.to ? " to " + d.v.to : " to the end") : "")));
+    txt.appendChild(el("small", null, d.v.doc ? d.v.ch + " \u00b7 read it; there's no video for this one" : d.v.ch + (d.v.from ? " \u00b7 watch " + d.v.from + (d.v.to ? " to " + d.v.to : " to the end") : "")));
     a.appendChild(txt);
     b.appendChild(a);
     if (d.also) {
@@ -163,7 +165,7 @@ function paint() {
       });
       b.appendChild(al);
     }
-    if (d.v.mins > 25) b.appendChild(el("p", "lp-hint", "Long one (" + d.v.mins + " min). Watch at 1.5\u00d7 to fit it in about " + Math.round(d.v.mins / 1.5) + " min."));
+    if (!d.v.doc && d.v.mins > 25) b.appendChild(el("p", "lp-hint", "Long one (" + d.v.mins + " min). Watch at 1.5\u00d7 to fit it in about " + Math.round(d.v.mins / 1.5) + " min."));
     var alt = el("p", "lp-alt");
     alt.appendChild(el("b", null, "Or in your program: "));
     alt.appendChild(document.createTextNode(d.prog));
@@ -175,7 +177,7 @@ function paint() {
   });
 
   step(1, "Review code: find the bugs", "~12 min", function(b) {
-    if (!d.focus) { b.appendChild(el("p", null, "Nothing today. Exam day.")); return; }
+    if (!d.focus) { b.appendChild(el("p", null, d.exam ? "Nothing today. Exam day." : "No bug hunt today. Do the practice task in step 1 instead.")); return; }
     b.appendChild(el("p", null, "Paste this into Claude or ChatGPT. Read what it writes, find the bugs, and reply explaining each one."));
     var box = el("div", "lp-copy");
     var prompt = lpDebugPrompt(d, w);
@@ -222,6 +224,9 @@ document.getElementById("tabToday").addEventListener("click", function() { showV
 document.getElementById("tabSyl").addEventListener("click", function() { showView("syl"); });
 
 function renderSyllabus() {
+  document.getElementById("sylFrom").textContent = lpFmt(LP_DATES[0]);
+  document.getElementById("sylTo").textContent = lpFmt(LP_DATES[LP_DATES.length - 2]);
+  document.getElementById("sylExam").textContent = lpFmt(LP_DATES[LP_DATES.length - 1]);
   var main = document.getElementById("sylBody");
   main.innerHTML = "";
   var idx = 0;
@@ -250,7 +255,7 @@ function renderSyllabus() {
         a.href = "#";
         a.addEventListener("click", function(e) { e.preventDefault(); st.day = here; lpSave(st); paint(); showView("today"); });
         li.appendChild(a);
-        var yt = el("a", "yt", "\u25B6 " + (d.v.ch === CWTF ? "CWTF" : d.v.ch.split(" ")[0]) + (d.v.from ? " " + d.v.from : ""));
+        var yt = el("a", "yt", d.v.doc ? "\u2197 Docs" : "\u25B6 " + (d.v.ch === CWTF ? "CWTF" : d.v.ch.split(" ")[0]) + (d.v.from ? " " + d.v.from : ""));
         yt.href = d.v.url; yt.target = "_blank"; yt.rel = "noopener";
         yt.title = d.v.title + " (" + d.v.ch + ")";
         li.appendChild(yt);
@@ -282,6 +287,23 @@ function renderSyllabus() {
     later.appendChild(card);
   });
   main.appendChild(later);
+
+  var pj = el("section", "sy-phase");
+  var ph = el("div", "sy-phase-head"); ph.appendChild(el("span", null, "+")); ph.appendChild(el("h2", null, "Practice projects"));
+  pj.appendChild(ph);
+  var pc = el("div", "sy-week sy-later");
+  pc.appendChild(el("p", "sy-goal", "Bigger hands-on builds from Warren, Igor and Trailhead. Too long for a 45-minute day, so do them on Sundays or after PD1."));
+  var pul = document.createElement("ul");
+  LP_PROJECTS.forEach(function(x) { var li = document.createElement("li"); li.appendChild(el("b", null, x.t)); li.appendChild(document.createTextNode(" \u2014 " + x.when)); pul.appendChild(li); });
+  pc.appendChild(pul); pj.appendChild(pc); main.appendChild(pj);
+
+  var cv = el("section", "lp-card");
+  cv.appendChild(el("h2", null, "What this plan was checked against"));
+  cv.appendChild(el("p", "sy-goal", LP_COVERAGE.checked));
+  cv.appendChild(el("p", "sy-prog", "Left out on purpose:"));
+  var cul = el("ul", "sy-later-list");
+  LP_COVERAGE.left.forEach(function(t) { cul.appendChild(el("li", null, t)); });
+  cv.appendChild(cul); main.appendChild(cv);
 }
 
 paint();
