@@ -38,6 +38,11 @@ header.lp-hdr { background: linear-gradient(180deg, var(--midnight) 0%, var(--bl
 .lp-bar a { color: var(--fg2); font-weight: 500; }
 .lp-bar a.lp-primary-link { color: var(--medium-blue); font-weight: 700; }
 .lp-spacer { flex: 1; }
+.lp-tabs { display: inline-flex; gap: 4px; background: var(--light-blue); border: 1px solid var(--hairline); border-radius: 999px; padding: 3px; }
+.lp-tab { font: inherit; font-size: 14.5px; font-weight: 600; color: var(--fg2); background: transparent; border: 0; border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+.lp-tab[aria-selected="true"] { background: var(--blue); color: var(--lime); }
+.lp-tab:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(47,116,201,0.3); }
+main[hidden] { display: none; }
 
 main { max-width: 860px; margin: 0 auto; padding: 28px 24px 64px; display: grid; gap: 22px; }
 .lp-card { background: var(--card); border: 1px solid var(--hairline); border-radius: 10px; padding: 20px 22px; }

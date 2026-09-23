@@ -1,4 +1,4 @@
-// Shared syllabus data for learning-plan.html (Today) and syllabus.html.
+// Syllabus data for learning-plan.html (Today tab + Full syllabus tab).
 // v = YouTube video id, s = start second, from/to = timestamps shown to the reader.
 var CWTF = "Coding With The Force";
 var WW = "Warren Walters";
@@ -42,28 +42,30 @@ function lpClip(key, from, to) {
     url: "https://www.youtube.com/watch?v=" + v.id + (s ? "&t=" + s + "s" : "") };
 }
 
+// Week order follows Warren's Developer Kickstart Program:
+// DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
 var LP_PHASES = [
   { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6] },
   { name: "LWC fluency", weeks: [7, 8] },
-  { name: "Integrations", weeks: [9] },
+  { name: "Security & design", weeks: [9] },
   { name: "Pass PD1", weeks: [10, 11, 12] }
 ];
 
 var LP_WEEKS = [
-  { n: 1, title: "Triggers & bulkification", lang: "Apex",
-    goal: "Write a trigger + handler that survives 200 records without hitting a limit.",
-    program: "Warren Kickstart Module 7 (Trigger Basics) + Module 8 (Trigger Best Practices) · Igor Learn Apex: Triggers in Apex",
+  { n: 1, title: "DML, exceptions & debugging", lang: "Apex",
+    goal: "Save data safely, handle failures on purpose, and find bugs fast.",
+    program: "Warren Kickstart Module 4 (DML) + Module 6 (Debugging) · Igor Learn Apex: Syntax and Basics",
     days: [
-      { title: "What triggers are, and before vs. after", v: lpClip("trig", "2:26", "14:40"), prog: "Warren Module 7: Salesforce Trigger Basics",
-        focus: "an Account trigger that uses before vs. after contexts wrong", arch: "A new field must be set on save. Trigger or Flow? What would make you switch your answer?" },
-      { title: "Build a trigger + context variables", v: lpClip("trig", "14:40", "44:54"), prog: "Warren Module 7: Salesforce Trigger Basics",
-        focus: "a Contact trigger that misuses Trigger.new, Trigger.old and Trigger.oldMap", arch: "Why can't you edit Trigger.new records in an after trigger? What would you do instead?" },
-      { title: "addError, one trigger per object, when to go async", v: lpClip("trig", "44:54", "55:27"), prog: "Warren Module 8: Best Practices with Salesforce Triggers",
-        focus: "two triggers on Opportunity plus an addError validation that fires at the wrong time", arch: "Two teams each want their own Opportunity trigger. What do you tell them, and why?" },
-      { title: "Bulkification and staying under limits", v: lpClip("trig", "55:27", "1:20:37"), prog: "Warren Module 8: Trigger Bulkification · Homework Help 8.2: Using Maps and Optimizing Child Queries",
-        focus: "a trigger with SOQL and DML inside a for loop and no Map", arch: "Data Loader pushes 10,000 records through this. Which limit breaks first, and how would you catch it before prod?" },
-      { title: "Trigger handlers and frameworks", v: lpClip("trig", "1:20:37", "1:35:22"), prog: "Warren Module 8: Recursion and Cascading · Cohort 13 recording: Trigger Frameworks",
-        focus: "a trigger with all its logic in the trigger body and a recursion loop", arch: "What does a trigger handler buy you when there are 5 developers on one org?" }
+      { title: "DML: insert, update, upsert, parent + child in one save", v: lpClip("dml1"), prog: "Warren Module 4: Intro to DML · Homework Help 4.2: How Upserts Work",
+        focus: "DML that inserts children before parents and upserts on the wrong key", arch: "Upsert on an External Id vs. query-then-update: when is each the right call?" },
+      { title: "Try / catch / finally and exception types", v: lpClip("exc", "1:27", "21:50"), prog: "Warren PD1 Certification Training 6: Exception Handling",
+        focus: "Apex that catches generic Exception everywhere and swallows errors", arch: "When should a save stop completely, and when should it save what it can?" },
+      { title: "Custom exceptions and errors you can't catch", v: lpClip("exc", "21:50", "48:39"), prog: "Warren Module 6: Troubleshooting and Debugging",
+        focus: "a service class that returns error strings instead of throwing custom exceptions", arch: "Why throw a custom exception instead of returning an error string? Who benefits?" },
+      { title: "How to debug: System.debug, logs, finding bottlenecks", v: lpClip("dbg", "2:21", "35:54"), prog: "Warren Module 6: Getting Started with Debugging Apex",
+        focus: "slow Apex with a hidden query-in-loop and a null pointer", arch: "A user says “it's slow sometimes.” What's your first step, and what log would you pull?" },
+      { title: "Build day: have AI write Apex, then review it", v: lpClip("gptdbg"), prog: "Warren Module 6: Debugging Q&A Live Session",
+        focus: "Apex with a MIXED_DML_OPERATION error and a null pointer exception", arch: "What's the one thing you now check first in any AI-written Apex?" }
     ] },
   { n: 2, title: "SOQL & SOSL", lang: "Apex",
     goal: "Query parent and child data in Apex, with bind variables, without a query in a loop.",
@@ -80,37 +82,22 @@ var LP_WEEKS = [
       { title: "SOSL and SOQL injection", v: lpClip("soql", "2:15:58", "2:57:03"), prog: "Igor Learn Apex: SOQL module (finish it)",
         focus: "a search feature using SOSL and dynamic SOQL that is open to injection", arch: "Search box across Accounts, Contacts and Leads: SOQL or SOSL? Why?" }
     ] },
-  { n: 3, title: "DML, exceptions & debugging", lang: "Apex",
-    goal: "Save data safely, handle failures on purpose, and find bugs fast.",
-    program: "Warren Kickstart Module 4 (DML) + Module 6 (Debugging) · Igor Learn Apex: Syntax and Basics",
+  { n: 3, title: "Triggers & bulkification", lang: "Apex",
+    goal: "Write a trigger + handler that survives 200 records without hitting a limit.",
+    program: "Warren Kickstart Module 7 (Trigger Basics) + Module 8 (Trigger Best Practices) · Igor Learn Apex: Triggers in Apex",
     days: [
-      { title: "DML: insert, update, upsert, parent + child in one save", v: lpClip("dml1"), prog: "Warren Module 4: Intro to DML · Homework Help 4.2: How Upserts Work",
-        focus: "DML that inserts children before parents and upserts on the wrong key", arch: "Upsert on an External Id vs. query-then-update: when is each the right call?" },
-      { title: "Try / catch / finally and exception types", v: lpClip("exc", "1:27", "21:50"), prog: "Warren PD1 Certification Training 6: Exception Handling",
-        focus: "Apex that catches generic Exception everywhere and swallows errors", arch: "When should a save stop completely, and when should it save what it can?" },
-      { title: "Custom exceptions and errors you can't catch", v: lpClip("exc", "21:50", "48:39"), prog: "Warren Module 6: Troubleshooting and Debugging",
-        focus: "a service class that returns error strings instead of throwing custom exceptions", arch: "Why throw a custom exception instead of returning an error string? Who benefits?" },
-      { title: "How to debug: System.debug, logs, finding bottlenecks", v: lpClip("dbg", "2:21", "35:54"), prog: "Warren Module 6: Getting Started with Debugging Apex",
-        focus: "slow Apex with a hidden query-in-loop and a null pointer", arch: "A user says “it's slow sometimes.” What's your first step, and what log would you pull?" },
-      { title: "Build day: have AI write Apex, then review it", v: lpClip("gptdbg"), prog: "Warren Module 6: Debugging Q&A Live Session",
-        focus: "Apex with a MIXED_DML_OPERATION error and a null pointer exception", arch: "What's the one thing you now check first in any AI-written Apex?" }
+      { title: "What triggers are, and before vs. after", v: lpClip("trig", "2:26", "14:40"), prog: "Warren Module 7: Salesforce Trigger Basics",
+        focus: "an Account trigger that uses before vs. after contexts wrong", arch: "A new field must be set on save. Trigger or Flow? What would make you switch your answer?" },
+      { title: "Build a trigger + context variables", v: lpClip("trig", "14:40", "44:54"), prog: "Warren Module 7: Salesforce Trigger Basics",
+        focus: "a Contact trigger that misuses Trigger.new, Trigger.old and Trigger.oldMap", arch: "Why can't you edit Trigger.new records in an after trigger? What would you do instead?" },
+      { title: "addError, one trigger per object, when to go async", v: lpClip("trig", "44:54", "55:27"), prog: "Warren Module 8: Best Practices with Salesforce Triggers",
+        focus: "two triggers on Opportunity plus an addError validation that fires at the wrong time", arch: "Two teams each want their own Opportunity trigger. What do you tell them, and why?" },
+      { title: "Bulkification and staying under limits", v: lpClip("trig", "55:27", "1:20:37"), prog: "Warren Module 8: Trigger Bulkification · Homework Help 8.2: Using Maps and Optimizing Child Queries",
+        focus: "a trigger with SOQL and DML inside a for loop and no Map", arch: "Data Loader pushes 10,000 records through this. Which limit breaks first, and how would you catch it before prod?" },
+      { title: "Trigger handlers and frameworks", v: lpClip("trig", "1:20:37", "1:35:22"), prog: "Warren Module 8: Recursion and Cascading · Cohort 13 recording: Trigger Frameworks",
+        focus: "a trigger with all its logic in the trigger body and a recursion loop", arch: "What does a trigger handler buy you when there are 5 developers on one org?" }
     ] },
-  { n: 4, title: "Testing", lang: "Apex",
-    goal: "Write tests that prove behavior (not just coverage), including 200-record and negative cases.",
-    program: "Warren Kickstart Module 11 (Test Classes) · Igor Integration Mastery Week 4: Logging & Tests",
-    days: [
-      { title: "Your first test and assertions", v: lpClip("test", "0:00", "23:06"), prog: "Warren Module 11: Getting Started with Apex Testing · Apex Unit Tests",
-        focus: "a test class with no real asserts that still gets 100% coverage", arch: "Coverage is 95% and prod still broke. What does coverage not tell you?" },
-      { title: "@TestSetup and a test data factory", v: lpClip("test", "23:06", "47:18"), prog: "Warren Module 11: Creating Test Data and using TestSetup",
-        focus: "tests that copy-paste record setup and depend on org data", arch: "Why should a team share one test data factory? What goes wrong without it?" },
-      { title: "SeeAllData, private methods, best practices", v: lpClip("test", "47:18", "1:02:32"), prog: "Warren Module 11: Test Class Annotation and Decorators · Positive and Negative Testing",
-        focus: "a test using SeeAllData=true and Test.isRunningTest() in production code", arch: "Why is SeeAllData=true dangerous during a deployment?" },
-      { title: "Testing callouts with mocks", v: lpClip("test", "1:02:32", "1:20:46"), prog: "Warren Module 11: Testing Callouts and Mocking",
-        focus: "a callout test with no HttpCalloutMock and no status-code check", arch: "What should a callout test prove besides “it didn't crash”?" },
-      { title: "Build day: have AI write tests, then review them", v: lpClip("gpttest"), prog: "Warren Module 11: Testing Triggers · Homework Help 11.1",
-        focus: "an AI-written trigger test that inserts 1 record and asserts nothing useful", arch: "Write the one test you'd demand in a code review before approving a trigger." }
-    ] },
-  { n: 5, title: "Asynchronous Apex", lang: "Apex",
+  { n: 4, title: "Asynchronous Apex", lang: "Apex",
     goal: "Pick the right async tool (future, queueable, batch, schedule) and explain why.",
     program: "Warren Kickstart Module 9 (Asynchronous Apex) · Igor Learn Apex: Asynchronous Apex · Igor Integration Mastery Bonus #5",
     days: [
@@ -125,20 +112,35 @@ var LP_WEEKS = [
       { title: "Batch Apex, plus events and CDC", v: lpClip("async", "1:03:24", "1:25:04"), prog: "Warren Module 9: Batch Apex",
         focus: "a Batch class with a query inside execute() and no Database.Stateful for a running total", arch: "Batch or Platform Event for syncing changed Accounts to another team? Why?" }
     ] },
-  { n: 6, title: "Security & clean design", lang: "Apex",
-    goal: "Write Apex that respects who can see what, and that another developer can maintain.",
-    program: "Warren PD1 Certification Training 8: Securing User Interface and Data Access",
+  { n: 5, title: "Apex integrations", lang: "Apex",
+    goal: "Call an outside API from Apex safely, and test it without hitting the real API.",
+    program: "Warren Kickstart Module 10 (Integrations) · Igor Integration Mastery Weeks 1–2 (finish them) + Week 5 (Auth)",
     days: [
-      { title: "WITH SECURITY_ENFORCED and USING SCOPE", v: lpClip("soql", "1:10:34", "1:20:16"), prog: "Warren PD1 Certification Training 8 (data access part)",
-        focus: "a class with no sharing keyword whose query ignores field-level security", arch: "Where should access be enforced: profile, sharing rules, or code? Why is ‘without sharing’ risky?" },
-      { title: "Apex managed sharing", v: lpClip("share"), prog: "Warren PD1 Certification Training 8",
-        focus: "Apex sharing code that grants access but never removes it", arch: "When do you need Apex sharing instead of a sharing rule?" },
-      { title: "Interfaces in Apex", v: lpClip("iface"), prog: "Warren Module 3: Objects, Classes, and Methods (review)",
-        focus: "a class full of if/else on a type string that should be an interface", arch: "Where would an interface make WGU code easier to change? Name one place." },
-      { title: "SOLID design principles", v: lpClip("solid"), prog: "Warren Module 3: Access Modifiers (review)",
-        focus: "a 400-line ‘god class’ that queries, calculates and emails all in one method", arch: "Which SOLID principle does the code you reviewed at work this week break most?" },
-      { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: “He gave AI a 40-hour code review” (YouTube)",
-        focus: "an Apex controller with a SOQL injection, no CRUD check and a hardcoded Id", arch: "What would you put on a code-review checklist for your team? Top 5." }
+      { title: "Your first GET callout", v: lpClip("covid"), prog: "Igor Integration Mastery Week #1: First Callout · Warren Module 10: The Integration GET Method",
+        focus: "a GET callout with a hardcoded URL and no status-code check", arch: "What should happen when the outside API is down for an hour?" },
+      { title: "POST requests and JSON wrapper classes", v: lpClip("post"), prog: "Igor Integration Mastery Week #2: Post Requests · Warren Module 10: The Integration POST Method",
+        focus: "a POST callout that builds JSON by string concatenation and deserializes into the wrong type", arch: "Why use a wrapper class instead of Map<String, Object> for JSON?" },
+      { title: "Named Credentials", v: lpClip("named"), prog: "Igor Integration Mastery Week #5: Authentication",
+        focus: "a callout with the API key hardcoded in Apex", arch: "Why do Named Credentials matter for security and for deployments between sandboxes?" },
+      { title: "Custom authentication", v: lpClip("auth"), prog: "Igor Integration Mastery Week #5: Authentication",
+        focus: "an OAuth token callout that requests a new token on every call and never handles expiry", arch: "Where should a token live, and who should be able to see it?" },
+      { title: "Build day: have AI write an integration, then review it", v: lpClip("gptint"), prog: "Warren Module 10: JSON and Sending/Parsing Data · Homework Help 10.1",
+        focus: "an AI-written callout made after DML in the same transaction", arch: "Sending new Leads to an outside system: callout from the trigger, async, or Platform Event?" }
+    ] },
+  { n: 6, title: "Testing", lang: "Apex",
+    goal: "Write tests that prove behavior (not just coverage), including 200-record and negative cases.",
+    program: "Warren Kickstart Module 11 (Test Classes) · Igor Integration Mastery Week 4: Logging & Tests",
+    days: [
+      { title: "Your first test and assertions", v: lpClip("test", "0:00", "23:06"), prog: "Warren Module 11: Getting Started with Apex Testing · Apex Unit Tests",
+        focus: "a test class with no real asserts that still gets 100% coverage", arch: "Coverage is 95% and prod still broke. What does coverage not tell you?" },
+      { title: "@TestSetup and a test data factory", v: lpClip("test", "23:06", "47:18"), prog: "Warren Module 11: Creating Test Data and using TestSetup",
+        focus: "tests that copy-paste record setup and depend on org data", arch: "Why should a team share one test data factory? What goes wrong without it?" },
+      { title: "SeeAllData, private methods, best practices", v: lpClip("test", "47:18", "1:02:32"), prog: "Warren Module 11: Test Class Annotation and Decorators · Positive and Negative Testing",
+        focus: "a test using SeeAllData=true and Test.isRunningTest() in production code", arch: "Why is SeeAllData=true dangerous during a deployment?" },
+      { title: "Testing callouts with mocks", v: lpClip("test", "1:02:32", "1:20:46"), prog: "Warren Module 11: Testing Callouts and Mocking",
+        focus: "a callout test with no HttpCalloutMock and no status-code check", arch: "What should a callout test prove besides “it didn't crash”?" },
+      { title: "Build day: have AI write tests, then review them", v: lpClip("gpttest"), prog: "Warren Module 11: Testing Triggers · Homework Help 11.1",
+        focus: "an AI-written trigger test that inserts 1 record and asserts nothing useful", arch: "Write the one test you'd demand in a code review before approving a trigger." }
     ] },
   { n: 7, title: "LWC basics", lang: "LWC",
     goal: "Build a component that shows record data with @api, @wire, and an Apex call.",
@@ -170,20 +172,20 @@ var LP_WEEKS = [
       { title: "Error handling in LWC and JavaScript", v: lpClip("exc", "25:14", "36:27"), prog: "Warren Module 12: Quiz on Lightning Web Components",
         focus: "an LWC that shows a blank screen when Apex throws", arch: "What should a user see when your component's Apex call fails?" }
     ] },
-  { n: 9, title: "Apex integrations", lang: "Apex",
-    goal: "Call an outside API from Apex safely, and test it without hitting the real API.",
-    program: "Warren Kickstart Module 10 (Integrations) · Igor Integration Mastery Weeks 1–2 (finish them) + Week 5 (Auth)",
+  { n: 9, title: "Security & clean design", lang: "Apex",
+    goal: "Write Apex that respects who can see what, and that another developer can maintain.",
+    program: "Warren PD1 Certification Training 8: Securing User Interface and Data Access",
     days: [
-      { title: "Your first GET callout", v: lpClip("covid"), prog: "Igor Integration Mastery Week #1: First Callout · Warren Module 10: The Integration GET Method",
-        focus: "a GET callout with a hardcoded URL and no status-code check", arch: "What should happen when the outside API is down for an hour?" },
-      { title: "POST requests and JSON wrapper classes", v: lpClip("post"), prog: "Igor Integration Mastery Week #2: Post Requests · Warren Module 10: The Integration POST Method",
-        focus: "a POST callout that builds JSON by string concatenation and deserializes into the wrong type", arch: "Why use a wrapper class instead of Map<String, Object> for JSON?" },
-      { title: "Named Credentials", v: lpClip("named"), prog: "Igor Integration Mastery Week #5: Authentication",
-        focus: "a callout with the API key hardcoded in Apex", arch: "Why do Named Credentials matter for security and for deployments between sandboxes?" },
-      { title: "Custom authentication", v: lpClip("auth"), prog: "Igor Integration Mastery Week #5: Authentication",
-        focus: "an OAuth token callout that requests a new token on every call and never handles expiry", arch: "Where should a token live, and who should be able to see it?" },
-      { title: "Build day: have AI write an integration, then review it", v: lpClip("gptint"), prog: "Warren Module 10: JSON and Sending/Parsing Data · Homework Help 10.1",
-        focus: "an AI-written callout made after DML in the same transaction", arch: "Sending new Leads to an outside system: callout from the trigger, async, or Platform Event?" }
+      { title: "WITH SECURITY_ENFORCED and USING SCOPE", v: lpClip("soql", "1:10:34", "1:20:16"), prog: "Warren PD1 Certification Training 8 (data access part)",
+        focus: "a class with no sharing keyword whose query ignores field-level security", arch: "Where should access be enforced: profile, sharing rules, or code? Why is ‘without sharing’ risky?" },
+      { title: "Apex managed sharing", v: lpClip("share"), prog: "Warren PD1 Certification Training 8",
+        focus: "Apex sharing code that grants access but never removes it", arch: "When do you need Apex sharing instead of a sharing rule?" },
+      { title: "Interfaces in Apex", v: lpClip("iface"), prog: "Warren Module 3: Objects, Classes, and Methods (review)",
+        focus: "a class full of if/else on a type string that should be an interface", arch: "Where would an interface make WGU code easier to change? Name one place." },
+      { title: "SOLID design principles", v: lpClip("solid"), prog: "Warren Module 3: Access Modifiers (review)",
+        focus: "a 400-line ‘god class’ that queries, calculates and emails all in one method", arch: "Which SOLID principle does the code you reviewed at work this week break most?" },
+      { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: “He gave AI a 40-hour code review” (YouTube)",
+        focus: "an Apex controller with a SOQL injection, no CRUD check and a hardcoded Id", arch: "What would you put on a code-review checklist for your team? Top 5." }
     ] },
   { n: 10, title: "PD1 review by exam section", lang: "PD1",
     goal: "Go through every PD1 exam section once, then take your first full practice exam.",

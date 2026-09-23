@@ -26,13 +26,16 @@
 
 <div class="lp-bar">
   <div class="lp-inner">
-    <a class="lp-primary-link" href="syllabus.html">Open the full syllabus &rarr;</a>
+    <div class="lp-tabs" role="tablist">
+      <button type="button" role="tab" class="lp-tab" id="tabToday" aria-selected="true">Today</button>
+      <button type="button" role="tab" class="lp-tab" id="tabSyl" aria-selected="false">Full syllabus</button>
+    </div>
     <span class="lp-spacer"></span>
     <a href="library.html">Library</a>
   </div>
 </div>
 
-<main>
+<main id="viewToday">
 
   <section class="lp-path" id="path" aria-label="Where you are"></section>
 
@@ -59,13 +62,27 @@
 
 </main>
 
-<footer>Your progress saves in this browser. &nbsp;&middot;&nbsp; <a href="syllabus.html">Syllabus</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
+<main id="viewSyl" hidden>
+  <section class="lp-card">
+    <h2>How this is laid out</h2>
+    <p class="sy-goal" style="margin:0 0 12px">12 weeks, 5 lessons a week, in the same order as Warren's Developer Kickstart Program: DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Then PD1, PD2, Architect. Click any lesson to open it.</p>
+    <div class="lp-split">
+      <div><b style="color:var(--c2)">1</b> Watch the video (Warren, Coding With The Force, or Igor). If you have the lesson in your program, watch that instead.</div>
+      <div><b style="color:var(--c1)">2</b> Review code: AI writes buggy code on the topic, and you find and explain the bugs.</div>
+      <div><b style="color:var(--c5)">3</b> Rewrite the fixed code by hand. No AI.</div>
+      <div><b style="color:var(--c3)">4</b> Answer one architect question.</div>
+    </div>
+  </section>
+  <div id="sylBody" style="display:grid;gap:22px"></div>
+</main>
+
+<footer>Your progress saves in this browser. &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
 
 <script src="learning-data.js"></script>
 <script>
 var st = lpLoad();
 var q = new URLSearchParams(location.search).get("day");
-if (q !== null && !isNaN(+q)) { st.day = Math.min(Math.max(+q, 0), LP_DAYS.length - 1); lpSave(st); history.replaceState(null, "", "learning-plan.html"); }
+if (q !== null && !isNaN(+q)) { st.day = Math.min(Math.max(+q, 0), LP_DAYS.length - 1); lpSave(st); history.replaceState(null, "", location.pathname); }
 
 function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
@@ -166,9 +183,89 @@ function paint() {
 document.getElementById("prev").addEventListener("click", function() { if (st.day > 0) { st.day--; lpSave(st); paint(); window.scrollTo(0, 0); } });
 document.getElementById("next").addEventListener("click", function() {
   if (st.day < LP_DAYS.length - 1) { st.day++; lpSave(st); paint(); window.scrollTo(0, 0); }
-  else { location.href = "syllabus.html#later"; }
+  else { showView("syl"); var l = document.getElementById("later"); if (l) l.scrollIntoView(); }
 });
+
+function showView(v) {
+  var syl = v === "syl";
+  document.getElementById("viewToday").hidden = syl;
+  document.getElementById("viewSyl").hidden = !syl;
+  document.getElementById("tabToday").setAttribute("aria-selected", String(!syl));
+  document.getElementById("tabSyl").setAttribute("aria-selected", String(syl));
+  history.replaceState(null, "", syl ? "#syllabus" : location.pathname);
+  if (syl) {
+    renderSyllabus();
+    var cur = document.querySelector(".sy-week.is-current");
+    if (cur) cur.scrollIntoView({ block: "center" });
+  } else window.scrollTo(0, 0);
+}
+document.getElementById("tabToday").addEventListener("click", function() { showView("today"); });
+document.getElementById("tabSyl").addEventListener("click", function() { showView("syl"); });
+
+function renderSyllabus() {
+  var main = document.getElementById("sylBody");
+  main.innerHTML = "";
+  var idx = 0;
+  LP_PHASES.forEach(function(ph, pi) {
+    var sec = el("section", "sy-phase");
+    var head = el("div", "sy-phase-head");
+    head.appendChild(el("span", null, String(pi + 1)));
+    head.appendChild(el("h2", null, ph.name + " \u00b7 Week" + (ph.weeks.length > 1 ? "s " + ph.weeks[0] + "\u2013" + ph.weeks[ph.weeks.length - 1] : " " + ph.weeks[0])));
+    sec.appendChild(head);
+    ph.weeks.forEach(function(n) {
+      var w = LP_WEEKS[n - 1];
+      var card = el("div", "sy-week");
+      var wh = el("div", "sy-week-head");
+      wh.appendChild(el("b", null, "Week " + w.n));
+      wh.appendChild(el("h3", null, w.title));
+      card.appendChild(wh);
+      card.appendChild(el("p", "sy-goal", w.goal));
+      card.appendChild(el("p", "sy-prog", "In your programs: " + w.program));
+      var ul = el("ul", "sy-days");
+      w.days.forEach(function(d, di) {
+        var here = idx;
+        var li = el("li", "sy-day" + (here < st.day ? " past" : here === st.day ? " now" : ""));
+        li.appendChild(el("span", "d", here === st.day ? "TODAY" : "Day " + (di + 1)));
+        var a = el("a", "t", d.title);
+        a.href = "#";
+        a.addEventListener("click", function(e) { e.preventDefault(); st.day = here; lpSave(st); paint(); showView("today"); });
+        li.appendChild(a);
+        var yt = el("a", "yt", "\u25B6 " + (d.v.ch === CWTF ? "CWTF" : d.v.ch.split(" ")[0]) + (d.v.from ? " " + d.v.from : ""));
+        yt.href = d.v.url; yt.target = "_blank"; yt.rel = "noopener";
+        yt.title = d.v.title + " (" + d.v.ch + ")";
+        li.appendChild(yt);
+        ul.appendChild(li);
+        if (here === st.day) card.classList.add("is-current");
+        idx++;
+      });
+      card.appendChild(ul);
+      sec.appendChild(card);
+    });
+    main.appendChild(sec);
+  });
+  var later = el("section", "sy-phase"); later.id = "later";
+  LP_LATER.forEach(function(ph, i) {
+    var head = el("div", "sy-phase-head");
+    head.appendChild(el("span", null, String(LP_PHASES.length + i + 1)));
+    head.appendChild(el("h2", null, ph.name));
+    later.appendChild(head);
+    var card = el("div", "sy-week sy-later");
+    card.appendChild(el("p", "sy-goal", ph.intro));
+    var ul = document.createElement("ul");
+    ph.items.forEach(function(it) {
+      var li = document.createElement("li");
+      li.appendChild(document.createTextNode(it.t + (it.v ? " \u2014 " : "")));
+      if (it.v) { var a = el("a", null, "\u25B6 " + it.v.title); a.href = it.v.url; a.target = "_blank"; a.rel = "noopener"; li.appendChild(a); }
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    later.appendChild(card);
+  });
+  main.appendChild(later);
+}
+
 paint();
+if (location.hash === "#syllabus") showView("syl");
 </script>
 </body>
 </html>
