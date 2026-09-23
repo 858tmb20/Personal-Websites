@@ -5,148 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learning Plan</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&family=Newsreader:wght@500;600&display=swap">
-<style>
-  :root {
-    --midnight: #001731;
-    --blue: #002855;
-    --medium-blue: #2F74C9;
-    --sky-blue: #46B1EF;
-    --lime: #97E152;
-    --ground: #F3F6F9;
-    --card: #FAFBFC;
-    --light-blue: #E8F0F6;
-    --grey: #8E9AA8;
-    --fg: #1F3A5C;
-    --fg2: #3B5575;
-    --hairline: rgba(0, 40, 85, 0.12);
-    --c1: #2F74C9; --c2: #6A5ACD; --c3: #B7791F; --c4: #2F8F6B; --c5: #B5476B;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--ground); color: var(--fg);
-    font-family: 'Jost', 'Futura PT', 'Trebuchet MS', Arial, sans-serif; min-height: 100vh;
-  }
-  header.lp-hdr {
-    background: linear-gradient(180deg, var(--midnight) 0%, var(--blue) 100%);
-    color: #EAF1F8; padding: 40px 24px 32px;
-  }
-  .lp-inner { max-width: 860px; margin: 0 auto; }
-  .lp-eyebrow { font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sky-blue); margin-bottom: 10px; }
-  .lp-hdr h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
-  .lp-hdr-sub { max-width: 60ch; font-size: 15px; color: #BBD0E8; margin: 12px 0 0; line-height: 1.5; }
-
-  .lp-bar { border-bottom: 1px solid var(--hairline); background: var(--card); padding: 12px 24px; }
-  .lp-bar .lp-inner { display: flex; gap: 8px; flex-wrap: wrap; font-size: 14px; }
-  .lp-bar a { color: var(--fg2); font-weight: 500; }
-  .lp-spacer { flex: 1; }
-
-  main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; display: grid; gap: 22px; }
-  .lp-card { background: var(--card); border: 1px solid var(--hairline); border-radius: 10px; padding: 20px 22px; }
-  .lp-card h2 { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 12px; color: var(--medium-blue); }
-  .lp-note { font-size: 14px; color: var(--grey); margin: 10px 0 0; }
-
-  /* this week */
-  .lp-week { border-left: 4px solid var(--lime); }
-  .lp-week-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .lp-week-num { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 40px; line-height: 1; color: var(--blue); }
-  .lp-week-num small { font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey); display: block; }
-  .lp-topic {
-    flex: 1 1 280px; font: inherit; font-size: 20px; font-weight: 700; color: var(--blue);
-    border: 1px solid transparent; border-radius: 6px; padding: 6px 10px; background: transparent;
-  }
-  .lp-topic:hover { border-color: var(--hairline); }
-  .lp-topic:focus { outline: none; border-color: var(--medium-blue); background: var(--light-blue); }
-  .lp-btn {
-    font: inherit; font-size: 13px; font-weight: 600; color: var(--fg2); background: var(--light-blue);
-    border: 1px solid var(--hairline); border-radius: 999px; padding: 6px 14px; cursor: pointer;
-  }
-  .lp-btn:disabled { opacity: 0.4; cursor: default; }
-  .lp-btn:hover:not(:disabled) { border-color: var(--medium-blue); color: var(--medium-blue); }
-  .lp-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(47,116,201,0.3); }
-
-  .lp-week-num .lp-of { font-size: 0.5em; color: var(--grey); }
-  .lp-weeks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
-  .lp-weeks button {
-    width: 100%; display: flex; gap: 10px; align-items: baseline; text-align: left; font: inherit; font-size: 15px;
-    color: var(--fg); background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 6px 8px; cursor: pointer;
-  }
-  .lp-weeks button:hover { border-color: var(--hairline); }
-  .lp-weeks b { font-size: 12px; font-weight: 800; color: var(--grey); min-width: 22px; }
-  .lp-weeks .past { color: var(--grey); text-decoration: line-through; }
-  .lp-weeks .now { background: var(--light-blue); border-color: var(--medium-blue); color: var(--medium-blue); font-weight: 700; }
-  .lp-weeks .now b { color: var(--medium-blue); }
-  @media (max-width: 560px) { .lp-weeks { grid-template-columns: 1fr; } }
-
-  .lp-tasks { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
-  .lp-tasks label {
-    display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 8px;
-    border: 1px solid var(--hairline); background: var(--ground); cursor: pointer; font-size: 15.5px; line-height: 1.4;
-  }
-  .lp-tasks input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c4); flex-shrink: 0; }
-  .lp-tasks .kind { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--medium-blue); margin-right: 6px; }
-  .lp-tasks a { color: var(--medium-blue); font-weight: 600; }
-  .lp-tasks input:checked ~ span { color: var(--grey); text-decoration: line-through; }
-  .lp-tasks input:checked ~ span .kind, .lp-tasks input:checked ~ span a { color: var(--grey); }
-  .lp-copy { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; }
-  .lp-copy code {
-    flex: 1; display: block; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.45;
-    background: var(--light-blue); color: var(--fg); border: 1px solid var(--hairline); border-radius: 6px; padding: 8px 10px;
-  }
-  .lp-tasks input:checked ~ span .lp-copy code { color: var(--grey); }
-  .lp-weeks .lp-wk-done { font-style: normal; margin-left: auto; font-size: 12px; font-weight: 700; color: var(--c4); white-space: nowrap; }
-
-  /* time split */
-  .lp-stack { display: flex; height: 18px; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
-  .lp-stack span { display: block; height: 100%; }
-  .lp-split { display: grid; gap: 10px; }
-  .lp-split-row { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
-  .lp-pct { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 22px; text-align: right; }
-  .lp-split-row div { font-size: 16px; color: var(--fg); }
-  .lp-split-row div i { font-style: normal; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
-
-  /* daily */
-  .lp-daily-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .lp-daily-head h2 { margin: 0; }
-  .lp-daily-head span { font-size: 14px; color: var(--grey); }
-  .lp-daily-head .lp-streak { margin-left: auto; font-weight: 600; color: var(--fg2); }
-  .lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-  .lp-steps label {
-    display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 8px;
-    border: 1px solid var(--hairline); background: var(--ground); cursor: pointer; font-size: 16px;
-  }
-  .lp-steps input { width: 18px; height: 18px; accent-color: var(--c4); flex-shrink: 0; }
-  .lp-steps input:checked + span { text-decoration: line-through; color: var(--grey); }
-
-  /* order */
-  .lp-path { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .lp-step {
-    border: 1px solid var(--hairline); border-radius: 8px; padding: 10px 16px; background: var(--ground);
-    font-weight: 700; font-size: 16px; cursor: pointer; font-family: inherit; color: var(--fg);
-  }
-  .lp-step.now { border-color: var(--medium-blue); background: var(--light-blue); color: var(--medium-blue); }
-  .lp-step.done { color: var(--grey); text-decoration: line-through; }
-  .lp-arrow { color: var(--grey); font-size: 18px; }
-
-  footer { max-width: 860px; margin: 0 auto; padding: 0 24px 40px; font-size: 14px; color: var(--grey); }
-  footer a { color: var(--fg2); }
-
-  @media (max-width: 560px) { .lp-arrow { display: none; } .lp-path { display: grid; } }
-</style>
+<link rel="stylesheet" href="learning.css">
 </head>
 <body>
 
 <header class="lp-hdr">
   <div class="lp-inner">
-    <div class="lp-eyebrow">Salesforce Learning</div>
-    <h1>Learning Plan</h1>
-    <p class="lp-hdr-sub">12 weeks, one topic each: Apex, then LWC, then PD1. Start with bulkification and governor limits.</p>
+    <div class="lp-eyebrow">Salesforce Learning &middot; Today</div>
+    <div class="lp-hdr-row">
+      <div>
+        <div class="lp-when" id="when">Week 1 &middot; Day 1</div>
+        <h1 id="dayTitle">&nbsp;</h1>
+        <p class="lp-hdr-sub" id="weekLine"></p>
+      </div>
+      <div class="lp-count"><span id="dayNum">1</span><span class="lp-of">/<span id="dayTotal">60</span></span><small>lessons</small></div>
+    </div>
+    <div class="lp-track"><div class="lp-fill" id="fill"></div></div>
   </div>
 </header>
 
 <div class="lp-bar">
   <div class="lp-inner">
-    <a href="apex-basics.html">Apex Basics</a> &middot;
-    <a href="apex-practice.html">Apex Practice Reps</a>
+    <a class="lp-primary-link" href="syllabus.html">Open the full syllabus &rarr;</a>
     <span class="lp-spacer"></span>
     <a href="library.html">Library</a>
   </div>
@@ -154,311 +34,141 @@
 
 <main>
 
-  <section class="lp-card lp-week">
-    <h2>This week</h2>
-    <div class="lp-week-row">
-      <div class="lp-week-num"><small>Week</small><span id="weekNum">1</span><span class="lp-of">/12</span></div>
-      <input class="lp-topic" id="topic" type="text" spellcheck="false" aria-label="This week's topic">
-      <button type="button" class="lp-btn" id="prevWeek">&larr; Back</button>
-      <button type="button" class="lp-btn" id="nextWeek">Next week &rarr;</button>
+  <section class="lp-path" id="path" aria-label="Where you are"></section>
+
+  <section class="lp-card lp-today">
+    <h2>Do these 4 things today</h2>
+    <ol class="lp-do" id="steps"></ol>
+    <div class="lp-nav">
+      <button type="button" class="lp-btn" id="prev">&larr; Previous lesson</button>
+      <span class="lp-spacer"></span>
+      <button type="button" class="lp-btn lp-go" id="next">Done &mdash; next lesson &rarr;</button>
     </div>
-    <ul class="lp-tasks" id="tasks"></ul>
-    <p class="lp-note">Watch Warren/Igor, check PD1, then do Debug &rarr; Rewrite &rarr; Architect. When every box is checked, hit Next week.</p>
   </section>
 
-  <section class="lp-card">
-    <h2>12 weeks</h2>
-    <ol class="lp-weeks" id="weeks"></ol>
-  </section>
-
-  <section class="lp-card">
-    <h2>Time split</h2>
-    <div class="lp-stack" id="stack" aria-hidden="true"></div>
-    <div class="lp-split" id="split"></div>
-  </section>
-
-  <section class="lp-card">
-    <div class="lp-daily-head">
-      <h2>Daily practice</h2><span>20&ndash;30 min</span>
-      <span class="lp-streak" id="streak"></span>
-    </div>
-    <ul class="lp-steps" id="steps"></ul>
-    <p class="lp-note">Boxes clear each morning.</p>
-  </section>
-
-  <section class="lp-card">
-    <h2>Courses</h2>
+  <section class="lp-card lp-why">
+    <h2>Why these 4 steps</h2>
     <div class="lp-split">
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c4)">Apex</span><div>Warren Walters &mdash; Developer Kickstart Program (Modules 1&ndash;16 + cohort recordings; some parts locked)</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c4)">Apex</span><div>Igor &mdash; <a href="https://www.learn-apex.com/modules" target="_blank" rel="noopener">Learn Apex</a> (Syntax, SOQL, Triggers, Async, Integrations)</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c2)">LWC</span><div>Igor &mdash; Learn LWC &middot; Warren &mdash; Module 12 + JavaScript Developer 101</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c3)">PD1</span><div>Focus on Force &middot; Warren&rsquo;s PD1 Certification Training 1&ndash;12</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c1)">Next</span><div>Igor &mdash; Integration Mastery Cohort, Weeks 3&ndash;8 (triggers, logging, auth, webhooks, events, Integration Architect)</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--grey)">Maybe</span><div>Igor &mdash; PD1 prep course (only if practice scores stay under 68% in week 11)</div></div>
+      <div><b style="color:var(--c1)">40%</b> Reviewing code &rarr; step 2, spotting the bugs. This is your day job.</div>
+      <div><b style="color:var(--c2)">25%</b> PD1 / PD2 study &rarr; step 1, the video (plus the quiz in PD1 weeks).</div>
+      <div><b style="color:var(--c3)">15%</b> Architect thinking &rarr; step 4.</div>
+      <div><b style="color:var(--c4)">10%</b> Building with AI &rarr; the &ldquo;Build day&rdquo; lessons.</div>
+      <div><b style="color:var(--c5)">10%</b> Hand-writing code &rarr; step 3.</div>
     </div>
-  </section>
-
-  <section class="lp-card">
-    <h2>Order</h2>
-    <div class="lp-path" id="path"></div>
-    <p class="lp-note">Click a step to mark it done.</p>
   </section>
 
 </main>
 
-<footer>Saved in this browser. &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
+<footer>Your progress saves in this browser. &nbsp;&middot;&nbsp; <a href="syllabus.html">Syllabus</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
 
+<script src="learning-data.js"></script>
 <script>
-const KEY = "learning-plan-v1";
-const SPLIT = [
-  [40, "Review code", "var(--c1)"],
-  [25, "Study PD1 / PD2", "var(--c2)"],
-  [15, "Architect thinking", "var(--c3)"],
-  [10, "Build with AI", "var(--c4)"],
-  [10, "Hand-write code", "var(--c5)"]
-];
-const STEPS = [
-  "Watch one video from this week's list",
-  "Debug: run this week's AI prompt, find every bug, explain each one",
-  "Rewrite the fixed code by hand (no AI, no copy-paste)",
-  "Architect: answer this week's question in 2\u20133 sentences"
-];
-const PATH = ["Apex & LWC", "PD1", "PD2", "Architect certs"];
-const LA = "https://www.learn-apex.com/modules";
-const DBG = function(p) { return { k: "Debug", t: "Paste into AI, find every bug, and write one line explaining each:", copy: p + " Don't tell me where the bugs are." }; };
-const REW = function(extra) { return { k: "Rewrite", t: "By hand in VS Code, no AI, no copy-paste: the fixed version of the Debug code." + (extra || "") }; };
-const ARC = function(q) { return { k: "Architect", t: q }; };
-const PLAN = [
-  [{ k: "Warren", t: "Kickstart Module 8: Trigger Bulkification · Homework Help 8.2: Using Maps and Optimizing Child Queries" },
-   { k: "Igor", t: "Learn Apex → Triggers in Apex module (the bulk / governor limit lessons)", u: LA },
-   { k: "PD1", t: "Warren: PD1 Certification Training 5 (Apex Classes & Governor Limits) · Focus on Force: governor limits" },
-   DBG("Write an Apex trigger on Contact with a handler class that updates the parent Account. Include 3 bulkification bugs, like SOQL or DML inside a loop or not using a Map."),
-   REW(),
-   ARC("Data Loader pushes 10,000 records through your code. Which limit breaks first, and how would you catch it before prod?")],
-  [{ k: "Warren", t: "Module 7: Salesforce Trigger Basics · Module 8: Best Practices with Salesforce Triggers, Recursion and Cascading · Cohort 13 recording: Trigger Frameworks (2026-08-24)" },
-   { k: "Igor", t: "Learn Apex → Triggers in Apex module (trigger framework lessons)", u: LA },
-   { k: "PD1", t: "Focus on Force: triggers and order of execution" },
-   DBG("Write an Opportunity trigger and handler with 3 bugs: logic sitting in the trigger body, a recursion problem, and the wrong context (before vs. after)."),
-   REW(" Then Apex Basics scenarios 1–6."),
-   ARC("Why one trigger per object? What goes wrong if two triggers on Opportunity both update the Account?")],
-  [{ k: "Warren", t: "Module 5: Introduction to SOQL Parts 1–3, Relationship Queries, Limiting and Ordering · Homework Help 5.3: SOQL Limits and Parent and Child Queries" },
-   { k: "Igor", t: "Learn Apex → SOQL module", u: LA },
-   { k: "PD1", t: "Focus on Force: SOQL and SOSL" },
-   DBG("Write Apex with 4 SOQL mistakes: a query in a loop, a field used but not selected, a wrong relationship name in a parent-child query, and a filter value that isn't bound."),
-   REW(" Then the “reach to the parent” scenarios in Apex Basics."),
-   ARC("A query on a 5-million-row object times out. What makes a query selective, and which field would you index?")],
-  [{ k: "Warren", t: "Module 4: Working with Salesforce Data in Apex and Intro to DML · Homework Help 4.2: How Upserts Work · Module 6: Getting Started with Debugging Apex" },
-   { k: "Igor", t: "Learn Apex → Syntax and Basics module (DML and exception lessons)", u: LA },
-   { k: "PD1", t: "Warren: PD1 Certification Training 6 (Business Logic & Exception Handling) · Focus on Force: DML and exceptions" },
-   DBG("Write Apex that inserts Accounts and their Contacts with 3 bugs: all-or-nothing where partial success was needed, a swallowed exception, and no Savepoint rollback."),
-   REW(),
-   ARC("When should a save stop completely, and when should it save what it can? Name one real example of each.")],
-  [{ k: "Warren", t: "Module 11: all Test Classes lessons (Apex Unit Tests → Testing Callouts and Mocking) · Homework Help 11.1: Test Classes and TestSetup" },
-   { k: "Igor", t: "Integration Mastery Week #4: Logging & Tests (the testing part)" },
-   { k: "PD1", t: "Warren: PD1 Certification Training 9 (Page Components & Testing) · Focus on Force: testing" },
-   DBG("Write an Apex test class for a trigger with 4 bad habits: no asserts, SeeAllData=true, only one record, and no Test.startTest/stopTest."),
-   REW(" Then write test classes for your Apex Basics triggers (fill in the Test class box)."),
-   ARC("Your tests pass but prod breaks. What didn't the tests cover? Write that missing test.")],
-  [{ k: "Warren", t: "PD1 Certification Training 8: Securing User Interface and Data Access" },
-   { k: "PD1", t: "Focus on Force: security, sharing, CRUD & FLS" },
-   DBG("Write an Apex controller class with 3 security bugs: no sharing keyword, a query that ignores field-level security, and a SOQL injection risk in dynamic SOQL."),
-   REW(),
-   ARC("Who should see this data, and where is that enforced: profile, sharing rules, or code? Why is ‘without sharing’ risky?")],
-  [{ k: "Warren", t: "Module 9: Getting Started with Asynchronous Apex, Future Methods, Queueable Apex, Batch Apex, Scheduled Apex" },
-   { k: "Igor", t: "Learn Apex → Asynchronous Apex module · Integration Mastery Bonus #5: Async Apex", u: LA },
-   { k: "PD1", t: "Focus on Force: asynchronous Apex" },
-   DBG("Write a Batch Apex class and a Queueable with 3 bugs: a query inside execute(), counting across batches without Database.Stateful, and enqueueing a job inside a loop."),
-   REW(),
-   ARC("Future, Queueable, Batch, or Scheduled? Pick one for each: a callout after save, a nightly cleanup of 2 million records, chaining 3 steps. Why?")],
-  [{ k: "Warren", t: "Module 12: LWCs Part 1, LWCs Part 2, LWC Reference Components · JavaScript Developer 101 (if it's unlocked)" },
-   { k: "Igor", t: "Learn LWC: the basics section" },
-   { k: "PD1", t: "Warren: PD Certification Training 12 (Visualforce & LWC) · Focus on Force: Lightning Web Components" },
-   DBG("Write a Lightning Web Component (HTML, JS, meta.xml) with 3 bugs: a change that doesn't re-render, a wrong template binding, and a missing target in meta.xml."),
-   REW(),
-   ARC("LWC or a Screen Flow for a simple form? When does code actually win?")],
-  [{ k: "Warren", t: "Module 12: Conditional Rendering and Lists" },
-   { k: "Igor", t: "Learn LWC: calling Apex and @wire" },
-   { k: "PD1", t: "Focus on Force: LWC with Apex and Lightning Data Service" },
-   DBG("Write an LWC that uses @wire on an Apex method to list an Account's Contacts, with 3 bugs: the Apex method isn't cacheable, the wire result is read wrong, and recordId isn't passed reactively with $."),
-   REW(),
-   ARC("@wire or an imperative Apex call: when would you pick each?")],
-  [{ k: "Warren", t: "Module 12: Parent-Child and Child-Parent Communication" },
-   { k: "Igor", t: "Learn LWC: events and component communication" },
-   { k: "PD1", t: "Warren: PD1 Certification Training 8 (LWC Events part) · Focus on Force: LWC events" },
-   DBG("Write a parent and child LWC with 3 event bugs: wrong event name casing, the parent listening on the wrong element, and the event detail read wrong."),
-   REW(),
-   ARC("Two components that aren't parent and child need to talk. What are your options?")],
-  [{ k: "Warren", t: "Modules 13–16: Concepts/Topics that might be on the Exam · Practice Exams/Resources · Structuring PD1 Study and How To Know When You're Ready" },
-   { k: "PD1", t: "Focus on Force: take a full PD1 practice exam. Write down every miss and which week it belongs to." },
-   { k: "Quiz", t: "Paste into AI with your miss list:", copy: "Give me 10 PD1-style multiple-choice questions on these weak topics: [paste miss list]. Don't show answers until I reply." },
-   { k: "Rewrite", t: "Redo the Debug + Rewrite from your two weakest weeks." },
-   { k: "Decide", t: "Practice scores still under 68% (the passing score)? That's when Igor's PD1 prep course is worth paying for. Otherwise, book the exam." }],
-  [{ k: "Warren", t: "Module 10: Getting Started with Integrations, GET Method, POST Method, JSON and Sending/Parsing Data · Homework Help 10.1: External Ids and Upserting" },
-   { k: "Igor", t: "Integration Mastery Cohort: finish Week #1 First Callout (92%) and Week #2 Post Requests (47%) · Learn Apex → Integrations in Apex module", u: LA },
-   DBG("Write an Apex class that GETs JSON from a REST API with 4 bugs: a hardcoded endpoint instead of a Named Credential, no status-code check, wrong JSON deserialization, and a callout after DML in the same transaction."),
-   REW(),
-   ARC("Sending new Leads to an outside system: callout from the trigger, async callout, or Platform Event? What happens when their system is down?")]
-];
-const TOPICS = [
-  "Bulkification & governor limits",
-  "Triggers, handlers & order of execution",
-  "SOQL & SOSL",
-  "DML, exceptions & debugging",
-  "Testing & test data",
-  "Security: sharing, CRUD & FLS",
-  "Async Apex: future, queueable, batch, scheduled",
-  "LWC 1: components, templates & data binding",
-  "LWC 2: calling Apex, wire & Lightning Data Service",
-  "LWC 3: events & component communication",
-  "PD1 review & practice exams",
-  "Integration basics: REST callouts & named credentials"
-];
+var st = lpLoad();
+var q = new URLSearchParams(location.search).get("day");
+if (q !== null && !isNaN(+q)) { st.day = Math.min(Math.max(+q, 0), LP_DAYS.length - 1); lpSave(st); history.replaceState(null, "", "learning-plan.html"); }
 
-let st = { week: 1, topics: {}, wk: {}, day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
-try { const raw = localStorage.getItem(KEY); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
-function ymd(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
-const today = ymd(new Date());
-const yest = ymd(new Date(Date.now() - 864e5));
-if (st.day !== today) { st.day = today; st.checks = []; }
-if (st.lastFull !== today && st.lastFull !== yest) st.streak = 0;
-save();
-
-// this week
-if (!st.topics) st.topics = {};
-if (!st.wk) st.wk = {};
-delete st.topic;
-st.week = Math.min(Math.max(st.week || 1, 1), TOPICS.length);
-const topic = document.getElementById("topic");
-function topicOf(w) { return st.topics[w] != null ? st.topics[w] : TOPICS[w - 1]; }
-function paintWeek() {
-  document.getElementById("weekNum").textContent = st.week;
-  topic.value = topicOf(st.week);
-  document.getElementById("prevWeek").disabled = st.week === 1;
-  document.getElementById("nextWeek").disabled = st.week === TOPICS.length;
-  paintTasks();
-  document.getElementById("weeks").innerHTML = TOPICS.map(function(_, i) {
-    const w = i + 1, cls = w < st.week ? "past" : w === st.week ? "now" : "";
-    return '<li><button type="button" class="' + cls + '" data-week="' + w + '"><b>' + w + '</b><span></span><em class="lp-wk-done">' + doneLabel(w) + '</em></button></li>';
-  }).join("");
-  document.querySelectorAll("#weeks button").forEach(function(b) {
-    b.querySelector("span").textContent = topicOf(+b.dataset.week);
-    b.addEventListener("click", function() { st.week = +this.dataset.week; save(); paintWeek(); });
+function paintPath(week) {
+  var path = document.getElementById("path");
+  path.innerHTML = "";
+  var names = LP_PHASES.map(function(p) { return p.name; }).concat(LP_LATER.map(function(p) { return p.name; }));
+  var cur = LP_PHASES.findIndex(function(p) { return p.weeks.indexOf(week.n) !== -1; });
+  names.forEach(function(n, i) {
+    if (i) path.appendChild(el("span", "lp-arrow", "→"));
+    path.appendChild(el("span", "lp-stage" + (i < cur ? " done" : i === cur ? " now" : ""), n));
   });
 }
-function doneLabel(w) {
-  const c = (st.wk[w] || []).filter(Boolean).length;
-  return c ? c + "/" + PLAN[w - 1].length : "";
-}
-function paintTasks() {
-  const ul = document.getElementById("tasks");
-  ul.innerHTML = "";
-  const w = st.week;
-  PLAN[w - 1].forEach(function(task, i) {
-    const li = document.createElement("li");
-    const label = document.createElement("label");
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = !!(st.wk[w] && st.wk[w][i]);
+
+function paint() {
+  var item = LP_DAYS[st.day], w = item.week, d = item.d;
+  document.getElementById("when").textContent = "Week " + w.n + " · Day " + item.dayNum + " · " + w.title;
+  document.getElementById("dayTitle").textContent = d.title;
+  document.getElementById("weekLine").textContent = "This week's goal: " + w.goal;
+  document.getElementById("dayNum").textContent = st.day + 1;
+  document.getElementById("dayTotal").textContent = LP_DAYS.length;
+  document.getElementById("fill").style.width = (st.day / (LP_DAYS.length - 1) * 100) + "%";
+  document.getElementById("prev").disabled = st.day === 0;
+  document.getElementById("next").textContent = st.day === LP_DAYS.length - 1 ? "Done — on to PD2" : "Done — next lesson →";
+  paintPath(w);
+
+  var checks = st.checks[st.day] || [];
+  var ol = document.getElementById("steps");
+  ol.innerHTML = "";
+
+  function step(i, label, mins, build) {
+    var li = el("li", "lp-step" + (checks[i] ? " is-done" : ""));
+    var head = el("div", "lp-step-head");
+    var cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = !!checks[i]; cb.setAttribute("aria-label", "Mark " + label + " done");
     cb.addEventListener("change", function() {
-      if (!st.wk[w]) st.wk[w] = [];
-      st.wk[w][i] = this.checked;
-      save();
-      const em = document.querySelector('#weeks [data-week="' + w + '"] .lp-wk-done');
-      if (em) em.textContent = doneLabel(w);
+      if (!st.checks[st.day]) st.checks[st.day] = [];
+      st.checks[st.day][i] = this.checked; lpSave(st);
+      li.classList.toggle("is-done", this.checked);
     });
-    const span = document.createElement("span");
-    const kind = document.createElement("span");
-    kind.className = "kind";
-    kind.textContent = task.k;
-    span.appendChild(kind);
-    if (task.u) {
-      const a = document.createElement("a");
-      a.href = task.u;
-      a.textContent = task.t;
-      if (/^https?:/.test(task.u)) { a.target = "_blank"; a.rel = "noopener"; }
-      a.addEventListener("click", function(e) { e.stopPropagation(); });
-      span.appendChild(a);
-    } else {
-      span.appendChild(document.createTextNode(task.t));
+    head.appendChild(cb);
+    head.appendChild(el("span", "lp-step-num", String(i + 1)));
+    head.appendChild(el("span", "lp-step-label", label));
+    head.appendChild(el("span", "lp-mins", mins));
+    li.appendChild(head);
+    var body = el("div", "lp-step-body");
+    build(body);
+    li.appendChild(body);
+    ol.appendChild(li);
+  }
+
+  step(0, "Watch and learn", "~20 min", function(b) {
+    var a = el("a", "lp-watch");
+    a.href = d.v.url; a.target = "_blank"; a.rel = "noopener";
+    a.appendChild(el("span", "lp-play", "▶"));
+    var txt = el("span", "lp-watch-txt");
+    txt.appendChild(el("b", null, d.v.title));
+    txt.appendChild(el("small", null, d.v.ch + (d.v.from ? " · watch " + d.v.from + (d.v.to ? " to " + d.v.to : " to the end") : "")));
+    a.appendChild(txt);
+    b.appendChild(a);
+    var alt = el("p", "lp-alt");
+    alt.appendChild(el("b", null, "Or in your program: "));
+    alt.appendChild(document.createTextNode(d.prog));
+    b.appendChild(alt);
+    if (d.quiz) {
+      var qz = el("p", "lp-quiz");
+      qz.appendChild(el("b", null, "PD1: "));
+      qz.appendChild(document.createTextNode(d.quiz));
+      b.appendChild(qz);
     }
-    if (task.copy) {
-      const box = document.createElement("span");
-      box.className = "lp-copy";
-      const code = document.createElement("code");
-      code.textContent = task.copy;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "lp-btn";
-      btn.textContent = "Copy";
-      btn.addEventListener("click", function(e) {
-        e.preventDefault(); e.stopPropagation();
-        const done = function() { btn.textContent = "Copied"; setTimeout(function() { btn.textContent = "Copy"; }, 1500); };
-        try { navigator.clipboard.writeText(task.copy).then(done, function() {}); } catch (err) {}
-      });
-      box.appendChild(code);
-      box.appendChild(btn);
-      span.appendChild(box);
-    }
-    label.appendChild(cb);
-    label.appendChild(span);
-    li.appendChild(label);
-    ul.appendChild(li);
+  });
+
+  step(1, "Review code: find the bugs", "~15 min", function(b) {
+    if (!d.focus) { b.appendChild(el("p", null, "Nothing today. Exam day.")); return; }
+    b.appendChild(el("p", null, "Paste this into Claude or ChatGPT. Read what it writes, find the bugs, and reply explaining each one."));
+    var box = el("div", "lp-copy");
+    var prompt = lpDebugPrompt(d, w);
+    box.appendChild(el("code", null, prompt));
+    var btn = el("button", "lp-btn", "Copy");
+    btn.type = "button";
+    btn.addEventListener("click", function() {
+      try { navigator.clipboard.writeText(prompt).then(function() { btn.textContent = "Copied"; setTimeout(function() { btn.textContent = "Copy"; }, 1500); }); } catch (e) {}
+    });
+    box.appendChild(btn);
+    b.appendChild(box);
+  });
+
+  step(2, "Rewrite it by hand", "~10 min", function(b) {
+    b.appendChild(el("p", null, "Open VS Code and write the fixed version yourself. No AI, no copy-paste. It doesn't have to be perfect."));
+  });
+
+  step(3, "Architect question", "~5 min", function(b) {
+    b.appendChild(el("p", "lp-q", d.arch));
+    b.appendChild(el("p", "lp-hint", "Answer in 2–3 sentences, in your head, on paper, or to the AI."));
   });
 }
-topic.placeholder = "What's this week's topic?";
-topic.addEventListener("input", function() {
-  if (this.value === TOPICS[st.week - 1]) delete st.topics[st.week]; else st.topics[st.week] = this.value;
-  save();
-  document.querySelector('#weeks [data-week="' + st.week + '"] span').textContent = this.value;
+
+document.getElementById("prev").addEventListener("click", function() { if (st.day > 0) { st.day--; lpSave(st); paint(); window.scrollTo(0, 0); } });
+document.getElementById("next").addEventListener("click", function() {
+  if (st.day < LP_DAYS.length - 1) { st.day++; lpSave(st); paint(); window.scrollTo(0, 0); }
+  else { location.href = "syllabus.html#later"; }
 });
-document.getElementById("prevWeek").addEventListener("click", function() { st.week -= 1; save(); paintWeek(); });
-document.getElementById("nextWeek").addEventListener("click", function() { st.week += 1; save(); paintWeek(); });
-paintWeek();
-
-// time split
-document.getElementById("stack").innerHTML = SPLIT.map(function(s) { return '<span style="width:' + s[0] + '%;background:' + s[2] + '"></span>'; }).join("");
-document.getElementById("split").innerHTML = SPLIT.map(function(s) {
-  return '<div class="lp-split-row"><span class="lp-pct" style="color:' + s[2] + '">' + s[0] + '%</span><div><i style="background:' + s[2] + '"></i>' + s[1] + '</div></div>';
-}).join("");
-
-// daily
-const stepsEl = document.getElementById("steps");
-function paintStreak() {
-  document.getElementById("streak").textContent = st.streak ? st.streak + "-day streak" : "";
-}
-STEPS.forEach(function(text, i) {
-  const li = document.createElement("li");
-  li.innerHTML = '<label><input type="checkbox"><span></span></label>';
-  li.querySelector("span").textContent = text;
-  const cb = li.querySelector("input");
-  cb.checked = !!st.checks[i];
-  cb.addEventListener("change", function() {
-    st.checks[i] = this.checked;
-    const full = STEPS.every(function(_, j) { return st.checks[j]; });
-    if (full && st.lastFull !== today) { st.streak = (st.lastFull === yest ? st.streak : 0) + 1; st.lastFull = today; }
-    save(); paintStreak();
-  });
-  stepsEl.appendChild(li);
-});
-paintStreak();
-
-// order
-const pathEl = document.getElementById("path");
-function paintPath() {
-  pathEl.innerHTML = "";
-  PATH.forEach(function(p, i) {
-    if (i) { const a = document.createElement("span"); a.className = "lp-arrow"; a.innerHTML = "&rarr;"; pathEl.appendChild(a); }
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "lp-step" + (i < st.certs ? " done" : i === st.certs ? " now" : "");
-    b.textContent = p;
-    b.addEventListener("click", function() { st.certs = (st.certs === i + 1) ? i : i + 1; save(); paintPath(); });
-    pathEl.appendChild(b);
-  });
-}
-paintPath();
+paint();
 </script>
 </body>
 </html>

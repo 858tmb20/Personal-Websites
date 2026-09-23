@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Syllabus</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&family=Newsreader:wght@500;600&display=swap">
+<link rel="stylesheet" href="learning.css">
+</head>
+<body>
+
+<header class="lp-hdr">
+  <div class="lp-inner">
+    <div class="lp-eyebrow">Salesforce Learning &middot; Syllabus</div>
+    <h1>Apex &amp; LWC &rarr; PD1 &rarr; PD2 &rarr; Architect</h1>
+    <p class="lp-hdr-sub">12 weeks, 5 lessons a week. Weeks 1&ndash;9 make you fluent in Apex and LWC. Weeks 10&ndash;12 get you through PD1. PD2 and Architect come after. Click any lesson to open it.</p>
+  </div>
+</header>
+
+<div class="lp-bar">
+  <div class="lp-inner">
+    <a class="lp-primary-link" href="learning-plan.html">&larr; Back to today's lesson</a>
+    <span class="lp-spacer"></span>
+    <a href="library.html">Library</a>
+  </div>
+</div>
+
+<main id="main">
+  <section class="lp-card">
+    <h2>Every lesson is the same 4 steps</h2>
+    <div class="lp-split">
+      <div><b style="color:var(--c2)">1</b> Watch the video (Warren, Coding With The Force, or Igor). If you have the lesson in your program, watch that instead.</div>
+      <div><b style="color:var(--c1)">2</b> Review code: AI writes buggy code on the topic, and you find and explain the bugs.</div>
+      <div><b style="color:var(--c5)">3</b> Rewrite the fixed code by hand. No AI.</div>
+      <div><b style="color:var(--c3)">4</b> Answer one architect question.</div>
+    </div>
+  </section>
+</main>
+
+<footer><a href="learning-plan.html">Today's lesson</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
+
+<script src="learning-data.js"></script>
+<script>
+var st = lpLoad();
+function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+var main = document.getElementById("main");
+var idx = 0, curEl = null;
+
+LP_PHASES.forEach(function(ph, pi) {
+  var sec = el("section", "sy-phase");
+  var head = el("div", "sy-phase-head");
+  head.appendChild(el("span", null, String(pi + 1)));
+  head.appendChild(el("h2", null, ph.name + " · Week" + (ph.weeks.length > 1 ? "s " + ph.weeks[0] + "–" + ph.weeks[ph.weeks.length - 1] : " " + ph.weeks[0])));
+  sec.appendChild(head);
+  ph.weeks.forEach(function(n) {
+    var w = LP_WEEKS[n - 1];
+    var card = el("div", "sy-week");
+    var wh = el("div", "sy-week-head");
+    wh.appendChild(el("b", null, "Week " + w.n));
+    wh.appendChild(el("h3", null, w.title));
+    card.appendChild(wh);
+    card.appendChild(el("p", "sy-goal", w.goal));
+    card.appendChild(el("p", "sy-prog", "In your programs: " + w.program));
+    var ul = el("ul", "sy-days");
+    w.days.forEach(function(d, di) {
+      var here = idx;
+      var li = el("li", "sy-day" + (here < st.day ? " past" : here === st.day ? " now" : ""));
+      li.appendChild(el("span", "d", here === st.day ? "TODAY" : "Day " + (di + 1)));
+      var a = el("a", "t", d.title);
+      a.href = "learning-plan.html?day=" + here;
+      li.appendChild(a);
+      var yt = el("a", "yt", "▶ " + (d.v.ch === CWTF ? "CWTF" : d.v.ch.split(" ")[0]) + (d.v.from ? " " + d.v.from : ""));
+      yt.href = d.v.url; yt.target = "_blank"; yt.rel = "noopener";
+      yt.title = d.v.title + " (" + d.v.ch + ")";
+      li.appendChild(yt);
+      ul.appendChild(li);
+      if (here === st.day) { card.classList.add("is-current"); curEl = card; }
+      idx++;
+    });
+    card.appendChild(ul);
+    sec.appendChild(card);
+  });
+  main.appendChild(sec);
+});
+
+var later = el("section", "sy-phase"); later.id = "later";
+LP_LATER.forEach(function(ph, i) {
+  var head = el("div", "sy-phase-head");
+  head.appendChild(el("span", null, String(LP_PHASES.length + i + 1)));
+  head.appendChild(el("h2", null, ph.name));
+  later.appendChild(head);
+  var card = el("div", "sy-week sy-later");
+  card.appendChild(el("p", "sy-goal", ph.intro));
+  var ul = document.createElement("ul");
+  ph.items.forEach(function(it) {
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode(it.t + (it.v ? " — " : "")));
+    if (it.v) { var a = el("a", null, "▶ " + it.v.title); a.href = it.v.url; a.target = "_blank"; a.rel = "noopener"; li.appendChild(a); }
+    ul.appendChild(li);
+  });
+  card.appendChild(ul);
+  later.appendChild(card);
+});
+main.appendChild(later);
+
+var srcs = el("section", "lp-card");
+srcs.appendChild(el("h2", null, "Where the videos come from"));
+srcs.innerHTML += '<div class="lp-split">' +
+  '<div><b style="color:var(--c4)">Warren</b> Developer Kickstart Program (Modules 1–16) + his YouTube, Walters954</div>' +
+  '<div><b style="color:var(--c1)">CWTF</b> Coding With The Force on YouTube: free, complete topic guides</div>' +
+  '<div><b style="color:var(--c2)">Igor</b> <a href="https://www.learn-apex.com/modules" target="_blank" rel="noopener">Learn Apex</a>, Learn LWC, Integration Mastery Cohort</div>' +
+  '<div><b style="color:var(--c3)">PD1</b> Focus on Force practice exams. Only buy Igor’s PD1 course if you’re under 68% after week 10.</div>' +
+  '</div>';
+main.appendChild(srcs);
+
+if (curEl && !location.hash) setTimeout(function() { curEl.scrollIntoView({ block: "center" }); }, 50);
+</script>
+</body>
+</html>
