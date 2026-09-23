@@ -21,6 +21,7 @@
       <div class="lp-count"><span id="dayNum">1</span><span class="lp-of">/<span id="dayTotal">60</span></span><small>lessons</small></div>
     </div>
     <div class="lp-track"><div class="lp-fill" id="fill"></div></div>
+    <div class="lp-sched"><span id="planned"></span><span id="status" class="lp-status"></span><span class="lp-spacer"></span><span id="examLine"></span></div>
   </div>
 </header>
 
@@ -40,7 +41,7 @@
   <section class="lp-path" id="path" aria-label="Where you are"></section>
 
   <section class="lp-card lp-today">
-    <h2>Do these 4 things today</h2>
+    <h2>Do these 4 things today &middot; 45 min</h2>
     <ol class="lp-do" id="steps"></ol>
     <div class="lp-nav">
       <button type="button" class="lp-btn" id="prev">&larr; Previous lesson</button>
@@ -65,7 +66,7 @@
 <main id="viewSyl" hidden>
   <section class="lp-card">
     <h2>How this is laid out</h2>
-    <p class="sy-goal" style="margin:0 0 12px">12 weeks, 5 lessons a week, in the same order as Warren's Developer Kickstart Program: DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Then PD1, PD2, Architect. Click any lesson to open it.</p>
+    <p class="sy-goal" style="margin:0 0 12px">One 45-minute lesson a day, Monday to Saturday, from Sep 24 to Nov 23, in the same order as Warren's Developer Kickstart Program: DML &rarr; SOQL &rarr; debugging &rarr; triggers &rarr; async &rarr; integrations &rarr; tests &rarr; LWC. Nov 24, 25 and 28 are catch-up days. PD1 exam: Monday, Nov 30. Then PD2 and Architect. Click any lesson to open it.</p>
     <div class="lp-split">
       <div><b style="color:var(--c2)">1</b> Watch the video (Warren, Coding With The Force, or Igor). If you have the lesson in your program, watch that instead.</div>
       <div><b style="color:var(--c1)">2</b> Review code: AI writes buggy code on the topic, and you find and explain the bugs.</div>
@@ -108,6 +109,15 @@ function paint() {
   document.getElementById("prev").disabled = st.day === 0;
   document.getElementById("next").textContent = st.day === LP_DAYS.length - 1 ? "Done — on to PD2" : "Done — next lesson →";
   paintPath(w);
+  var planned = LP_DATES[st.day];
+  document.getElementById("planned").textContent = (d.exam ? "Exam day: " : "Planned for ") + lpFmt(planned);
+  var due = lpDueIndex(), stEl = document.getElementById("status");
+  var gap = due - st.day;
+  if (due < 0) { stEl.textContent = "Starts " + lpFmt(LP_DATES[0]); stEl.className = "lp-status ok"; }
+  else if (gap <= 0) { stEl.textContent = gap < 0 ? (-gap) + " ahead" : "On track"; stEl.className = "lp-status ok"; }
+  else { stEl.textContent = gap + " lesson" + (gap > 1 ? "s" : "") + " behind: catch up on a Sunday or a buffer day"; stEl.className = "lp-status behind"; }
+  var days = Math.round((lpDate(LP_EXAM) - new Date(new Date().toDateString())) / 864e5);
+  document.getElementById("examLine").textContent = "PD1 exam: " + lpFmt(lpDate(LP_EXAM)) + (days > 0 ? " \u00b7 " + days + " days" : "");
 
   var checks = st.checks[st.day] || [];
   var ol = document.getElementById("steps");
@@ -134,7 +144,7 @@ function paint() {
     ol.appendChild(li);
   }
 
-  step(0, "Watch and learn", "~20 min", function(b) {
+  step(0, "Watch + PD1 questions", "~25 min", function(b) {
     var a = el("a", "lp-watch");
     a.href = d.v.url; a.target = "_blank"; a.rel = "noopener";
     a.appendChild(el("span", "lp-play", "▶"));
@@ -143,19 +153,18 @@ function paint() {
     txt.appendChild(el("small", null, d.v.ch + (d.v.from ? " · watch " + d.v.from + (d.v.to ? " to " + d.v.to : " to the end") : "")));
     a.appendChild(txt);
     b.appendChild(a);
+    if (d.v.mins > 25) b.appendChild(el("p", "lp-hint", "Long one (" + d.v.mins + " min). Watch at 1.5\u00d7 to fit it in about " + Math.round(d.v.mins / 1.5) + " min."));
     var alt = el("p", "lp-alt");
     alt.appendChild(el("b", null, "Or in your program: "));
     alt.appendChild(document.createTextNode(d.prog));
     b.appendChild(alt);
-    if (d.quiz) {
-      var qz = el("p", "lp-quiz");
-      qz.appendChild(el("b", null, "PD1: "));
-      qz.appendChild(document.createTextNode(d.quiz));
-      b.appendChild(qz);
-    }
+    var qz = el("p", "lp-quiz");
+    qz.appendChild(el("b", null, "PD1: "));
+    qz.appendChild(document.createTextNode(d.quiz || "5 Focus on Force practice questions on " + w.title + "."));
+    b.appendChild(qz);
   });
 
-  step(1, "Review code: find the bugs", "~15 min", function(b) {
+  step(1, "Review code: find the bugs", "~12 min", function(b) {
     if (!d.focus) { b.appendChild(el("p", null, "Nothing today. Exam day.")); return; }
     b.appendChild(el("p", null, "Paste this into Claude or ChatGPT. Read what it writes, find the bugs, and reply explaining each one."));
     var box = el("div", "lp-copy");
@@ -170,11 +179,11 @@ function paint() {
     b.appendChild(box);
   });
 
-  step(2, "Rewrite it by hand", "~10 min", function(b) {
-    b.appendChild(el("p", null, "Open VS Code and write the fixed version yourself. No AI, no copy-paste. It doesn't have to be perfect."));
+  step(2, "Rewrite it by hand", "~5 min", function(b) {
+    b.appendChild(el("p", null, "Open VS Code and rewrite the buggiest part yourself. No AI, no copy-paste. It doesn't have to be perfect."));
   });
 
-  step(3, "Architect question", "~5 min", function(b) {
+  step(3, "Architect question", "~3 min", function(b) {
     b.appendChild(el("p", "lp-q", d.arch));
     b.appendChild(el("p", "lp-hint", "Answer in 2–3 sentences, in your head, on paper, or to the AI."));
   });
@@ -218,6 +227,7 @@ function renderSyllabus() {
       var wh = el("div", "sy-week-head");
       wh.appendChild(el("b", null, "Week " + w.n));
       wh.appendChild(el("h3", null, w.title));
+      wh.appendChild(el("span", "sy-dates", lpFmt(LP_DATES[idx]) + " \u2013 " + lpFmt(LP_DATES[idx + w.days.length - 1])));
       card.appendChild(wh);
       card.appendChild(el("p", "sy-goal", w.goal));
       card.appendChild(el("p", "sy-prog", "In your programs: " + w.program));
@@ -225,7 +235,7 @@ function renderSyllabus() {
       w.days.forEach(function(d, di) {
         var here = idx;
         var li = el("li", "sy-day" + (here < st.day ? " past" : here === st.day ? " now" : ""));
-        li.appendChild(el("span", "d", here === st.day ? "TODAY" : "Day " + (di + 1)));
+        li.appendChild(el("span", "d", here === st.day ? "YOU'RE HERE" : lpFmt(LP_DATES[here]).replace(",", "")));
         var a = el("a", "t", d.title);
         a.href = "#";
         a.addEventListener("click", function(e) { e.preventDefault(); st.day = here; lpSave(st); paint(); showView("today"); });

@@ -31,6 +31,11 @@ header.lp-hdr { background: linear-gradient(180deg, var(--midnight) 0%, var(--bl
 .lp-count .lp-of { font-size: 0.5em; color: #BBD0E8; }
 .lp-count small { display: block; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 600; color: #BBD0E8; }
 .lp-track { margin-top: 20px; height: 8px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; }
+.lp-sched { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; font-size: 14px; color: #BBD0E8; }
+.lp-status { font-weight: 700; border-radius: 999px; padding: 2px 10px; }
+.lp-status.ok { background: rgba(151,225,82,0.18); color: var(--lime); }
+.lp-status.behind { background: rgba(240,170,90,0.2); color: #F4C58A; }
+#examLine { font-weight: 700; color: #EAF1F8; }
 .lp-fill { height: 100%; width: 0; background: var(--lime); border-radius: 999px; transition: width 300ms ease; }
 
 .lp-bar { border-bottom: 1px solid var(--hairline); background: var(--card); padding: 12px 24px; }
@@ -121,10 +126,11 @@ main { max-width: 860px; margin: 0 auto; padding: 28px 24px 64px; display: grid;
 .sy-week-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .sy-week-head b { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); }
 .sy-week-head h3 { margin: 0; font-size: 19px; color: var(--blue); }
+.sy-dates { margin-left: auto; font-size: 13px; color: var(--grey); font-weight: 600; }
 .sy-goal { margin: 6px 0 4px; font-size: 15px; color: var(--fg); }
 .sy-prog { margin: 0 0 12px; font-size: 13.5px; color: var(--fg2); }
 .sy-days { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.sy-day { display: grid; grid-template-columns: 54px 1fr auto; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 6px; font-size: 15px; }
+.sy-day { display: grid; grid-template-columns: 96px 1fr auto; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 6px; font-size: 15px; }
 .sy-day:hover { background: var(--light-blue); }
 .sy-day .d { font-size: 12px; font-weight: 800; color: var(--grey); }
 .sy-day a.t { color: var(--fg); text-decoration: none; }
@@ -144,6 +150,6 @@ footer a { color: var(--fg2); }
 @media (max-width: 600px) {
   .lp-step-body { margin-left: 0; }
   .lp-copy { flex-direction: column; }
-  .sy-day { grid-template-columns: 44px 1fr; }
+  .sy-day { grid-template-columns: 84px 1fr; }
   .sy-day a.yt { grid-column: 2; }
 }

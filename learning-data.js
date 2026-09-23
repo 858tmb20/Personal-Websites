@@ -4,41 +4,42 @@ var CWTF = "Coding With The Force";
 var WW = "Warren Walters";
 
 var LP_VIDEOS = {
-  trig:  { id: "ebbj8RG5_bk", ch: CWTF, title: "The Complete Guide To Apex Triggers" },
-  soql:  { id: "WtY6zUe5Uok", ch: CWTF, title: "The Complete Guide to SOQL and SOSL" },
-  exc:   { id: "Q9hxSqlIaUY", ch: CWTF, title: "A Complete Guide to Exception Handling in Apex and LWC" },
-  dbg:   { id: "D5Mytww1nj8", ch: CWTF, title: "Apex and LWC Debugging Techniques" },
-  dml1:  { id: "MtUDsC7NulA", ch: WW,   title: "Insert Parent & Child Records At Same Time | Single DML" },
-  gptdbg:{ id: "OVQyW9pwRjQ", ch: WW,   title: "Can ChatGPT Debug Salesforce Apex Common Errors" },
-  test:  { id: "zmO8TBMhb5M", ch: CWTF, title: "The Complete Guide to Apex Tests" },
-  gpttest:{ id: "XErznVQd0e0", ch: WW,  title: "Can ChatGPT Write Apex Triggers + Test Classes" },
-  async: { id: "MDPE24fv8aI", ch: CWTF, title: "A Complete Guide To Asynchronous Apex" },
-  share: { id: "dXeTHfJVngU", ch: CWTF, title: "How and When to use Apex Managed Sharing" },
-  iface: { id: "d3xOEg1Rs88", ch: CWTF, title: "How and When to use Interfaces In Apex" },
-  solid: { id: "KPGrIh5OrkE", ch: CWTF, title: "SOLID Design Principles in Salesforce" },
-  lwc:   { id: "cMhWf7EwSSg", ch: CWTF, title: "The Beginner's Guide to Lightning Web Components" },
-  hooks: { id: "Kc4xtTKbLMM", ch: CWTF, title: "The Complete Guide to LWC Lifecycle Hooks" },
-  covid: { id: "na-o1TxqEic", ch: WW,   title: "Salesforce COVID-19 Tracker: Object Creation & API Callout" },
-  post:  { id: "MYk0ir_tIDA", ch: CWTF, title: "How to Send POST Requests In Apex" },
-  named: { id: "hIOvZZfbrto", ch: CWTF, title: "How to use Named Credentials in Apex Integrations" },
-  auth:  { id: "wOkvqAobA1M", ch: CWTF, title: "Custom Authentications for Integrations in Apex" },
-  gptint:{ id: "bZ8r26rqYuk", ch: WW,   title: "Can ChatGPT Write Apex Integrations and LWCs" },
-  mock:  { id: "Vo760HFQDFk", ch: WW,   title: "Developer Mock Interview: Governor Limits & Triggers" },
-  mockjr:{ id: "aVlIacrBCZA", ch: WW,   title: "Developer Mock Interview: Jr/Mid Questions and Answers" },
-  mocksr:{ id: "wWowOCIqkOI", ch: WW,   title: "Advanced Developer Mock Interview: Senior-Level Questions" },
-  jest:  { id: "e3LWCIUBf2Q", ch: CWTF, title: "The Complete Guide to LWC Jest Tests" },
-  dmlmock:{ id: "-esf8Q_Vp7U", ch: CWTF, title: "How to use DML Mocking in your Apex Tests" },
-  common:{ id: "HQrVEX4oE3A", ch: CWTF, title: "The Complete Guide To The Apex Common Library" },
-  cta:   { id: "y5d8BVuXg2s", ch: CWTF, title: "An Overview of the Salesforce CTA Review Board" },
-  scan:  { id: "jiY_kgs6oAo", ch: CWTF, title: "How to Automatically Scan your Code for Problems in VS Code" },
-  aireview: { id: "HD-t58qtTIs", ch: WW, title: "He gave AI a 40-hour Salesforce code review" }
+  trig:  { id: "ebbj8RG5_bk", ch: CWTF, title: "The Complete Guide To Apex Triggers", len: 130 },
+  soql:  { id: "WtY6zUe5Uok", ch: CWTF, title: "The Complete Guide to SOQL and SOSL", len: 178 },
+  exc:   { id: "Q9hxSqlIaUY", ch: CWTF, title: "A Complete Guide to Exception Handling in Apex and LWC", len: 61 },
+  dbg:   { id: "D5Mytww1nj8", ch: CWTF, title: "Apex and LWC Debugging Techniques", len: 52 },
+  dml1:  { id: "MtUDsC7NulA", ch: WW,   title: "Insert Parent & Child Records At Same Time | Single DML", len: 11 },
+  gptdbg:{ id: "OVQyW9pwRjQ", ch: WW,   title: "Can ChatGPT Debug Salesforce Apex Common Errors", len: 9 },
+  test:  { id: "zmO8TBMhb5M", ch: CWTF, title: "The Complete Guide to Apex Tests", len: 106 },
+  gpttest:{ id: "XErznVQd0e0", ch: WW,  title: "Can ChatGPT Write Apex Triggers + Test Classes", len: 24 },
+  async: { id: "MDPE24fv8aI", ch: CWTF, title: "A Complete Guide To Asynchronous Apex", len: 85 },
+  share: { id: "dXeTHfJVngU", ch: CWTF, title: "How and When to use Apex Managed Sharing", len: 32 },
+  iface: { id: "d3xOEg1Rs88", ch: CWTF, title: "How and When to use Interfaces In Apex", len: 54 },
+  solid: { id: "KPGrIh5OrkE", ch: CWTF, title: "SOLID Design Principles in Salesforce", len: 29 },
+  lwc:   { id: "cMhWf7EwSSg", ch: CWTF, title: "The Beginner's Guide to Lightning Web Components", len: 128 },
+  hooks: { id: "Kc4xtTKbLMM", ch: CWTF, title: "The Complete Guide to LWC Lifecycle Hooks", len: 46 },
+  covid: { id: "na-o1TxqEic", ch: WW,   title: "Salesforce COVID-19 Tracker: Object Creation & API Callout", len: 63 },
+  post:  { id: "MYk0ir_tIDA", ch: CWTF, title: "How to Send POST Requests In Apex", len: 34 },
+  named: { id: "hIOvZZfbrto", ch: CWTF, title: "How to use Named Credentials in Apex Integrations", len: 32 },
+  auth:  { id: "wOkvqAobA1M", ch: CWTF, title: "Custom Authentications for Integrations in Apex", len: 26 },
+  gptint:{ id: "bZ8r26rqYuk", ch: WW,   title: "Can ChatGPT Write Apex Integrations and LWCs", len: 19 },
+  mock:  { id: "Vo760HFQDFk", ch: WW,   title: "Developer Mock Interview: Governor Limits & Triggers", len: 7 },
+  mockjr:{ id: "aVlIacrBCZA", ch: WW,   title: "Developer Mock Interview: Jr/Mid Questions and Answers", len: 32 },
+  mocksr:{ id: "wWowOCIqkOI", ch: WW,   title: "Advanced Developer Mock Interview: Senior-Level Questions", len: 54 },
+  jest:  { id: "e3LWCIUBf2Q", ch: CWTF, title: "The Complete Guide to LWC Jest Tests", len: 136 },
+  dmlmock:{ id: "-esf8Q_Vp7U", ch: CWTF, title: "How to use DML Mocking in your Apex Tests", len: 32 },
+  common:{ id: "HQrVEX4oE3A", ch: CWTF, title: "The Complete Guide To The Apex Common Library", len: 454 },
+  cta:   { id: "y5d8BVuXg2s", ch: CWTF, title: "An Overview of the Salesforce CTA Review Board", len: 41 },
+  scan:  { id: "jiY_kgs6oAo", ch: CWTF, title: "How to Automatically Scan your Code for Problems in VS Code", len: 18 },
+  aireview: { id: "HD-t58qtTIs", ch: WW, title: "He gave AI a 40-hour Salesforce code review", len: 64 }
 };
 
+function lpSecs(t) { var s = 0; (t || "0:00").split(":").map(Number).forEach(function(n) { s = s * 60 + n; }); return s; }
 function lpClip(key, from, to) {
   var v = LP_VIDEOS[key];
-  var p = (from || "0:00").split(":").map(Number), s = 0;
-  p.forEach(function(n) { s = s * 60 + n; });
-  return { key: key, id: v.id, ch: v.ch, title: v.title, from: from || "", to: to || "",
+  var s = lpSecs(from);
+  var mins = Math.round(((to ? lpSecs(to) : v.len * 60) - s) / 60);
+  return { key: key, id: v.id, ch: v.ch, title: v.title, from: from || "", to: to || "", mins: mins,
     url: "https://www.youtube.com/watch?v=" + v.id + (s ? "&t=" + s + "s" : "") };
 }
 
@@ -47,8 +48,8 @@ function lpClip(key, from, to) {
 var LP_PHASES = [
   { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6] },
   { name: "LWC fluency", weeks: [7, 8] },
-  { name: "Security & design", weeks: [9] },
-  { name: "Pass PD1", weeks: [10, 11, 12] }
+  { name: "Security", weeks: [9] },
+  { name: "Pass PD1", weeks: [10, 11] }
 ];
 
 var LP_WEEKS = [
@@ -163,7 +164,7 @@ var LP_WEEKS = [
     days: [
       { title: "Debugging LWCs in the browser", v: lpClip("lwc", "1:31:23", "1:39:58"), prog: "Warren Module 12: Conditional Rendering and Lists",
         focus: "an LWC list that renders nothing because of a wrong key and a bad if:true", arch: "An LWC works for you but not for a user. What do you check first?" },
-      { title: "Lifecycle hooks", v: lpClip("hooks"), prog: "Igor Learn LWC: lifecycle",
+      { title: "Lifecycle hooks", v: lpClip("hooks", "0:33", "30:42"), prog: "Igor Learn LWC: lifecycle",
         focus: "an LWC that fetches data in constructor() and sets state in renderedCallback() in a loop", arch: "Why is renderedCallback() a common source of infinite loops?" },
       { title: "Child-to-parent events", v: lpClip("lwc", "1:45:28", "1:57:23"), prog: "Warren Module 12: Parent-Child and Child-Parent Communication",
         focus: "a child LWC firing an event with the wrong name casing and the parent reading detail wrong", arch: "Why do events go up and properties go down?" },
@@ -172,64 +173,45 @@ var LP_WEEKS = [
       { title: "Error handling in LWC and JavaScript", v: lpClip("exc", "25:14", "36:27"), prog: "Warren Module 12: Quiz on Lightning Web Components",
         focus: "an LWC that shows a blank screen when Apex throws", arch: "What should a user see when your component's Apex call fails?" }
     ] },
-  { n: 9, title: "Security & clean design", lang: "Apex",
-    goal: "Write Apex that respects who can see what, and that another developer can maintain.",
+  { n: 9, title: "Security", lang: "Apex",
+    goal: "Write Apex that respects who can see what.",
     program: "Warren PD1 Certification Training 8: Securing User Interface and Data Access",
     days: [
       { title: "WITH SECURITY_ENFORCED and USING SCOPE", v: lpClip("soql", "1:10:34", "1:20:16"), prog: "Warren PD1 Certification Training 8 (data access part)",
-        focus: "a class with no sharing keyword whose query ignores field-level security", arch: "Where should access be enforced: profile, sharing rules, or code? Why is ‘without sharing’ risky?" },
+        focus: "a class with no sharing keyword whose query ignores field-level security", arch: "Where should access be enforced: profile, sharing rules, or code? Why is \u2018without sharing\u2019 risky?" },
       { title: "Apex managed sharing", v: lpClip("share"), prog: "Warren PD1 Certification Training 8",
         focus: "Apex sharing code that grants access but never removes it", arch: "When do you need Apex sharing instead of a sharing rule?" },
-      { title: "Interfaces in Apex", v: lpClip("iface"), prog: "Warren Module 3: Objects, Classes, and Methods (review)",
-        focus: "a class full of if/else on a type string that should be an interface", arch: "Where would an interface make WGU code easier to change? Name one place." },
-      { title: "SOLID design principles", v: lpClip("solid"), prog: "Warren Module 3: Access Modifiers (review)",
-        focus: "a 400-line ‘god class’ that queries, calculates and emails all in one method", arch: "Which SOLID principle does the code you reviewed at work this week break most?" },
-      { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: “He gave AI a 40-hour code review” (YouTube)",
+      { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: \u201cHe gave AI a 40-hour code review\u201d (YouTube)",
         focus: "an Apex controller with a SOQL injection, no CRUD check and a hardcoded Id", arch: "What would you put on a code-review checklist for your team? Top 5." }
     ] },
   { n: 10, title: "PD1 review by exam section", lang: "PD1",
     goal: "Go through every PD1 exam section once, then take your first full practice exam.",
-    program: "Warren PD1 Certification Training 1–12 · Focus on Force PD1",
+    program: "Warren PD1 Certification Training 1\u201312 \u00b7 Focus on Force PD1",
     days: [
       { title: "Developer Fundamentals", v: lpClip("trig", "8:10", "12:59"), prog: "Warren PD1 Certification Training 1 & 2 (multi-tenancy, data models)",
         focus: "Apex doing work a Flow or validation rule should do", arch: "Why does multi-tenancy force governor limits to exist?", quiz: "Focus on Force: Developer Fundamentals quiz" },
-      { title: "Process Automation & Logic", v: lpClip("trig", "5:03", "8:10"), prog: "Warren PD1 Certification Training 3–6",
+      { title: "Process Automation & Logic", v: lpClip("trig", "5:03", "8:10"), prog: "Warren PD1 Certification Training 3\u20136",
         focus: "a trigger that fights with a Flow on the same field", arch: "Walk the order of execution for one Opportunity save, out loud.", quiz: "Focus on Force: Process Automation & Logic quiz" },
       { title: "User Interface: LWC recap + Visualforce basics", v: lpClip("lwc", "41:00", "53:30"), prog: "Warren PD Certification Training 12: Visualforce and Lightning Web Components (covers the Visualforce part the video skips)",
         focus: "a Visualforce page with a custom controller that runs SOQL in a getter, plus an LWC with a caching mistake", arch: "LWC, Aura or Visualforce: why does LWC win for new work, and when would you still touch Visualforce?", quiz: "Focus on Force: User Interface quiz. Visualforce is still on the exam: know standard vs. custom controllers and extensions." },
       { title: "Testing, Debugging & Deployment", v: lpClip("test", "56:27", "1:02:32"), prog: "Warren PD1 Certification Training 7, 9, 10, 11",
         focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Focus on Force: Testing, Debugging & Deployment quiz" },
-      { title: "Practice exam #1", v: lpClip("mock"), prog: "Warren Modules 13–16: Structuring PD1 Study and How To Know When You're Ready",
+      { title: "Practice exam #1", v: lpClip("mock"), prog: "Warren Modules 13\u201316: Structuring PD1 Study and How To Know When You're Ready",
         focus: "the topic you missed most on today's exam", arch: "Which section cost you the most points, and why?", quiz: "Focus on Force: full PD1 practice exam #1. Under 68%? That's when Igor's PD1 prep course is worth it." }
     ] },
-  { n: 11, title: "Fix weak spots", lang: "PD1",
-    goal: "Turn your practice exam misses into strengths.",
-    program: "Your practice exam #1 miss list · Focus on Force topic quizzes",
+  { n: 11, title: "Final prep and the exam", lang: "PD1",
+    goal: "Fix your weak spots, prove you're ready on two more practice exams, then pass PD1.",
+    program: "Warren Modules 13\u201316: Taking the Platform Developer I Certification Exam \u00b7 Focus on Force",
     days: [
-      { title: "Weakest topic #1", v: lpClip("mockjr"), prog: "Rewatch that topic's week in this syllabus",
-        focus: "your weakest topic from practice exam #1", arch: "Explain your weakest topic like you're teaching it to a new admin.", quiz: "Focus on Force: quiz on your weakest topic" },
-      { title: "Weakest topic #2", v: lpClip("mock"), prog: "Rewatch that topic's week in this syllabus",
-        focus: "your second-weakest topic from practice exam #1", arch: "What's one real WGU example of this topic?", quiz: "Focus on Force: quiz on your second-weakest topic" },
-      { title: "Governor limits and order of execution, again", v: lpClip("trig", "1:04:36", "1:20:37"), prog: "Warren Modules 13–16: Concepts/Topics that might be on the Exam",
-        focus: "code that hits governor limits in a way a PD1 question would test", arch: "List the limits you should know by heart, with numbers.", quiz: "Focus on Force: governor limits questions" },
-      { title: "Testing and deployment, again", v: lpClip("test", "1:20:46", "1:45:37"), prog: "Warren PD1 Certification Training 11: Code Deployment",
-        focus: "a test class that passes locally but fails on deploy", arch: "Why does prod need 75% coverage, and why is that not enough?", quiz: "Focus on Force: testing questions" },
-      { title: "Practice exam #2", v: lpClip("mocksr"), prog: "Warren Modules 13–16: Platform Developer 1 Practice Exams/Resources",
-        focus: "the topic you missed most on today's exam", arch: "Did your score move? What changed?", quiz: "Focus on Force: full PD1 practice exam #2" }
-    ] },
-  { n: 12, title: "Book it and pass", lang: "PD1",
-    goal: "Take the PD1 exam.",
-    program: "Warren Modules 13–16: Taking the Platform Developer I Certification Exam",
-    days: [
-      { title: "Final weak-spot sweep", v: lpClip("mockjr"), prog: "Warren: Concepts/Topics that might be on the Exam",
-        focus: "your weakest topic from practice exam #2", arch: "Which topic are you still unsure of? Explain it anyway.", quiz: "Focus on Force: quiz on your weakest topic" },
-      { title: "Practice exam #3", v: lpClip("mock"), prog: "Warren: Platform Developer 1 Practice Exams/Resources",
-        focus: "anything you missed today", arch: "Scoring 75%+ consistently? If yes, book the exam.", quiz: "Focus on Force: full PD1 practice exam #3" },
-      { title: "Register for the exam", v: lpClip("mocksr"), prog: "Warren: Registering for the Exam",
-        focus: "a mixed bag: trigger, SOQL, test class", arch: "What's your plan for questions you're unsure of on exam day?", quiz: "Book your PD1 exam date" },
+      { title: "Weak spots from practice exam #1", v: lpClip("trig", "1:04:36", "1:20:37"), prog: "Rewatch the syllabus lesson for your weakest topic \u00b7 Warren: Concepts/Topics that might be on the Exam",
+        focus: "your two weakest topics from practice exam #1", arch: "Explain your weakest topic like you're teaching it to a new admin.", quiz: "Focus on Force: quizzes on your two weakest topics" },
+      { title: "Practice exam #2", v: lpClip("mocksr", "0:00", "25:00"), prog: "Warren: Platform Developer 1 Practice Exams/Resources",
+        focus: "the topic you missed most on today's exam", arch: "Did your score move? What changed?", quiz: "Focus on Force: full PD1 practice exam #2" },
+      { title: "Practice exam #3", v: lpClip("mockjr"), prog: "Warren: Platform Developer 1 Practice Exams/Resources",
+        focus: "anything you missed today", arch: "Scoring 75%+ on both? You're ready.", quiz: "Focus on Force: full PD1 practice exam #3" },
       { title: "Light review, no new material", v: lpClip("trig", "1:15:35", "1:20:37"), prog: "Warren: Cloud Code PD1 Slides",
-        focus: "a quick trigger bulkification check", arch: "Rest. Skim your miss list once.", quiz: "Focus on Force: 20 random questions" },
-      { title: "Take PD1", v: lpClip("mock"), prog: "Warren: What To Do When You Pass / If You Fail",
+        focus: "a quick trigger bulkification check", arch: "Skim your miss list once, then stop. Rest before the exam.", quiz: "Focus on Force: 20 random questions" },
+      { title: "Take PD1", v: lpClip("mock"), prog: "Warren: What To Do When You Pass / If You Fail", exam: true,
         focus: null, arch: "You're done with phase one. Next up: PD2.", quiz: "Take the Platform Developer I exam" }
     ] }
 ];
@@ -237,6 +219,8 @@ var LP_WEEKS = [
 var LP_LATER = [
   { name: "PD2", intro: "After PD1. Same daily loop; these become the weeks.",
     items: [
+      { t: "Interfaces in Apex", v: lpClip("iface") },
+      { t: "SOLID design principles", v: lpClip("solid") },
       { t: "Apex design patterns and separation of concerns", v: lpClip("common") },
       { t: "Advanced testing: DML mocking and the Stub API", v: lpClip("dmlmock") },
       { t: "Query performance and large data volumes", v: lpClip("soql", "1:59:42", "2:09:50") },
@@ -263,6 +247,28 @@ function lpDebugPrompt(d, week) {
   var lang = week.lang === "LWC" ? "Lightning Web Component (HTML + JS) and any Apex it needs" : "Salesforce Apex";
   return "Write " + lang + " for this: " + d.focus + ". Hide 3 realistic bugs a code reviewer should catch. " +
     "Don't tell me where they are. When I reply with what I found, grade me and show anything I missed.";
+}
+
+// Schedule: one lesson a day Mon\u2013Sat from LP_START, skipping LP_SKIP. The exam lesson is pinned to LP_EXAM.
+var LP_START = "2026-09-24", LP_EXAM = "2026-11-30", LP_SKIP = ["2026-11-26", "2026-11-27"];
+function lpYmd(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function lpDate(ymd) { var p = ymd.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+var LP_DATES = (function() {
+  var out = [], d = lpDate(LP_START);
+  LP_DAYS.forEach(function(item) {
+    if (item.d.exam) { out.push(lpDate(LP_EXAM)); return; }
+    while (d.getDay() === 0 || LP_SKIP.indexOf(lpYmd(d)) !== -1) d.setDate(d.getDate() + 1);
+    out.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  });
+  return out;
+})();
+function lpFmt(d) { return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); }
+// Index of the lesson you should be on today (-1 before the start date).
+function lpDueIndex() {
+  var today = lpYmd(new Date()), idx = -1;
+  LP_DATES.forEach(function(d, i) { if (lpYmd(d) <= today) idx = i; });
+  return idx;
 }
 
 var LP_KEY = "learning-plan-v2";
