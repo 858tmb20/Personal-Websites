@@ -87,13 +87,19 @@
   .lp-tasks a { color: var(--medium-blue); font-weight: 600; }
   .lp-tasks input:checked ~ span { color: var(--grey); text-decoration: line-through; }
   .lp-tasks input:checked ~ span .kind, .lp-tasks input:checked ~ span a { color: var(--grey); }
+  .lp-copy { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; }
+  .lp-copy code {
+    flex: 1; display: block; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.45;
+    background: var(--light-blue); color: var(--fg); border: 1px solid var(--hairline); border-radius: 6px; padding: 8px 10px;
+  }
+  .lp-tasks input:checked ~ span .lp-copy code { color: var(--grey); }
   .lp-weeks .lp-wk-done { font-style: normal; margin-left: auto; font-size: 12px; font-weight: 700; color: var(--c4); white-space: nowrap; }
 
   /* time split */
   .lp-stack { display: flex; height: 18px; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
   .lp-stack span { display: block; height: 100%; }
   .lp-split { display: grid; gap: 10px; }
-  .lp-split-row { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; }
+  .lp-split-row { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
   .lp-pct { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 22px; text-align: right; }
   .lp-split-row div { font-size: 16px; color: var(--fg); }
   .lp-split-row div i { font-style: normal; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
@@ -157,7 +163,7 @@
       <button type="button" class="lp-btn" id="nextWeek">Next week &rarr;</button>
     </div>
     <ul class="lp-tasks" id="tasks"></ul>
-    <p class="lp-note">Go top to bottom. Watch, then read, then build. When every box is checked, hit Next week.</p>
+    <p class="lp-note">Watch Warren/Igor, check PD1, then do Debug &rarr; Rewrite &rarr; Architect. When every box is checked, hit Next week.</p>
   </section>
 
   <section class="lp-card">
@@ -183,9 +189,12 @@
   <section class="lp-card">
     <h2>Courses</h2>
     <div class="lp-split">
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c4)">Now</span><div>Warren Walters &mdash; Apex developer program (have access; not every recording) &middot; weeks 1&ndash;11</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c1)">Next</span><div>Igor &mdash; integration program (have access) &middot; week 12 and after</div></div>
-      <div class="lp-split-row"><span class="lp-pct" style="color:var(--grey)">Maybe</span><div>Igor &mdash; PD1 prep course (only paid option worth considering, around week 11)</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c4)">Apex</span><div>Warren Walters &mdash; Developer Kickstart Program (Modules 1&ndash;16 + cohort recordings; some parts locked)</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c4)">Apex</span><div>Igor &mdash; <a href="https://www.learn-apex.com/modules" target="_blank" rel="noopener">Learn Apex</a> (Syntax, SOQL, Triggers, Async, Integrations)</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c2)">LWC</span><div>Igor &mdash; Learn LWC &middot; Warren &mdash; Module 12 + JavaScript Developer 101</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c3)">PD1</span><div>Focus on Force &middot; Warren&rsquo;s PD1 Certification Training 1&ndash;12</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c1)">Next</span><div>Igor &mdash; Integration Mastery Cohort, Weeks 3&ndash;8 (triggers, logging, auth, webhooks, events, Integration Architect)</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--grey)">Maybe</span><div>Igor &mdash; PD1 prep course (only if practice scores stay under 68% in week 11)</div></div>
     </div>
   </section>
 
@@ -209,68 +218,92 @@ const SPLIT = [
   [10, "Hand-write code", "var(--c5)"]
 ];
 const STEPS = [
-  "AI writes buggy code on this week's topic",
-  "Find the bugs and explain them",
-  "Rewrite one piece by hand"
+  "Watch one video from this week's list",
+  "Debug: run this week's AI prompt, find every bug, explain each one",
+  "Rewrite the fixed code by hand (no AI, no copy-paste)",
+  "Architect: answer this week's question in 2\u20133 sentences"
 ];
 const PATH = ["Apex & LWC", "PD1", "PD2", "Architect certs"];
-const TH = "https://trailhead.salesforce.com/content/learn/modules/";
-const DOC = "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/";
-const W = function(t) { return { k: "Watch", t: "Warren's Apex program: the " + t + " lessons (skip any recording you don't have)" }; };
+const LA = "https://www.learn-apex.com/modules";
+const DBG = function(p) { return { k: "Debug", t: "Paste into AI, find every bug, and write one line explaining each:", copy: p + " Don't tell me where the bugs are." }; };
+const REW = function(extra) { return { k: "Rewrite", t: "By hand in VS Code, no AI, no copy-paste: the fixed version of the Debug code." + (extra || "") }; };
+const ARC = function(q) { return { k: "Architect", t: q }; };
 const PLAN = [
-  [W("governor limits and bulkification"),
-   { k: "Trailhead", t: "Bulk Apex Triggers", u: TH + "apex_triggers/apex_triggers_bulk" },
-   { k: "Read", t: "Execution Governors and Limits", u: DOC + "apex_gov_limits.htm" },
-   { k: "Build", t: "Write a trigger with a SOQL query inside a for loop. Insert 200 records from Anonymous Apex and watch it hit the limit. Fix it with one query and a Map." }],
-  [W("triggers and trigger handler"),
-   { k: "Trailhead", t: "Apex Triggers", u: TH + "apex_triggers" },
-   { k: "Read", t: "Triggers and Order of Execution", u: DOC + "apex_triggers_order_of_execution.htm" },
-   { k: "Build", t: "Apex Basics scenarios 1\u20136: a trigger and a handler class for each", u: "apex-basics.html" }],
-  [W("SOQL and SOSL"),
-   { k: "Trailhead", t: "Write SOQL Queries", u: TH + "apex_database/apex_database_soql" },
-   { k: "Trailhead", t: "Write SOSL Queries", u: TH + "apex_database/apex_database_sosl" },
-   { k: "Build", t: "In Anonymous Apex: query Accounts with their Contacts in a subquery, then COUNT Contacts per Account with GROUP BY. Then do the \u201creach to the parent\u201d scenarios in Apex Basics.", u: "apex-basics.html" }],
-  [W("DML and exception handling"),
-   { k: "Trailhead", t: "Manipulate Records with DML", u: TH + "apex_database/apex_database_dml" },
-   { k: "Read", t: "Exceptions in Apex", u: DOC + "apex_exception_definition.htm" },
-   { k: "Build", t: "Database.insert(list, false) with one bad record \u2014 loop the SaveResults and print the errors. Then wrap two inserts in a Savepoint and roll back when the second fails." }],
-  [W("unit testing"),
-   { k: "Trailhead", t: "Apex Testing", u: TH + "apex_testing" },
-   { k: "Trailhead", t: "Create Test Data for Apex Tests", u: TH + "apex_testing/apex_testing_data" },
-   { k: "Build", t: "Write a test class for each Apex Basics trigger you built (fill in the Test class box). Insert 200 records, assert the result, get 75%+ coverage.", u: "apex-basics.html" }],
-  [W("security and sharing"),
-   { k: "Trailhead", t: "Data Security", u: TH + "data_security" },
-   { k: "Read", t: "Enforce Object and Field Permissions", u: DOC + "apex_classes_perms_enforcing.htm" },
-   { k: "Build", t: "A \u2018with sharing\u2019 class whose query uses WITH USER_MODE. Test it with System.runAs as a low-access user and assert what they can't see." }],
-  [W("asynchronous Apex"),
-   { k: "Trailhead", t: "Asynchronous Apex", u: TH + "asynchronous_apex" },
-   { k: "Trailhead", t: "Control Processes with Queueable Apex", u: TH + "asynchronous_apex/async_apex_queueable" },
-   { k: "Build", t: "A trigger that enqueues a Queueable to update Accounts. Then a Batch class over all Contacts, scheduled nightly with a Schedulable. Test both." }],
-  [W("Lightning Web Components intro"),
-   { k: "Trailhead", t: "Lightning Web Components Basics", u: TH + "lightning-web-components-basics" },
-   { k: "Build", t: "A component with an input bound to a property that shows a live greeting. Deploy it and drop it on an Account record page." }],
-  [W("LWC with Apex / wire"),
-   { k: "Trailhead", t: "Use Lightning Data Service to Work with Data", u: TH + "lightning-web-components-and-salesforce-data/use-lightning-data-service-to-work-with-data" },
-   { k: "Trailhead", t: "Use Apex to Work with Data", u: TH + "lightning-web-components-and-salesforce-data/use-apex-to-work-with-data" },
-   { k: "Build", t: "An Account page component that uses @wire on an @AuraEnabled(cacheable=true) Apex method to list that Account's Contacts." }],
-  [W("LWC events"),
-   { k: "Trailhead", t: "Handle Events in Lightning Web Components", u: TH + "lightning-web-components-basics/handle-events-in-lightning-web-components" },
-   { k: "Read", t: "Communicate with Events", u: "https://developer.salesforce.com/docs/platform/lwc/guide/events.html" },
-   { k: "Build", t: "Parent + child components: the child's button fires a CustomEvent with a value, and the parent displays it." }],
-  [{ k: "Trailmix", t: "Prepare for your Platform Developer I credential", u: "https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-platform-developer-i-credential" },
-   { k: "Test", t: "Take a full PD1 practice exam. Write down every miss and which week's topic it belongs to." },
-   { k: "Redo", t: "Redo the Build task from your two weakest weeks." },
+  [{ k: "Warren", t: "Kickstart Module 8: Trigger Bulkification · Homework Help 8.2: Using Maps and Optimizing Child Queries" },
+   { k: "Igor", t: "Learn Apex → Triggers in Apex module (the bulk / governor limit lessons)", u: LA },
+   { k: "PD1", t: "Warren: PD1 Certification Training 5 (Apex Classes & Governor Limits) · Focus on Force: governor limits" },
+   DBG("Write an Apex trigger on Contact with a handler class that updates the parent Account. Include 3 bulkification bugs, like SOQL or DML inside a loop or not using a Map."),
+   REW(),
+   ARC("Data Loader pushes 10,000 records through your code. Which limit breaks first, and how would you catch it before prod?")],
+  [{ k: "Warren", t: "Module 7: Salesforce Trigger Basics · Module 8: Best Practices with Salesforce Triggers, Recursion and Cascading · Cohort 13 recording: Trigger Frameworks (2026-08-24)" },
+   { k: "Igor", t: "Learn Apex → Triggers in Apex module (trigger framework lessons)", u: LA },
+   { k: "PD1", t: "Focus on Force: triggers and order of execution" },
+   DBG("Write an Opportunity trigger and handler with 3 bugs: logic sitting in the trigger body, a recursion problem, and the wrong context (before vs. after)."),
+   REW(" Then Apex Basics scenarios 1–6."),
+   ARC("Why one trigger per object? What goes wrong if two triggers on Opportunity both update the Account?")],
+  [{ k: "Warren", t: "Module 5: Introduction to SOQL Parts 1–3, Relationship Queries, Limiting and Ordering · Homework Help 5.3: SOQL Limits and Parent and Child Queries" },
+   { k: "Igor", t: "Learn Apex → SOQL module", u: LA },
+   { k: "PD1", t: "Focus on Force: SOQL and SOSL" },
+   DBG("Write Apex with 4 SOQL mistakes: a query in a loop, a field used but not selected, a wrong relationship name in a parent-child query, and a filter value that isn't bound."),
+   REW(" Then the “reach to the parent” scenarios in Apex Basics."),
+   ARC("A query on a 5-million-row object times out. What makes a query selective, and which field would you index?")],
+  [{ k: "Warren", t: "Module 4: Working with Salesforce Data in Apex and Intro to DML · Homework Help 4.2: How Upserts Work · Module 6: Getting Started with Debugging Apex" },
+   { k: "Igor", t: "Learn Apex → Syntax and Basics module (DML and exception lessons)", u: LA },
+   { k: "PD1", t: "Warren: PD1 Certification Training 6 (Business Logic & Exception Handling) · Focus on Force: DML and exceptions" },
+   DBG("Write Apex that inserts Accounts and their Contacts with 3 bugs: all-or-nothing where partial success was needed, a swallowed exception, and no Savepoint rollback."),
+   REW(),
+   ARC("When should a save stop completely, and when should it save what it can? Name one real example of each.")],
+  [{ k: "Warren", t: "Module 11: all Test Classes lessons (Apex Unit Tests → Testing Callouts and Mocking) · Homework Help 11.1: Test Classes and TestSetup" },
+   { k: "Igor", t: "Integration Mastery Week #4: Logging & Tests (the testing part)" },
+   { k: "PD1", t: "Warren: PD1 Certification Training 9 (Page Components & Testing) · Focus on Force: testing" },
+   DBG("Write an Apex test class for a trigger with 4 bad habits: no asserts, SeeAllData=true, only one record, and no Test.startTest/stopTest."),
+   REW(" Then write test classes for your Apex Basics triggers (fill in the Test class box)."),
+   ARC("Your tests pass but prod breaks. What didn't the tests cover? Write that missing test.")],
+  [{ k: "Warren", t: "PD1 Certification Training 8: Securing User Interface and Data Access" },
+   { k: "PD1", t: "Focus on Force: security, sharing, CRUD & FLS" },
+   DBG("Write an Apex controller class with 3 security bugs: no sharing keyword, a query that ignores field-level security, and a SOQL injection risk in dynamic SOQL."),
+   REW(),
+   ARC("Who should see this data, and where is that enforced: profile, sharing rules, or code? Why is ‘without sharing’ risky?")],
+  [{ k: "Warren", t: "Module 9: Getting Started with Asynchronous Apex, Future Methods, Queueable Apex, Batch Apex, Scheduled Apex" },
+   { k: "Igor", t: "Learn Apex → Asynchronous Apex module · Integration Mastery Bonus #5: Async Apex", u: LA },
+   { k: "PD1", t: "Focus on Force: asynchronous Apex" },
+   DBG("Write a Batch Apex class and a Queueable with 3 bugs: a query inside execute(), counting across batches without Database.Stateful, and enqueueing a job inside a loop."),
+   REW(),
+   ARC("Future, Queueable, Batch, or Scheduled? Pick one for each: a callout after save, a nightly cleanup of 2 million records, chaining 3 steps. Why?")],
+  [{ k: "Warren", t: "Module 12: LWCs Part 1, LWCs Part 2, LWC Reference Components · JavaScript Developer 101 (if it's unlocked)" },
+   { k: "Igor", t: "Learn LWC: the basics section" },
+   { k: "PD1", t: "Warren: PD Certification Training 12 (Visualforce & LWC) · Focus on Force: Lightning Web Components" },
+   DBG("Write a Lightning Web Component (HTML, JS, meta.xml) with 3 bugs: a change that doesn't re-render, a wrong template binding, and a missing target in meta.xml."),
+   REW(),
+   ARC("LWC or a Screen Flow for a simple form? When does code actually win?")],
+  [{ k: "Warren", t: "Module 12: Conditional Rendering and Lists" },
+   { k: "Igor", t: "Learn LWC: calling Apex and @wire" },
+   { k: "PD1", t: "Focus on Force: LWC with Apex and Lightning Data Service" },
+   DBG("Write an LWC that uses @wire on an Apex method to list an Account's Contacts, with 3 bugs: the Apex method isn't cacheable, the wire result is read wrong, and recordId isn't passed reactively with $."),
+   REW(),
+   ARC("@wire or an imperative Apex call: when would you pick each?")],
+  [{ k: "Warren", t: "Module 12: Parent-Child and Child-Parent Communication" },
+   { k: "Igor", t: "Learn LWC: events and component communication" },
+   { k: "PD1", t: "Warren: PD1 Certification Training 8 (LWC Events part) · Focus on Force: LWC events" },
+   DBG("Write a parent and child LWC with 3 event bugs: wrong event name casing, the parent listening on the wrong element, and the event detail read wrong."),
+   REW(),
+   ARC("Two components that aren't parent and child need to talk. What are your options?")],
+  [{ k: "Warren", t: "Modules 13–16: Concepts/Topics that might be on the Exam · Practice Exams/Resources · Structuring PD1 Study and How To Know When You're Ready" },
+   { k: "PD1", t: "Focus on Force: take a full PD1 practice exam. Write down every miss and which week it belongs to." },
+   { k: "Quiz", t: "Paste into AI with your miss list:", copy: "Give me 10 PD1-style multiple-choice questions on these weak topics: [paste miss list]. Don't show answers until I reply." },
+   { k: "Rewrite", t: "Redo the Debug + Rewrite from your two weakest weeks." },
    { k: "Decide", t: "Practice scores still under 68% (the passing score)? That's when Igor's PD1 prep course is worth paying for. Otherwise, book the exam." }],
-  [{ k: "Watch", t: "Igor's integration program: the first module" },
-   { k: "Trailhead", t: "Apex Integration Services", u: TH + "apex_integration_services" },
-   { k: "Trailhead", t: "Apex REST Callouts", u: TH + "apex_integration_services/apex_integration_rest_callouts" },
-   { k: "Build", t: "A class that calls a public REST API through a Named Credential, parses the JSON, and a test class that fakes the response with HttpCalloutMock." }]
+  [{ k: "Warren", t: "Module 10: Getting Started with Integrations, GET Method, POST Method, JSON and Sending/Parsing Data · Homework Help 10.1: External Ids and Upserting" },
+   { k: "Igor", t: "Integration Mastery Cohort: finish Week #1 First Callout (92%) and Week #2 Post Requests (47%) · Learn Apex → Integrations in Apex module", u: LA },
+   DBG("Write an Apex class that GETs JSON from a REST API with 4 bugs: a hardcoded endpoint instead of a Named Credential, no status-code check, wrong JSON deserialization, and a callout after DML in the same transaction."),
+   REW(),
+   ARC("Sending new Leads to an outside system: callout from the trigger, async callout, or Platform Event? What happens when their system is down?")]
 ];
 const TOPICS = [
   "Bulkification & governor limits",
   "Triggers, handlers & order of execution",
   "SOQL & SOSL",
-  "DML, transactions & exceptions",
+  "DML, exceptions & debugging",
   "Testing & test data",
   "Security: sharing, CRUD & FLS",
   "Async Apex: future, queueable, batch, scheduled",
@@ -349,6 +382,24 @@ function paintTasks() {
       span.appendChild(a);
     } else {
       span.appendChild(document.createTextNode(task.t));
+    }
+    if (task.copy) {
+      const box = document.createElement("span");
+      box.className = "lp-copy";
+      const code = document.createElement("code");
+      code.textContent = task.copy;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "lp-btn";
+      btn.textContent = "Copy";
+      btn.addEventListener("click", function(e) {
+        e.preventDefault(); e.stopPropagation();
+        const done = function() { btn.textContent = "Copied"; setTimeout(function() { btn.textContent = "Copy"; }, 1500); };
+        try { navigator.clipboard.writeText(task.copy).then(done, function() {}); } catch (err) {}
+      });
+      box.appendChild(code);
+      box.appendChild(btn);
+      span.appendChild(box);
     }
     label.appendChild(cb);
     label.appendChild(span);
