@@ -59,6 +59,11 @@ var LP_VIDEOS = {
   dom:   { id: "S9rwvfQzDVw", ch: CWTF, title: "LWC Master Class Ep. 2: What is the DOM?", len: 38 },
   html:  { id: "ZRq6ioymFlA", ch: CWTF, title: "LWC Master Class Ep. 3: What is HTML?", len: 32 },
   css:   { id: "rMRk3KqjHJ8", ch: CWTF, title: "LWC Master Class Ep. 4: What is CSS?", len: 30 },
+  thAgentApex:{ id: "", ch: "Trailhead (official)", title: "Agent Customization with Apex", len: 45, url: "https://trailhead.salesforce.com/content/learn/modules/agent-customization-with-apex" },
+  thAfd: { id: "", ch: "Trailhead (official)", title: "Agentforce for Developers", len: 30, url: "https://trailhead.salesforce.com/content/learn/modules/einstein-for-developers" },
+  thForm:{ id: "", ch: "Trailhead (official)", title: "Formulas and Validation", len: 60, url: "https://trailhead.salesforce.com/content/learn/modules/point_click_business_logic" },
+  thAura:{ id: "", ch: "Trailhead (official)", title: "Quick Start: Aura Components", len: 30, url: "https://trailhead.salesforce.com/content/learn/projects/quickstart-lightning-components" },
+  thDevCon:{ id: "", ch: "Trailhead (official)", title: "Developer Console Basics", len: 60, url: "https://trailhead.salesforce.com/content/learn/modules/developer_console" },
   prims: { id: "AlU7ITcqXwA", ch: CWTF, title: "Apex Master Class Ep. 9: Primitive Data Types in Apex", len: 25 },
   ops:   { id: "DCVgtNPZSqw", ch: CWTF, title: "Apex Master Class Ep. 15: Operators in Apex", len: 16 },
   ifelse:{ id: "Mr-03GLeZk0", ch: CWTF, title: "Apex Master Class Ep. 26: Conditional Statements (If/Else)", len: 15 },
@@ -127,7 +132,7 @@ var LP_WEEKS = [
     goal: "Understand the data model, save data safely, handle failures on purpose, and find bugs fast.",
     program: "Warren Kickstart Module 4 (DML) + Module 6 (Debugging) · Igor Learn Apex: Syntax and Basics",
     days: [
-      { title: "Data model and loading data", v: lpClip("dload"), prog: "Warren PD1 Certification Training 2: Mastering Data Models and Handling Data Import/Export \u00b7 Homework Help 5.2: Deploying Fields, Downloading Metadata",
+      { title: "Data model and loading data", v: lpClip("dload"), prog: "Warren PD1 Certification Training 2: Mastering Data Models and Handling Data Import/Export \u00b7 Homework Help 5.2: Deploying Fields, Downloading Metadata \u00b7 Homework Help 10.1: External Ids",
         focus: "Apex that sets a lookup with a Name instead of an Id and inserts children whose master-detail parent doesn't exist", arch: "Lookup or master-detail? What changes for sharing, deletes and roll-ups?", quiz: "5 Focus on Force questions on data modeling and data import (Data Loader vs. Data Import Wizard)." },
       { title: "DML: insert, update, upsert, parent + child in one save", v: lpClip("dml1"), prog: "Warren Module 4: Intro to DML · Homework Help 4.2: How Upserts Work",
         focus: "DML that inserts children before parents and upserts on the wrong key", arch: "Upsert on an External Id vs. query-then-update: when is each the right call?" },
@@ -261,8 +266,8 @@ var LP_WEEKS = [
         focus: "a class with no sharing keyword whose query ignores field-level security", arch: "Where should access be enforced: profile, sharing rules, or code? Why is \u2018without sharing\u2019 risky?" },
       { title: "Apex managed sharing", v: lpClip("share"), prog: "Warren PD1 Certification Training 8",
         focus: "Apex sharing code that grants access but never removes it", arch: "When do you need Apex sharing instead of a sharing rule?" },
-      { title: "Build day: have AI scan and review code", v: lpClip("scan"), prog: "Warren: \u201cHe gave AI a 40-hour code review\u201d (YouTube)",
-        focus: "an Apex controller with a SOQL injection, no CRUD check and a hardcoded Id", arch: "What would you put on a code-review checklist for your team? Top 5." }
+      { title: "Agentforce and Apex for Flows and agents (@InvocableMethod)", v: lpClip("thAgentApex"), also: [lpClip("thAfd"), lpClip("scan")], prog: "Not in Warren's or Igor's programs: this is new on the PD1 exam (Salesforce's official exam topics). Build-with-AI day: use Agentforce for Developers in VS Code to help write it, then review what it wrote.",
+        focus: "an @InvocableMethod for a Flow or agent action that takes one record instead of a List, isn't bulk-safe, and has no label or description", arch: "When should a Flow or an agent call Apex instead of doing the work declaratively?", quiz: "5 Focus on Force questions on Agentforce for Developers (use cases and limits) and invocable Apex." }
     ] },
   { n: 12, title: "PD1 review by exam section", lang: "PD1",
     goal: "Take a practice exam to see where you stand, then review every PD1 section.",
@@ -270,14 +275,14 @@ var LP_WEEKS = [
     days: [
       { title: "Practice exam #1", v: lpClip("mock"), prog: "Warren Modules 13\u201316: Structuring PD1 Study and How To Know When You're Ready",
         focus: "the topic you missed most on today's exam", arch: "Which section cost you the most points? That tells you where to spend the next four lessons.", quiz: "Focus on Force: full PD1 practice exam #1. Under 68%? That's when Igor's PD1 prep course is worth it." },
-      { title: "Developer Fundamentals", v: lpClip("trig", "8:10", "12:59"), prog: "Warren PD1 Certification Training 1 & 2 (multi-tenancy, data models)",
-        focus: "Apex doing work a Flow or validation rule should do", arch: "Why does multi-tenancy force governor limits to exist?", quiz: "Focus on Force: Developer Fundamentals quiz" },
-      { title: "Process Automation & Logic", v: lpClip("trig", "5:03", "8:10"), prog: "Warren PD1 Certification Training 3\u20136",
-        focus: "a trigger that fights with a Flow on the same field", arch: "Walk the order of execution for one Opportunity save, out loud.", quiz: "Focus on Force: Process Automation & Logic quiz" },
-      { title: "User Interface: LWC recap + Visualforce basics", v: lpClip("lwc", "41:00", "53:30"), prog: "Warren PD Certification Training 12: Visualforce and Lightning Web Components (covers the Visualforce part the video skips)",
-        focus: "a Visualforce page with a custom controller that runs SOQL in a getter, plus an LWC with a caching mistake", arch: "LWC, Aura or Visualforce: why does LWC win for new work, and when would you still touch Visualforce?", quiz: "Focus on Force: User Interface quiz. Visualforce is still on the exam: know standard vs. custom controllers and extensions." },
-      { title: "Testing, Debugging & Deployment", v: lpClip("test", "56:27", "1:02:32"), prog: "Warren PD1 Certification Training 7, 9, 10, 11",
-        focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Focus on Force: Testing, Debugging & Deployment quiz" }
+      { title: "Developer Fundamentals", v: lpClip("trig", "8:10", "12:59"), also: [lpClip("thForm")], prog: "Warren PD1 Certification Training 1 & 2 (multi-tenancy, data models)",
+        focus: "Apex doing work a Flow or validation rule should do", arch: "Why does multi-tenancy force governor limits to exist?", quiz: "Trailhead official Cert Prep: Developer Fundamentals (practice questions + flashcards; this section is 27% of the exam). Know formula fields vs. roll-up summaries, external IDs, MVC, and Agentforce for Developers. Then: Focus on Force: Developer Fundamentals quiz" },
+      { title: "Process Automation & Logic", v: lpClip("trig", "5:03", "8:10"), also: [lpClip("thForm")], prog: "Warren PD1 Certification Training 3\u20136",
+        focus: "a trigger that fights with a Flow on the same field", arch: "Walk the order of execution for one Opportunity save, out loud.", quiz: "Trailhead official Cert Prep: Automation and Logic (28% of the exam). Know record-triggered flows and approval processes vs. Apex. Then: Focus on Force: Process Automation & Logic quiz" },
+      { title: "User Interface: LWC recap + Visualforce basics", v: lpClip("lwc", "41:00", "53:30"), also: [lpClip("thAura")], prog: "Warren PD Certification Training 12: Visualforce and Lightning Web Components (covers the Visualforce part the video skips)",
+        focus: "a Visualforce page with a custom controller that runs SOQL in a getter, plus an LWC with a caching mistake", arch: "LWC, Aura or Visualforce: why does LWC win for new work, and when would you still touch Visualforce?", quiz: "Trailhead official Cert Prep: User Interface (25%). Know Aura basics, launching a Flow from Apex, and LWCs in Flow screens (lightning__FlowScreen). Then: Focus on Force: User Interface quiz. Visualforce is still on the exam: know standard vs. custom controllers and extensions." },
+      { title: "Testing, Debugging & Deployment", v: lpClip("test", "56:27", "1:02:32"), also: [lpClip("thDevCon")], prog: "Warren PD1 Certification Training 7, 9, 10, 11",
+        focus: "a deployment that fails because of test data and coverage", arch: "What's the safest way to get a change from sandbox to prod? Name each step.", quiz: "Trailhead official Cert Prep: Testing, Debugging, and Deployment (20%). Know sandbox types, scratch orgs, Salesforce DX and the CLI, and monitoring async jobs. Then: Focus on Force: Testing, Debugging & Deployment quiz" }
     ] },
   { n: 13, title: "Final prep and the exam", lang: "PD1",
     goal: "Two more practice exams, one light review, then pass PD1.",
@@ -325,7 +330,7 @@ var LP_PROJECTS = [
 ];
 // What was checked against, and what was left out on purpose.
 var LP_COVERAGE = {
-  checked: "Every lesson in Warren's Developer Kickstart Program (Getting Started, Modules 1\u201316), all 30 episodes of Coding With The Force's Apex Master Class plus their Beginner Apex Tutorials playlist, and every topic in Igor's Learn Apex (Syntax and Basics, SOQL, Triggers, Async, Integrations).",
+  checked: "Every lesson in Warren's Developer Kickstart Program (Getting Started, Modules 1\u201316), all 30 episodes of Coding With The Force's Apex Master Class plus their Beginner Apex Tutorials playlist, every topic in Igor's Learn Apex (Syntax and Basics, SOQL, Triggers, Async, Integrations), and Salesforce's official PD1 exam topics (the four Trailhead Cert Prep modules). The official topics added Agentforce for Developers, invocable Apex, formula fields vs. roll-ups, Aura basics and deployment environments, which none of the three programs teach.",
   left: [
     "Warren's career lessons (LinkedIn, resumes, job search, interviews, portfolio, Scrum, career paths): career skills, not Apex, and you already have the job.",
     "Coding With The Force Ep. 6 (IntelliJ + IC2 setup): old tooling; VS Code replaced it.",

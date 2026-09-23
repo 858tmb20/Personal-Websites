@@ -157,7 +157,7 @@ function paint() {
     b.appendChild(a);
     if (d.also) {
       var al = el("p", "lp-alt");
-      al.appendChild(el("b", null, "Rusty? Also watch: "));
+      al.appendChild(el("b", null, "Also: "));
       d.also.forEach(function(v, i) {
         if (i) al.appendChild(document.createTextNode(" \u00b7 "));
         var x = el("a", null, v.title + " (" + v.mins + " min)"); x.href = v.url; x.target = "_blank"; x.rel = "noopener";
