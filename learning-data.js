@@ -31,6 +31,13 @@ var LP_VIDEOS = {
   common:{ id: "HQrVEX4oE3A", ch: CWTF, title: "The Complete Guide To The Apex Common Library", len: 454 },
   cta:   { id: "y5d8BVuXg2s", ch: CWTF, title: "An Overview of the Salesforce CTA Review Board", len: 41 },
   scan:  { id: "jiY_kgs6oAo", ch: CWTF, title: "How to Automatically Scan your Code for Problems in VS Code", len: 18 },
+  prims: { id: "AlU7ITcqXwA", ch: CWTF, title: "Apex Master Class Ep. 9: Primitive Data Types in Apex", len: 25 },
+  ops:   { id: "DCVgtNPZSqw", ch: CWTF, title: "Apex Master Class Ep. 15: Operators in Apex", len: 16 },
+  ifelse:{ id: "Mr-03GLeZk0", ch: CWTF, title: "Apex Master Class Ep. 26: Conditional Statements (If/Else)", len: 15 },
+  cls:   { id: "l-iaT8mwL1Q", ch: CWTF, title: "Apex Master Class Ep. 7: What is an Apex Class?", len: 13 },
+  meth:  { id: "uxJCDArPhNg", ch: CWTF, title: "Apex Master Class Ep. 12: What is a Method?", len: 11 },
+  ctor:  { id: "15igov8fRkM", ch: CWTF, title: "Apex Master Class Ep. 13: What is a Constructor?", len: 13 },
+  stat:  { id: "WZ1SYQrABSQ", ch: CWTF, title: "Apex Master Class Ep. 20: The Static Keyword", len: 20 },
   maps:  { id: "hs9xKfsHp5M", ch: CWTF, title: "Apex Master Class Ep. 19: What are Maps in Apex?", len: 15 },
   lists: { id: "pABf4BpQfwo", ch: CWTF, title: "Apex Master Class Ep. 17: What are Lists in Apex?", len: 17 },
   sets:  { id: "ZA7JMAQqLwU", ch: CWTF, title: "Apex Master Class Ep. 18: What are Sets in Apex?", len: 13 },
@@ -49,7 +56,7 @@ function lpClip(key, from, to) {
 }
 
 // Week order follows Warren's Developer Kickstart Program:
-// Collections & loops (M2) -> DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
+// Foundations (M1-3) -> DML (M4) -> SOQL (M5) -> Debugging (M6) -> Triggers (M7-8) -> Async (M9) -> Integrations (M10) -> Tests (M11) -> LWC (M12).
 var LP_PHASES = [
   { name: "Apex fluency", weeks: [1, 2, 3, 4, 5, 6, 7] },
   { name: "LWC fluency", weeks: [8, 9] },
@@ -58,14 +65,18 @@ var LP_PHASES = [
 ];
 
 var LP_WEEKS = [
-  { n: 1, title: "Collections & loops", lang: "Apex",
-    goal: "Pick the right collection (List, Set, Map) and write loops that don't waste queries.",
-    program: "Warren Kickstart Module 2 (Collections, Flow Control, Loops) \u00b7 Igor Learn Apex: Syntax and Basics",
+  { n: 1, title: "Apex foundations", lang: "Apex",
+    goal: "Solid basics: data types, collections, loops, and classes. The stuff every other week is built on.",
+    program: "Warren Kickstart Modules 1\u20133 (Variables, Collections, Loops, Classes) \u00b7 Igor Learn Apex: Syntax and Basics",
     days: [
+      { title: "Variables, data types, operators and if/else", v: lpClip("prims"), also: [lpClip("ops"), lpClip("ifelse")], prog: "Warren Module 1: Variables, Data Types, and Operators \u00b7 Module 2: Flow Control (If statements)",
+        focus: "Apex with a null pointer on an uninitialized variable, integer division that loses decimals, and a String compared with == on the wrong case", arch: "Why does Apex treat an uninitialized Integer as null instead of 0, and where does that bite you in a trigger?" },
       { title: "Collections: List, Set and Map", v: lpClip("maps"), also: [lpClip("lists"), lpClip("sets")], prog: "Warren Module 2: Introduction to Collections and Lists \u00b7 Sets \u00b7 Maps",
         focus: "Apex that uses a List where it needs a Set (duplicates) and loops a List to find records instead of using a Map", arch: "You have 10,000 Contacts and need each one's Account fast. Which collection, keyed by what, and why?" },
       { title: "Loops: for, for-each, while and SOQL for-loops", v: lpClip("loops"), also: [lpClip("loopbp")], prog: "Warren Module 2: Loops (Traditional For Loop) \u00b7 Jump Statements and Return",
-        focus: "Apex loops with an off-by-one error, a list modified while looping over it, and a query inside the loop", arch: "When would you use a SOQL for-loop instead of querying into a List first?" }
+        focus: "Apex loops with an off-by-one error, a list modified while looping over it, and a query inside the loop", arch: "When would you use a SOQL for-loop instead of querying into a List first?" },
+      { title: "Classes, methods, constructors and static", v: lpClip("cls"), also: [lpClip("meth"), lpClip("ctor"), lpClip("stat")], prog: "Warren Module 3: Objects and Classes \u00b7 Methods Parts 1\u20132 \u00b7 Constructors \u00b7 Access Modifiers \u00b7 The Math, String, and Date Classes",
+        focus: "an Apex class with a constructor that never sets its fields, a static variable used where each instance needs its own value, and a private method called from outside", arch: "Why does a recursion guard in a trigger have to be static? What would break if it weren't?" }
     ] },
   { n: 2, title: "DML, exceptions & debugging", lang: "Apex",
     goal: "Save data safely, handle failures on purpose, and find bugs fast.",
@@ -223,10 +234,8 @@ var LP_WEEKS = [
         focus: "the topic you missed most on today's exam", arch: "Did your score move? What changed?", quiz: "Focus on Force: full PD1 practice exam #2" },
       { title: "Practice exam #3", v: lpClip("mockjr"), prog: "Warren: Platform Developer 1 Practice Exams/Resources",
         focus: "anything you missed today", arch: "Scoring 75%+ on both? You're ready.", quiz: "Focus on Force: full PD1 practice exam #3" },
-      { title: "Light review, no new material", v: lpClip("trig", "1:15:35", "1:20:37"), prog: "Warren: Cloud Code PD1 Slides",
-        focus: "a quick trigger bulkification check", arch: "Skim your miss list once, then stop. Rest before the exam.", quiz: "Focus on Force: 20 random questions" },
       { title: "Take PD1", v: lpClip("mock"), prog: "Warren: What To Do When You Pass / If You Fail", exam: true,
-        focus: null, arch: "You're done with phase one. Next up: PD2.", quiz: "Take the Platform Developer I exam" }
+        focus: null, arch: "You're done with phase one. Next up: PD2.", quiz: "Take the Platform Developer I exam. Sunday (Nov 29): skim your miss list once and rest, no new material." }
     ] }
 ];
 
