@@ -121,7 +121,7 @@
   <div class="lp-inner">
     <div class="lp-eyebrow">Salesforce Learning</div>
     <h1>Learning Plan</h1>
-    <p class="lp-hdr-sub">12 weeks, one topic each. Start with bulkification and governor limits.</p>
+    <p class="lp-hdr-sub">12 weeks, one topic each: Apex, then LWC, then PD1. Start with bulkification and governor limits.</p>
   </div>
 </header>
 
@@ -144,7 +144,7 @@
       <button type="button" class="lp-btn" id="prevWeek">&larr; Back</button>
       <button type="button" class="lp-btn" id="nextWeek">Next week &rarr;</button>
     </div>
-    <p class="lp-note">Click the topic to rename it. Weeks 1&ndash;9 cover PD1, 10&ndash;11 lean PD2, 12 is architect thinking.</p>
+    <p class="lp-note">Click the topic to rename it. Weeks 1&ndash;7 are Apex, 8&ndash;10 are LWC, 11 is PD1 prep, 12 sets up integrations.</p>
   </section>
 
   <section class="lp-card">
@@ -165,6 +165,14 @@
     </div>
     <ul class="lp-steps" id="steps"></ul>
     <p class="lp-note">Boxes clear each morning.</p>
+  </section>
+
+  <section class="lp-card">
+    <h2>Courses</h2>
+    <div class="lp-split">
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--c4)">Now</span><div>Warren Walters &mdash; Apex developer program (covers everything in weeks 1&ndash;12)</div></div>
+      <div class="lp-split-row"><span class="lp-pct" style="color:var(--grey)">Next</span><div>Warren Walters &mdash; Integrations program (~$1,000), after week 12</div></div>
+    </div>
   </section>
 
   <section class="lp-card">
@@ -191,20 +199,20 @@ const STEPS = [
   "Find the bugs and explain them",
   "Rewrite one piece by hand"
 ];
-const PATH = ["PD1", "PD2", "Architect certs"];
+const PATH = ["Apex & LWC", "PD1", "PD2", "Architect certs"];
 const TOPICS = [
   "Bulkification & governor limits",
-  "Triggers & order of execution",
+  "Triggers, handlers & order of execution",
   "SOQL & SOSL",
   "DML, transactions & exceptions",
   "Testing & test data",
   "Security: sharing, CRUD & FLS",
   "Async Apex: future, queueable, batch, scheduled",
-  "LWC basics & calling Apex",
-  "Flow vs. Apex: when to use which",
-  "Integration: REST callouts & named credentials",
-  "Platform events & design patterns",
-  "Architect thinking: data model & large data volumes"
+  "LWC 1: components, templates & data binding",
+  "LWC 2: calling Apex, wire & Lightning Data Service",
+  "LWC 3: events & component communication",
+  "PD1 review & practice exams",
+  "Integration basics: REST callouts & named credentials"
 ];
 
 let st = { week: 1, topics: {}, day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
