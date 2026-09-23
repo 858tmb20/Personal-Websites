@@ -77,6 +77,18 @@
   .lp-weeks .now b { color: var(--medium-blue); }
   @media (max-width: 560px) { .lp-weeks { grid-template-columns: 1fr; } }
 
+  .lp-tasks { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+  .lp-tasks label {
+    display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--hairline); background: var(--ground); cursor: pointer; font-size: 15.5px; line-height: 1.4;
+  }
+  .lp-tasks input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--c4); flex-shrink: 0; }
+  .lp-tasks .kind { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--medium-blue); margin-right: 6px; }
+  .lp-tasks a { color: var(--medium-blue); font-weight: 600; }
+  .lp-tasks input:checked ~ span { color: var(--grey); text-decoration: line-through; }
+  .lp-tasks input:checked ~ span .kind, .lp-tasks input:checked ~ span a { color: var(--grey); }
+  .lp-weeks .lp-wk-done { font-style: normal; margin-left: auto; font-size: 12px; font-weight: 700; color: var(--c4); white-space: nowrap; }
+
   /* time split */
   .lp-stack { display: flex; height: 18px; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
   .lp-stack span { display: block; height: 100%; }
@@ -144,7 +156,8 @@
       <button type="button" class="lp-btn" id="prevWeek">&larr; Back</button>
       <button type="button" class="lp-btn" id="nextWeek">Next week &rarr;</button>
     </div>
-    <p class="lp-note">Click the topic to rename it. Weeks 1&ndash;7 are Apex, 8&ndash;10 are LWC, 11 is PD1 prep, 12 sets up integrations.</p>
+    <ul class="lp-tasks" id="tasks"></ul>
+    <p class="lp-note">Go top to bottom. Watch, then read, then build. When every box is checked, hit Next week.</p>
   </section>
 
   <section class="lp-card">
@@ -201,6 +214,58 @@ const STEPS = [
   "Rewrite one piece by hand"
 ];
 const PATH = ["Apex & LWC", "PD1", "PD2", "Architect certs"];
+const TH = "https://trailhead.salesforce.com/content/learn/modules/";
+const DOC = "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/";
+const W = function(t) { return { k: "Watch", t: "Warren's Apex program: the " + t + " lessons (skip any recording you don't have)" }; };
+const PLAN = [
+  [W("governor limits and bulkification"),
+   { k: "Trailhead", t: "Bulk Apex Triggers", u: TH + "apex_triggers/apex_triggers_bulk" },
+   { k: "Read", t: "Execution Governors and Limits", u: DOC + "apex_gov_limits.htm" },
+   { k: "Build", t: "Write a trigger with a SOQL query inside a for loop. Insert 200 records from Anonymous Apex and watch it hit the limit. Fix it with one query and a Map." }],
+  [W("triggers and trigger handler"),
+   { k: "Trailhead", t: "Apex Triggers", u: TH + "apex_triggers" },
+   { k: "Read", t: "Triggers and Order of Execution", u: DOC + "apex_triggers_order_of_execution.htm" },
+   { k: "Build", t: "Apex Basics scenarios 1\u20136: a trigger and a handler class for each", u: "apex-basics.html" }],
+  [W("SOQL and SOSL"),
+   { k: "Trailhead", t: "Write SOQL Queries", u: TH + "apex_database/apex_database_soql" },
+   { k: "Trailhead", t: "Write SOSL Queries", u: TH + "apex_database/apex_database_sosl" },
+   { k: "Build", t: "In Anonymous Apex: query Accounts with their Contacts in a subquery, then COUNT Contacts per Account with GROUP BY. Then do the \u201creach to the parent\u201d scenarios in Apex Basics.", u: "apex-basics.html" }],
+  [W("DML and exception handling"),
+   { k: "Trailhead", t: "Manipulate Records with DML", u: TH + "apex_database/apex_database_dml" },
+   { k: "Read", t: "Exceptions in Apex", u: DOC + "apex_exception_definition.htm" },
+   { k: "Build", t: "Database.insert(list, false) with one bad record \u2014 loop the SaveResults and print the errors. Then wrap two inserts in a Savepoint and roll back when the second fails." }],
+  [W("unit testing"),
+   { k: "Trailhead", t: "Apex Testing", u: TH + "apex_testing" },
+   { k: "Trailhead", t: "Create Test Data for Apex Tests", u: TH + "apex_testing/apex_testing_data" },
+   { k: "Build", t: "Write a test class for each Apex Basics trigger you built (fill in the Test class box). Insert 200 records, assert the result, get 75%+ coverage.", u: "apex-basics.html" }],
+  [W("security and sharing"),
+   { k: "Trailhead", t: "Data Security", u: TH + "data_security" },
+   { k: "Read", t: "Enforce Object and Field Permissions", u: DOC + "apex_classes_perms_enforcing.htm" },
+   { k: "Build", t: "A \u2018with sharing\u2019 class whose query uses WITH USER_MODE. Test it with System.runAs as a low-access user and assert what they can't see." }],
+  [W("asynchronous Apex"),
+   { k: "Trailhead", t: "Asynchronous Apex", u: TH + "asynchronous_apex" },
+   { k: "Trailhead", t: "Control Processes with Queueable Apex", u: TH + "asynchronous_apex/async_apex_queueable" },
+   { k: "Build", t: "A trigger that enqueues a Queueable to update Accounts. Then a Batch class over all Contacts, scheduled nightly with a Schedulable. Test both." }],
+  [W("Lightning Web Components intro"),
+   { k: "Trailhead", t: "Lightning Web Components Basics", u: TH + "lightning-web-components-basics" },
+   { k: "Build", t: "A component with an input bound to a property that shows a live greeting. Deploy it and drop it on an Account record page." }],
+  [W("LWC with Apex / wire"),
+   { k: "Trailhead", t: "Use Lightning Data Service to Work with Data", u: TH + "lightning-web-components-and-salesforce-data/use-lightning-data-service-to-work-with-data" },
+   { k: "Trailhead", t: "Use Apex to Work with Data", u: TH + "lightning-web-components-and-salesforce-data/use-apex-to-work-with-data" },
+   { k: "Build", t: "An Account page component that uses @wire on an @AuraEnabled(cacheable=true) Apex method to list that Account's Contacts." }],
+  [W("LWC events"),
+   { k: "Trailhead", t: "Handle Events in Lightning Web Components", u: TH + "lightning-web-components-basics/handle-events-in-lightning-web-components" },
+   { k: "Read", t: "Communicate with Events", u: "https://developer.salesforce.com/docs/platform/lwc/guide/events.html" },
+   { k: "Build", t: "Parent + child components: the child's button fires a CustomEvent with a value, and the parent displays it." }],
+  [{ k: "Trailmix", t: "Prepare for your Platform Developer I credential", u: "https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-platform-developer-i-credential" },
+   { k: "Test", t: "Take a full PD1 practice exam. Write down every miss and which week's topic it belongs to." },
+   { k: "Redo", t: "Redo the Build task from your two weakest weeks." },
+   { k: "Decide", t: "Practice scores still under 68% (the passing score)? That's when Igor's PD1 prep course is worth paying for. Otherwise, book the exam." }],
+  [{ k: "Watch", t: "Igor's integration program: the first module" },
+   { k: "Trailhead", t: "Apex Integration Services", u: TH + "apex_integration_services" },
+   { k: "Trailhead", t: "Apex REST Callouts", u: TH + "apex_integration_services/apex_integration_rest_callouts" },
+   { k: "Build", t: "A class that calls a public REST API through a Named Credential, parses the JSON, and a test class that fakes the response with HttpCalloutMock." }]
+];
 const TOPICS = [
   "Bulkification & governor limits",
   "Triggers, handlers & order of execution",
@@ -216,7 +281,7 @@ const TOPICS = [
   "Integration basics: REST callouts & named credentials"
 ];
 
-let st = { week: 1, topics: {}, day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
+let st = { week: 1, topics: {}, wk: {}, day: "", checks: [], streak: 0, lastFull: "", certs: 0 };
 try { const raw = localStorage.getItem(KEY); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
 
@@ -229,6 +294,7 @@ save();
 
 // this week
 if (!st.topics) st.topics = {};
+if (!st.wk) st.wk = {};
 delete st.topic;
 st.week = Math.min(Math.max(st.week || 1, 1), TOPICS.length);
 const topic = document.getElementById("topic");
@@ -238,13 +304,56 @@ function paintWeek() {
   topic.value = topicOf(st.week);
   document.getElementById("prevWeek").disabled = st.week === 1;
   document.getElementById("nextWeek").disabled = st.week === TOPICS.length;
+  paintTasks();
   document.getElementById("weeks").innerHTML = TOPICS.map(function(_, i) {
     const w = i + 1, cls = w < st.week ? "past" : w === st.week ? "now" : "";
-    return '<li><button type="button" class="' + cls + '" data-week="' + w + '"><b>' + w + '</b><span></span></button></li>';
+    return '<li><button type="button" class="' + cls + '" data-week="' + w + '"><b>' + w + '</b><span></span><em class="lp-wk-done">' + doneLabel(w) + '</em></button></li>';
   }).join("");
   document.querySelectorAll("#weeks button").forEach(function(b) {
     b.querySelector("span").textContent = topicOf(+b.dataset.week);
     b.addEventListener("click", function() { st.week = +this.dataset.week; save(); paintWeek(); });
+  });
+}
+function doneLabel(w) {
+  const c = (st.wk[w] || []).filter(Boolean).length;
+  return c ? c + "/" + PLAN[w - 1].length : "";
+}
+function paintTasks() {
+  const ul = document.getElementById("tasks");
+  ul.innerHTML = "";
+  const w = st.week;
+  PLAN[w - 1].forEach(function(task, i) {
+    const li = document.createElement("li");
+    const label = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!(st.wk[w] && st.wk[w][i]);
+    cb.addEventListener("change", function() {
+      if (!st.wk[w]) st.wk[w] = [];
+      st.wk[w][i] = this.checked;
+      save();
+      const em = document.querySelector('#weeks [data-week="' + w + '"] .lp-wk-done');
+      if (em) em.textContent = doneLabel(w);
+    });
+    const span = document.createElement("span");
+    const kind = document.createElement("span");
+    kind.className = "kind";
+    kind.textContent = task.k;
+    span.appendChild(kind);
+    if (task.u) {
+      const a = document.createElement("a");
+      a.href = task.u;
+      a.textContent = task.t;
+      if (/^https?:/.test(task.u)) { a.target = "_blank"; a.rel = "noopener"; }
+      a.addEventListener("click", function(e) { e.stopPropagation(); });
+      span.appendChild(a);
+    } else {
+      span.appendChild(document.createTextNode(task.t));
+    }
+    label.appendChild(cb);
+    label.appendChild(span);
+    li.appendChild(label);
+    ul.appendChild(li);
   });
 }
 topic.placeholder = "What's this week's topic?";
