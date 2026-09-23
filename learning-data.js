@@ -335,7 +335,6 @@ var LP_COVERAGE = {
     "Warren's career lessons (LinkedIn, resumes, job search, interviews, portfolio, Scrum, career paths): career skills, not Apex, and you already have the job.",
     "Coding With The Force Ep. 6 (IntelliJ + IC2 setup): old tooling; VS Code replaced it.",
     "Harvard CS50 (Warren's optional prework): a full intro-to-CS course, far bigger than this plan.",
-    "Igor's Learn Apex \u201cAdditional Topics\u201d section: locked without a login, so I couldn't see what's in it. Check it when you log in.",
     "Webhooks, events & signing, logging, and the Integration Architect prep: in the PD2 and Architect phases below, not skipped."
   ]
 };
