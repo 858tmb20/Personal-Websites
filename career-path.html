@@ -70,79 +70,81 @@
     min-height: 100vh;
   }
   a { color: var(--medium-blue); }
-  header.cp-hdr { background: linear-gradient(180deg, var(--hdr-top) 0%, var(--hdr-bot) 100%); color: var(--hdr-fg); padding: 40px 24px 32px; }
-  .cp-in { max-width: 960px; margin: 0 auto; }
-  .cp-eyebrow { font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hdr-accent); margin-bottom: 10px; }
-  .cp-hdr h1 { text-wrap: balance; font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
-  .cp-oneline { margin: 16px 0 0; font-size: 16px; line-height: 1.5; color: var(--hdr-muted); max-width: 70ch; }
-  .cp-oneline b { color: var(--lime); font-weight: 600; }
+  .wrap { max-width: 760px; margin: 0 auto; }
 
-  nav.cp-nav { position: sticky; top: 0; z-index: 10; background: var(--panel); border-bottom: 1px solid var(--hairline); padding: 10px 24px; }
-  .cp-nav .cp-in { display: flex; gap: 6px 16px; flex-wrap: wrap; }
-  .cp-nav a { font-size: 14px; font-weight: 500; color: var(--fg2); text-decoration: none; }
+  header.cp-hdr { background: linear-gradient(180deg, var(--hdr-top) 0%, var(--hdr-bot) 100%); color: var(--hdr-fg); padding: 36px 24px 32px; }
+  .cp-eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hdr-accent); margin-bottom: 8px; }
+  .cp-hdr h1 { font-size: clamp(30px, 5vw, 42px); line-height: 1.1; font-weight: 800; margin: 0 0 22px; }
+  .route { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .route span { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 8px 14px; font-size: 16px; font-weight: 500; }
+  .route span:last-child { background: var(--lime); color: var(--on-lime); border-color: var(--lime); font-weight: 600; }
+  .route i { font-style: normal; color: var(--hdr-accent); font-size: 18px; }
+
+  nav.cp-nav { position: sticky; top: 0; z-index: 10; background: var(--panel); border-bottom: 1px solid var(--hairline); padding: 12px 24px; }
+  .cp-nav .wrap { display: flex; gap: 8px 20px; flex-wrap: wrap; }
+  .cp-nav a { font-size: 15px; font-weight: 500; color: var(--fg2); text-decoration: none; }
   .cp-nav a:hover { color: var(--medium-blue); text-decoration: underline; }
-  .cp-nav .cp-home { font-weight: 700; margin-right: 6px; }
+  .cp-nav .home { font-weight: 700; }
 
-  main { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
-  section { margin-bottom: 48px; scroll-margin-top: 60px; }
-  .cp-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
-  .cp-num { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 28px; color: var(--medium-blue); min-width: 40px; }
-  .cp-head h2 { font-size: 24px; font-weight: 800; margin: 0; color: var(--blue); }
+  main { padding: 36px 24px 90px; font-size: 17px; line-height: 1.6; }
+  section { margin-bottom: 56px; scroll-margin-top: 64px; }
+  h2 { font-size: 26px; font-weight: 800; color: var(--blue); margin: 0 0 6px; }
+  .lead { color: var(--fg2); margin: 0 0 20px; }
+  h3 { font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin: 28px 0 10px; color: var(--medium-blue); }
+  h3.side { color: var(--warn-edge); }
+  h3.maybe { color: var(--grey); }
 
-  .cp-table-wrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 8px; background: var(--panel); }
-  table { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.45; min-width: 640px; }
-  th { text-align: left; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg2); background: var(--light-grey); padding: 10px 14px; border-bottom: 1px solid var(--hairline); }
-  td { padding: 11px 14px; border-bottom: 1px solid var(--hairline); vertical-align: top; color: var(--fg); }
-  tr:last-child td { border-bottom: none; }
-  td.role { font-weight: 700; color: var(--blue); }
-  td.pay { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
-  td.why { color: var(--fg2); }
-  tr.now td { background: var(--good-bg); }
-  tr.now td.role { box-shadow: inset 4px 0 0 var(--good-edge); }
-  .you { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; background: var(--lime); color: var(--on-lime); border-radius: 999px; padding: 2px 8px; vertical-align: 2px; }
-  .tier { display: inline-block; white-space: nowrap; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 3px 10px; border: 1px solid transparent; }
-  .t-now { background: var(--lime); color: var(--on-lime); }
-  .t-main { background: var(--pill-ip-bg); color: var(--medium-blue); border-color: var(--border-strong); }
-  .t-side { background: var(--warn-bg); color: var(--warn-edge); border-color: var(--warn-edge); }
-  .t-maybe { background: var(--light-grey); color: var(--fg2); border-color: var(--border-strong); }
-  .t-long { background: transparent; color: var(--grey); border: 1px dashed var(--grey); }
+  .roles { display: grid; gap: 10px; }
+  .role { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 20px; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--hairline); border-radius: 10px; padding: 14px 18px; }
+  .role .name { font-weight: 700; color: var(--blue); font-size: 18px; }
+  .role .pay { font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .role .why { flex-basis: 100%; color: var(--fg2); font-size: 16px; }
+  .role.now { background: var(--good-bg); border: 2px solid var(--good-edge); }
+  .you { display: inline-block; margin-left: 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; background: var(--lime); color: var(--on-lime); border-radius: 999px; padding: 2px 10px; vertical-align: 3px; }
 
-  .cp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
-  .cp-card { border: 1px solid var(--hairline); border-top: 4px solid var(--medium-blue); border-radius: 8px; background: var(--panel); padding: 16px 18px; font-size: 15px; line-height: 1.5; color: var(--fg2); }
-  .cp-card .lbl { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; color: var(--medium-blue); }
-  .cp-card strong { display: block; color: var(--blue); font-size: 17px; margin-bottom: 6px; }
-  .cp-card.floor { border-top-color: var(--good-edge); } .cp-card.floor .lbl { color: var(--good-edge); }
-  .cp-card.free { border-top-color: var(--warn-edge); } .cp-card.free .lbl { color: var(--warn-edge); }
-  .cp-card.open { border-top-color: var(--grey); } .cp-card.open .lbl { color: var(--grey); }
+  .verdict { display: grid; gap: 12px; }
+  .v { background: var(--panel); border: 1px solid var(--hairline); border-left: 5px solid var(--medium-blue); border-radius: 10px; padding: 16px 20px; }
+  .v b { display: block; font-size: 19px; color: var(--blue); }
+  .v em { font-style: normal; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--medium-blue); }
+  .v p { margin: 6px 0 0; color: var(--fg2); }
+  .v.floor { border-left-color: var(--good-edge); } .v.floor em { color: var(--good-edge); }
+  .v.free { border-left-color: var(--warn-edge); } .v.free em { color: var(--warn-edge); }
+  .v.open { border-left-color: var(--grey); } .v.open em { color: var(--grey); }
 
-  .cp-phases { display: grid; gap: 14px; }
-  .cp-phase { display: grid; grid-template-columns: 150px 1fr; gap: 18px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--panel); padding: 18px 20px; }
-  .cp-yrs { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 24px; color: var(--medium-blue); line-height: 1.1; }
-  .cp-yrs small { display: block; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 600; color: var(--fg2); margin-top: 6px; line-height: 1.35; }
-  .cp-phase ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; line-height: 1.5; color: var(--fg); }
+  .phase { background: var(--panel); border: 1px solid var(--hairline); border-radius: 10px; padding: 18px 22px; }
+  .phase + .phase { margin-top: 14px; }
+  .phase-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+  .yrs { font-family: 'Newsreader', Georgia, serif; font-weight: 600; font-size: 26px; color: var(--medium-blue); }
+  .phase-top span { font-weight: 600; color: var(--fg2); }
+  .phase ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
 
-  .cp-test { border-left: 4px solid var(--medium-blue); background: var(--light-blue); border-radius: 0 8px 8px 0; padding: 18px 22px; font-size: 15.5px; line-height: 1.55; color: var(--fg); }
-  .cp-test ol { margin: 10px 0 10px; padding-left: 22px; display: grid; gap: 4px; font-weight: 600; color: var(--blue); }
+  .test { background: var(--light-blue); border-left: 5px solid var(--medium-blue); border-radius: 10px; padding: 20px 24px; }
+  .test ol { margin: 10px 0 14px; padding-left: 24px; display: grid; gap: 6px; font-weight: 600; color: var(--blue); font-size: 18px; }
+  .test p { margin: 0; }
 
   @media (max-width: 560px) {
-    header.cp-hdr, nav.cp-nav { padding-left: 16px; padding-right: 16px; }
-    main { padding: 24px 16px 64px; }
-    .cp-phase { grid-template-columns: 1fr; gap: 10px; }
+    header.cp-hdr, nav.cp-nav, main { padding-left: 16px; padding-right: 16px; }
+    .route i { display: none; }
   }
 </style>
 </head>
 <body>
 <header class="cp-hdr">
-  <div class="cp-in">
-    <div class="cp-eyebrow">Career &middot; Plan</div>
+  <div class="wrap">
+    <div class="cp-eyebrow">Career plan</div>
     <h1>Career Path Plan</h1>
-    <p class="cp-oneline"><b>One-line version:</b> Senior at WGU &rarr; Python + AI &rarr; FDE or Solutions Engineer &rarr; invest hard and grow the LLC.</p>
+    <div class="route">
+      <span>Senior at WGU</span><i>&rarr;</i>
+      <span>Python + AI</span><i>&rarr;</i>
+      <span>FDE or Solutions Engineer</span><i>&rarr;</i>
+      <span>Invest hard + grow the LLC</span>
+    </div>
   </div>
 </header>
 
 <nav class="cp-nav">
-  <div class="cp-in">
-    <a class="cp-home" href="library.html">&larr; Library</a>
+  <div class="wrap">
+    <a class="home" href="library.html">&larr; Library</a>
     <a href="#roles">Roles &amp; pay</a>
     <a href="#verdict">Verdict</a>
     <a href="#path">Smart path</a>
@@ -150,85 +152,99 @@
   </div>
 </nav>
 
-<main>
+<main><div class="wrap">
 
 <section id="roles">
-  <div class="cp-head"><span class="cp-num">01</span><h2>Roles &amp; pay</h2></div>
-  <div class="cp-table-wrap">
-    <table>
-      <thead><tr><th>Role</th><th>Pay</th><th>Tier</th><th>Why</th></tr></thead>
-      <tbody>
-        <tr class="now"><td class="role">SE II<span class="you">YOU NOW</span></td><td class="pay">$140K</td><td><span class="tier t-now">Now</span></td><td class="why">Mid-range for your grade</td></tr>
-        <tr><td class="role">Senior SE &ndash; WGU</td><td class="pay">~$165&ndash;190K</td><td><span class="tier t-main">Main plan</span></td><td class="why">Next step; negotiate $165K+</td></tr>
-        <tr><td class="role">Staff SE &ndash; WGU</td><td class="pay">~$180&ndash;210K</td><td><span class="tier t-main">Main plan</span></td><td class="why">$200K without leaving</td></tr>
-        <tr><td class="role">Principal SE &ndash; WGU</td><td class="pay">~$200&ndash;230K</td><td><span class="tier t-main">Main plan</span></td><td class="why">Top of the engineer track</td></tr>
-        <tr><td class="role">Manager &ndash; WGU</td><td class="pay">~$170&ndash;210K</td><td><span class="tier t-main">Main plan</span></td><td class="why">Only if you want to lead people</td></tr>
-        <tr><td class="role">Forward-Deployed Engineer</td><td class="pay">~$190K+ (up to $350K+)</td><td><span class="tier t-main">Main plan</span></td><td class="why">Best fit: tech, AI and customers</td></tr>
-        <tr><td class="role">Solutions Engineer</td><td class="pay">~$205K (up to $263K+)</td><td><span class="tier t-main">Main plan</span></td><td class="why">Tech plus selling, no full quota</td></tr>
-        <tr><td class="role">Applied AI / Agentforce</td><td class="pay">~$150&ndash;240K</td><td><span class="tier t-main">Main plan</span></td><td class="why">Skill that boosts every other path</td></tr>
-        <tr><td class="role">Consulting (your LLC)</td><td class="pay">$86&ndash;160/hr</td><td><span class="tier t-side">Side</span></td><td class="why">Builds freedom income</td></tr>
-        <tr><td class="role">GTM Engineer</td><td class="pay">~$140&ndash;260K</td><td><span class="tier t-maybe">If the offer's right</span></td><td class="why">$160K+ builds Python and AI skills</td></tr>
-        <tr><td class="role">GTM Systems Admin</td><td class="pay">~$90&ndash;150K</td><td><span class="tier t-maybe">If it pays more than $140K</span></td><td class="why">Needs real building, not tickets</td></tr>
-        <tr><td class="role">Enterprise AE</td><td class="pay">$260K+ OTE</td><td><span class="tier t-maybe">If the offer's right</span></td><td class="why">Strong base, technical product</td></tr>
-        <tr><td class="role">CTA</td><td class="pay">$260&ndash;340K+</td><td><span class="tier t-long">Long-term maybe</span></td><td class="why">Huge payoff, huge grind</td></tr>
-      </tbody>
-    </table>
+  <h2>Roles &amp; pay</h2>
+  <p class="lead">Where you are, and every role worth considering, grouped by how seriously to chase it.</p>
+
+  <h3>Now</h3>
+  <div class="roles">
+    <div class="role now"><span class="name">SE II<span class="you">YOU NOW</span></span><span class="pay">$140K</span><span class="why">Mid-range for your grade</span></div>
+  </div>
+
+  <h3>Main plan</h3>
+  <div class="roles">
+    <div class="role"><span class="name">Senior SE &ndash; WGU</span><span class="pay">~$165&ndash;190K</span><span class="why">Next step; negotiate $165K+</span></div>
+    <div class="role"><span class="name">Staff SE &ndash; WGU</span><span class="pay">~$180&ndash;210K</span><span class="why">$200K without leaving</span></div>
+    <div class="role"><span class="name">Principal SE &ndash; WGU</span><span class="pay">~$200&ndash;230K</span><span class="why">Top of the engineer track</span></div>
+    <div class="role"><span class="name">Manager &ndash; WGU</span><span class="pay">~$170&ndash;210K</span><span class="why">Only if you want to lead people</span></div>
+    <div class="role"><span class="name">Forward-Deployed Engineer</span><span class="pay">~$190K+ (up to $350K+)</span><span class="why">Best fit: tech, AI and customers</span></div>
+    <div class="role"><span class="name">Solutions Engineer</span><span class="pay">~$205K (up to $263K+)</span><span class="why">Tech plus selling, no full quota</span></div>
+    <div class="role"><span class="name">Applied AI / Agentforce</span><span class="pay">~$150&ndash;240K</span><span class="why">Skill that boosts every other path</span></div>
+  </div>
+
+  <h3 class="side">Side</h3>
+  <div class="roles">
+    <div class="role"><span class="name">Consulting (your LLC)</span><span class="pay">$86&ndash;160/hr</span><span class="why">Builds freedom income</span></div>
+  </div>
+
+  <h3 class="maybe">Only if the offer's right</h3>
+  <div class="roles">
+    <div class="role"><span class="name">GTM Engineer</span><span class="pay">~$140&ndash;260K</span><span class="why">$160K+ builds Python and AI skills</span></div>
+    <div class="role"><span class="name">GTM Systems Admin</span><span class="pay">~$90&ndash;150K</span><span class="why">Only if it pays more than $140K. Needs real building, not tickets</span></div>
+    <div class="role"><span class="name">Enterprise AE</span><span class="pay">$260K+ OTE</span><span class="why">Strong base, technical product</span></div>
+  </div>
+
+  <h3 class="maybe">Long-term maybe</h3>
+  <div class="roles">
+    <div class="role"><span class="name">CTA</span><span class="pay">$260&ndash;340K+</span><span class="why">Huge payoff, huge grind</span></div>
   </div>
 </section>
 
 <section id="verdict">
-  <div class="cp-head"><span class="cp-num">02</span><h2>Verdict</h2></div>
-  <div class="cp-grid">
-    <div class="cp-card floor"><div class="lbl">The floor</div><strong>WGU</strong>It gives you stable pay at or above market, plus the Senior title.</div>
-    <div class="cp-card"><div class="lbl">The ceiling</div><strong>FDE or Solutions Engineer</strong>They fit your mix of tech, AI and selling, and pay $200&ndash;350K+ without the CTA grind.</div>
-    <div class="cp-card free"><div class="lbl">The freedom play</div><strong>The LLC</strong>Start small now and grow it into income you don't have to trade hours for.</div>
-    <div class="cp-card open"><div class="lbl">Keep open</div><strong>GTM, Enterprise AE, CTA</strong>Take a GTM or AE role if an offer beats your pay and builds your skills. Treat the CTA as a long-term maybe, since your architect work counts toward it anyway.</div>
+  <h2>Verdict</h2>
+  <p class="lead">Four ideas that sum up the table.</p>
+  <div class="verdict">
+    <div class="v floor"><em>The floor</em><b>WGU</b><p>Stable pay at or above market, plus the Senior title.</p></div>
+    <div class="v"><em>The ceiling</em><b>FDE or Solutions Engineer</b><p>They fit your mix of tech, AI and selling, and pay $200&ndash;350K+ without the CTA grind.</p></div>
+    <div class="v free"><em>The freedom play</em><b>The LLC</b><p>Start small now and grow it into income you don't have to trade hours for.</p></div>
+    <div class="v open"><em>Keep open</em><b>GTM, Enterprise AE and the CTA</b><p>Take a GTM or AE role if an offer beats your pay and builds your skills. Treat the CTA as a long-term maybe, since your architect work counts toward it anyway.</p></div>
   </div>
 </section>
 
 <section id="path">
-  <div class="cp-head"><span class="cp-num">03</span><h2>Smart path</h2></div>
-  <div class="cp-phases">
-    <div class="cp-phase">
-      <div class="cp-yrs">Years 0&ndash;2<small>SLC, SE II &rarr; Senior</small></div>
-      <ul>
-        <li>Get promoted to Senior at about $165&ndash;190K. Negotiate for $165K+, not the $144K floor.</li>
-        <li>Learn Python and build 2&ndash;3 real AI or agent projects connected to Salesforce.</li>
-        <li>Earn Platform Developer II and Agentforce Specialist.</li>
-        <li>Take one or two small consulting gigs through the LLC.</li>
-      </ul>
-    </div>
-    <div class="cp-phase">
-      <div class="cp-yrs">Years 2&ndash;4<small>Make the jump</small></div>
-      <ul>
-        <li>Apply for FDE or Solutions Engineer roles at AI or Salesforce-ecosystem companies.</li>
-        <li>Target $200&ndash;260K total.</li>
-        <li>Fallback: Staff at WGU, which is still about $200K.</li>
-      </ul>
-    </div>
-    <div class="cp-phase">
-      <div class="cp-yrs">Years 4&ndash;10<small>Build freedom</small></div>
-      <ul>
-        <li>Grow as a Senior FDE/SE at $260&ndash;350K+, or turn consulting into a small shop.</li>
-        <li>Invest aggressively. Savings rate is what gets you semi-retired in Scottsdale by 40, not salary alone.</li>
-      </ul>
-    </div>
+  <h2>Smart path</h2>
+  <p class="lead">What to do, in order.</p>
+  <div class="phase">
+    <div class="phase-top"><span class="yrs">Years 0&ndash;2</span><span>SLC, SE II &rarr; Senior</span></div>
+    <ul>
+      <li>Get promoted to Senior at about $165&ndash;190K. Negotiate for $165K+, not the $144K floor.</li>
+      <li>Learn Python and build 2&ndash;3 real AI or agent projects connected to Salesforce.</li>
+      <li>Earn Platform Developer II and Agentforce Specialist.</li>
+      <li>Take one or two small consulting gigs through the LLC.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-top"><span class="yrs">Years 2&ndash;4</span><span>Make the jump</span></div>
+    <ul>
+      <li>Apply for FDE or Solutions Engineer roles at AI or Salesforce-ecosystem companies.</li>
+      <li>Target $200&ndash;260K total.</li>
+      <li>Fallback: Staff at WGU, which is still about $200K.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-top"><span class="yrs">Years 4&ndash;10</span><span>Build freedom</span></div>
+    <ul>
+      <li>Grow as a Senior FDE/SE at $260&ndash;350K+, or turn consulting into a small shop.</li>
+      <li>Invest aggressively. Savings rate is what gets you semi-retired in Scottsdale by 40, not salary alone.</li>
+    </ul>
   </div>
 </section>
 
 <section id="test">
-  <div class="cp-head"><span class="cp-num">04</span><h2>Offer test</h2></div>
-  <div class="cp-test">
-    Does it:
+  <h2>Offer test</h2>
+  <div class="test">
+    <p>When an offer comes in, ask: does it&hellip;</p>
     <ol>
       <li>Pay more?</li>
       <li>Build skills?</li>
-      <li>Move you toward FDE, Solutions Engineer, or consulting?</li>
+      <li>Move you toward FDE, Solutions Engineer or consulting?</li>
     </ol>
-    If it hits 2 of those 3, look seriously.
+    <p><strong>2 out of 3 = look seriously.</strong></p>
   </div>
 </section>
 
-</main>
+</div></main>
 </body>
 </html>
