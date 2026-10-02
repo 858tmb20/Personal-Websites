@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anxiety Workbook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&family=Newsreader:wght@500;600&display=swap">
+<style>
+/* Layout: one calm reading column; each chapter = summary, steps to tick, worksheet cards to fill in; progress pinned at top */
+:root{
+  --bg:#F7FAFC; --surface:#FFFFFF; --fg:#002855; --muted:#55708F; --line:rgba(0,40,85,.13);
+  --accent:#0070F0; --accent-soft:#EEF6F9; --done:#A7A7A7; --warn:#B45309; --warn-soft:#FFF7E8; --bad:#C2410C;
+  --midnight:#001731; --blue:#002855; --sky:#46B1EF; --lime:#97E152;
+  --display:"Newsreader",Georgia,serif; --body:"Jost","Futura PT","Trebuchet MS",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;min-height:100vh}
+#root{max-width:860px;margin:0 auto;padding-inline:20px;padding-block:8px 80px}
+h1{font-family:var(--display);font-weight:600;font-size:2rem;line-height:1.15;margin:0 0 .4rem;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 1rem;max-width:62ch}
+.progress{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);padding-block:10px;display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);transition:width .3s}
+.count{font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--muted);white-space:nowrap}
+.status{font-size:.8rem;color:var(--muted);min-height:1.2em;margin:0}
+nav.jump{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+nav.jump a{font-size:.82rem;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:99px;text-decoration:none}
+nav.jump a.rec{background:var(--warn-soft);color:var(--warn)}
+section.phase{margin-top:40px;scroll-margin-top:60px}
+.phase-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.when{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h2{font-family:var(--display);font-weight:500;font-size:1.3rem;margin:0;flex:1 1 auto;min-width:0}
+h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:0 0 2px}
+h4{font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
+.page{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.note{font-size:.9rem;color:var(--muted);margin:4px 0 0;max-width:64ch}
+.sum{margin-top:12px;background:var(--accent-soft);border-radius:10px;padding:12px 16px}
+.sum summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:.92rem}
+.sum p,.sum li{max-width:64ch;font-size:.95rem}
+.sum p{margin:10px 0 0}
+.sum ul{margin:8px 0 0;padding-left:20px}
+.sum li{margin-top:4px}
+ul.steps{list-style:none;margin:8px 0 0;padding:0}
+ul.steps label{display:flex;gap:12px;align-items:flex-start;padding:8px 4px;cursor:pointer;border-radius:6px}
+ul.steps label:hover{background:var(--accent-soft)}
+input[type=checkbox]{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--accent);cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.txt{min-width:0}
+.txt small{display:block;color:var(--muted);font-size:.85rem}
+li.is-done .txt>span{color:var(--done);text-decoration:line-through;text-decoration-color:var(--line)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:12px;display:flex;flex-direction:column;gap:12px}
+.card-label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.types{display:flex;flex-direction:column;gap:10px}
+.type{border-top:1px solid var(--line);padding-top:10px}
+.type:first-child{border-top:0;padding-top:0}
+.type>label,.chk{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.type b{font-weight:600}
+.chks{display:flex;flex-direction:column;gap:8px}
+textarea,input[type=text],input[type=number],select{font:inherit;font-size:.95rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%;box-sizing:border-box;min-width:0}
+textarea{min-height:64px;resize:vertical;line-height:1.45}
+.type textarea{margin-top:8px;min-height:76px}
+.rows{display:flex;flex-direction:column;gap:10px}
+.rowc{border:1px solid var(--line);border-radius:8px;padding:12px 40px 12px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;position:relative;background:var(--bg)}
+.rowc .rt{grid-column:1/-1;font-weight:600;font-size:.95rem}
+.rowc .rt small{display:block;font-weight:400;color:var(--muted);font-size:.82rem}
+.rowc.fixed{padding-right:12px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld>span{font-size:.78rem;color:var(--muted);font-weight:600}
+.fld.wide{grid-column:1/-1}
+.fld textarea,.fld input,.fld select{background:var(--surface)}
+.del{position:absolute;top:6px;right:6px;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.2rem;line-height:1;padding:6px 8px;border-radius:6px}
+.del:hover{background:var(--accent-soft)}
+.btn{align-self:flex-start;font:inherit;font-size:.9rem;font-weight:600;color:var(--accent);background:var(--accent-soft);border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+.empty{font-size:.9rem;color:var(--muted);margin:0}
+.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.q{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.q:first-child{border-top:0}
+.q label{display:flex;gap:10px;flex:1;min-width:0;cursor:pointer}
+.qn{color:var(--muted);font-variant-numeric:tabular-nums;min-width:1.4em;text-align:right}
+.qt{min-width:0}
+.q select{width:auto;min-width:60px;flex:none;padding:6px}
+.q.wide select{min-width:150px}
+.fb{font-size:.82rem;font-weight:600;min-width:5.5em}
+.fb.ok{color:var(--accent)}.fb.no{color:var(--bad)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:6px;text-align:center;vertical-align:middle}
+th{font-size:.78rem;font-weight:600;color:var(--muted)}
+td:first-child,th:first-child{text-align:left}
+.ci td{font-weight:600}
+.ih td{border-top:1px solid var(--line)}
+.ih input{width:60px;padding:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.85rem;padding:4px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.chip.hot{background:var(--warn-soft);color:var(--warn)}
+.tag{display:inline-block;font-size:.72rem;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:2px;font-family:var(--body)}
+.tag.rec{background:var(--warn-soft);color:var(--warn)}
+.callout{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.92rem}
+.callout.ok{border-color:var(--accent);background:var(--accent-soft)}
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.trap{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.trap b{display:block}
+.trap i{display:block;color:var(--muted);font-size:.9rem;margin-top:4px}
+.ladder{margin:0;padding-left:22px;font-size:.92rem}
+.result{font-size:.95rem}
+.result b{font-variant-numeric:tabular-nums}
+.addon-intro{margin-top:40px;padding:14px 16px;border:1px dashed var(--line);border-radius:10px}
+footer{margin-top:48px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){.bar span{transition:none}html{scroll-behavior:auto}}
+
+header.hdr{background:linear-gradient(180deg,var(--midnight) 0%,var(--blue) 100%);color:#fff;padding:40px 20px 30px}
+.hdr-in{max-width:860px;margin:0 auto}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--sky);margin-bottom:10px}
+.hdr-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.hdr h1{font-family:var(--body);font-size:clamp(28px,5vw,44px);line-height:1.05;font-weight:800;margin:0;letter-spacing:-.01em;color:#fff}
+.hdr-sub{max-width:58ch;font-size:15px;color:#BBD0E8;margin:12px 0 0;line-height:1.5}
+.hdr-count{font-family:var(--display);font-weight:600;font-size:clamp(36px,6vw,56px);line-height:1;color:var(--lime);text-align:right;font-variant-numeric:tabular-nums}
+.hdr-count small{display:block;font-family:var(--body);font-size:14px;color:#BBD0E8;font-weight:400;margin-top:4px}
+.track{margin-top:22px;height:10px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden}
+.track span{display:block;height:100%;width:0;background:var(--lime);border-radius:999px;transition:width .4s}
+.topbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 20px}
+.topbar-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.topbar a{font-size:14px;font-weight:500;color:#264468}
+.topbar .sp{flex:1}
+.topbar .status{font-size:13px;color:var(--muted)}
+section.phase{scroll-margin-top:64px}
+nav.jump{margin-top:20px}
+h1,h2,h3{color:var(--blue)}
+@media (prefers-reduced-motion:reduce){.track span{transition:none}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <div class="eyebrow">Personal · CBT for anxiety</div>
+  <div class="hdr-row">
+    <div><h1>Anxiety Workbook</h1>
+    <p class="hdr-sub">Everything you need to work through <em>The CBT Anxiety Solution Workbook</em>, in order. Read each summary, tick steps as you finish them, and fill in the worksheets right here.</p></div>
+    <div class="hdr-count" id="count"></div>
+  </div>
+  <div class="track"><span id="bar"></span></div>
+</div></header>
+<div class="topbar"><div class="topbar-in"><a href="library.html">&larr; Library</a><span class="sp"></span><span class="status" id="status" aria-live="polite"></span></div></div>
+<main id="root"></main>
+<script>
+(function(){
+/* ---------- content (written in our own words, based on the books) ---------- */
+const TRAPS=[
+ ["All-or-nothing thinking","Seeing things as all good or all bad, with nothing in between.","\"If this presentation isn't perfect, I've failed.\""],
+ ["Catastrophizing","Expecting the worst possible outcome.","\"If I mess up this interview, my career is over.\""],
+ ["Discounting the positive","Deciding the good things don't count.","\"My boss praised my work, but they were just being polite.\""],
+ ["Emotional reasoning","Treating a feeling as proof that something is true.","\"I feel like something bad is going to happen, so it probably will.\""],
+ ["Labeling","Sticking a fixed label on yourself or someone else.","\"I forgot the meeting. I'm such an idiot.\""],
+ ["Magnifying and minimizing","Blowing up the bad and shrinking the good.","\"One typo and the whole report looks unprofessional.\""],
+ ["Mental filter","Only noticing the negative parts of a situation.","\"Ten people liked my post, but one comment was rude, so it went badly.\""],
+ ["Mind reading","Assuming you know what other people are thinking.","\"They haven't texted back, so they must be annoyed with me.\""],
+ ["Overgeneralizing","Turning one event into a rule about everything.","\"I got turned down once. Nobody will ever say yes.\""],
+ ["Personalizing","Assuming other people's moods or actions are about you.","\"My friend seems quiet today. I must have done something.\""],
+ ["\"Should\" and \"must\" rules","Rigid rules for how you or others have to be.","\"I should never feel anxious.\""]];
+const TYPES=[
+ ["gad","Generalized anxiety","Worrying too much, about many things, for too long","Situations I worry about"],
+ ["soc","Social anxiety","Fear of being judged, embarrassed or rejected","Situations I fear"],
+ ["ocd","OCD","Unwanted fears plus rituals to calm them, like checking, cleaning or counting","Situations I fear"],
+ ["pan","Panic","Sudden waves of intense fear, and fear of the next one","Situations I fear"],
+ ["pho","Specific phobia","Strong fear of one thing, like heights, needles or flying","Situations I fear"],
+ ["pts","PTSD","Fear tied to something traumatic that happened to you","Situations I fear"]];
+const CI_COLS=[["av","Avoidance","the main chapters (everyone does these)"],["wor","Worry","Ch. 8"],["mis","Misreading threats","Ch. 7 and 9"],["dis","Handling distress","Ch. 10"]];
+const CI_Q=[
+ ["When something makes me nervous, I usually find a way not to do it.","My mind keeps running through things that could go wrong.","Things usually turn out less bad than I expected them to.","When anxiety hits, it feels like more than I can handle."],
+ ["I turn down invitations or skip plans because of how I might feel.","Once I start worrying about something, it's hard to stop.","When I'm upset, I jump to conclusions that later turn out to be wrong.","I don't trust myself to get through situations that scare me."],
+ ["I put off calls, tasks or appointments that make me uneasy.","I lose sleep or focus thinking about problems that haven't happened yet.","I tend to assume the worst about what other people think or mean.","When I feel uncomfortable, I need the feeling to stop right away."],
+ ["There are places or activities I stay away from because of anxiety.","I go over the same worry again and again without getting anywhere.","A small sign or body sensation makes me think something serious is happening.","Strong emotions feel unbearable to me."],
+ ["If I start feeling anxious somewhere, I leave or want to leave as soon as I can.","Even small problems set off a chain of \"what ifs\" in my head.","Looking back, a lot of what I feared didn't hold up.","I feel too weak to face the things I'm afraid of."]];
+const AVOID=[["sit","Situations","staying away from places, people, activities or things"],["cog","Thoughts","pushing away worries or memories, distracting yourself"],["sen","Body sensations","avoiding anything that makes your heart race, makes you hot, out of breath, etc."]];
+const DOMAINS=[["friend","Friendships"],["family","Family"],["parent","Parenting"],["work","Work or school"],["health","Self-care and health"],["fun","Fun, hobbies, social life"],["goals","Life goals"],["serve","Helping others"],["romance","Romantic relationships"]];
+const PATTERNS=["Negative prediction","Negative focus","Problem magnification"];
+const SORT_Q=[["\"My test results are going to be bad news.\"",0],["\"This is a total nightmare.\"",2],["\"Nobody ever helps me out.\"",1],["\"If I speak up in the meeting, they'll laugh at me.\"",0],["\"I can't possibly handle all of this.\"",2],["\"All I can think about is the one thing I got wrong.\"",1],["\"This flight is going to go badly, I just know it.\"",0],["\"Work is nothing but one problem after another.\"",1],["\"This stress is going to kill me.\"",2]];
+const LADDER=["A life-threatening diagnosis","Losing someone you love","Losing your home","Losing your job","A breakup or divorce","A big unexpected bill","Your car breaking down","Losing your wallet","A friend being annoyed with you","Mild criticism at work","Being a few minutes late"];
+const DEFUSE=[["crawl","News crawl","Close your eyes and picture your thoughts as captions scrolling across the bottom of a TV screen. Just read them as they pass. About 5 minutes."],["white","White room","Picture an empty white room with a doorway on each side. Each thought walks in one door and out the other. Give each a quick label, like \"what-if thought.\" 5 to 10 minutes."],["walk","Present-moment walk","Go for a walk and focus on what you see, hear and feel. When a thought pulls you away, notice it and come back to your surroundings. 10 to 15 minutes."],["count","Breath counting","Breathe slowly and count each breath. When a thought takes over and you lose count, start again at one. 5 to 10 minutes."],["leaves","Leaves on a stream","Picture a slow stream with leaves floating by. Put each thought on a leaf and watch it drift away. Balloons or train cars work too. 5 to 6 minutes."]];
+const MIND=[["senses","Five senses check","Spend about 30 seconds on each sense: what can you see, hear, smell, taste, and feel on your skin right now?"],["breath","Mindful breathing","Sit comfortably, notice each breath and say \"in\" and \"out\" (or count to four and start over). When a thought pulls you away, say \"thought\" and return. Start with 2 minutes, 2 or 3 times a day, building to 5."],["emo","Watching an emotion","When a hard feeling shows up, name it, notice how strong it is, breathe slowly, label passing thoughts, then widen your attention to your body, the room, and beyond. Watch it rise and fall like weather."],["belly","Belly breathing","Hand on your stomach, breathe in slowly through your nose so your hand rises, then out through your mouth. About 5 minutes, 2 or 3 times a day."]];
+const SOOTHE=[["view","Look at something calming: water, a view, a favorite photo or art"],["music","Listen to music you love, a podcast, or nature sounds"],["taste","Slowly enjoy a favorite food or drink with no distractions"],["smell","A scent you like: a candle, fresh flowers, baking"],["bath","A hot shower or bath"],["stretch","Stretch, or massage tight muscles"],["clothes","Put on your most comfortable clothes"],["pet","Spend time with a pet"],["object","Carry something to hold, like a smooth stone"]];
+const INTERO=[["shake","Shake your head side to side","30 sec"],["head","Head down between your knees, then lift it (repeat)","30 sec"],["run","Run in place","60 sec"],["jacket","Run in place wearing a heavy jacket","60 sec"],["hold","Hold your breath","30 sec or as long as you can"],["tense","Tense your big muscles, especially your stomach","60 sec or as long as you can"],["spin","Spin in a swivel chair (sitting, never standing)","60 sec"],["fast","Breathe very fast","up to 60 sec"],["straw","Breathe through one thin straw","120 sec"],["mirror","Stare at yourself in a mirror","90 sec"]];
+const BELLS=[
+ ["Stressors",[["who","Who","People who set off your anxiety"],["what","What","Things or situations"],["where","Where","Places"],["when","When","Upcoming events"]]],
+ ["Thought patterns",[["supp","Pushing thoughts away",""],["fant","Escaping into daydreams, mantras or prayer",""],["rigid","The same thought on repeat",""],["worry","Long stretches of worrying",""],["mis","Overestimating danger",""]]],
+ ["Body sensations you start avoiding",[["hot","Feeling too hot or cold",""],["tired","Being very tired",""],["breath","Getting out of breath or sweaty",""],["arousal","Excitement or arousal",""]]],
+ ["Safety behaviors creeping back",[["reass","Asking for reassurance",""],["distr","Distracting yourself",""],["procr","Putting things off",""],["prep","Over-preparing",""],["check","Checking and double-checking",""],["ritual","Rituals",""],["perf","Perfectionism",""],["lean","Leaning on a support person",""]]]];
+const KNAUS=[["k10","Procrastination","Ch. 10, p. 127"],["k11","Anxiety mixed with depression","Ch. 11, p. 144"],["k12","Worry","Ch. 12, p. 152"],["k13","Perfectionism","Ch. 13, p. 165"],["k14","Holding back (inhibition)","Ch. 14, p. 176"],["k15","Self-worth fears","Ch. 15, p. 186"],["k16","Social anxiety","Ch. 16, p. 196"],["k17","Panic","Ch. 17, p. 210"],["k18","Keeping fears from coming back","Ch. 18, p. 225"]];
+
+/* ---------- the plan ---------- */
+const PLAN=[
+ {id:"w1",nav:"Week 1",when:"Week 1",title:"Ch. 2 · The Alarm Response",page:"p. 5",ws:wk1,sum:[
+  "Anxiety is your body's alarm going off when there's no real danger. When something feels threatening, your mind quickly asks three questions: <b>Is this a big danger?</b> <b>Could something terrible happen?</b> <b>Can I handle it?</b> If the answers are yes, yes and no, the alarm keeps ringing.",
+  "Your body then gears up to fight or run: a racing heart, faster breathing, tense muscles, shakiness. You feel an urge to do something to feel safe, usually avoiding the thing. That brings relief right away, but it also means you never find out the danger wasn't real, so the alarm goes off again next time.",
+  "The chapter names four things that keep false alarms going: <b>avoiding</b> things that aren't really dangerous, <b>worrying</b> over and over about what might happen, <b>misreading</b> how dangerous something is, and <b>feeling you can't cope</b> with distress. The Coping Inventory below measures all four.",
+  "<b>What to do:</b> tick any anxiety types below that fit you and list the specific situations you fear under each. Then rate the 20 Coping Inventory statements."],steps:[
+  ["w1a","Read the summary above","How fear and the fight-or-flight response work"],
+  ["w1b","List the situations you fear","Use the worksheet below"],
+  ["w1c","Take the Coping Inventory","Rate all 20 statements below from 1 to 5"],
+  ["w1d","Check your four scores","Any score of 15+ adds a chapter. The page adds them up for you"]]},
+ {id:"w2",nav:"Week 2",when:"Week 2",title:"Ch. 3 · Assessment",page:"p. 21",ws:wk2,sum:[
+  "This week you build a detailed list of everything you fear. It becomes the base for the rest of the program, so take your time.",
+  "<b>Safety behaviors</b> are things you do to protect yourself from fear. Common ones: avoiding, asking others for reassurance, distracting yourself, putting things off, checking and double-checking, over-preparing, perfectionism, rituals or lucky objects, making lists so you don't forget, and using alcohol or drugs to take the edge off. They help in the moment, but they stop you from learning that you can handle the situation, so the fear sticks around.",
+  "Avoidance comes in three kinds: avoiding <b>situations</b> (places, people, things), avoiding <b>thoughts</b> (pushing worries or memories away), and avoiding <b>body sensations</b> (anything that makes your heart race or makes you feel hot or out of breath).",
+  "<b>What to do:</b> move your fears from Week 1 into the list below. Rate each one 0–100 for how distressing it feels, then write what you do to feel safe. Tick the kinds of avoidance you use. Finally, split any big fear into smaller pieces. For example, \"crowds\" might become restaurants, movie theaters, concerts and checkout lines."],steps:[
+  ["w2a","Copy your fears into the Exposure Inventory",""],
+  ["w2b","Rate each fear 0–100","How distressing it feels"],
+  ["w2c","Write your safety behaviors next to each fear","Avoiding, reassurance, distraction, over-preparing, checking…"],
+  ["w2d","Tick the kinds of avoidance you use","Situations, thoughts, or body sensations"],
+  ["w2e","Break big fears into smaller items",""]]},
+ {id:"w3",nav:"Week 3",when:"Week 3",title:"Ch. 4 · Motivation",page:"p. 31",ws:wk3,sum:[
+  "Facing fears is hard, so you need strong reasons. This chapter builds them three ways.",
+  "<b>What avoidance costs you.</b> The more you avoid, the smaller your life gets. Friends and family get frustrated, work suffers, fun disappears, and you can slide into feeling down. And you never learn there's less to fear than you think.",
+  "<b>What you care about.</b> Think about what you'd do if anxiety weren't in the way. When fear blocks the things that matter to you, life starts to feel empty. That's one way anxiety and depression feed each other.",
+  "<b>Willingness.</b> Avoidance comes from not being willing to feel fear. Getting better means saying yes to all of it: the racing heart, the knot in your stomach, the scary thoughts, for as long as an exposure lasts.",
+  "<b>What to do:</b> fill in what avoidance costs you in each area of life, list what each fear stops you from doing, then answer the willingness question."],steps:[
+  ["w3a","Fill in what avoidance costs you","9 areas of life, rated 1–5"],
+  ["w3b","List what each fear blocks you from doing","Rated 1–5 for how much it matters"],
+  ["w3c","Answer the willingness question",""]]},
+ {id:"w4",nav:"Weeks 4–5",when:"Weeks 4–5",title:"Ch. 5 · Preparation",page:"p. 39",ws:wk4,sum:[
+  "Now you turn your fear list into a plan. For each fear you add four things: <b>a plan</b> to drop the safety behavior and face the fear, <b>how much it matters</b> to you (1–5), <b>the worst thing you predict</b> will happen, and <b>how likely that feels</b> (%).",
+  "There are two kinds of plan. <b>All at once:</b> stop the safety behavior right away and do the thing you've been avoiding. <b>Gradual:</b> 2 to 5 steps that take you from full safety behavior down to none. Gradual is gentler but takes longer.",
+  "Ways to cut a safety behavior gradually: prepare a little less each time; wait longer before asking for reassurance; shorten or change distractions; set a deadline instead of putting things off; do part of the thing first, then all of it; check less and less often; make small mistakes on purpose; shorten rituals; keep lists shorter and time-limited; cut back on alcohol or drugs.",
+  "<b>Predictions have to be things you could see happen</b>, not feelings. Not \"I'll be anxious\" (you will be), but \"I'll have to leave after five minutes\" or \"the cashier will roll their eyes and walk away.\"",
+  "<b>The % is how likely it feels</b>, not the real odds. If it feels 80% likely, write 80.",
+  "Tricks for building good items: combine two milder fears into one scarier one, split a big fear into smaller steps, change how close you get or how long you stay, or imagine a scary scene first."],steps:[
+  ["w4a","Choose all-at-once or gradual for each fear",""],
+  ["w4b","Write your plan for each fear",""],
+  ["w4c","Rate how much each one matters (1–5)",""],
+  ["w4d","Predict the worst outcome for each",""],
+  ["w4e","Rate how likely each one feels (%)",""],
+  ["w4f","Keep adding fears until every one has a full plan",""]]},
+ {id:"w6",nav:"Week 6+",when:"Week 6 on",title:"Ch. 6 · The Anxiety Solution",page:"p. 79",ws:wk6,sum:[
+  "The whole method in two lines: <b>stop doing what you usually do to feel safe, and do what you usually avoid.</b> You can't argue yourself out of a fear. Only real experience changes it, by showing you that what you predicted doesn't happen.",
+  "<b>Fine-tune your list first.</b> Every item should feel at least 60% likely to go badly. If one is lower, stay longer, get closer, or combine it with another fear. Cover the range from 60% up to 100% with no gaps bigger than 10 points. Pick things you actually want to do, that matter to you, that avoidance has cost you, and that most people consider safe. You can also add imagined scenes or exercises that bring on body sensations.",
+  "<b>Doing exposures:</b>",
+  "<ul><li>Start with the item that has the lowest distress score.</li><li>After that, mix it up. Jump to harder items instead of climbing a strict ladder, asking \"What do I need to learn next?\" If mixing is too much, go back to easiest-to-hardest.</li><li>For the harder ones, pick things that matter a lot to you.</li><li>Change where, how and with whom you do them.</li><li>Notice everything you feel and think. Don't reassure yourself, use coping thoughts, or distract yourself. Do nothing to feel safer.</li><li>Stay the full time you planned, or until your sense of how likely the bad outcome is has dropped a lot.</li><li>Once you've had some wins, combine two exposures.</li></ul>",
+  "After each exposure, fill in a <b>Results Tracker</b> entry below. You're done when you can do the things you used to avoid. Some anxiety may remain, and that's normal."],steps:[
+  ["w6a","Fine-tune your list","The page flags anything below 60% or with big gaps"],
+  ["w6b","Do your first exposure (lowest distress) and log it",""],
+  ["w6c","Keep going, mixing easier and harder items",""],
+  ["w6d","Stop when you can do the things you used to avoid",""]]}];
+const ADDONS=[
+ {id:"c7",nav:"Ch. 7",when:"Add-on",title:"Ch. 7 · You Can Face Fear",page:"p. 101",col:"mis",ws:ch7,sum:[
+  "This chapter is about trusting that you can cope. When you think you can't handle anything, even small threats feel overwhelming.",
+  "You'll use four tools: look back at your exposures and how you actually coped; write a <b>coping memoir</b> of five hard times you got through; turn those into short <b>coping thoughts</b>; and make a <b>worst-case coping plan</b> covering what you'd do, how you'd handle the feelings, what you'd tell yourself, and who could help.",
+  "<b>Don't use these tools right before or during an exposure.</b> Exposures work by feeling the fear fully."],steps:[
+  ["c7a","Note how you coped during your exposures",""],
+  ["c7b","Write your coping memoir","Aim for five hard times you got through"],
+  ["c7c","Write your coping thoughts",""],
+  ["c7d","Make a worst-case coping plan",""]]},
+ {id:"c8",nav:"Ch. 8",when:"Add-on",title:"Ch. 8 · Reducing Worry with Defusion",page:"p. 115",col:"wor",ws:ch8,sum:[
+  "Worry makes anxiety worse because your body reacts to imagined disasters as if they were real. By the time you face the actual situation, you've already lived through it ten times in your head.",
+  "<b>Defusion</b> means stepping back and watching your thoughts instead of being swept along by them: having a thought, not being the thought. You practice with short exercises (below), then use it day to day: \"There's that thought again,\" or \"Thanks, mind,\" then let it go.",
+  "For a thought that keeps coming back, ask four questions: How old is it? What is it trying to do for me? Has it actually worked? Can I take it with me and still do what matters?",
+  "<b>Don't use defusion right before or during an exposure.</b>"],steps:[
+  ["c8a","Try each of the five exercises",""],
+  ["c8b","Work through the four questions for a sticky thought",""],
+  ["c8c","Use it day to day when worry starts",""]]},
+ {id:"c9",nav:"Ch. 9",when:"Add-on",title:"Ch. 9 · Correcting Your Anxiety Lens",page:"p. 127",col:"mis",ws:ch9,sum:[
+  "Anxiety works like a lens that makes danger look bigger. It does that in three ways: <b>negative predictions</b> (\"this is going to go badly\"), <b>negative focus</b> (only noticing what's wrong), and <b>problem magnification</b> (making a problem seem enormous). Your Cognitive Distortions sheet, at the top of this page, is a more detailed list of the same habits.",
+  "First practice telling the three apart, then keep a thought log for a week to see which one you use most. Then work on that one:",
+  "<ul><li><b>Predictions:</b> work out how often a worry has actually come true; log predictions and check them later; ask what the prediction is for and whether it helps.</li><li><b>Focus:</b> for every negative, find two positives (comfort, calm, getting something done, learning, connection, feeling appreciated, meaning, helping someone); look for the other side of hard experiences.</li><li><b>Magnification:</b> place your problem on a ladder of bigger and smaller problems; describe it the way a calm friend would; ask how long you'll remember it.</li></ul>",
+  "<b>Don't use these right before or during an exposure.</b> Use them for everyday worry."],steps:[
+  ["c9a","Practice sorting the three patterns",""],
+  ["c9b","Keep a thought log for a week",""],
+  ["c9c","Do the exercises for your most common pattern",""]]},
+ {id:"c10",nav:"Ch. 10",when:"Add-on",title:"Ch. 10 · Distress Tolerance Skills",page:"p. 145",col:"dis",ws:ch10,sum:[
+  "Distress tolerance is being able to feel stress without being overwhelmed. It's a skill you can build, like any other.",
+  "Five ways to build it: <b>mindfulness</b> (noticing the present moment without judging it), <b>relaxation</b> (slow belly breathing and a calming cue word), <b>self-soothing</b> (pleasant things for each of your senses, not alcohol or drugs), <b>positive distraction</b> (planned, meaningful things to do, unlike panicked escape), and <b>coping thoughts</b> (checking the real odds and preparing calm statements).",
+  "<b>Don't use these during an exposure.</b> Use them for stressful situations you can't or shouldn't avoid."],steps:[
+  ["c10a","Practice mindfulness and relaxation",""],
+  ["c10b","Pick your self-soothing and distraction options",""],
+  ["c10c","Fill in a probability worksheet",""],
+  ["c10d","Write your coping statements",""]]},
+ {id:"pan",nav:"Panic extras",when:"If panic is one of your types",title:"Appendix IV · Body-Sensation Exercises",page:"p. 211",ws:panic,sum:[
+  "If you have panic, the thing you fear most is often the feeling of panic itself: a racing heart, dizziness, breathlessness. These exercises bring those feelings on safely, on purpose, until they stop being scary.",
+  "<b>Check with your doctor first</b>, especially before running, holding your breath or fast breathing. If it feels like too much to do alone, have someone with you at first.",
+  "<b>Stage 1:</b> try each of the ten exercises once and rate your anxiety (0–100) and how much it feels like panic (0–100%). <b>Stage 2:</b> anything 40% or more like panic goes on your practice list, easiest first. The page builds it for you. <b>Stage 3:</b> start with the easiest. Keep going at least 30 seconds after the uncomfortable feelings start, rate your anxiety, then breathe slowly and remind yourself the sensation is harmless. Repeat until your anxiety is 25 or lower, then move on. After that, try real-life activities you've avoided."],steps:[
+  ["pa","Try each exercise once and rate it",""],
+  ["pb","Practice your list until each one is 25 or lower",""],
+  ["pc","Move on to real-life activities",""]]}];
+const FINISH={id:"fin",nav:"Finish",when:"To finish",title:"Ch. 11 · Relapse Prevention",page:"p. 167",ws:ch11,sum:[
+  "Anxiety will come back sometimes. Feeling anxious and doing the thing anyway isn't a relapse. A real relapse is sliding back into avoiding, and even that is normal: change goes two steps forward, one step back.",
+  "The plan: list your <b>alarm bells</b>, the signs a slide is starting. When one rings: <b>1)</b> name it, don't pretend it's fine; <b>2)</b> cut avoidance short using Weeks 3–6; <b>3)</b> use your skills from chapters 7–10.",
+  "Finish by signing a short contract with yourself."],steps:[
+  ["f1","List your alarm bells",""],
+  ["f2","Sign your contract",""]]};
+const KN={id:"kn",nav:"Next book",when:"Optional",title:"Next: The Knaus Workbook",page:"",ws:knaus,sum:[
+  "<i>The Cognitive Behavioral Workbook for Anxiety</i> is your second book. Don't read it cover to cover. Once you've finished the plan above, pick the chapters for whatever is still getting in your way. Tick the ones you want to read."],steps:[
+  ["k1","Pick the chapters that fit what's left",""]]};
+const ALL=[...PLAN,...ADDONS,FINISH,KN];
+
+/* ---------- state ---------- */
+const KEY="anxiety-workbook-v2";
+const blank=()=>({done:{},types:{},fears:{},ci:{},inv:[],avoid:{},f:{},r:{},x:{},c:{},q:{}});
+const norm=o=>{const b=blank();o=o||{};for(const k in b){if(o[k]!==undefined&&typeof o[k]===typeof b[k]&&Array.isArray(o[k])===Array.isArray(b[k]))b[k]=o[k]}return b};
+const OPEN={};
+let S=blank(), ref=null, timer=null, writing=false, again=false, statusText="";
+const root=document.getElementById("root");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pid=p=>"f-"+p.replace(/[^a-zA-Z0-9]+/g,"-");
+function getPath(p){let o=S;for(const k of p.split(".")){if(o==null)return undefined;o=Array.isArray(o)?o.find(r=>r.id===k):o[k]}return o}
+function setPath(p,v){const seg=p.split(".");let o=S;for(let i=0;i<seg.length-1;i++){const k=seg[i];let n=Array.isArray(o)?o.find(r=>r.id===k):o[k];if(n==null){if(Array.isArray(o))return;n={};o[k]=n}o=n}const last=seg[seg.length-1];if(v===undefined||v===false)delete o[last];else o[last]=v}
+function arr(p){const seg=p.split(".");let o=S;for(let i=0;i<seg.length;i++){const k=seg[i];if(o[k]==null)o[k]=i===seg.length-1?[]:{};o=o[k]}return o}
+
+/* ---------- small builders ---------- */
+function field(path,d){
+  const v=getPath(path), id=pid(path), ph=d.ph?` placeholder="${esc(d.ph)}"`:"";
+  let ctl;
+  if(d.t==="area")ctl=`<textarea id="${id}" data-b="${path}"${ph}>${esc(v)}</textarea>`;
+  else if(d.t==="num")ctl=`<input type="number" inputmode="numeric" id="${id}" data-b="${path}" data-num data-min="${d.min??0}" data-max="${d.max??100}" min="${d.min??0}" max="${d.max??100}" value="${esc(v)}"${ph}${d.live?" data-live":""}${d.ih?" data-ih":""}>`;
+  else if(d.t==="sel")ctl=`<select id="${id}" data-b="${path}">${["",...d.o].map(o=>`<option value="${esc(o)}" ${String(v??"")===String(o)?"selected":""}>${o===""?"–":esc(o)}</option>`).join("")}</select>`;
+  else ctl=`<input type="text" id="${id}" data-b="${path}" value="${esc(v)}"${ph}${d.live?" data-live":""}>`;
+  return d.bare?ctl:`<label class="fld${d.w?" wide":""}" for="${id}"><span>${esc(d.l)}</span>${ctl}</label>`;
+}
+const R15={t:"sel",o:[1,2,3,4,5]}, R110={t:"sel",o:[1,2,3,4,5,6,7,8,9,10]};
+function rows(p,cols,add,o={}){
+  const list=arr(p);
+  const items=list.map(r=>`<div class="rowc">${cols.map(c=>field(p+"."+r.id+"."+c.k,c)).join("")}<button class="del" data-del="${p}|${r.id}" aria-label="Remove">×</button></div>`).join("");
+  return `<div class="rows">${items||`<p class="empty">${esc(o.empty||"Nothing here yet.")}</p>`}</div><button class="btn" data-add="${p}">${esc(add)}</button>`;
+}
+function fixed(p,items,cols){
+  return `<div class="rows">${items.map(([id,label,hint])=>`<div class="rowc fixed"><div class="rt">${esc(label)}${hint?`<small>${esc(hint)}</small>`:""}</div>${cols.map(c=>field(p+"."+id+"."+c.k,c)).join("")}</div>`).join("")}</div>`;
+}
+function checks(p,items){return `<div class="chks">${items.map(([id,label,hint])=>`<label class="chk"><input type="checkbox" id="${pid(p+"."+id)}" data-b="${p}.${id}" ${getPath(p+"."+id)?"checked":""}><span class="txt"><span>${esc(label)}</span>${hint?`<small>${esc(hint)}</small>`:""}</span></label>`).join("")}</div>`}
+const card=(label,title,note,body)=>`<div class="card"><div>${label?`<div class="card-label">${label}</div>`:""}${title?`<h3>${title}</h3>`:""}${note?`<p class="note">${note}</p>`:""}</div>${body}</div>`;
+
+/* ---------- worksheets ---------- */
+function wk1(){
+  const types=TYPES.map(([id,name,desc,prompt])=>`<div class="type"><label><input type="checkbox" id="${pid("types."+id)}" data-b="types.${id}" data-rr ${S.types[id]?"checked":""}><span class="txt"><b>${name}</b><small>${desc}</small></span></label>${S.types[id]?`<textarea id="${pid("fears."+id)}" data-b="fears.${id}" placeholder="${prompt}. Be specific, e.g. speaking up in team meetings">${esc(S.fears[id])}</textarea>`:""}</div>`).join("");
+  const opts=v=>`<option value="">–</option>`+[1,2,3,4,5].map(n=>`<option ${+v===n?"selected":""}>${n}</option>`).join("");
+  let n=0,qs="";for(let i=1;i<=5;i++)CI_COLS.forEach((c,k)=>{const id=i+"."+(k+1);n++;qs+=`<li class="q"><label for="ci-${i}-${k+1}"><span class="qn">${n}</span><span class="qt">${esc(CI_Q[i-1][k])}</span></label><select id="ci-${i}-${k+1}" data-ci="${id}">${opts(S.ci[id])}</select></li>`});
+  return card("Worksheet","Which of these sound like you?","Tick any that fit, then list the situations you fear under each one. You can tick more than one.",`<div class="types">${types}</div>`)
+  +card("Quiz · 20 statements","Coping Inventory","Think about stressful times in your life. For each statement, pick how much it's true for you: <b>1</b> = not at all, <b>5</b> = a great deal. There are no right answers, so go with your first honest reaction.",
+   `<ol class="qs">${qs}</ol><div class="scroll"><table class="ci"><thead><tr><th></th>${CI_COLS.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead><tbody><tr><td>Score</td>${CI_COLS.map(c=>`<td id="tot-${c[0]}">–</td>`).join("")}</tr></tbody></table></div><div class="chips" id="ci-result"></div><p class="note">These are our own statements, written to measure the same four patterns as the book's quiz and scored the same way. Your scores are a guide for which chapters to add, not a diagnosis.</p>`);
+}
+const INV_BASE=[{k:"fear",l:"Feared situation",t:"text",w:1,ph:"e.g. speaking up in team meetings"},{k:"suds",l:"Distress (0–100)",t:"num"},{k:"safety",l:"What I do to feel safe",t:"text",ph:"avoid it, ask for reassurance…"}];
+function wk2(){
+  return card("Worksheet","Exposure Inventory","One entry per fear. Distress is 0 (none) to 100 (the worst you can imagine). Safety behaviors are what you do to avoid it or get through it.",rows("inv",INV_BASE,"Add a fear",{empty:"No fears listed yet. Add your first one."}))
+  +card("Worksheet","Kinds of avoidance you use","",checks("avoid",AVOID));
+}
+function wk3(){
+  return card("Worksheet","What avoidance costs you","For each area of life, write what you avoid or do to feel safe, and how it hurts you. Rate the damage from 1 (very little) to 5 (a lot). Skip areas that don't apply.",
+   fixed("x.cost",DOMAINS,[{k:"avoid",l:"What I avoid or do",t:"area"},{k:"impact",l:"How it hurts my life",t:"area"},{k:"rate",l:"Damage 1–5",...R15}]))
+  +card("Worksheet","What your fears block","For each fear, list the things it stops you from doing. One fear can block many things. Rate each from 1 (matters a little) to 5 (matters a lot).",
+   rows("r.values",[{k:"fear",l:"Fear (what I avoid)",t:"text"},{k:"blocked",l:"What it stops me from doing",t:"text"},{k:"rate",l:"Matters 1–5",...R15}],"Add a row"))
+  +card("Worksheet","Willingness","Am I willing to feel all of the fear, the sensations and the scary thoughts, for as long as an exposure takes, to get these things back? Write what you're willing to feel and why.",field("f.willing",{t:"area",bare:1,ph:"I'm willing to feel… because…"}));
+}
+const INV_PLAN=[{k:"fear",l:"Feared situation",t:"text",w:1},{k:"safety",l:"What I do to feel safe",t:"text",w:1},{k:"mode",l:"Approach",t:"sel",o:["All at once","Gradual"]},{k:"suds",l:"Distress (0–100)",t:"num"},{k:"value",l:"Matters 1–5",...R15},{k:"plan",l:"My plan (for gradual, list the steps)",t:"area",w:1},{k:"worst",l:"Worst outcome I predict (something you could see happen)",t:"area",w:1},{k:"prob",l:"How likely it feels (%)",t:"num",live:1}];
+function wk4(){
+  return card("Worksheet","Your Exposure Inventory, with plans","These are the same fears as Week 2, with the planning columns added. Anything you change here also changes there.",rows("inv",INV_PLAN,"Add a fear",{empty:"Add fears in Week 2 first, or add one here."}));
+}
+function wk6(){
+  return card("Check","Fine-tune your list","",`<div id="ft"></div>`)
+  +card("Log","Results Tracker","Fill in one entry after each exposure.",rows("r.results",[{k:"date",l:"Date",t:"text"},{k:"pb",l:"Likely before (%)",t:"num"},{k:"pa",l:"Likely after (%)",t:"num"},{k:"exp",l:"What I did (and how I skipped my safety behaviors)",t:"area",w:1},{k:"worst",l:"Worst outcome I predicted",t:"area",w:1},{k:"happened",l:"Did it happen?",t:"sel",o:["No","Yes"]},{k:"sb",l:"Distress before",t:"num"},{k:"sa",l:"Distress after",t:"num"},{k:"instead",l:"What actually happened",t:"area",w:1},{k:"learned",l:"What I learned",t:"area",w:1}],"Log an exposure",{empty:"No exposures logged yet."}));
+}
+function ch7(){
+  const ex=[{k:"exp",l:"The exposure",t:"area",w:1},{k:"sb",l:"Distress before (1–10)",...R110},{k:"sa",l:"Distress after (1–10)",...R110},{k:"how",l:"How I coped",t:"area",w:1}];
+  return card("Worksheet","How I coped during exposures","Look back at your exposures. What did you do, tell yourself, or focus on to get through?",rows("r.copexp",ex,"Add an exposure"))
+  +card("Worksheet","My coping memoir","Five hard times you got through: a health scare, money trouble, a loss, an accident, a family crisis. Include what happened and how you felt, then how you coped with the situation and with the fear itself.",rows("r.memoir",[{k:"sit",l:"The hard situation",t:"area",w:1},{k:"sb",l:"Distress before (1–10)",...R110},{k:"sa",l:"Distress after (1–10)",...R110},{k:"how",l:"How I coped",t:"area",w:1}],"Add a hard time"))
+  +card("Worksheet","My coping thoughts","Short reminders that you can cope, drawn from your memoir. Examples: \"I've gotten through this before.\" \"One thing at a time.\" \"The fear comes in waves and always passes.\"",
+   `<div class="rows"><div class="rowc fixed">${field("f.ct_sit",{l:"For facing hard situations",t:"area",w:1})}${field("f.ct_fear",{l:"For facing the fear itself",t:"area",w:1})}</div></div>`)
+  +card("Worksheet","Worst-case coping plan","Pick something you dread and imagine it actually happens. Then plan how you'd cope. Make one for each big fear.",rows("r.plans",[{k:"scen",l:"Worst-case scenario",t:"area",w:1},{k:"beh",l:"What I'd do (actions)",t:"area",w:1},{k:"emo",l:"How I'd handle the feelings",t:"area",w:1},{k:"cog",l:"What I'd tell myself",t:"area",w:1},{k:"ppl",l:"Who could help, and how I'd ask",t:"area",w:1}],"Add a plan"));
+}
+function ch8(){
+  return card("Practice","Five defusion exercises","Do them somewhere quiet. There's no wrong way. Noticing that your mind wandered is the point. Tick each one once you've tried it.",checks("c.defuse",DEFUSE)+field("f.def_notes",{l:"Notes: what happened, which one worked best",t:"area"}))
+  +card("Worksheet","Four questions for a sticky thought","",rows("r.sticky",[{k:"thought",l:"The thought",t:"text",w:1},{k:"old",l:"How old is it? When did it start?",t:"area",w:1},{k:"purpose",l:"What is it trying to do for me?",t:"area",w:1},{k:"worked",l:"Has it worked? What has it cost me?",t:"area",w:1},{k:"still",l:"I can take this thought with me and still…",t:"area",w:1}],"Add a thought"));
+}
+function ch9(){
+  const quiz=SORT_Q.map(([s],i)=>`<li class="q wide"><label for="${pid("q."+i)}"><span class="qn">${i+1}</span><span class="qt">${esc(s)}</span></label>${field("q."+i,{t:"sel",o:PATTERNS,bare:1})}<span class="fb" id="qf-${i}"></span></li>`).join("");
+  return card("Practice","Sort the three patterns","Pick which pattern each thought is. They overlap, so don't worry about getting some wrong.",`<ol class="qs">${quiz}</ol>`)
+  +card("Log","Thought log","For a week, whenever you feel anxious, jot down the thought and which pattern it is. Add a thinking trap from the list at the top if one fits.",rows("r.tlog",[{k:"thought",l:"The thought",t:"text",w:1},{k:"pat",l:"Pattern",t:"sel",o:PATTERNS},{k:"trap",l:"Thinking trap",t:"sel",o:TRAPS.map(t=>t[0])}],"Add a thought"))
+  +`<h4>If you mostly make negative predictions</h4>`
+  +card("Exercise","How often has this worry come true?","Pick a worry you have often. Look back over the last five years.",`<div class="rows"><div class="rowc fixed">${field("f.vq_pred",{l:"The worry",t:"text",w:1})}${field("f.vq_made",{l:"Times I've had it",t:"num",max:100000,live:1})}${field("f.vq_true",{l:"Times it came true",t:"num",max:100000,live:1})}</div></div><p class="result" id="vq"></p>`)
+  +card("Log","Predictions log","Write down each prediction as you make it, with when it's supposed to happen. Come back afterward and write what really happened.",rows("r.plog",[{k:"pred",l:"Prediction",t:"area",w:1},{k:"when",l:"When",t:"text"},{k:"real",l:"What actually happened",t:"area",w:1}],"Add a prediction"))
+  +`<p class="note">Also ask yourself, whenever you catch a prediction: what is this trying to do for me, and is it working? It almost always makes you feel less safe, not more.</p>`
+  +`<h4>If you mostly focus on the negative</h4>`
+  +card("Exercise","Two positives for every negative","When you catch a negative judgment, find two positive things about the same situation. Places to look: comfort, calm, getting something done, learning something, connection, being appreciated, meaning, helping someone.",rows("r.twopos",[{k:"neg",l:"The negative",t:"text",w:1},{k:"p1",l:"Positive 1",t:"text"},{k:"p2",l:"Positive 2",t:"text"}],"Add one"))
+  +card("Exercise","Both sides of the coin","Three hard experiences, and what good came out of each: new strength, a lesson, support from others, more confidence, knowing what really matters to you.",rows("r.both",[{k:"neg",l:"Hard experience",t:"area"},{k:"pos",l:"The other side",t:"area"}],"Add an experience"))
+  +`<h4>If you mostly make problems bigger</h4>`
+  +card("Exercise","The problem ladder",`Here are common problems from biggest to smallest:<ol class="ladder">${LADDER.map(l=>`<li>${esc(l)}</li>`).join("")}</ol>Where does your problem really fit?`,rows("r.ladder",[{k:"prob",l:"My problem",t:"text",w:1},{k:"size",l:"About as big as…",t:"sel",o:LADDER}],"Add a problem"))
+  +card("Exercise","Just the facts","Picture a calm, down-to-earth friend describing your situation as if they were you, in plain, factual words. Write what they'd say.",field("f.facts",{t:"area",bare:1}))
+  +card("Exercise","How long will I remember this?","",rows("r.dih",[{k:"prob",l:"The problem",t:"text",w:1},{k:"len",l:"I'll still care about it in…",t:"sel",o:["2 days","1–2 weeks","1 month","6 months","1 year","5 years","10 years","For the rest of my life"]}],"Add a problem"));
+}
+function ch10(){
+  return card("Practice","Mindfulness and relaxation","Tick each one once you've tried it.",checks("c.mind",MIND)+field("f.cue",{l:"My cue word (say it to yourself and let your body relax)",t:"text",ph:"e.g. calm, easy"}))
+  +card("List","Self-soothing","Tick the ones you'll use, and add your own. Not alcohol, drugs or anything risky.",checks("c.soothe",SOOTHE)+field("f.soothe",{l:"My own ideas",t:"area"}))
+  +card("List","Positive distraction","Planned things that take your mind somewhere better: helping someone, a chore you've been putting off, people-watching, remembering a good time, a favorite quote on a card. Write your list.",field("f.distract",{t:"area",bare:1}))
+  +card("Worksheet","Probability worksheet","For something you dread. Rate how likely it feels and how anxious you are, look at the evidence and your options, then rate both again.",rows("r.prob",[{k:"event",l:"What I dread",t:"text",w:1},{k:"auto",l:"What I tell myself will happen",t:"area",w:1},{k:"p1",l:"Likely (%) before",t:"num"},{k:"a1",l:"Anxiety (%) before",t:"num"},{k:"evid",l:"Evidence for and against (How often has it happened? What happened instead? What are the facts?)",t:"area",w:1},{k:"cope",l:"What I could do if it happened",t:"area",w:1},{k:"p2",l:"Likely (%) now",t:"num"},{k:"a2",l:"Anxiety (%) now",t:"num"}],"Add one"))
+  +card("Worksheet","My coping statements","Short, calm things to tell yourself in stressful moments. Examples: \"Feeling nervous is normal.\" \"I've survived this before.\" \"It will be over soon.\"",field("f.cstate",{t:"area",bare:1}));
+}
+function panic(){
+  return card("Stage 1","Try each exercise once","Rate anxiety 0–100 and how much it feels like your panic, 0–100%.",fixed("x.intero",INTERO.map(([id,l,d])=>[id,l,d]),[{k:"anx",l:"Anxiety (0–100)",t:"num",ih:1},{k:"sim",l:"Like panic (%)",t:"num",ih:1}]))
+  +card("Stage 2 and 3","Your practice list","Exercises 40% or more like panic, easiest first. Record your anxiety after each try. Move on when one is 25 or lower.",`<div id="ih"></div>`);
+}
+function ch11(){
+  return BELLS.map(([g,items])=>card("Alarm bells",esc(g),"Write your own signs for each, or leave blank if it doesn't apply.",fixed("x.bells",items,[{k:"mine",l:"My signs",t:"text",w:1}]))).join("")
+  +card("Contract","My contract",`When these alarm bells ring, I will: <b>1)</b> call it a relapse and own it; <b>2)</b> face what I fear and cut avoidance short; <b>3)</b> use my skills: coping, defusion, checking the real danger, and handling distress.`,
+   `<div class="rows"><div class="rowc fixed">${field("f.k_bells",{l:"My main alarm bells",t:"area",w:1})}${field("f.k_name",{l:"Signed",t:"text"})}${field("f.k_date",{l:"Date",t:"text"})}</div></div>`);
+}
+function knaus(){return card("","Chapters by problem","Chapters 1–9 cover the basics again in a different style.",checks("c.knaus",KNAUS))}
+
+/* ---------- computed bits ---------- */
+function scores(){const out={};let complete=true;CI_COLS.forEach((c,k)=>{let t=0;for(let i=1;i<=5;i++){const v=+S.ci[i+"."+(k+1)]||0;if(!v)complete=false;t+=v}out[c[0]]=t});out.complete=complete;out.any=Object.keys(S.ci).some(k=>S.ci[k]);return out}
+function isRec(p){const sc=scores();if(p.col)return sc.complete&&sc[p.col]>=15;if(p.id==="pan")return !!S.types.pan;return false}
+function fineTune(){
+  const rows=S.inv.filter(r=>r.fear);
+  if(!rows.length)return `<p class="empty">Add fears with a "how likely" % in Weeks 4–5 and this will check your list.</p>`;
+  const msgs=[];const noP=rows.filter(r=>r.prob===""||r.prob==null);
+  if(noP.length)msgs.push(`${noP.length} fear${noP.length>1?"s don't":" doesn't"} have a % yet.`);
+  const low=rows.filter(r=>r.prob!==""&&r.prob!=null&&+r.prob<60);
+  low.forEach(r=>msgs.push(`<b>${esc(r.fear)}</b> is at ${r.prob}%. Make it harder (stay longer, get closer, or combine it with another fear) until it's 60% or more.`));
+  const ps=rows.map(r=>r.prob).filter(v=>v!==""&&v!=null&&+v>=60).map(Number).sort((a,b)=>a-b);
+  for(let i=1;i<ps.length;i++)if(ps[i]-ps[i-1]>10)msgs.push(`There's a gap between ${ps[i-1]}% and ${ps[i]}%. Add something in between.`);
+  if(ps.length&&ps[0]>70)msgs.push(`Your easiest item is at ${ps[0]}%. Consider adding one around 60%.`);
+  if(ps.length&&ps[ps.length-1]<90)msgs.push(`Your hardest item is at ${ps[ps.length-1]}%. Add a harder one that gets closer to 100%.`);
+  const noW=rows.filter(r=>!r.worst);if(noW.length)msgs.push(`${noW.length} fear${noW.length>1?"s need":" needs"} a predicted worst outcome.`);
+  const first=rows.filter(r=>r.suds!==""&&r.suds!=null).sort((a,b)=>a.suds-b.suds)[0];
+  return (msgs.length?`<div class="callout">${msgs.map(m=>`<div>${m}</div>`).join("")}</div>`:`<div class="callout ok">Your list looks ready: everything is 60% or more with no big gaps.</div>`)
+   +(first?`<p class="note">Your first exposure: <b>${esc(first.fear)}</b> (lowest distress, ${first.suds}).</p>`:"")
+   +`<p class="note">Also check that each item is something you want to do, that matters to you, and that most people consider safe.</p>`;
+}
+function renderIH(){
+  const el=document.getElementById("ih");if(!el)return;
+  const x=(S.x&&S.x.intero)||{};
+  const list=INTERO.filter(([id])=>x[id]&&+x[id].sim>=40).sort((a,b)=>(+x[a[0]].anx||0)-(+x[b[0]].anx||0));
+  if(!list.length){el.innerHTML=`<p class="empty">Rate the exercises above. Anything 40% or more like panic will show up here.</p>`;return}
+  el.innerHTML=`<div class="scroll"><table class="ih"><thead><tr><th>Exercise</th>${[1,2,3,4,5,6,7,8].map(t=>`<th>Try ${t}</th>`).join("")}</tr></thead><tbody>${list.map(([id,l])=>`<tr><td>${esc(l)}</td>${[1,2,3,4,5,6,7,8].map(t=>{const p="x.ih."+id+".t"+t;return `<td>${field(p,{t:"num",bare:1})}</td>`}).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function refresh(){
+  const total=ALL.reduce((n,p)=>n+p.steps.length,0), done=ALL.reduce((n,p)=>n+p.steps.filter(s=>S.done[s[0]]).length,0);
+  const b=document.getElementById("bar");if(b)b.style.width=(total?Math.round(done/total*100):0)+"%";
+  const c=document.getElementById("count");if(c)c.innerHTML=done+'<span style="font-size:.5em;color:#BBD0E8"> / '+total+'</span><small>steps done</small>';
+  const sc=scores();
+  CI_COLS.forEach(([k])=>{const el=document.getElementById("tot-"+k);if(el)el.textContent=sc.any?sc[k]+" / 25":"–"});
+  const r=document.getElementById("ci-result");
+  if(r)r.innerHTML=!sc.any?"":!sc.complete?`<span class="chip">Answer all 20 to see your add-on chapters</span>`:CI_COLS.map(([k,n,ch])=>sc[k]>=15?`<span class="chip hot">${n} ${sc[k]}: ${k==="av"?"Weeks 2–6 are built for this":"add "+ch}</span>`:`<span class="chip">${n} ${sc[k]}: under 15</span>`).join("");
+  const ft=document.getElementById("ft");if(ft)ft.innerHTML=fineTune();
+  const vq=document.getElementById("vq");
+  if(vq){const m=+S.f.vq_made,t=+S.f.vq_true;vq.innerHTML=m>0&&S.f.vq_true!==""&&S.f.vq_true!=null?`It came true <b>${t} of ${m}</b> times: <b>${Math.round(t/m*1000)/10}%</b>. ${t/m<.2?"That worry is wrong far more often than it's right.":""}`:""}
+  SORT_Q.forEach(([,ans],i)=>{const el=document.getElementById("qf-"+i);if(!el)return;const v=S.q[i];if(!v){el.textContent="";el.className="fb";return}const ok=v===PATTERNS[ans];el.textContent=ok?"Right":"It's "+PATTERNS[ans].split(" ")[1];el.className="fb "+(ok?"ok":"no")});
+}
+function setStatus(t){statusText=t;const el=document.getElementById("status");if(el)el.textContent=t}
+
+/* ---------- page ---------- */
+function section(p){
+  const rec=isRec(p);
+  const items=p.steps.map(([id,t,sub])=>`<li class="${S.done[id]?"is-done":""}"><label><input type="checkbox" id="${pid("done."+id)}" data-b="done.${id}" data-rr ${S.done[id]?"checked":""}><span class="txt"><span>${esc(t)}</span>${sub?`<small>${esc(sub)}</small>`:""}</span></label></li>`).join("");
+  const fin=p.steps.every(s=>S.done[s[0]]);
+  return `<section class="phase" id="${p.id}"><div class="phase-head"><span class="when">${esc(p.when)}</span><h2>${esc(p.title)}${rec?'<span class="tag rec">Recommended</span>':""}${fin?'<span class="tag">Done</span>':""}</h2>${p.page?`<span class="page">${p.page}</span>`:""}</div>
+  <details class="sum" data-k="${p.id}" ${OPEN[p.id]===false?"":"open"}><summary>What this chapter says</summary>${p.sum.map(x=>x.startsWith("<ul")?x:`<p>${x}</p>`).join("")}</details>
+  <ul class="steps">${items}</ul>${p.ws()}</section>`;
+}
+function render(){
+  const a=document.activeElement, aid=a&&a.id, sel=a&&a.selectionStart!=null&&a.type!=="number"?[a.selectionStart,a.selectionEnd]:null;
+  root.innerHTML=`  <nav class="jump" aria-label="Jump to">${["traps",...ALL.map(p=>p.id)].map(id=>{const p=ALL.find(q=>q.id===id);return `<a href="#${id}" class="${p&&isRec(p)?"rec":""}">${id==="traps"?"Thinking traps":esc(p.nav)}</a>`}).join("")}</nav>
+  <section class="phase" id="traps"><div class="phase-head"><span class="when">Keep handy</span><h2>Thinking traps</h2></div>
+  <p class="note">From your Cognitive Distortions sheet. These habits make situations look more dangerous than they are. Watch for them in every week, and use them in your thought log in chapter 9.</p>
+  <details class="sum" data-k="traps" ${OPEN.traps?"open":""}><summary>Show all 11</summary><div class="traps" style="margin-top:12px">${TRAPS.map(([n,d,e])=>`<div class="trap"><b>${esc(n)}</b>${esc(d)}<i>${esc(e)}</i></div>`).join("")}</div></details></section>
+  ${PLAN.map(section).join("")}
+  <div class="addon-intro"><h3>Add-on chapters</h3><p class="note">Do the ones your Coping Inventory marks <b>Recommended</b> alongside Weeks 3–6. The panic exercises are recommended if you ticked Panic in Week 1.</p></div>
+  ${ADDONS.map(section).join("")}
+  ${section(FINISH)}${section(KN)}
+  <footer>Your answers save to your Supabase database and to this browser. Summaries and statements are written in our own words, based on <i>The CBT Anxiety Solution Workbook</i> (McKay, Skeen &amp; Fanning), your Cognitive Distortions sheet, and <i>The Cognitive Behavioral Workbook for Anxiety</i> (Knaus). Not a substitute for a therapist.</footer>`;
+  renderIH();refresh();
+  if(aid){const el=document.getElementById(aid);if(el){el.focus({preventScroll:true});if(sel&&el.setSelectionRange)try{el.setSelectionRange(sel[0],sel[1])}catch(e){}}}
+}
+
+/* ---------- saving ---------- */
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){return null}}
+const SB_URL='https://fnpgduicigxxlvpduugb.supabase.co', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc', ROW='me';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+let online=true;
+async function flush(){
+  if(writing){again=true;return}
+  writing=true;
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/anxiety_workbook?on_conflict=id',{method:'POST',headers:Object.assign({},H,{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify({id:ROW,data:S,updated_at:new Date().toISOString()})});
+    if(!r.ok)throw new Error(r.status);
+    setStatus('Saved');
+  }catch(e){setStatus('Saved in this browser only. Couldn\'t reach the database.')}
+  writing=false;if(again){again=false;flush()}
+}
+function save(){saveLocal();if(!online){setStatus("Saved in this browser only.");return}setStatus("Saving…");clearTimeout(timer);timer=setTimeout(flush,900)}
+
+/* ---------- events ---------- */
+function clampNum(t){if(t.value==="")return "";let v=+t.value;if(isNaN(v))return "";const mn=+t.dataset.min,mx=+t.dataset.max;return Math.max(mn,Math.min(mx,v))}
+function sync(t){document.querySelectorAll(`[data-b="${t.dataset.b}"]`).forEach(el=>{if(el!==t&&el.value!==t.value)el.value=t.value})}
+root.addEventListener("input",e=>{
+  const t=e.target;if(!t.dataset||!t.dataset.b||t.type==="checkbox"||t.tagName==="SELECT")return;
+  setPath(t.dataset.b,t.dataset.num!==undefined?clampNum(t):t.value);sync(t);save();
+  if(t.dataset.live!==undefined)refresh();
+});
+root.addEventListener("change",e=>{
+  const t=e.target,d=t.dataset||{};
+  if(d.ci){if(t.value)S.ci[d.ci]=+t.value;else delete S.ci[d.ci];save();render();return}
+  if(!d.b)return;
+  if(t.type==="checkbox"){setPath(d.b,t.checked?true:undefined);save();if(d.rr!==undefined)render();else refresh();return}
+  if(t.tagName==="SELECT"){setPath(d.b,t.value===""?undefined:t.value);sync(t);save();refresh();return}
+  if(d.ih!==undefined)renderIH();
+});
+root.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.add){const id=uid();arr(t.dataset.add).push({id});save();render();const f=root.querySelector(`[data-b^="${t.dataset.add}.${id}."]`);if(f)f.focus();return}
+  if(t.dataset.del){const [p,id]=t.dataset.del.split("|");const a=arr(p),i=a.findIndex(r=>r.id===id);if(i>=0){a.splice(i,1);save();render()}}
+});
+
+root.addEventListener("toggle",e=>{const d=e.target;if(d.tagName==="DETAILS"&&d.dataset.k)OPEN[d.dataset.k]=d.open},true);
+
+/* ---------- start ---------- */
+const local=loadLocal();if(local)S=norm(local);
+render();
+(async()=>{
+  try{
+    setStatus('Loading…');
+    const r=await fetch(SB_URL+'/rest/v1/anxiety_workbook?id=eq.'+ROW+'&select=data',{headers:H});
+    if(!r.ok)throw new Error(r.status);
+    const rows=await r.json();
+    const a=document.activeElement, busy=a&&root.contains(a)&&/^(TEXTAREA|INPUT)$/.test(a.tagName)&&a.type!=="checkbox";
+    if(rows.length&&rows[0].data){if(!busy){S=norm(rows[0].data);saveLocal();render()}setStatus('Saved')}
+    else if(local){await flush()}
+    else setStatus('Ready');
+  }catch(e){online=false;setStatus('Saved in this browser only. Couldn\'t reach the database.')}
+})();
+})();
+</script>
+</body>
+</html>
