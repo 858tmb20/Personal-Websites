@@ -131,6 +131,7 @@
   .btn-edit:hover { border-color: var(--link); color: var(--link); }
   .btn-delete { padding: 0.4rem 0.7rem; background: var(--card); color: var(--muted); font-size: 0.78rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; transition: all 0.15s; }
   .btn-delete:hover { color: var(--danger); border-color: var(--danger); }
+  .rule-hint { font-size: 0.78rem; color: var(--muted); margin: -0.4rem 0 0.9rem; }
   .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); }
   .empty strong { display: block; font-size: 1rem; color: var(--ink); margin-bottom: 0.4rem; font-weight: 600; }
 
@@ -744,6 +745,7 @@
     </div>
   </header>
   <div class="main">
+    <div class="rule-hint">Something you use or go to &mdash; a tool, app, or site.</div>
     <div class="filter-row" id="filterRow">
       <div class="filter-wrap">
         <button class="filter-btn" id="filterBtn" onclick="toggleFilterMenu(event)">
@@ -859,6 +861,7 @@
     </div>
   </header>
   <div class="board-wrap">
+    <div class="rule-hint">Something you read &mdash; a work doc, guide, or cheat sheet. Personal reading stays on Home.</div>
     <div class="todo-sort-row" style="margin-bottom:0.85rem;">
       <span class="todo-sort-label">Show:</span>
       <div class="view-toggle">
