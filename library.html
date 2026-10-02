@@ -1679,12 +1679,20 @@
   }
 
   // Section of compact rows (no preview cap — rows are small enough to show all)
-  function rowsSectionHTML(title, color, rows) {
-    return '<div class="tsec"><div class="tsec-head" style="--gc:' + color + ';cursor:default;">' +
+  // Same preview-then-"Show all" pattern as the tools cards section, but for compact rows.
+  var ROWS_PREVIEW_COUNT = 6;
+  function rowsSectionHTML(key, title, color, rows) {
+    if (!rows.length) return '';
+    var expanded = !!toolsExpanded[key] || !!(document.getElementById('searchInput').value || '').trim();
+    var total = rows.length;
+    var hasMore = total > ROWS_PREVIEW_COUNT;
+    var shown = (expanded || !hasMore) ? rows : rows.slice(0, ROWS_PREVIEW_COUNT);
+    return '<div class="tsec"><div class="tsec-head" data-tsec="' + esc(key) + '" style="--gc:' + color + ';">' +
         '<span class="group-bar"></span>' +
         '<span class="group-title">' + esc(title) + '</span>' +
-        '<span class="group-count">' + rows.length + '</span>' +
-      '</div><div class="tools-rows">' + rows.join('') + '</div></div>';
+        '<span class="group-count">' + total + '</span>' +
+        (hasMore ? '<span class="tsec-toggle">' + (expanded ? 'Show less &#9652;' : 'Show all ' + total + ' &#9662;') + '</span>' : '') +
+      '</div><div class="tools-rows">' + shown.join('') + '</div></div>';
   }
 
   // Built-in tool cards (Deployment Tracker, Docs, etc.) shown based on scope
@@ -1780,7 +1788,7 @@
     var html = '';
     if (toolCards.length) html += toolsSection('tools', 'My tools', '#1F6FEB', toolCards);
     order.forEach(function(name) {
-      html += rowsSectionHTML(name, groups[name].color, groups[name].cards);
+      html += rowsSectionHTML('cat-' + name, name, groups[name].color, groups[name].cards);
     });
     if (!html) { return '<div class="empty"><strong>Nothing here yet</strong>Hit "+ Add Link" to save your first one.</div>'; }
     return html;
