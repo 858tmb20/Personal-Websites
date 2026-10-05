@@ -184,10 +184,40 @@ const BELLS=[
  ["Thought patterns",[["supp","Pushing thoughts away",""],["fant","Escaping into daydreams, mantras or prayer",""],["rigid","The same thought on repeat",""],["worry","Long stretches of worrying",""],["mis","Overestimating danger",""]]],
  ["Body sensations you start avoiding",[["hot","Feeling too hot or cold",""],["tired","Being very tired",""],["breath","Getting out of breath or sweaty",""],["arousal","Excitement or arousal",""]]],
  ["Safety behaviors creeping back",[["reass","Asking for reassurance",""],["distr","Distracting yourself",""],["procr","Putting things off",""],["prep","Over-preparing",""],["check","Checking and double-checking",""],["ritual","Rituals",""],["perf","Perfectionism",""],["lean","Leaning on a support person",""]]]];
-const KNAUS=[["k10","Procrastination","Ch. 10, p. 127"],["k11","Anxiety mixed with depression","Ch. 11, p. 144"],["k12","Worry","Ch. 12, p. 152"],["k13","Perfectionism","Ch. 13, p. 165"],["k14","Holding back (inhibition)","Ch. 14, p. 176"],["k15","Self-worth fears","Ch. 15, p. 186"],["k16","Social anxiety","Ch. 16, p. 196"],["k17","Panic","Ch. 17, p. 210"],["k18","Keeping fears from coming back","Ch. 18, p. 225"]];
+/* progress checks (Appendices I, III and V), statements in our own words */
+const ANX_Q=["My mouth felt dry.","I had trouble breathing (breathing fast or feeling out of breath) without having exerted myself.","I noticed shaking or trembling, for example in my hands.","I worried about situations where I might panic and embarrass myself.","I felt close to panic.","I noticed my heart racing or skipping without having exerted myself.","I felt scared for no good reason."];
+const AAQ_Q=["Hard memories and experiences stop me from living the way I'd like.","I'm scared of my own feelings.","I worry about losing control of my worries and feelings.","Things that happened to me in the past keep me from having a full life.","My emotions get in the way in my life.","Most people seem to cope with life better than I do.","Worrying holds me back from succeeding."];
+const ANX_BANDS=[[7,"Normal"],[9,"Mild"],[14,"Moderate"],[19,"Severe"],[42,"Extremely severe"]];
+/* book 2 (Knaus) */
+const PURR=[["pause","Pause","Stop and notice what's happening"],["use","Use","Call on your resources. Write your thoughts down"],["reflect","Reflect","Separate the fear story from realistic thinking"],["reason","Reason","Define the scary words, check the odds, look for exceptions"],["respond","Respond","Take a concrete step toward what you fear"],["revise","Revise","What worked? What will you change?"],["stabilize","Stabilize","Keep repeating it until the change holds"]];
+const ABCDE=[{k:"a",l:"A · Adversity: what happened, or what you're facing",t:"area",w:1},{k:"rb",l:"A reasonable belief about it",t:"area",w:1},{k:"rc",l:"What that belief leads you to feel and do",t:"area",w:1},{k:"pb",l:"The fear-driven belief about it",t:"area",w:1},{k:"pc",l:"What that belief leads you to feel and do",t:"area",w:1},{k:"d",l:"D · Dispute it: Does it fit the facts? Does it help my goals? My relationships? Does it make sense here? Is it helpful or harmful overall?",t:"area",w:1},{k:"e",l:"E · New effect: how you see it now, and what you'll do",t:"area",w:1}];
+const K4_INV=[
+ ["Situations",["Speaking in front of a group scares me.","I avoid parties and social events.","Eating or using restrooms in public makes me uneasy.","I'm afraid of germs or getting sick.","Leaving home makes me nervous.","I'll do almost anything to avoid an argument."]],
+ ["Thinking",["I expect the worst.","I tell myself I can't cope.","I'm afraid of losing control or going crazy.","I'm afraid of being judged or rejected.","Some thoughts get stuck in my head and won't leave.","I'm afraid of feeling anxious."]],
+ ["Things that come with it",["I put things off.","I hold myself to very high standards.","I feel both anxious and down.","I see myself as weak or not good enough.","I keep thinking about what I should have done.","Shyness holds me back."]],
+ ["Body",["My heart pounds or races.","I have trouble breathing or feel like I'm choking.","I shake, sweat or feel faint.","My stomach gets upset.","I have trouble falling asleep.","I feel tired or can't concentrate."]]];
+const K12_INV=["I often picture bad things that could happen.","If someone is late, I assume something happened to them.","When the phone rings, I expect bad news.","I worry that I have a serious illness.","I worry about money, bills or losing my job.","I worry that people are rejecting or cheating me.","I worry about accidents or disasters.","I worry about my looks or weight.","I worry about death and dying.","Things in the news, like crime or the environment, keep me worrying."];
+const K16_INV=["I tense up before approaching someone new.","I'm afraid of looking foolish in public.","Other people seem more sociable than me.","If people really knew me, they wouldn't like me.","I look away when someone looks at me.","Making small talk is hard for me.","I worry about social events days ahead.","People in authority intimidate me.","I worry about what people think of me.","I'm afraid people will notice I'm nervous.","Walking into a room where people are already seated is hard.","I rehearse what I'll say before I talk.","I hate being the center of attention.","A drink or two makes me braver socially."];
+const WORRY_TRAPS=["Possible vs. probable","\"Could be\"","Frequency (remembering the times it happened)","\"If, then\"","Relief (worry feels rewarded when nothing bad happens)","Theory (it sounds reasonable, so it must be true)"];
+const PERF_TRAPS=["Self: I must not make mistakes","Social: others should follow my rules","Learning: I must get it right straight away","Product: it's not done until it's perfect","Comparison: I must match the best","Performance: I must succeed at everything","Myth: the perfect opening line","Myth: I must speak flawlessly","Myth: I must be fully prepared first","Myth: I must feel completely comfortable","Myth: I must always be cheerful"];
 
 /* ---------- the plan ---------- */
 const PLAN=[
+ {id:"start",nav:"Start here",when:"Before you begin",title:"Ch. 1 · The Anxiety Problem",page:"p. 1",ws:startWs,sum:[
+  "Fear is useful: it gets you ready to fight or run from real danger. Anxiety is fear that sticks around when there's no real threat, after the danger has passed, in situations that aren't actually dangerous, or ahead of something that might happen. When it takes over your life, it becomes an anxiety disorder.",
+  "CBT is the best-tested treatment for anxiety, and it comes in two forms. <b>Coping</b> means changing how you think, judging threats more accurately and trusting that you can handle them. <b>Exposure</b> means deliberately facing what you fear until your predictions are proven wrong and the fear fades. Both help, but exposure tends to work faster and last longer.",
+  "So the book is built around exposure, using a newer method called <b>inhibitory learning</b>: the point of each exposure is to learn that what you predicted doesn't happen. Chapters 7–10 add coping skills on top: a coping plan, defusion, more accurate thinking and handling distress.",
+  "<b>How to use it:</b> work through Weeks 1–6 in order and do each exercise fully before moving on. Add chapters 7–10 when your Coping Inventory recommends them. Finish with relapse prevention. Before you start, take the two progress checks below so you have a starting point to compare against."],steps:[
+  ["s1","Read the summary above",""],
+  ["s2","Take your first progress checks","The anxiety check and avoidance check in the next section"]]},
+ {id:"chk",nav:"Progress checks",when:"Start, middle and end",title:"Appendices I, III and V · Progress Checks",page:"p. 181, 207, 219",ws:chkWs,sum:[
+  "The book includes three short questionnaires you can repeat to see whether things are changing. Take them now, again partway through your exposure work (around Week 8), and again when you finish. Each one saves with its date so you can compare.",
+  "<b>Anxiety check</b> (based on the DASS-21 anxiety scale, Appendix III): 7 statements about the past week, rated 0–3. The page doubles the total, as the standard scoring does, giving a score out of 42 and a level from Normal to Extremely severe.",
+  "<b>Avoidance check</b> (based on the AAQ-II, Appendix V): 7 statements rated 1–7. Higher means you push away or avoid hard feelings more. This should drop as your exposures go on.",
+  "<b>Coping Inventory</b> (Appendix I): the book suggests retaking the Week 1 inventory several times. Change your answers in Week 1, then save a snapshot here to track your four scores over time."],steps:[
+  ["chk1","Take the anxiety and avoidance checks at the start",""],
+  ["chk2","Retake all three around the middle of your exposure work",""],
+  ["chk3","Retake all three at the end",""]]},
  {id:"w1",nav:"Week 1",when:"Week 1",title:"Ch. 2 · The Alarm Response",page:"p. 5",ws:wk1,sum:[
   "Anxiety is your body's alarm going off when there's no real danger. When something feels threatening, your mind quickly asks three questions: <b>Is this a big danger?</b> <b>Could something terrible happen?</b> <b>Can I handle it?</b> If the answers are yes, yes and no, the alarm keeps ringing.",
   "Your body then gears up to fight or run: a racing heart, faster breathing, tense muscles, shakiness. You feel an urge to do something to feel safe, usually avoiding the thing. That brings relief right away, but it also means you never find out the danger wasn't real, so the alarm goes off again next time.",
@@ -249,17 +279,18 @@ const ADDONS=[
   ["c7c","Write your coping thoughts",""],
   ["c7d","Make a worst-case coping plan",""]]},
  {id:"c8",nav:"Ch. 8",when:"Add-on",title:"Ch. 8 · Reducing Worry with Defusion",page:"p. 115",col:"wor",ws:ch8,sum:[
-  "Worry makes anxiety worse because your body reacts to imagined disasters as if they were real. By the time you face the actual situation, you've already lived through it ten times in your head.",
+  "Worry makes anxiety worse because your body reacts to imagined disasters as if they were real. By the time you face the actual situation, you've already lived through it ten times in your head. The <b>worry experiment</b> below lets you see this for yourself: rate your anxiety, deliberately worry about a feared situation for a few minutes, then rate it again.",
   "<b>Defusion</b> means stepping back and watching your thoughts instead of being swept along by them: having a thought, not being the thought. You practice with short exercises (below), then use it day to day: \"There's that thought again,\" or \"Thanks, mind,\" then let it go.",
   "For a thought that keeps coming back, ask four questions: How old is it? What is it trying to do for me? Has it actually worked? Can I take it with me and still do what matters?",
   "<b>Don't use defusion right before or during an exposure.</b>"],steps:[
+  ["c8v","Try the worry experiment","See how worrying raises your anxiety"],
   ["c8a","Try each of the five exercises",""],
   ["c8b","Work through the four questions for a sticky thought",""],
   ["c8c","Use it day to day when worry starts",""]]},
  {id:"c9",nav:"Ch. 9",when:"Add-on",title:"Ch. 9 · Correcting Your Anxiety Lens",page:"p. 127",col:"mis",ws:ch9,sum:[
   "Anxiety works like a lens that makes danger look bigger. It does that in three ways: <b>negative predictions</b> (\"this is going to go badly\"), <b>negative focus</b> (only noticing what's wrong), and <b>problem magnification</b> (making a problem seem enormous). Your Cognitive Distortions sheet, at the top of this page, is a more detailed list of the same habits.",
   "First practice telling the three apart, then keep a thought log for a week to see which one you use most. Then work on that one:",
-  "<ul><li><b>Predictions:</b> work out how often a worry has actually come true; log predictions and check them later; ask what the prediction is for and whether it helps.</li><li><b>Focus:</b> for every negative, find two positives (comfort, calm, getting something done, learning, connection, feeling appreciated, meaning, helping someone); look for the other side of hard experiences.</li><li><b>Magnification:</b> place your problem on a ladder of bigger and smaller problems; describe it the way a calm friend would; ask how long you'll remember it.</li></ul>",
+  "<ul><li><b>Predictions:</b> work out how often a worry has actually come true; log predictions and check them later; ask what the prediction is for and whether it helps.</li><li><b>Focus:</b> for every negative, find two positives (comfort, calm, getting something done, learning, connection, feeling appreciated, meaning, helping someone); look for the other side of hard experiences; ask what your negative focus is trying to do for you (let off tension, lower expectations, avoid disappointment or future stress, improve yourself) and whether it's actually working.</li><li><b>Magnification:</b> place your problem on a ladder of bigger and smaller problems; describe it the way a calm friend would; ask how long you'll remember it.</li></ul>",
   "<b>Don't use these right before or during an exposure.</b> Use them for everyday worry."],steps:[
   ["c9a","Practice sorting the three patterns",""],
   ["c9b","Keep a thought log for a week",""],
@@ -285,14 +316,126 @@ const FINISH={id:"fin",nav:"Finish",when:"To finish",title:"Ch. 11 · Relapse Pr
   "Finish by signing a short contract with yourself."],steps:[
   ["f1","List your alarm bells",""],
   ["f2","Sign your contract",""]]};
-const KN={id:"kn",nav:"Next book",when:"Optional",title:"Next: The Knaus Workbook",page:"",ws:knaus,sum:[
-  "<i>The Cognitive Behavioral Workbook for Anxiety</i> is your second book. Don't read it cover to cover. Once you've finished the plan above, pick the chapters for whatever is still getting in your way. Tick the ones you want to read."],steps:[
-  ["k1","Pick the chapters that fit what's left",""]]};
-const ALL=[...PLAN,...ADDONS,FINISH,KN];
+const KN={id:"kn",nav:"Book 2",when:"Book 2 · Introduction",title:"The Cognitive Behavioral Workbook for Anxiety (Knaus)",page:"p. 1",ws:knIntro,sum:[
+  "Your second book covers the same ground from a different angle, and adds chapters on problems the main plan doesn't cover directly: procrastination, depression, worry, perfectionism, shyness, self-worth, social anxiety and panic.",
+  "Knaus calls needless fears <b>parasitic</b>: they feed on you and give nothing back. His approach has three parts that run through every chapter: <b>educate your reason</b> (question the fearful thinking), <b>build emotional tolerance</b> (be willing to feel discomfort without running from it) and <b>act</b> (face the fear in manageable steps until it fades).",
+  "<b>How to use it:</b> Part 1 (chapters 1–6) builds the basic toolkit. Part 2 (chapters 7–9) adds the main thinking, tolerance and exposure methods. Chapters 10–18 each tackle one specific problem, so do the ones that fit you. Chapters marked <b>Recommended</b> match your Week 1 answers. You can do this book alongside the main plan or after it.",
+  "Every chapter ends with the same short form: write down the key ideas you'll use, your action plan, and what happened when you tried it. It's at the bottom of each chapter below."],steps:[
+  ["k0","Read the summary above",""]]};
+const KCH=[
+ {id:"k1",n:1,part:"Part 1",title:"Welcome to the World of Parasitic Anxieties and Fears",page:"p. 9",ws:k1,sum:[
+  "Normal fear is an alarm for real danger, and it's on your side. <b>Parasitic</b> anxieties and fears are intense, lasting fears of things that aren't really dangerous: a mistake in front of a group, germs, rejection, the feeling of fear itself.",
+  "<b>Fear and anxiety differ in distance and time.</b> Fear is about a danger that's right here, now. Anxiety is about something that might happen later. Because anxiety gives you time, you can use that time to prepare: separate what's <i>possible</i> from what's <i>probable</i>, consider likelier explanations, remind yourself the fear is a passing thought, and accept yourself as much more than your fears.",
+  "<b>Building tolerance</b> means accepting that discomfort is unpleasant but won't harm you, and that it passes. Even a 10% gain in tolerance makes a real difference.",
+  "<b>Acting</b> means facing the fear in bite-sized steps, and finishing each step you start: backing away halfway teaches your brain that escape is the answer.",
+  "<b>What to do:</b> pick one fear and fill in the matrix: what you'll think, how you'll tolerate the feeling, and what you'll do, ahead of time, as anxiety turns into fear, and in the moment itself."],steps:[
+  ["k1a","Read the summary",""],["k1b","Fill in your matrix plan for one fear",""],["k1c","Fill in your key ideas and action plan",""]]},
+ {id:"k2",n:2,part:"Part 1",title:"Developing Your Self-Observant Skills",page:"p. 22",ws:k2,sum:[
+  "When you're <b>self-absorbed</b>, you stew in your fears or distract yourself from them. When you're <b>self-observant</b>, you watch your thoughts, feelings and actions as if from the outside, so you can see the links and try something different.",
+  "Bring three strengths to bear on a fear: <b>intellect</b> (facts that counter it), <b>ingenuity</b> (creative angles, like humor, or picturing the fear as a squeaky mouse with a megaphone) and <b>will</b> (persisting, and remembering hard changes you've already made).",
+  "<b>Keep a journal:</b> for each anxious moment, write the situation, the threatening thought, how you felt and what you did. Then add other possible explanations. A registered letter could be a tax audit, or a neighbor's building permit, or an inheritance.",
+  "<b>Catastrophic thinking</b> blows things out of proportion. Ask: what am I telling myself? Would a neutral observer agree? How else could I see it? For sweeping claims like \"everyone hates me\": define \"everyone,\" give an example, then find an exception. \"What if\" thoughts are really predictions in disguise, so check the actual odds. Or keep asking \"and then what?\" until you reach the realistic bottom line, and go straight there.",
+  "Finally, treat situations as <b>challenges</b> rather than threats, and list the strengths you've used to meet past challenges."],steps:[
+  ["k2a","Read the summary",""],["k2b","Do your intellect, ingenuity and will plan",""],["k2c","Keep the journal for at least a week",""],["k2d","Check the odds on three \"what if\" thoughts",""],["k2e","List your capabilities",""]]},
+ {id:"k3",n:3,part:"Part 1",title:"Overcoming Double Troubles",page:"p. 34",ws:k3,sum:[
+  "A <b>double trouble</b> is getting upset about being upset: fearing fear, panicking about panic, \"I can't stand feeling this way,\" or calling yourself weak for being anxious. The second layer is often worse than the original fear.",
+  "Double troubles are built from five ingredients: <b>magnifying</b> the problem, <b>overgeneralizing</b> (\"always,\" \"never,\" \"forever\"), <b>urgency</b> (\"I must stop feeling this now\"), <b>helplessness</b>, and <b>circular thinking</b> (\"I can't change, so it'll last forever; it lasts forever, so I can't change\").",
+  "To break them: start the thought with \"I assume\" or \"I believe\" so it becomes something you can test. Define the key words (what exactly do \"can't,\" \"change\" and \"forever\" mean?). Then look for exceptions that prove it wrong.",
+  "Practice three kinds of acceptance: of yourself (you're far more than your fears), of others, and of life as it is. And drop the idea of failure: treat each attempt as an experiment that shows you what works, what doesn't, and what's in between."],steps:[
+  ["k3a","Read the summary",""],["k3b","Test your main double-trouble thought",""],["k3c","Answer the six questions",""]]},
+ {id:"k4",n:4,part:"Part 1",title:"Self-Management Techniques to Defeat Fear",page:"p. 44",ws:k4,sum:[
+  "A seven-part plan for change: <b>analyze</b> the fear, set a <b>mission</b>, set <b>goals</b>, break them into <b>objectives</b>, make an <b>action plan</b>, <b>carry it out</b>, and <b>review and revise</b>.",
+  "Start with the fear inventory below, and retake it monthly as an early warning sign. Then break your main fear into four parts: what sets it off, what you tell yourself, what comes with it (like perfectionism or low mood), and how it shows up in your body. Get a medical checkup if you haven't, to rule out physical causes.",
+  "Good goals are relevant, measurable and achievable. Watch for a <b>hidden goal</b>: if avoiding discomfort matters more to you than beating the fear, avoidance will win. Make tolerating discomfort part of the goal.",
+  "Expect barriers: sitting on the fence, resisting change as a loss of freedom, perfectionism, putting it off, waiting to feel ready, and telling yourself you can't. When you carry out the plan, stay with the fear until it fades. You'll know it's working when you think more clearly, feel better and act differently."],steps:[
+  ["k4a","Take the fear inventory",""],["k4b","Break down your main fear",""],["k4c","Write your mission, goals and objectives",""],["k4d","Write and carry out your step-by-step plan",""],["k4e","Review and revise",""]]},
+ {id:"k5",n:5,part:"Part 1",title:"A Multimodal Attack Against Anxieties and Fear",page:"p. 60",ws:k5,sum:[
+  "<b>BASIC-ID</b> is a checklist of seven areas where a fear lives: <b>B</b>ehavior, <b>A</b>ffect (emotions), <b>S</b>ensations, <b>I</b>magery, <b>C</b>ognition (beliefs), <b>I</b>nterpersonal (relationships) and <b>D</b>rugs/biology (sleep, exercise, caffeine, alcohol, medication). Covering all seven makes change faster and helps stop fears from returning.",
+  "Some anxiety is a real warning. In the book's example, a woman's rising anxiety turned out to be signaling an unhealthy relationship. Clearing away the needless fears lets you hear the real ones.",
+  "A useful trick is to <b>spot the contradiction</b>: compare the fear story (\"no one else will ever want me\") with your actual history.",
+  "One caution: relaxing, massage and similar comforts are fine, but if they're all you do, they become a way of putting off the real work. Follow them with thinking and action steps."],steps:[
+  ["k5a","Read the summary",""],["k5b","Fill in your BASIC-ID for one fear and rank the areas",""],["k5c","Try the fixes, starting with your top area",""]]},
+ {id:"k6",n:6,part:"Part 1",title:"Five Steps for Positive Change",page:"p. 70",ws:k6,sum:[
+  "Changing means facing uncertainty, and not being able to stand uncertainty fuels worry. The answer isn't to wait for a guarantee, but to face uncertainty with a plan.",
+  "Five phases of change: <b>Awareness</b> (understand your fear: the seven questions below), <b>Action</b> (treat steps as experiments that test your fearful predictions), <b>Accommodation</b> (reconcile the clash between \"I can't change\" and the evidence that you have; compare the benefits of keeping the fear with challenging it), <b>Acceptance</b> (see things as they are, change what you can, adjust to what you can't) and <b>Actualization</b> (stretch toward something positive you actually want).",
+  "Accepting uncertainty means: accepting the facts, accepting you can learn to handle it, accepting you'll feel it in the moment, accepting that preparing can be uncomfortable, and accepting that over-preparing just feeds the idea that perfection will keep you safe."],steps:[
+  ["k6a","Answer the seven awareness questions",""],["k6b","Do the benefits analysis",""],["k6c","Write and start your actualization plan",""]]},
+ {id:"k7",n:7,part:"Part 2",title:"Developing the Mind to Stop Anxiety",page:"p. 83",ws:k7,sum:[
+  "Two tools for stepping back from fearful thinking.",
+  "<b>ABCDE:</b> the <b>A</b>dversity, your <b>B</b>eliefs about it (a reasonable one and a fear-driven one), the <b>C</b>onsequences of each (feelings and actions), <b>D</b>isputing the fear-driven belief with six questions (Does it fit the facts? Does it help my goals? My relationships? Does it counter fearful thinking? Is it reasonable here? Is it helpful or harmful?), and the new <b>E</b>ffect. Then give yourself a <b>behavioral assignment</b> to test it: for example, share an opinion with ten people and see how differently they react.",
+  "<b>PURRRRS</b> slows down automatic fearful reactions: <b>P</b>ause, <b>U</b>se your resources (write it down), <b>R</b>eflect, <b>R</b>eason it out, <b>R</b>espond with action, <b>R</b>evise, and <b>S</b>tabilize by repeating it."],steps:[
+  ["k7a","Do an ABCDE on one fear",""],["k7b","Carry out a behavioral assignment",""],["k7c","Work through a PURRRRS plan",""]]},
+ {id:"k8",n:8,part:"Part 2",title:"Building Emotional Tolerance",page:"p. 95",ws:k8,sum:[
+  "If you're <b>sensitive to body sensations</b>, small changes like a faster heartbeat can set off <b>triggering thoughts</b> (\"here it comes again\") and then <b>amplifying thoughts</b> (\"I'm losing control\"). Three countermeasures: <b>Occam's razor</b> (the simplest explanation is usually right: you climbed stairs), <b>realistic labels</b> (\"exercise reaction\") and <b>milder words</b> (\"unpleasant\" instead of \"awful\").",
+  "Your emotions accurately reflect what you're thinking, but the thinking can be off. A five-step approach: name what set it off, spot the triggering and amplifying thoughts, take a coping view, plan coping actions, and choose ways to tolerate the feeling (and reward yourself afterward).",
+  "<b>Self-doubt and sensitivity to sensations</b> feed each other. Reluctance to start is best met by starting promptly, every time, until it becomes a habit.",
+  "<b>Low frustration tolerance</b> shows up as \"I can't cope\" (distress), \"I need relief now\" (urgency) and \"I can't take any more\" (intolerance). Notice these thoughts and let them pass like clouds, swap in milder words, and use PURRRRS."],steps:[
+  ["k8a","Fill in the sensation countermeasure",""],["k8b","Use the five steps on a real situation",""],["k8c","Reword your low-frustration thoughts",""]]},
+ {id:"k9",n:9,part:"Part 2",title:"Behavioral Methods to Quell Fear",page:"p. 111",ws:k9,sum:[
+  "The brain's alarm learns fears fast and unlearns them slowly. Talking yourself out of a fear isn't enough. It takes <b>corrective experience</b>: facing the fear and finding out nothing bad happens.",
+  "<b>Graduated exposure:</b> break the fear into small steps, start with the easiest, and stay until the tension drops before moving on. In the book's example, a woman afraid of the dark used a dimmer switch to lower the light a notch at a time, and within three weeks she could sleep in the dark. Pace yourself, one or two steps per session with a couple of days between. After a setback, drop back a step and try again.",
+  "<b>Card sort:</b> write each version of the feared situation on a card (where, how close, how many people) and sort them from least to most scary. That's your ladder.",
+  "<b>Relaxation:</b> tense, hold and release each muscle group (5 seconds each), then breathe slowly thinking \"calm.\" Belly breathing helps too.",
+  "<b>Note:</b> this book allows relaxation alongside exposure. The main plan asks you <b>not</b> to use calming tools during exposures, so the fear can be fully disproven. For main-plan exposures, follow the main plan's rule."],steps:[
+  ["k9a","Make your card-sort ladder",""],["k9b","Work up the ladder, logging each step",""],["k9c","Practice the relaxation exercises",""]]},
+ {id:"k10",n:10,part:"Specific problems",title:"Breaking the Procrastination-Fear Connection",page:"p. 127",ws:k10,sum:[
+  "Procrastination and fear have the same root: dodging discomfort. Putting off facing a fear brings relief, and that relief trains you to keep putting it off.",
+  "You divert yourself in three ways: <b>behavioral</b> (doing something else instead, or hopping from one fear to the next without finishing any), <b>mental</b> (\"tomorrow,\" or \"once I've lost weight / done more research\") and <b>emotional</b> (waiting until you feel ready or inspired).",
+  "Tools: spot each diversion and plan an alternative; question your scary self-talk with \"because\" (\"I'll look like a fool <i>because</i>…\"); weigh the short- and long-term costs of avoiding versus facing; use the thing you'd normally escape into as a <b>reward</b> after you take a step.",
+  "The ten-point program below includes keeping a procrastination log, signing a contract with yourself, breaking the task into small pieces, and the <b>five-minute drill</b>: commit to five minutes on the first step, then decide on five more."],steps:[
+  ["k10a","Fill in your diversion chart",""],["k10b","Do the cost-benefit comparison",""],["k10c","Set up a new reward plan",""],["k10d","Use the ten-point program",""]]},
+ {id:"k11",n:11,part:"Specific problems",title:"Overcoming Mixed Anxiety and Depression",page:"p. 144",ws:k11,sum:[
+  "Anxiety and depression often come together, and depression usually weighs more. Depression shows up in the body (sleep, appetite, energy, focus) and in thinking: a negative view of yourself, your experiences and your future.",
+  "The thought they share is <b>powerlessness</b>: \"I can't do anything about this.\" But being in a situation you can't control isn't the same as being powerless. There's a difference between \"can't\" and \"won't because I think I can't.\" Blaming others or yourself feeds powerlessness, while choosing to accept what you can't change is itself a form of control.",
+  "Use PURRRRS on your powerlessness thoughts. Watch for starting a plan and stopping just short of finishing.",
+  "<b>If your low mood is severe, or you ever think about harming yourself, talk to a doctor or a crisis line</b> (in the US, call or text 988)."],steps:[
+  ["k11a","Write out your powerlessness thought",""],["k11b","Work through PURRRRS on it",""]]},
+ {id:"k12",n:12,part:"Specific problems",title:"Defusing Worry",page:"p. 152",ws:k12,sum:[
+  "Worry is thinking about bad things that probably won't happen. It's more about words than body sensations, but it can build into full anxiety.",
+  "Keep a <b>worry log</b> with a rebuttal for each worry, and watch for six traps: treating the <b>possible</b> as <b>probable</b>; <b>\"could be\"</b> logic; the <b>frequency</b> trap (remembering the rare times it happened); <b>\"if, then\"</b> leaps (\"if he hasn't called in five minutes, he's crashed\"); the <b>relief</b> trap (feeling relieved when nothing happens rewards the worry); and the <b>theory</b> trap (it sounds reasonable, so it must be true).",
+  "Other tools: exaggerate the worry until it's funny; take it to a ridiculous worst case; label it as rumination; ask \"Do I feel like continuing?\"; turn worry into concern by asking what responsible action you can take; imagine you're the one who's late; and set a daily ten-minute worry time."],steps:[
+  ["k12a","Take the worry inventory",""],["k12b","Keep a worry log with rebuttals for a week",""],["k12c","Try the other worry techniques",""]]},
+ {id:"k13",n:13,part:"Specific problems",title:"Stopping Perfectionist Thinking",page:"p. 165",ws:k13,sum:[
+  "Striving for excellence is healthy. <b>Perfectionism</b> is different: it ties your worth to impossible standards and breeds anxiety, procrastination and low mood.",
+  "Four common rules to question: \"I have to win,\" \"I have to be in control,\" \"I have to feel comfortable\" and \"Everyone has to approve of me.\" Look for the contradictions in each.",
+  "Perfectionism takes several forms: about yourself, about how others should act, about learning, about your work, comparing yourself to others, and performance. In social settings, watch for these myths: the perfect opening line, speaking flawlessly, being fully prepared first, feeling completely comfortable, and always being cheerful.",
+  "Swap <b>requiring</b> words (must, should, have to) for <b>aspiring</b> words (want, prefer, would like), and think in likelihoods rather than demands. Then make small mistakes on purpose, like dressing down or getting a minor detail wrong, and notice what actually happens."],steps:[
+  ["k13a","List your perfectionism traps and counters",""],["k13b","Swap your demand words",""],["k13c","Get something wrong on purpose",""]]},
+ {id:"k14",n:14,part:"Specific problems",title:"Defeating Inhibition",page:"p. 176",ws:k14,sum:[
+  "Some restraint is healthy. <b>Unhealthy inhibition</b> means holding back because you fear exposure or rejection, usually driven by a belief that you're inadequate. Inhibition, insecurity, self-doubt and fear of discomfort feed anxiety, and anxiety feeds them back.",
+  "Use PURRRRS to swap reflex inhibition for <i>chosen</i> restraint. In the reasoning step, define \"inadequate,\" list your evidence for it, then list evidence of what you can do. Both can't be fully true.",
+  "Then build tolerance for being noticed with <b>stepping-out-of-character</b> experiments (below), use positive words and humor, and try a <b>sensory awareness walk</b>: 15 minutes a day for a week, saying \"Now I'm aware of…\" for each new thing you notice.",
+  "For assertiveness: glance at people and smile instead of looking away, and break the ice with a simple observation."],steps:[
+  ["k14a","Work through PURRRRS on your inhibition",""],["k14b","Do at least three stepping-out experiments",""],["k14c","Do the sensory awareness walk for a week",""]]},
+ {id:"k15",n:15,part:"Specific problems",title:"Addressing Self-Worth Fears",page:"p. 186",ws:k15,sum:[
+  "If your worth depends on conditions (being successful, attractive, approved of), you're always one setback away from feeling worthless, and that makes you more fearful.",
+  "The alternative is a <b>pluralistic self</b>: you're made up of thousands of traits, roles, skills, values and experiences, so no single label, like \"anxious\" or \"a failure,\" can sum you up. Turn the old conditions into goals instead of measures of your worth.",
+  "<b>Role change:</b> invent a secret name for a \"pretend person\" who handles your fear situations the way you'd like to. Write their script: what they say, how they sound, how they stand. Play the role for about two weeks, then keep what works.",
+  "Write yourself an <b>empathy script</b>, treating yourself as you would a good friend, and credit your progress to your own effort."],steps:[
+  ["k15a","Compare your theory of worth with your theory of self",""],["k15b","Write and try your role-change script",""],["k15c","Write your empathy script",""]]},
+ {id:"k16",n:16,part:"Specific problems",title:"Addressing Social-Evaluation Anxieties",page:"p. 196",ws:k16,sum:[
+  "Social anxiety is fear of being judged, embarrassed or rejected. It often comes with low mood, perfectionism or drinking to cope. A common trap is assuming others see you exactly the way you fear they do.",
+  "Tackle it at three levels. <b>Practical:</b> for public speaking, know your goal, get practice (for example at Toastmasters), keep the opening simple, build the talk around one to five points, don't over-prepare, and look at the friendly faces. <b>Testing:</b> turn your \"have to\" beliefs (\"I have to be perfect\") into guesses and look for evidence against them. <b>Core:</b> stop turning bad into awful, use ABCDE, and accept yourself, others and life as they are.",
+  "Start with the social fears check below. If many items are 4 or 5, your social anxiety is broad rather than tied to one situation."],steps:[
+  ["k16a","Take the social fears check",""],["k16b","Challenge your \"have to\" thoughts",""],["k16c","Do an ABCDE on a social fear",""]]},
+ {id:"k17",n:17,part:"Specific problems",title:"Vanquishing Panic",page:"p. 210",ws:k17,sum:[
+  "Panic is a sudden surge of intense fear that usually passes within 2 to 30 minutes. It feels dangerous, but it isn't. Get a medical check the first time, and know that things like caffeine, some medications or a heart murmur can play a part.",
+  "Panic can be <b>uncued</b> (out of the blue), <b>cued</b> (set off by certain places or situations) or <b>mixed</b>. For uncued panic: don't treat panic thoughts as facts, accept it (\"if I panic, I panic\"), check your watch and pulse, breathe slowly, and rehearse beforehand. For cued panic: use graduated exposure.",
+  "Watching yourself (timing it, noting each sensation) moves you from panicking about panic to observing it. Helpful habits: regular exercise, belly breathing, and calling it \"a temporary reaction.\" Bringing on the sensations on purpose (spinning, exercise, breathing through a straw) shows you they're harmless. These are the same exercises as the Panic extras section above.",
+  "Use ABCDE to take the catastrophe out of panic. Watch for safety behaviors that help you escape rather than face it."],steps:[
+  ["k17a","Make your panic plan",""],["k17b","Do an ABCDE for panic",""],["k17c","Do the body-sensation exercises in Panic extras",""]]},
+ {id:"k18",n:18,part:"Specific problems",title:"Preventing Anxieties and Fears from Coming Back",page:"p. 225",ws:k18,sum:[
+  "Expect old fears to make cameo appearances. A brief return isn't a lapse, and even a lapse isn't a relapse. You already have the tools.",
+  "Four quick steps when one shows up: reread your key-ideas notes from each chapter (monthly is good), use ABCDE, do a BASIC-ID check, and use PURRRRS.",
+  "Treat fearful thoughts as passengers, not permanent fixtures. Catch double troubles (label them, accept yourself, don't judge yourself). Break circular thoughts by adding \"because\" and starting with \"I assume.\" Practice imagery of yourself handling things well.",
+  "Look after the basics: sleep, exercise, diet, and less caffeine, alcohol and smoking. Make one big change at a time. Watch for \"I would, but…\" thinking. Then design your own maintenance plan below."],steps:[
+  ["k18a","Set up your monthly review",""],["k18b","Write your maintenance plan",""]]}].map(c=>Object.assign(c,{nav:"Ch. "+c.n,when:"Book 2 · "+c.part,title:"Ch. "+c.n+" · "+c.title,kp:1}));
+const MAIN=[...PLAN,...ADDONS,FINISH];
+const ALL=[...MAIN,KN,...KCH];
 
 /* ---------- state ---------- */
 const KEY="anxiety-workbook-v2";
-const blank=()=>({done:{},types:{},fears:{},ci:{},inv:[],avoid:{},f:{},r:{},x:{},c:{},q:{}});
+const blank=()=>({done:{},types:{},fears:{},ci:{},inv:[],avoid:{},f:{},r:{},x:{},c:{},q:{},chk:{}});
 const norm=o=>{const b=blank();o=o||{};for(const k in b){if(o[k]!==undefined&&typeof o[k]===typeof b[k]&&Array.isArray(o[k])===Array.isArray(b[k]))b[k]=o[k]}return b};
 const OPEN={};
 let S=blank(), ref=null, timer=null, writing=false, again=false, statusText="";
@@ -364,7 +507,9 @@ function ch7(){
   +card("Worksheet","Worst-case coping plan","Pick something you dread and imagine it actually happens. Then plan how you'd cope. Make one for each big fear.",rows("r.plans",[{k:"scen",l:"Worst-case scenario",t:"area",w:1},{k:"beh",l:"What I'd do (actions)",t:"area",w:1},{k:"emo",l:"How I'd handle the feelings",t:"area",w:1},{k:"cog",l:"What I'd tell myself",t:"area",w:1},{k:"ppl",l:"Who could help, and how I'd ask",t:"area",w:1}],"Add a plan"));
 }
 function ch8(){
-  return card("Practice","Five defusion exercises","Do them somewhere quiet. There's no wrong way. Noticing that your mind wandered is the point. Tick each one once you've tried it.",checks("c.defuse",DEFUSE)+field("f.def_notes",{l:"Notes: what happened, which one worked best",t:"area"}))
+  return card("Experiment","How worry feeds anxiety","Somewhere quiet, pick a fear from your Exposure Inventory and rate your anxiety just thinking about it. Then close your eyes, picture yourself in the situation using all your senses, and let the worst happen: worry about every detail for a few minutes. Rate your anxiety again.",
+   `<div class="rows"><div class="rowc fixed">${field("f.wv_sit",{l:"The situation",t:"text",w:1})}${field("f.wv_b",{l:"Anxiety before (1–10)",...R110})}${field("f.wv_a",{l:"Anxiety after worrying (1–10)",...R110})}</div></div><p class="result" id="wv"></p>`)
+  +card("Practice","Five defusion exercises","Do them somewhere quiet. There's no wrong way. Noticing that your mind wandered is the point. Tick each one once you've tried it.",checks("c.defuse",DEFUSE)+field("f.def_notes",{l:"Notes: what happened, which one worked best",t:"area"}))
   +card("Worksheet","Four questions for a sticky thought","",rows("r.sticky",[{k:"thought",l:"The thought",t:"text",w:1},{k:"old",l:"How old is it? When did it start?",t:"area",w:1},{k:"purpose",l:"What is it trying to do for me?",t:"area",w:1},{k:"worked",l:"Has it worked? What has it cost me?",t:"area",w:1},{k:"still",l:"I can take this thought with me and still…",t:"area",w:1}],"Add a thought"));
 }
 function ch9(){
@@ -377,6 +522,8 @@ function ch9(){
   +`<p class="note">Also ask yourself, whenever you catch a prediction: what is this trying to do for me, and is it working? It almost always makes you feel less safe, not more.</p>`
   +`<h4>If you mostly focus on the negative</h4>`
   +card("Exercise","Two positives for every negative","When you catch a negative judgment, find two positive things about the same situation. Places to look: comfort, calm, getting something done, learning something, connection, being appreciated, meaning, helping someone.",rows("r.twopos",[{k:"neg",l:"The negative",t:"text",w:1},{k:"p1",l:"Positive 1",t:"text"},{k:"p2",l:"Positive 2",t:"text"}],"Add one"))
+  +card("Exercise","What is your negative focus for?","Negative focus usually serves a purpose: letting off built-up tension, lowering your expectations, avoiding disappointment, avoiding future stress, or trying to improve yourself. Which is yours, and is it actually working? If not, label it (\"there's one of my negative thoughts again\") and let it go.",
+   `<div class="rows"><div class="rowc fixed">${field("f.nf_what",{l:"What my negative focus is trying to do for me",t:"area",w:1})}${field("f.nf_works",{l:"Is it working? What does it cost me?",t:"area",w:1})}</div></div>`)
   +card("Exercise","Both sides of the coin","Three hard experiences, and what good came out of each: new strength, a lesson, support from others, more confidence, knowing what really matters to you.",rows("r.both",[{k:"neg",l:"Hard experience",t:"area"},{k:"pos",l:"The other side",t:"area"}],"Add an experience"))
   +`<h4>If you mostly make problems bigger</h4>`
   +card("Exercise","The problem ladder",`Here are common problems from biggest to smallest:<ol class="ladder">${LADDER.map(l=>`<li>${esc(l)}</li>`).join("")}</ol>Where does your problem really fit?`,rows("r.ladder",[{k:"prob",l:"My problem",t:"text",w:1},{k:"size",l:"About as big as…",t:"sel",o:LADDER}],"Add a problem"))
@@ -399,11 +546,148 @@ function ch11(){
   +card("Contract","My contract",`When these alarm bells ring, I will: <b>1)</b> call it a relapse and own it; <b>2)</b> face what I fear and cut avoidance short; <b>3)</b> use my skills: coping, defusion, checking the real danger, and handling distress.`,
    `<div class="rows"><div class="rowc fixed">${field("f.k_bells",{l:"My main alarm bells",t:"area",w:1})}${field("f.k_name",{l:"Signed",t:"text"})}${field("f.k_date",{l:"Date",t:"text"})}</div></div>`);
 }
-function knaus(){return card("","Chapters by problem","Chapters 1–9 cover the basics again in a different style.",checks("c.knaus",KNAUS))}
+function startWs(){
+  return card("","Your route through the book","",`<ol class="ladder"><li>Take your first progress checks (next section).</li><li>Weeks 1–6, in order.</li><li>Add the chapters your Coping Inventory marks <b>Recommended</b>, alongside Weeks 3–6.</li><li>Retake the progress checks partway through and at the end.</li><li>Finish with relapse prevention.</li><li>Then Book 2 for anything still getting in your way.</li></ol>`);
+}
+
+/* ---------- progress checks ---------- */
+function likert(p,items,opts,start=1,wide=false){
+  return `<ol class="qs">${items.map((q,i)=>{const k=p+"."+(start+i);return `<li class="q${wide?" wide":""}"><label for="${pid(k)}"><span class="qn">${start+i}</span><span class="qt">${esc(q)}</span></label>${field(k,{t:"sel",o:opts,bare:1})}</li>`}).join("")}</ol>`;
+}
+function sumOf(o,n){let t=0,c=0;for(let i=1;i<=n;i++){const v=o&&o[i];if(v!==undefined&&v!==""){t+=+v;c++}}return {t,c}}
+function anxScore(){const s=sumOf(S.chk.anx,7);return {c:s.c,done:s.c===7,score:s.t*2}}
+function aaqScore(){const s=sumOf(S.chk.aaq,7);return {c:s.c,done:s.c===7,score:s.t}}
+const band=v=>ANX_BANDS.find(([m])=>v<=m)[1];
+function hist(type){
+  const h=((S.chk&&S.chk.hist)||[]).filter(e=>e.type===type);
+  if(!h.length)return `<p class="empty">No saved check-ins yet.</p>`;
+  const first=h[0];
+  const head=type==="ci"?`<th>Date</th>${CI_COLS.map(c=>`<th>${c[1]}</th>`).join("")}<th></th>`:`<th>Date</th><th>Score</th><th>${type==="anx"?"Level":"Change from first"}</th><th></th>`;
+  const row=e=>type==="ci"?`<td>${esc(e.date)}</td>${CI_COLS.map(c=>`<td>${e[c[0]]}</td>`).join("")}`
+    :`<td>${esc(e.date)}</td><td>${e.score} / ${type==="anx"?42:49}</td><td>${type==="anx"?band(e.score):(e===first?"–":(e.score-first.score>0?"+":"")+(e.score-first.score))}</td>`;
+  return `<div class="scroll"><table class="ci"><thead><tr>${head}</tr></thead><tbody>${h.map(e=>`<tr class="ih">${row(e)}<td><button class="del" style="position:static" data-del="chk.hist|${e.id}" aria-label="Remove this check-in">×</button></td></tr>`).join("")}</tbody></table></div>`;
+}
+function chkWs(){
+  return card("Check-in · 7 statements","Anxiety check","How much did each statement apply to you over the <b>past week</b>? <b>0</b> = not at all, <b>1</b> = some of the time, <b>2</b> = a good part of the time, <b>3</b> = most of the time.",
+   likert("chk.anx",ANX_Q,["0","1","2","3"])+`<p class="result" id="anx-res"></p><button class="btn" data-snap="anx">Save this check-in</button>${hist("anx")}`)
+  +card("Check-in · 7 statements","Avoidance check","How true is each statement for you? <b>1</b> = never true, <b>4</b> = sometimes true, <b>7</b> = always true. Higher scores mean more avoidance of hard feelings.",
+   likert("chk.aaq",AAQ_Q,["1","2","3","4","5","6","7"])+`<p class="result" id="aaq-res"></p><button class="btn" data-snap="aaq">Save this check-in</button>${hist("aaq")}`)
+  +card("Retake","Coping Inventory over time","To retake it, change your answers in Week 1, then save a snapshot of your four scores here.",`<button class="btn" data-snap="ci">Save my current Coping Inventory scores</button>${hist("ci")}`)
+  +`<p class="note">Saving a check-in records today's date and score, then clears the answers so they're fresh next time. These statements are written in our own words, based on the book's questionnaires, so treat the scores as a guide to your progress, not a diagnosis.</p>`;
+}
+
+/* ---------- book 2 (Knaus) ---------- */
+function purrrrs(p,label){return `<div class="rows"><div class="rowc fixed">${field(p+".target",{l:label,t:"text",w:1})}${PURR.map(([k,l,h])=>field(p+"."+k,{l:l+": "+h,t:"area",w:1})).join("")}</div></div>`}
+const box=fields=>`<div class="rows"><div class="rowc fixed">${fields.join("")}</div></div>`;
+const A=(k,l,o={})=>field(k,Object.assign({l,t:"area",w:1},o));
+function keyplan(id){
+  return card("End of chapter","Key ideas and action plan","Write the ideas from this chapter you'll use and your action plan. Try it, then come back and record what happened.",
+   box([A("f.kp."+id+".ideas","Key ideas (up to 3)"),A("f.kp."+id+".plan","Action plan (up to 3 steps)"),A("f.kp."+id+".res","Results from the actions I took")]));
+}
+function knIntro(){
+  const done=KCH.reduce((n,p)=>n+p.steps.filter(s=>S.done[s[0]]).length,0), total=KCH.reduce((n,p)=>n+p.steps.length,0);
+  return card("Chapters","Jump to a chapter",`${done} of ${total} Book 2 steps done.`,`<nav class="jump" aria-label="Book 2 chapters">${KCH.map(p=>`<a href="#${p.id}" class="${isRec(p)?"rec":""}">${esc(p.title)}</a>`).join("")}</nav>`);
+}
+function k1(){
+  return card("Worksheet","Your matrix plan","Pick one fear. For each row, write what you'll do at each point in time.",
+   field("f.k1.threat",{l:"The fear I want to defeat",t:"text"})+fixed("x.k1m",[["cog","Thinking","How will I put it in perspective?"],["tol","Tolerating the feeling","How will I live with the sensations without bailing out?"],["beh","Doing","What will I actually do?"]],[{k:"before",l:"Ahead of time",t:"area"},{k:"merge",l:"As anxiety turns into fear",t:"area"},{k:"during",l:"In the moment",t:"area"}]));
+}
+function k2(){
+  return card("Worksheet","Intellect, ingenuity and will","",box([field("f.k2.target",{l:"The fear I'm targeting",t:"text",w:1}),A("f.k2.int","Intellect: facts that counter it"),A("f.k2.ing","Ingenuity: creative ways to defeat it (humor, paradox, a silly image)"),A("f.k2.will","Will: how I'll push for change")]))
+  +card("Journal","Situation, thoughts, feelings, actions","Log anxious moments, then add other explanations that could fit.",rows("r.k2log",[{k:"sit",l:"Situation",t:"text",w:1},{k:"th",l:"Threatening thought",t:"area"},{k:"emo",l:"Feelings",t:"text"},{k:"beh",l:"What I did",t:"text"},{k:"alt",l:"Other possible explanations",t:"area",w:1}],"Add an entry"))
+  +card("Exercise","What are the odds?","Three \"what if\" thoughts, and a realistic look at how likely each one is.",rows("r.k2odds",[{k:"wi",l:"\"What if…\" thought",t:"text",w:1},{k:"odds",l:"Probability check: the facts and the real odds",t:"area",w:1}],"Add a thought"))
+  +card("Exercise","And then what?","Take a catastrophic thought and keep asking \"and then what?\" until you reach the realistic bottom line.",field("f.k2.reduce",{t:"area",bare:1}))
+  +card("Worksheet","Catalogue your capabilities","",box([A("f.k2.caps","Strengths I've used to meet past challenges"),A("f.k2.capuse","Which of these I can use against my fears")]));
+}
+function k3(){
+  return card("Worksheet","Test your double-trouble thought","",box([A("f.k3.stmt","My main double-trouble thought (start it with \"I assume…\")"),A("f.k3.terms","Key words, and what I actually mean by them"),A("f.k3.mag","Where I'm magnifying"),A("f.k3.magx","Exceptions to that"),A("f.k3.gen","Where I'm overgeneralizing"),A("f.k3.genx","Exceptions to that"),A("f.k3.res","Results of testing it")]))
+  +card("Worksheet","Six steps to ending double troubles","",box([A("f.k3.q1","1. What is my most pressing double trouble?"),A("f.k3.q2","2. What would my future look like without it?"),A("f.k3.q3","3. What evidence do I have that I can change it?"),A("f.k3.q4","4. What higher purpose or value can I focus on?"),A("f.k3.q5","5. What concrete steps will I take?"),A("f.k3.q6","6. What did I learn from taking them?")]));
+}
+function k4(){
+  let n=1;const inv=K4_INV.map(([g,items])=>{const h=`<h4>${esc(g)}</h4>`+likert("x.k4inv",items,["1","2","3","4"],n);n+=items.length;return h}).join("");
+  return card("Inventory · retake monthly","Fear inventory","Rate how much each one applied over the past month: <b>1</b> = not me, <b>2</b> = somewhat, <b>3</b> = often, <b>4</b> = just like me. Items you rate 4 deserve attention first.",inv+`<p class="result" id="k4-res"></p>`)
+  +card("Worksheet","Break down your main fear","",box([field("f.k4.fear",{l:"Main fear",t:"text",w:1}),A("f.k4.sit","What sets it off"),A("f.k4.think","What I tell myself about it"),A("f.k4.coex","What comes with it (low mood, perfectionism…)"),A("f.k4.body","How it shows up in my body")]))
+  +card("Worksheet","Mission, goals and objectives","",field("f.k4.mission",{l:"My mission (the purpose behind beating this fear)",t:"area"})+rows("r.k4goals",[{k:"goal",l:"Goal (relevant, measurable, achievable)",t:"text",w:1},{k:"obj",l:"Objectives: one per line, covering thinking, tolerating and doing",t:"area",w:1}],"Add a goal"))
+  +card("Worksheet","Your step-by-step plan","Up to nine steps. Include tolerating discomfort as one of them.",field("f.k4.plan",{t:"area",bare:1}))
+  +card("Checklist","Barriers I need to watch for","",checks("c.k4bar",[["amb","Sitting on the fence: wanting change but not the discomfort"],["react","Resisting change as a loss of freedom"],["perf","Perfectionism: waiting until I can do it perfectly"],["procr","Putting it off until later"],["emo","Waiting until I feel ready"],["help","Telling myself I can't"]]))
+  +card("Review","How am I doing?","Is my mission clear? Are my goals relevant? Have I mapped my objectives? Is my plan detailed enough? Have I carried it out? Am I on track, or does something need adjusting?",field("f.k4.eval",{t:"area",bare:1}));
+}
+function k5(){
+  return card("Worksheet","Your BASIC-ID matrix","Pick one fear. For each area, describe the problem and a fix, then rank the areas by how much they matter (1 = most).",
+   field("f.k5.target",{l:"Target fear",t:"text"})+fixed("x.k5",[["b","Behavior","What do you do that gets in the way? What would you like to start or stop?"],["a","Affect (emotions)","Which feelings dominate, and what sets them off?"],["s","Sensation","Which sights, sounds or body feelings link to the fear?"],["i","Imagery","How do you picture yourself when distressed?"],["c","Cognition","What do you believe when the fear hits?"],["i2","Interpersonal","How do you act with others when anxious?"],["d","Drugs/biology","Sleep, exercise, caffeine, alcohol, medication"]],[{k:"prob",l:"Problem",t:"area"},{k:"fix",l:"Plan",t:"area"},{k:"rank",l:"Rank",t:"sel",o:[1,2,3,4,5,6,7]}]));
+}
+function k6(){
+  return card("Worksheet","Seven awareness questions","",box([field("f.k6.t",{l:"Target fear",t:"text",w:1}),A("f.k6.q1","What situations trigger it?"),A("f.k6.q2","What do I normally do when it hits?"),A("f.k6.q3","What makes me more vulnerable (mood, sleep, money, health, conflict)?"),A("f.k6.q4","What thoughts, feelings and actions come with it?"),A("f.k6.q5","What makes it worse? What makes it better?"),A("f.k6.q6","What's missing in my life that connects to it?"),A("f.k6.q7","How can I influence the outcome?")]))
+  +card("Worksheet","Benefits analysis","Do the benefits of challenging the fear outweigh the benefits of keeping it?",fixed("x.k6b",[["keep","Keep the fear",""],["chal","Challenge the fear",""]],[{k:"st",l:"Short-term benefits",t:"area"},{k:"lt",l:"Long-term benefits",t:"area"}]))
+  +card("Worksheet","Your actualization plan","Something positive you want, which you'll have to face uncertainty to get.",box([A("f.k6.goal","Measurable, achievable goal"),A("f.k6.why","Why I want it (short- and long-term benefits)"),A("f.k6.bar","Barriers, and the strengths I can bring"),A("f.k6.plan","Action plan"),A("f.k6.acc","Compromises and adjustments"),A("f.k6.real","What I can't change and will accept"),A("f.k6.stretch","Where I'll stretch myself")]));
+}
+function k7(){
+  return card("Worksheet","ABCDE","",rows("r.k7abc",ABCDE,"Add an ABCDE"))
+  +card("Assignment","Behavioral assignment","Based on your ABCDE, what will you actually do to test it? What happened?",field("f.k7.assign",{t:"area",bare:1}))
+  +card("Worksheet","PURRRRS plan","",purrrrs("f.k7p","The fear I'm targeting"));
+}
+function k8(){
+  return card("Worksheet","Sensation countermeasure","",box([field("f.k8.sens",{l:"The body sensation that sets me off",t:"text",w:1}),A("f.k8.occ","Occam's razor: the simplest explanation"),A("f.k8.lab","Realistic label for it"),A("f.k8.trig","Triggering thoughts (\"here it comes…\")"),A("f.k8.trigr","My responses to them"),A("f.k8.amp","Amplifying thoughts (\"I'm losing control…\")"),A("f.k8.ampr","My responses to them")]))
+  +card("Worksheet","Five steps to boost tolerance","",rows("r.k8five",[{k:"act",l:"1. What set it off",t:"text",w:1},{k:"trig",l:"2. Triggering and amplifying thoughts",t:"area",w:1},{k:"persp",l:"3. A coping perspective",t:"area",w:1},{k:"act2",l:"4. Coping actions",t:"area",w:1},{k:"tol",l:"5. How I'll tolerate the feeling (and my reward afterward)",t:"area",w:1}],"Add a situation"))
+  +card("Exercise","Low-frustration thoughts","Write the \"I can't cope / I need relief now / I can't take any more\" thoughts you catch, and a milder rewording of each.",rows("r.k8lft",[{k:"th",l:"The thought",t:"text"},{k:"re",l:"Milder rewording",t:"text"}],"Add a thought"));
+}
+function k9(){
+  return `<div class="callout" style="margin-top:12px">For exposures in the main plan, skip the relaxation steps here. The main plan works by feeling the fear fully.</div>`
+  +card("Worksheet","Your card-sort ladder","List each version of the situation, one per line, from least to most scary.",box([field("f.k9.fear",{l:"The fear",t:"text",w:1}),A("f.k9.loc","Places, easiest first"),A("f.k9.prox","How close or how far in, easiest first"),A("f.k9.ppl","How many people, or other conditions, easiest first")]))
+  +card("Log","Exposure steps","Stay in each step until the tension drops. One or two steps a session, two days apart. After a setback, drop back a step.",rows("r.k9log",[{k:"step",l:"Step",t:"text",w:1},{k:"date",l:"Date",t:"text"},{k:"ok",l:"Tension dropped?",t:"sel",o:["Yes","Not yet"]},{k:"note",l:"Notes",t:"area",w:1}],"Log a step"))
+  +card("Practice","Relaxation","",checks("c.k9relax",[["muscle","Muscle relaxation","Tense each muscle group for 5 seconds, hold 5, release over 5, from hands to stomach. Then breathe in 4, hold 5, out 5, thinking \"calm,\" three times"],["belly","Belly breathing","2 minutes: your belly rises as you breathe in and falls as you breathe out"],["timed","Timed breathing","In for 2 seconds, hold 2, out 2, pause 2, about 8 rounds a minute"],["pair","Pair relaxation with pictures","Relax fully, then look at the easiest image of your fear. Two images per sitting at most"]]));
+}
+function k10(){
+  return card("Worksheet","Diversion chart","",field("f.k10.sit",{l:"Situation I put off",t:"text"})+fixed("x.k10d",[["beh","Behavioral","What I do instead"],["men","Mental","What I tell myself (\"later,\" \"after I…\")"],["emo","Emotional","Waiting to feel ready"]],[{k:"div",l:"My diversion",t:"area"},{k:"goal",l:"Alternative goal",t:"area"},{k:"plan",l:"Action plan",t:"area"},{k:"res",l:"Results",t:"area"}]))
+  +card("Exercise","\"Because\" clarifications","",rows("r.k10bec",[{k:"ph",l:"Frightening phrase",t:"text",w:1},{k:"bec",l:"\"Because…\"",t:"area"},{k:"alt",l:"Another way to see it",t:"area"}],"Add a phrase"))
+  +card("Worksheet","Avoid vs. face: costs and benefits","",field("f.k10.cbs",{l:"Situation",t:"text"})+fixed("x.k10cb",[["avoid","Avoid the fear",""],["face","Face the fear",""]],[{k:"sa",l:"Short-term pros",t:"area"},{k:"sd",l:"Short-term cons",t:"area"},{k:"la",l:"Long-term pros",t:"area"},{k:"ld",l:"Long-term cons",t:"area"}]))
+  +card("Worksheet","New reward approach","Make the thing you usually escape into a reward for taking a step.",box([field("f.k10.rs",{l:"Fear situation",t:"text",w:1}),A("f.k10.ra","What I usually do instead"),A("f.k10.rg","New goal"),A("f.k10.rst","Steps, then the reward")]))
+  +card("Checklist","Ten-point program","",checks("c.k10prog",[["sig","Treat the urge to delay as a signal to stop and observe"],["acc","Accept that facing discomfort is part of the solution"],["log","Keep a procrastination log: situation, thinking, feelings"],["cb","Do a short- and long-term cost-benefit check"],["div","Cut out diversions"],["sys","Plan it: mission, goals, plan, do, review, revise"],["con","Write a contract with myself: what, when, reward, penalty"],["inst","Talk myself through the steps"],["bits","Break it into small pieces"],["five","Five-minute drill: five minutes on the first step, then decide on five more"]])+field("f.k10.contract",{l:"My contract",t:"area"}));
+}
+function k11(){
+  return card("Worksheet","PURRRRS for powerlessness thinking","",purrrrs("f.k11p","My powerlessness thought"));
+}
+function k12(){
+  return card("Inventory","What do you worry about?","",likert("x.k12inv",K12_INV,["True","False"],1,true)+`<p class="result" id="k12-res"></p>`+field("f.k12.major",{l:"My major worries",t:"area"}))
+  +card("Log","Worry log","Write each worry as it comes, which trap it falls into, and your rebuttal.",rows("r.k12log",[{k:"w",l:"Worry",t:"area",w:1},{k:"trap",l:"Trap",t:"sel",o:WORRY_TRAPS},{k:"reb",l:"Rebuttal",t:"area",w:1}],"Add a worry"))
+  +card("Checklist","Other ways to defuse worry","",checks("c.k12tech",[["laugh","Exaggerate it until it's funny"],["worst","Take it to an absurd worst case"],["label","Label it: \"this is rumination\""],["cont","Ask: \"Do I feel like continuing?\""],["care","Turn worry into concern: what responsible step can I take?"],["shoes","Imagine I'm the one running late"],["time","Ten-minute worry time, same time every day"],["is","Swap \"it will\" for a probability estimate"]]));
+}
+function k13(){
+  return card("Worksheet","Your perfectionism traps","",rows("r.k13t",[{k:"form",l:"Trap or myth",t:"sel",o:PERF_TRAPS},{k:"con",l:"How I'll contradict it",t:"area",w:1}],"Add a trap"))
+  +card("Exercise","Requiring vs. aspiring words","Swap demands (must, should, have to, ought) for preferences (want, prefer, would like, wish).",rows("r.k13w",[{k:"dem",l:"My demand",t:"text"},{k:"pref",l:"Preference version",t:"text"}],"Add a swap"))
+  +card("Log","Getting it wrong on purpose","",rows("r.k13x",[{k:"prob",l:"Perfectionist problem",t:"text",w:1},{k:"test",l:"Test activity",t:"text"},{k:"learn",l:"What I learned",t:"area"}],"Add a test"));
+}
+function k14(){
+  return card("Worksheet","PURRRRS for inhibition","In the Reason step: define \"inadequate,\" list your evidence for it, list evidence of what you can do, and notice they can't both be fully true.",purrrrs("f.k14p","The inhibition I'm targeting"))
+  +card("Experiments","Stepping out of character","Tick the ones you've done, and note what happened.",checks("c.k14out",[["eggs","Order two eggs cooked two different ways"],["bread","Ask for a sandwich on two kinds of bread"],["socks","Wear mismatched socks for a day"],["coat","Wear a winter coat at the mall in summer"],["dir","Ask three people a day for directions"],["town","Visit a town you've never been to"],["change","Ask for change at a store without buying anything"],["voice","Speak up more loudly than usual"],["museum","Ask strangers at a museum what they think of an exhibit"]])+field("f.k14.out",{l:"What happened",t:"area"}))
+  +card("Log","Sensory awareness walk","15 minutes a day for a week. For each new thing you notice, say \"Now I'm aware of…\"",rows("r.k14s",[{k:"date",l:"Date",t:"text"},{k:"aw",l:"Now I'm aware of…",t:"area",w:1}],"Add a walk"))
+  +card("Checklist","Small assertions","",checks("c.k14a",[["smile","Glance at people and smile instead of looking away"],["ice","Break the ice with a simple observation"],["pos","Use a few upbeat words in conversation each day"],["humor","Spend time on something that makes me laugh"]]));
+}
+function k15(){
+  return card("Worksheet","Theory of worth vs. theory of self","",box([A("f.k15.worth","My theory of worth: what I think I have to be or do to be worthwhile"),A("f.k15.self","My theory of self: everything I am (traits, roles, skills, values, experiences)")]))
+  +card("Worksheet","Role change","Play your pretend person for about two weeks, then keep what works.",box([field("f.k15.name",{l:"Secret name",t:"text",w:1}),A("f.k15.theme","How I usually act when the fear drives me (write it as he/she/they)"),A("f.k15.script","The new script: what my pretend person thinks, says and does"),A("f.k15.voice","Voice, body language, the risks they take"),A("f.k15.impact","How they help others while standing up for themselves"),A("f.k15.res","What to keep, change or drop after two weeks")]))
+  +card("Worksheet","Empathy script","Why you deserve understanding: your right to self-acceptance, your strengths, and accepting even the feelings you don't like.",field("f.k15.emp",{t:"area",bare:1}));
+}
+function k16(){
+  return card("Check","Social fears check","<b>1</b> = never, <b>2</b> = rarely, <b>3</b> = sometimes, <b>4</b> = often, <b>5</b> = habitually.",likert("x.k16inv",K16_INV,["1","2","3","4","5"])+`<p class="result" id="k16-res"></p>`+field("f.k16.main",{l:"My most significant social fear",t:"text"}))
+  +card("Checklist","Practical steps for speaking up","",checks("c.k16p",[["goal","Know what I want the talk to achieve"],["prac","Get practice: one question in class, an announcement, Toastmasters"],["open","Keep the opening simple"],["pts","Build it around one to five main points on a card"],["over","Don't over-prepare"],["reh","Rehearse the main points, adding a detail each time"],["faces","Look at the friendly, attentive faces"]]))
+  +card("Exercise","Challenge your \"have to\" thoughts","Turn each into a guess, then look for evidence against it.",rows("r.k16h",[{k:"dem",l:"\"I have to…\"",t:"text",w:1},{k:"ch",l:"Evidence against it",t:"area",w:1}],"Add one"))
+  +card("Worksheet","ABCDE for a social fear","",rows("r.k16abc",ABCDE,"Add an ABCDE"));
+}
+function k17(){
+  return card("Plan","When panic comes","Tick the ones you'll use, and rehearse them when you're calm.",checks("c.k17",[["fact","Remind myself panic thoughts aren't facts"],["acc","Accept it: \"If I panic, I panic\""],["time","Check my watch and time it"],["pulse","Take my pulse"],["breathe","Slow belly breathing"],["note","Note each sensation as an observer"],["label","Call it \"a temporary reaction\""],["exer","Regular exercise between episodes"]]))
+  +card("Worksheet","ABCDE for panic","",rows("r.k17abc",ABCDE,"Add an ABCDE"))
+  +`<p class="note">For the body-sensation exercises, use the <a href="#pan">Panic extras</a> section above.</p>`;
+}
+function k18(){
+  return card("Checklist","When a fear shows up again","",checks("c.k18q",[["rev","Reread my key-ideas notes"],["abc","Do an ABCDE"],["basic","Do a BASIC-ID check"],["purr","Use PURRRRS"],["dbl","Catch double troubles"],["circ","Break circular thoughts with \"because\" and \"I assume\""],["img","Picture myself handling it well"]]))
+  +card("Worksheet","Your maintenance plan","",fixed("x.k18m",[["cog","Thinking",""],["tol","Tolerating discomfort",""],["beh","Doing",""]],[{k:"int",l:"Intellect",t:"area"},{k:"ing",l:"Ingenuity",t:"area"},{k:"will",l:"Will",t:"area"}])+field("f.k18.life",{l:"Lifestyle basics I'll work on (sleep, exercise, diet, caffeine, alcohol): one at a time",t:"area"}))
+  +card("Log","Monthly review","",rows("r.k18rev",[{k:"date",l:"Date",t:"text"},{k:"n",l:"What's working, what's slipping, what I'll do",t:"area",w:1}],"Add a review"));
+}
 
 /* ---------- computed bits ---------- */
 function scores(){const out={};let complete=true;CI_COLS.forEach((c,k)=>{let t=0;for(let i=1;i<=5;i++){const v=+S.ci[i+"."+(k+1)]||0;if(!v)complete=false;t+=v}out[c[0]]=t});out.complete=complete;out.any=Object.keys(S.ci).some(k=>S.ci[k]);return out}
-function isRec(p){const sc=scores();if(p.col)return sc.complete&&sc[p.col]>=15;if(p.id==="pan")return !!S.types.pan;return false}
+function isRec(p){const sc=scores();if(p.col)return sc.complete&&sc[p.col]>=15;if(p.id==="pan"||p.id==="k17")return !!S.types.pan;if(p.id==="k16")return !!S.types.soc;if(p.id==="k12")return !!S.types.gad||(sc.complete&&sc.wor>=15);return false}
 function fineTune(){
   const rows=S.inv.filter(r=>r.fear);
   if(!rows.length)return `<p class="empty">Add fears with a "how likely" % in Weeks 4–5 and this will check your list.</p>`;
@@ -429,7 +713,15 @@ function renderIH(){
   el.innerHTML=`<div class="scroll"><table class="ih"><thead><tr><th>Exercise</th>${[1,2,3,4,5,6,7,8].map(t=>`<th>Try ${t}</th>`).join("")}</tr></thead><tbody>${list.map(([id,l])=>`<tr><td>${esc(l)}</td>${[1,2,3,4,5,6,7,8].map(t=>{const p="x.ih."+id+".t"+t;return `<td>${field(p,{t:"num",bare:1})}</td>`}).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 function refresh(){
-  const total=ALL.reduce((n,p)=>n+p.steps.length,0), done=ALL.reduce((n,p)=>n+p.steps.filter(s=>S.done[s[0]]).length,0);
+  const total=MAIN.reduce((n,p)=>n+p.steps.length,0), done=MAIN.reduce((n,p)=>n+p.steps.filter(s=>S.done[s[0]]).length,0);
+  const ar=document.getElementById("anx-res");if(ar){const s=anxScore();ar.innerHTML=!s.c?"":s.done?`Score <b>${s.score} of 42</b>: ${band(s.score)}`:`${s.c} of 7 answered`}
+  const qr=document.getElementById("aaq-res");if(qr){const s=aaqScore();qr.innerHTML=!s.c?"":s.done?`Score <b>${s.score} of 49</b>. Higher means more avoidance.`:`${s.c} of 7 answered`}
+  const wv=document.getElementById("wv");if(wv){const b=+S.f.wv_b,a=+S.f.wv_a;wv.innerHTML=b&&a?(a>b?`Worrying raised your anxiety from <b>${b}</b> to <b>${a}</b>. That's how worry keeps fear high.`:`Before ${b}, after ${a}.`):""}
+  const x=S.x||{};
+  const cnt=(o,test)=>Object.values(o||{}).filter(test).length;
+  const k4=document.getElementById("k4-res");if(k4){const n=cnt(x.k4inv,v=>v==="4");k4.innerHTML=x.k4inv&&Object.keys(x.k4inv).length?`<b>${n}</b> item${n===1?"":"s"} rated 4 (just like me).`:""}
+  const k12=document.getElementById("k12-res");if(k12){const n=cnt(x.k12inv,v=>v==="True");k12.innerHTML=x.k12inv&&Object.keys(x.k12inv).length?`<b>${n} of ${K12_INV.length}</b> true. The more you ticked, the more worry is worth working on.`:""}
+  const k16=document.getElementById("k16-res");if(k16){const n=cnt(x.k16inv,v=>+v>=4);k16.innerHTML=x.k16inv&&Object.keys(x.k16inv).length?`<b>${n}</b> item${n===1?"":"s"} rated 4 or 5. Those are your areas to work on.`:""}
   const b=document.getElementById("bar");if(b)b.style.width=(total?Math.round(done/total*100):0)+"%";
   const c=document.getElementById("count");if(c)c.innerHTML=done+'<span style="font-size:.5em;color:#BBD0E8"> / '+total+'</span><small>steps done</small>';
   const sc=scores();
@@ -450,19 +742,21 @@ function section(p){
   const fin=p.steps.every(s=>S.done[s[0]]);
   return `<section class="phase" id="${p.id}"><div class="phase-head"><span class="when">${esc(p.when)}</span><h2>${esc(p.title)}${rec?'<span class="tag rec">Recommended</span>':""}${fin?'<span class="tag">Done</span>':""}</h2>${p.page?`<span class="page">${p.page}</span>`:""}</div>
   <details class="sum" data-k="${p.id}" ${OPEN[p.id]===false?"":"open"}><summary>What this chapter says</summary>${p.sum.map(x=>x.startsWith("<ul")?x:`<p>${x}</p>`).join("")}</details>
-  <ul class="steps">${items}</ul>${p.ws()}</section>`;
+  <ul class="steps">${items}</ul>${p.ws()}${p.kp?keyplan(p.id):""}</section>`;
 }
 function render(){
   const a=document.activeElement, aid=a&&a.id, sel=a&&a.selectionStart!=null&&a.type!=="number"?[a.selectionStart,a.selectionEnd]:null;
-  root.innerHTML=`  <nav class="jump" aria-label="Jump to">${["traps",...ALL.map(p=>p.id)].map(id=>{const p=ALL.find(q=>q.id===id);return `<a href="#${id}" class="${p&&isRec(p)?"rec":""}">${id==="traps"?"Thinking traps":esc(p.nav)}</a>`}).join("")}</nav>
+  root.innerHTML=`  <nav class="jump" aria-label="Jump to">${["traps",...MAIN.map(p=>p.id),"kn"].map(id=>{const p=ALL.find(q=>q.id===id);return `<a href="#${id}" class="${p&&isRec(p)?"rec":""}">${id==="traps"?"Thinking traps":esc(p.nav)}</a>`}).join("")}</nav>
   <section class="phase" id="traps"><div class="phase-head"><span class="when">Keep handy</span><h2>Thinking traps</h2></div>
   <p class="note">From your Cognitive Distortions sheet. These habits make situations look more dangerous than they are. Watch for them in every week, and use them in your thought log in chapter 9.</p>
   <details class="sum" data-k="traps" ${OPEN.traps?"open":""}><summary>Show all 11</summary><div class="traps" style="margin-top:12px">${TRAPS.map(([n,d,e])=>`<div class="trap"><b>${esc(n)}</b>${esc(d)}<i>${esc(e)}</i></div>`).join("")}</div></details></section>
   ${PLAN.map(section).join("")}
   <div class="addon-intro"><h3>Add-on chapters</h3><p class="note">Do the ones your Coping Inventory marks <b>Recommended</b> alongside Weeks 3–6. The panic exercises are recommended if you ticked Panic in Week 1.</p></div>
   ${ADDONS.map(section).join("")}
-  ${section(FINISH)}${section(KN)}
-  <footer>Your answers save to your Supabase database and to this browser. Summaries and statements are written in our own words, based on <i>The CBT Anxiety Solution Workbook</i> (McKay, Skeen &amp; Fanning), your Cognitive Distortions sheet, and <i>The Cognitive Behavioral Workbook for Anxiety</i> (Knaus). Not a substitute for a therapist.</footer>`;
+  ${section(FINISH)}
+  <div class="addon-intro"><h3>Book 2</h3><p class="note"><i>The Cognitive Behavioral Workbook for Anxiety</i>, all 18 chapters. Do it alongside the main plan or after it. Book 2 steps aren't counted in the progress bar at the top.</p></div>
+  ${section(KN)}${KCH.map(section).join("")}
+  <footer>Your answers save to your Supabase database and to this browser. Summaries, statements and questionnaires are written in our own words, based on <i>The CBT Anxiety Solution Workbook</i> (McKay, Skeen &amp; Fanning), your Cognitive Distortions sheet, and <i>The Cognitive Behavioral Workbook for Anxiety</i> (Knaus). Not a substitute for a therapist.</footer>`;
   renderIH();refresh();
   if(aid){const el=document.getElementById(aid);if(el){el.focus({preventScroll:true});if(sel&&el.setSelectionRange)try{el.setSelectionRange(sel[0],sel[1])}catch(e){}}}
 }
@@ -503,6 +797,11 @@ root.addEventListener("change",e=>{
 });
 root.addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.snap){
+    const ty=t.dataset.snap;let e2;
+    if(ty==="ci"){const sc=scores();if(!sc.complete){setStatus("Answer all 20 Coping Inventory statements in Week 1 first.");return}e2={av:sc.av,wor:sc.wor,mis:sc.mis,dis:sc.dis}}
+    else{const s=ty==="anx"?anxScore():aaqScore();if(!s.done){setStatus("Answer all 7 statements first.");return}e2={score:s.score};S.chk[ty]={}}
+    arr("chk.hist").push(Object.assign({id:uid(),type:ty,date:new Date().toLocaleDateString()},e2));save();render();return}
   if(t.dataset.add){const id=uid();arr(t.dataset.add).push({id});save();render();const f=root.querySelector(`[data-b^="${t.dataset.add}.${id}."]`);if(f)f.focus();return}
   if(t.dataset.del){const [p,id]=t.dataset.del.split("|");const a=arr(p),i=a.findIndex(r=>r.id===id);if(i>=0){a.splice(i,1);save();render()}}
 });
