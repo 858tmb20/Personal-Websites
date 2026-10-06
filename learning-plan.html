@@ -87,6 +87,9 @@ var st = lpLoad();
 var q = new URLSearchParams(location.search).get("day");
 if (q !== null && !isNaN(+q)) { st.day = Math.min(Math.max(+q, 0), LP_DAYS.length - 1); lpSave(st); history.replaceState(null, "", location.pathname); }
 
+// A lesson counts as done only when all 4 of its step checkboxes are ticked.
+function lpDone(i) { var c = st.checks[i] || []; return !!(c[0] && c[1] && c[2] && c[3]); }
+
 function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
 function paintPath(week) {
@@ -94,9 +97,19 @@ function paintPath(week) {
   path.innerHTML = "";
   var names = LP_PHASES.map(function(p) { return p.name; }).concat(LP_LATER.map(function(p) { return p.name; }));
   var cur = LP_PHASES.findIndex(function(p) { return p.weeks.indexOf(week.n) !== -1; });
+  function phaseDone(p) {
+    var any = false;
+    for (var k = 0; k < LP_DAYS.length; k++) {
+      if (p.weeks.indexOf(LP_DAYS[k].week.n) === -1) continue;
+      any = true;
+      if (!lpDone(k)) return false;
+    }
+    return any;
+  }
   names.forEach(function(n, i) {
     if (i) path.appendChild(el("span", "lp-arrow", "→"));
-    path.appendChild(el("span", "lp-stage" + (i < cur ? " done" : i === cur ? " now" : ""), n));
+    var done = i < LP_PHASES.length && phaseDone(LP_PHASES[i]);
+    path.appendChild(el("span", "lp-stage" + (i === cur ? " now" : done ? " done" : ""), n));
   });
 }
 
@@ -251,7 +264,7 @@ function renderSyllabus() {
       var ul = el("ul", "sy-days");
       w.days.forEach(function(d, di) {
         var here = idx;
-        var li = el("li", "sy-day" + (here < st.day ? " past" : here === st.day ? " now" : ""));
+        var li = el("li", "sy-day" + (lpDone(here) ? " past" : "") + (here === st.day ? " now" : ""));
         li.appendChild(el("span", "d", here === st.day ? "YOU'RE HERE" : lpFmt(LP_DATES[here]).replace(",", "")));
         var a = el("a", "t", d.title);
         a.href = "#";
