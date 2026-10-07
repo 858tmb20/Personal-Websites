@@ -79,7 +79,7 @@
   <div id="sylBody" style="display:grid;gap:22px"></div>
 </main>
 
-<footer>Your progress saves in this browser. &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
+<footer>Your progress syncs across your devices. &nbsp;&middot;&nbsp; <a href="library.html">Library</a></footer>
 
 <script src="learning-data.js"></script>
 <script>
@@ -323,6 +323,7 @@ function renderSyllabus() {
 
 paint();
 if (location.hash === "#syllabus") showView("syl");
+lpSync(st, function() { paint(); if (!document.getElementById("viewSyl").hidden) renderSyllabus(); });
 </script>
 </body>
 </html>

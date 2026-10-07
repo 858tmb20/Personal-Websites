@@ -380,4 +380,45 @@ function lpLoad() {
   st.day = Math.min(Math.max(st.day | 0, 0), LP_DAYS.length - 1);
   return st;
 }
-function lpSave(st) { try { localStorage.setItem(LP_KEY, JSON.stringify(st)); } catch (e) {} }
+function lpLocalSave(st) { try { localStorage.setItem(LP_KEY, JSON.stringify(st)); } catch (e) {} }
+function lpSave(st) { st.t = Date.now(); lpLocalSave(st); lpPush(st); }
+
+// Progress also syncs to Supabase (scratchpad row 3, JSON in `content`) so it follows
+// you across computers. localStorage stays as the fast local copy. Newest save wins.
+var LP_SB_ROW = 'https://fnpgduicigxxlvpduugb.supabase.co/rest/v1/scratchpad?id=eq.3';
+var LP_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc';
+var LP_SB_H = { 'apikey': LP_SB_KEY, 'Authorization': 'Bearer ' + LP_SB_KEY, 'Content-Type': 'application/json' };
+var lpPushTimer = null;
+function lpPush(st) {
+  clearTimeout(lpPushTimer);
+  lpPushTimer = setTimeout(function() {
+    fetch(LP_SB_ROW, { method: 'PATCH', keepalive: true, headers: Object.assign({}, LP_SB_H, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ content: JSON.stringify({ day: st.day, checks: st.checks, t: st.t }), updated_at: new Date().toISOString() }) })
+      .catch(function() {});
+  }, 400);
+}
+function lpHasProgress(s) { return !!s && (s.day > 0 || Object.keys(s.checks || {}).length > 0); }
+// Pulls the saved progress and reconciles it with this browser's copy. Calls done() if st changed.
+function lpSync(st, done) {
+  fetch(LP_SB_ROW + '&select=content', { headers: LP_SB_H }).then(function(r) { return r.json(); }).then(function(rows) {
+    var remote = null;
+    try { remote = rows && rows[0] && rows[0].content ? JSON.parse(rows[0].content) : null; } catch (e) {}
+    if (!remote || !remote.t) { if (lpHasProgress(st)) lpSave(st); return; }
+    if (!st.t) {
+      // This browser has progress from before syncing existed: merge it in rather than lose it.
+      st.day = Math.max(st.day, remote.day | 0);
+      var c = remote.checks || {};
+      Object.keys(c).forEach(function(k) {
+        var mine = st.checks[k] || [];
+        st.checks[k] = [0, 1, 2, 3].map(function(i) { return !!(mine[i] || c[k][i]); });
+      });
+      lpSave(st); done(); return;
+    }
+    if (remote.t > st.t) {
+      st.day = Math.min(Math.max(remote.day | 0, 0), LP_DAYS.length - 1);
+      st.checks = remote.checks || {};
+      st.t = remote.t;
+      lpLocalSave(st); done();
+    } else if (st.t > remote.t) lpPush(st);
+  }).catch(function() {});
+}
