@@ -703,7 +703,7 @@
 </section>
 
 <footer class="apx-foot">
-  <span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress persists between sessions.<br>A trigger and a handler for each. Sandbox only.</span>
+  <span>Click a status pill to cycle: Not started → In progress → Built &amp; working. Progress syncs across your browsers and devices.<br>A trigger and a handler for each. Sandbox only.</span>
   <span><a href="apex-practice.html">Apex Practice Reps &rarr;</a> &nbsp;&middot;&nbsp; <a href="library.html">Library</a></span>
 </footer>
 
@@ -721,6 +721,7 @@ const STATUS = {
 let statuses = {};
 let flags = {};
 let names = {};
+let savedAt = 0; // when this copy was last changed; 0 = progress from before syncing existed
 try {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
@@ -728,19 +729,81 @@ try {
     if (parsed && parsed.statuses) statuses = parsed.statuses;
     if (parsed && parsed.flags) flags = parsed.flags;
     if (parsed && parsed.names) names = parsed.names;
+    if (parsed && parsed.t) savedAt = parsed.t;
   }
 } catch (e) { statuses = {}; flags = {}; names = {}; }
 
-function persist() {
+function setNote(text, bad) {
   const note = document.getElementById("saveNote");
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ statuses: statuses, flags: flags, names: names }));
-    note.textContent = "Progress saves automatically";
-    note.style.color = "";
-  } catch (e) {
-    note.textContent = "Save failed — progress may not persist";
-    note.style.color = "#B3261E";
-  }
+  note.textContent = text;
+  note.style.color = bad ? "#B3261E" : "";
+}
+function snapshot() { return { statuses: statuses, flags: flags, names: names, t: savedAt }; }
+function saveLocal() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot())); return true; } catch (e) { return false; }
+}
+function persist() {
+  savedAt = Date.now();
+  if (!saveLocal()) setNote("Save failed — progress may not persist", true);
+  sbPush();
+}
+
+// Progress also syncs to Supabase (scratchpad row 4, JSON in `content`) so it follows
+// you across browsers and computers. localStorage stays as the fast local copy. Newest save wins.
+// The Skills Path reads this row too, so built drills show as done there.
+const SB_URL = "https://fnpgduicigxxlvpduugb.supabase.co/rest/v1/scratchpad";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc";
+const SB_H = { "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY, "Content-Type": "application/json" };
+const SB_ROW = 4;
+let pushTimer = null;
+function sbPush() {
+  clearTimeout(pushTimer);
+  setNote("Saving…");
+  pushTimer = setTimeout(function() {
+    fetch(SB_URL, { method: "POST", keepalive: true,
+      headers: Object.assign({}, SB_H, { "Prefer": "resolution=merge-duplicates,return=minimal" }),
+      body: JSON.stringify({ id: SB_ROW, content: JSON.stringify(snapshot()), updated_at: new Date().toISOString() }) })
+      .then(function(r) { if (!r.ok) throw new Error(r.status); setNote("Synced across your devices"); })
+      .catch(function() { setNote("Saved on this device — couldn't sync just now", true); });
+  }, 400);
+}
+const RANK = { not_started: 0, in_progress: 1, done: 2 };
+// Pulls the saved progress and reconciles it with this browser's copy.
+function sbSync() {
+  fetch(SB_URL + "?id=eq." + SB_ROW + "&select=content", { headers: SB_H })
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(rows) {
+      let remote = null;
+      try { remote = rows && rows[0] && rows[0].content ? JSON.parse(rows[0].content) : null; } catch (e) {}
+      const mineHas = Object.keys(statuses).length || Object.keys(flags).length || Object.keys(names).length;
+      if (!remote || !remote.t) { if (mineHas) persist(); else setNote("Synced across your devices"); return; }
+      if (!savedAt) {
+        // This browser has progress from before syncing existed: merge it in rather than lose it.
+        const rs = remote.statuses || {}, rf = remote.flags || {}, rn = remote.names || {};
+        Object.keys(rs).forEach(function(k) { if ((RANK[rs[k]] || 0) > (RANK[statuses[k]] || 0)) statuses[k] = rs[k]; });
+        Object.keys(rf).forEach(function(k) { if (rf[k]) flags[k] = true; });
+        Object.keys(rn).forEach(function(k) {
+          names[k] = names[k] || {};
+          ["trigger", "handler", "test"].forEach(function(f) { if (!names[k][f] && rn[k][f]) names[k][f] = rn[k][f]; });
+        });
+        fillNames(); paint();
+        if (mineHas) persist(); else { savedAt = remote.t; saveLocal(); setNote("Synced across your devices"); }
+        return;
+      }
+      if (remote.t > savedAt) {
+        statuses = remote.statuses || {}; flags = remote.flags || {}; names = remote.names || {}; savedAt = remote.t;
+        saveLocal(); fillNames(); paint();
+        setNote("Synced across your devices");
+      } else if (savedAt > remote.t) sbPush();
+      else setNote("Synced across your devices");
+    })
+    .catch(function() { setNote("Saved on this device — couldn't sync just now", true); });
+}
+function fillNames() {
+  document.querySelectorAll(".apx-name input").forEach(function(i) {
+    const p = i.id.split("-"); // name-<item>-<field>
+    i.value = (names[p[1]] && names[p[1]][p[2]]) || "";
+  });
 }
 
 function stOf(id) { return statuses[id] || "not_started"; }
@@ -854,6 +917,9 @@ document.getElementById("resetBtn").addEventListener("click", function() {
 });
 
 paint();
+sbSync();
+// Pick up changes made on another device when you come back to this tab.
+document.addEventListener("visibilitychange", function() { if (!document.hidden && !pushTimer) sbSync(); });
 </script>
 </body>
 </html>
