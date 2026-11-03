@@ -968,6 +968,24 @@
   [data-theme="dark"] .topnav-tab.active,
   [data-theme="dark"] .view-btn.active { box-shadow: none; }
 
+  /* ===== ASK-CLAUDE CHAT BOT ===== */
+  .bot-fab { position: fixed; right: 16px; bottom: 62px; z-index: 50; width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--accent); color: #fff; font-size: 1.25rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; }
+  .bot-fab:hover { background: var(--accent-hover); }
+  .bot-panel { position: fixed; right: 16px; bottom: 118px; z-index: 51; width: 360px; max-width: calc(100vw - 32px); height: 480px; max-height: calc(100vh - 140px); background: var(--card); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--shadow-md); display: none; flex-direction: column; overflow: hidden; }
+  .bot-panel.open { display: flex; }
+  .bot-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--rule); }
+  .bot-head strong { font-size: 0.88rem; color: var(--ink); margin-right: auto; }
+  .bot-head select, .bot-head button { font-size: 0.76rem; font-family: inherit; color: var(--ink-soft); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 0.25rem 0.4rem; cursor: pointer; }
+  .bot-msgs { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .bot-msg { max-width: 88%; padding: 0.5rem 0.7rem; border-radius: 10px; font-size: 0.85rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+  .bot-msg.user { align-self: flex-end; background: var(--accent); color: #fff; }
+  .bot-msg.bot { align-self: flex-start; background: var(--rule-soft); color: var(--ink); }
+  .bot-msg.err { align-self: flex-start; background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .bot-form { display: flex; gap: 0.4rem; padding: 0.6rem; border-top: 1px solid var(--rule); }
+  .bot-form input { flex: 1; min-width: 0; padding: 0.5rem 0.65rem; font-size: 0.85rem; font-family: inherit; border: 1px solid var(--rule); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; }
+  .bot-form input:focus { border-color: var(--link); }
+  .bot-form button { padding: 0 0.85rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .bot-form button:disabled { opacity: 0.5; cursor: default; }
   .theme-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 50; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft); font-size: 1rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
   .theme-toggle:hover { border-color: var(--muted-soft); }
 </style>
@@ -3631,6 +3649,65 @@
 
   function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 2500); }
   function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+<button class="bot-fab" id="botFab" onclick="toggleBot()" title="Ask Claude" aria-label="Ask Claude">&#128172;</button>
+<div class="bot-panel" id="botPanel">
+  <div class="bot-head">
+    <strong>Ask Claude</strong>
+    <select id="botAcct" onchange="botAcctChanged()" title="Which Claude account to use"></select>
+    <button onclick="renameBotAcct()" title="Rename this account">&#9998;</button>
+    <button onclick="clearBot()" title="Clear conversation">Clear</button>
+  </div>
+  <div class="bot-msgs" id="botMsgs"></div>
+  <form class="bot-form" onsubmit="sendBot(event)">
+    <input id="botInput" placeholder="Ask about your library or anything else" autocomplete="off">
+    <button id="botSend" type="submit">Send</button>
+  </form>
+</div>
+<script>
+  var botHistory = [];
+  var botBusy = false;
+  function botLS(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+  function botAcctNames() { var n = []; for (var i = 1; i <= 3; i++) n.push(botLS('lib_bot_name' + i) || ('Account ' + i)); return n; }
+  function paintBotAcct() {
+    var sel = document.getElementById('botAcct'); var cur = botLS('lib_bot_acct') || '1'; var names = botAcctNames(); var h = '';
+    for (var i = 0; i < 3; i++) h += '<option value="' + (i + 1) + '"' + (String(i + 1) === cur ? ' selected' : '') + '>' + names[i].replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</option>';
+    sel.innerHTML = h;
+  }
+  function botAcctChanged() { botLS('lib_bot_acct', document.getElementById('botAcct').value); }
+  function renameBotAcct() {
+    var n = document.getElementById('botAcct').value; var cur = botAcctNames()[n - 1];
+    var v = prompt('Name for this account:', cur); if (v && v.trim()) { botLS('lib_bot_name' + n, v.trim().slice(0, 30)); paintBotAcct(); }
+  }
+  function toggleBot() {
+    var p = document.getElementById('botPanel'); p.classList.toggle('open');
+    if (p.classList.contains('open')) { paintBotAcct(); if (!botHistory.length && !document.getElementById('botMsgs').children.length) botAdd('bot', "Hi! Ask me about your library, or anything else. Pick which Claude account to use above."); document.getElementById('botInput').focus(); }
+  }
+  function botAdd(cls, text) {
+    var box = document.getElementById('botMsgs'); var d = document.createElement('div'); d.className = 'bot-msg ' + cls; d.textContent = text; box.appendChild(d); box.scrollTop = box.scrollHeight; return d;
+  }
+  function clearBot() { botHistory = []; document.getElementById('botMsgs').innerHTML = ''; botAdd('bot', 'Cleared. What do you want to ask?'); }
+  function botSystem() {
+    var cats = {}; try { (allCategories || []).forEach(function(c) { cats[c.id] = c.name; }); } catch (e) {}
+    var lines = []; try { (allLinks || []).slice(0, 150).forEach(function(l) { lines.push('- ' + (l.title || '') + (cats[l.category_id] ? ' [' + cats[l.category_id] + ']' : '') + (l.description ? ': ' + String(l.description).slice(0, 100) : '') + ' (' + (l.url || '') + ')'); }); } catch (e) {}
+    return "You are a helpful assistant built into Trent's personal Resource Library website. He uses it for work (Salesforce at WGU) and personal tools. Keep answers short and plain. The library has built-in tools: Deployment Tracker, To-Do & Notes, Learning Tracker, Idea Tracker, Docs & Guides, Scratch Pad, Apex Cookbook, Medical Info, and a calendar. His saved links:\n" + lines.join('\n');
+  }
+  function sendBot(ev) {
+    ev.preventDefault(); if (botBusy) return;
+    var inp = document.getElementById('botInput'); var text = inp.value.trim(); if (!text) return;
+    inp.value = ''; botAdd('user', text); botHistory.push({ role: 'user', content: text });
+    botBusy = true; document.getElementById('botSend').disabled = true;
+    var wait = botAdd('bot', '\u2026');
+    fetch('/api/claude', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: Number(botLS('lib_bot_acct') || 1), max_tokens: 1200, system: botSystem(), messages: botHistory.slice(-16) }) })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d && d.error) { wait.className = 'bot-msg err'; wait.textContent = typeof d.error === 'string' ? d.error : (d.error.message || 'Service error'); botHistory.pop(); return; }
+        var t = (d.content || []).filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('\n') || '(no reply)';
+        wait.textContent = t; botHistory.push({ role: 'assistant', content: t });
+      })
+      .catch(function() { wait.className = 'bot-msg err'; wait.textContent = "Couldn't reach the chat service."; botHistory.pop(); })
+      .then(function() { botBusy = false; document.getElementById('botSend').disabled = false; document.getElementById('botMsgs').scrollTop = 1e9; });
+  }
 </script>
 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Switch light / dark" aria-label="Switch light or dark mode">&#9790;</button>
 <script>
