@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
 
+<script>
+  /* theme: saved choice wins, else follow the OS; set before paint to avoid a light flash */
+  (function(){ var t=null; try{ t=localStorage.getItem('lib_theme'); }catch(e){}
+    if(!t) t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+    document.documentElement.setAttribute('data-theme',t); })();
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -884,6 +890,86 @@
     .quicklinks-card { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  /* ===== DARK MODE (soft, low-glare: slate grounds, off-white text, muted tints) ===== */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #171C27;
+    --ink: #D3D9E6;
+    --ink-soft: #B8C1D3;
+    --muted: #8D99B1;
+    --muted-soft: #6B778F;
+    --accent: #3A5A96;
+    --accent-hover: #46689F;
+    --link: #7FA8EE;
+    --rule: #2D3548;
+    --rule-soft: #252C3C;
+    --card: #1F2634;
+    --danger: #E08080;
+    --green: #67BE8C;
+    --green-soft: #1C3028;
+  }
+  [data-theme="dark"] .gate-success { border-color: #2F5A45; }
+  [data-theme="dark"] .filter-add-row:hover { background: #26324A; }
+  [data-theme="dark"] .filter-edit-input,
+  [data-theme="dark"] .hero-cal-compact .hero-cal-frame iframe { background: var(--card); }
+  [data-theme="dark"] .filter-icon-btn:hover { background: rgba(255,255,255,0.08); }
+  [data-theme="dark"] .quicklinks-head .qdot { background: #27344F; }
+  [data-theme="dark"] .board-col { background: #1B212E; }
+  [data-theme="dark"] .hero-cta { background: #D3D9E6; }
+  [data-theme="dark"] .st-needs { background: #262D3C; color: #8D99B1; border-color: #2D3548; }
+  [data-theme="dark"] .st-progress { background: #332B18; color: #D9AE5C; border-color: #4D4022; }
+  [data-theme="dark"] .st-deployed { background: #1C3028; color: #67BE8C; border-color: #2F5A45; }
+  [data-theme="dark"] .st-deploying { background: #17303A; color: #62B6CE; border-color: #25505F; }
+  [data-theme="dark"] .st-blocked,
+  [data-theme="dark"] .blk-chip.on,
+  [data-theme="dark"] .todo-prio.high,
+  [data-theme="dark"] .dcard-next.blocked,
+  [data-theme="dark"] .focus-banner.blocked { background: #35232A; color: #E08C86; border-color: #5A3640; }
+  [data-theme="dark"] .edtech-wait,
+  [data-theme="dark"] .dcard-edtech,
+  [data-theme="dark"] .dcard-next.wait,
+  [data-theme="dark"] .focus-banner.wait,
+  [data-theme="dark"] .todo-prio.med,
+  [data-theme="dark"] .todo-foc-n { background: #332B18; color: #D9AE5C; border-color: #4D4022; }
+  [data-theme="dark"] .dcard-next.do,
+  [data-theme="dark"] .focus-banner.do,
+  [data-theme="dark"] .todo-prio.low { background: #1F2E4A; color: #8FB2EE; border-color: #31466F; }
+  [data-theme="dark"] .todo-progress-tag { background: #332B18; color: #D9AE5C; border-color: #4D4022; }
+  [data-theme="dark"] .dcard-done,
+  [data-theme="dark"] .appr-badge,
+  [data-theme="dark"] .dstep.on,
+  [data-theme="dark"] .env-chip.on,
+  [data-theme="dark"] .focus-banner.done { color: #67BE8C; border-color: #2F5A45; }
+  [data-theme="dark"] .blk-reason { background: #2A2026; border-color: #5A3640; }
+  [data-theme="dark"] .todo-item.focused { background: #2A2619; }
+  [data-theme="dark"] .learn-item.is-upnext,
+  [data-theme="dark"] .btn-upnext.on,
+  [data-theme="dark"] .li-upnext-badge { background: #2A2619; color: #D9AE5C; }
+  [data-theme="dark"] .learn-item.is-focus,
+  [data-theme="dark"] .btn-focus.on,
+  [data-theme="dark"] .btn-done.on,
+  [data-theme="dark"] .li-focus-badge { background: #1C3028; color: #67BE8C; }
+  [data-theme="dark"] .li-done-badge { color: #67BE8C; }
+  [data-theme="dark"] .kt-document { background: #1F3047; color: #8FB2EE; }
+  [data-theme="dark"] .kt-flowchart { background: #2A2745; color: #A7A0E8; }
+  [data-theme="dark"] .kt-howto { background: #1C3028; color: #67BE8C; }
+  [data-theme="dark"] .kt-cat { background: #2D2542; color: #B79FE8; }
+  [data-theme="dark"] .cb-code { background: rgba(255,255,255,0.04); }
+
+  [data-theme="dark"] ::selection { background: #2F4272; }
+  [data-theme="dark"] header { background: rgba(23,28,39,0.86); }
+  [data-theme="dark"] .brand-mark { background: #D3D9E6; color: #171C27; }
+  [data-theme="dark"] .topnav-tab:hover,
+  [data-theme="dark"] .view-btn:hover { background: rgba(255,255,255,0.07); }
+  [data-theme="dark"] .topnav-link .tnl-ico { background: color-mix(in srgb, var(--ic, #8D99B1) 18%, var(--card)); }
+  [data-theme="dark"] .acct-dot { border-color: var(--card); }
+  [data-theme="dark"] .btn-signout:hover, [data-theme="dark"] .btn-view:hover { background: #262D3C; border-color: #46506A; }
+  [data-theme="dark"] .btn-cancel:hover, [data-theme="dark"] .acct-btn:hover, [data-theme="dark"] .analyze-btn:hover { border-color: #46506A; }
+  [data-theme="dark"] .topnav-tab.active,
+  [data-theme="dark"] .view-btn.active { box-shadow: none; }
+
+  .theme-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 50; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft); font-size: 1rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+  .theme-toggle:hover { border-color: var(--muted-soft); }
 </style>
 </head>
 <body>
@@ -3545,6 +3631,17 @@
 
   function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 2500); }
   function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Switch light / dark" aria-label="Switch light or dark mode">&#9790;</button>
+<script>
+  function paintThemeBtn(){ var b=document.getElementById('themeToggle'); if(b) b.innerHTML = document.documentElement.getAttribute('data-theme')==='dark' ? '&#9728;' : '&#9790;'; }
+  function toggleTheme(){
+    var t = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    try{ localStorage.setItem('lib_theme', t); }catch(e){}
+    paintThemeBtn();
+  }
+  paintThemeBtn();
 </script>
 </body>
 </html>
