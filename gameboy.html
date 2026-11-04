@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#1b1d2a">
+<title>Pocket Emulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4F6F9; --ink: #0F1F3D; --muted: #6B7A99; --rule: #E3E7EE; --card: #FFFFFF; --link: #1F6FEB;
+    --shell: #2a2d3e; --shell-hi: #34384c; --shell-ink: #c9cde0; --btn: #1b1d2a; --ab: #c0306a; --ab-hi: #d94c84;
+    --screen-bezel: #14151f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #0E1320; --ink: #E6EBF5; --muted: #8E9AB5; --rule: #222B3E; --card: #151C2C; --link: #6EA3FF; }
+  }
+  :root[data-theme="dark"] { --bg: #0E1320; --ink: #E6EBF5; --muted: #8E9AB5; --rule: #222B3E; --card: #151C2C; --link: #6EA3FF; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; }
+  .top { width: 100%; max-width: 980px; display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 16px 0.4rem; gap: 0.8rem; }
+  .top a { color: var(--muted); text-decoration: none; font-size: 0.82rem; }
+  .top a:hover { color: var(--link); }
+  .top h1 { font-size: 1rem; font-weight: 800; letter-spacing: -0.01em; }
+  .wrap { width: 100%; max-width: 980px; display: flex; gap: 1.6rem; padding: 0.4rem 16px 2rem; align-items: flex-start; justify-content: center; }
+  /* ----- device */
+  .device { background: linear-gradient(160deg, var(--shell-hi), var(--shell)); border-radius: 22px 22px 60px 22px; padding: 18px 18px 26px; width: 100%; max-width: 420px;
+    box-shadow: 0 18px 50px rgba(10, 15, 30, 0.35), inset 0 1px 0 rgba(255,255,255,0.08); user-select: none; -webkit-user-select: none; touch-action: none; }
+  .bezel { background: var(--screen-bezel); border-radius: 12px 12px 34px 12px; padding: 14px 14px 20px; position: relative; }
+  .led { display: inline-block; vertical-align: middle; width: 7px; height: 7px; border-radius: 50%; background: #3a1d24; margin: -2px 7px 0 0; }
+  .led.on { background: #ff4060; box-shadow: 0 0 8px #ff4060; }
+  .screen { position: relative; width: 100%; aspect-ratio: 160 / 144; background: #0b0c12; border-radius: 3px; overflow: hidden; }
+  canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+  .drop { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.7rem; text-align: center; padding: 1rem;
+    color: #c9cde0; font-size: 0.82rem; line-height: 1.45; background: #0b0c12; }
+  .drop.hide { display: none; }
+  .drop strong { color: #fff; font-size: 0.95rem; }
+  .drop .pick { background: var(--ab); color: #fff; border: 0; border-radius: 999px; padding: 0.55rem 1.1rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+  .drop .pick:hover { background: var(--ab-hi); }
+  .drop .resume { background: transparent; color: #c9cde0; border: 1px solid #44485e; border-radius: 999px; padding: 0.4rem 0.9rem; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
+  .drop.over { outline: 2px dashed var(--ab); outline-offset: -8px; }
+  .toast { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: #fff; font-size: 0.72rem; padding: 0.3rem 0.7rem; border-radius: 999px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+  .label { color: var(--shell-ink); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 10px 4px 0; opacity: 0.7; display: flex; justify-content: space-between; }
+  .label span:last-child { font-weight: 600; letter-spacing: 0.04em; text-transform: none; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+  .pad { display: grid; grid-template-columns: 1fr 1fr; align-items: center; margin-top: 22px; }
+  .dpad { position: relative; width: 132px; height: 132px; margin-left: 6px; }
+  .dpad .k { position: absolute; background: var(--btn); width: 44px; height: 44px; box-shadow: 0 3px 0 rgba(0,0,0,0.35); }
+  .dpad .k.on { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.35); background: #101119; }
+  .dpad .up { left: 44px; top: 0; border-radius: 6px 6px 0 0; }
+  .dpad .down { left: 44px; bottom: 0; border-radius: 0 0 6px 6px; }
+  .dpad .left { left: 0; top: 44px; border-radius: 6px 0 0 6px; }
+  .dpad .right { right: 0; top: 44px; border-radius: 0 6px 6px 0; }
+  .dpad .mid { position: absolute; left: 44px; top: 44px; width: 44px; height: 44px; background: var(--btn); }
+  .ab { position: relative; width: 150px; height: 110px; justify-self: end; margin-right: 4px; transform: rotate(-22deg); }
+  .ab .k { position: absolute; width: 58px; height: 58px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--ab-hi), var(--ab)); box-shadow: 0 4px 0 #7a1b42;
+    color: rgba(255,255,255,0.85); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+  .ab .k.on { transform: translateY(3px); box-shadow: 0 1px 0 #7a1b42; }
+  .ab .b { left: 0; top: 34px; }
+  .ab .a { right: 0; top: 10px; }
+  .ss { display: flex; justify-content: center; gap: 26px; margin-top: 26px; }
+  .ss .k { width: 58px; height: 16px; border-radius: 999px; background: #50546b; transform: rotate(-22deg); box-shadow: 0 2px 0 rgba(0,0,0,0.35); position: relative; }
+  .ss .k.on { background: #3b3e51; }
+  .ss .k span { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; letter-spacing: 0.12em; color: var(--shell-ink); font-weight: 700; }
+  /* ----- side panel */
+  .panel { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 0.95rem 1rem; }
+  .card h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; margin-bottom: 0.6rem; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+  .btns button, .btns label { font-family: inherit; font-size: 0.8rem; font-weight: 600; color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 9px; padding: 0.5rem 0.4rem; cursor: pointer; text-align: center; }
+  .btns button:hover, .btns label:hover { border-color: var(--link); color: var(--link); }
+  .btns button.active { background: var(--link); border-color: var(--link); color: #fff; }
+  .btns button:disabled { opacity: 0.4; cursor: default; color: var(--muted); border-color: var(--rule); }
+  .btns .wide { grid-column: span 2; }
+  select { width: 100%; font-family: inherit; font-size: 0.8rem; padding: 0.45rem; border-radius: 9px; border: 1px solid var(--rule); background: var(--card); color: var(--ink); }
+  table.keys { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
+  table.keys td { padding: 0.22rem 0; color: var(--muted); }
+  table.keys td:first-child { color: var(--ink); font-weight: 600; }
+  kbd { font-family: inherit; font-size: 0.72rem; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px; padding: 0.05rem 0.35rem; color: var(--ink); background: var(--bg); }
+  .note { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+  .row { display: flex; gap: 0.5rem; align-items: center; font-size: 0.8rem; color: var(--muted); margin-top: 0.6rem; }
+  input[type=file] { display: none; }
+  @media (max-width: 760px) {
+    .wrap { flex-direction: column; align-items: center; gap: 1rem; padding-bottom: 1.2rem; }
+    .panel { width: 100%; max-width: 420px; }
+    .keys-card { display: none; }
+    .top { padding-top: 0.6rem; }
+  }
+  @media (max-width: 380px) {
+    .dpad { transform: scale(0.88); transform-origin: left center; }
+    .ab { transform: rotate(-22deg) scale(0.88); }
+  }
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="/library.html">&#8592; Home</a>
+  <h1>Pocket Emulator</h1>
+  <a href="#" id="themeBtn" title="Toggle theme">&#9680;</a>
+</div>
+
+<div class="wrap">
+  <div class="device" id="device">
+    <div class="bezel">
+      <div class="screen" id="screen">
+        <canvas id="lcd" width="160" height="144"></canvas>
+        <div class="drop" id="drop">
+          <strong>Load a game</strong>
+          <div>Pick a <b>.gb</b> or <b>.gbc</b> ROM file you own,<br>or drag it onto the screen.</div>
+          <button class="pick" id="pickBtn">Choose ROM</button>
+          <button class="resume hide" id="resumeBtn" style="display:none"></button>
+        </div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+    <div class="label"><span><i class="led" id="led"></i>Pocket</span><span id="gameTitle">No cartridge</span></div>
+    <div class="pad">
+      <div class="dpad">
+        <div class="k up" data-btn="2"></div>
+        <div class="k down" data-btn="3"></div>
+        <div class="k left" data-btn="1"></div>
+        <div class="k right" data-btn="0"></div>
+        <div class="mid"></div>
+      </div>
+      <div class="ab">
+        <div class="k b" data-btn="5">B</div>
+        <div class="k a" data-btn="4">A</div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="k" data-btn="6"><span>SELECT</span></div>
+      <div class="k" data-btn="7"><span>START</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="card">
+      <h2>Game</h2>
+      <div class="btns">
+        <button class="wide" id="loadBtn">Load ROM&hellip;</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button id="ffBtn" disabled title="Hold Space on a keyboard">Fast &#9654;&#9654;</button>
+        <button id="muteBtn">Sound on</button>
+        <button id="resetBtn" disabled>Reset</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Saves</h2>
+      <div class="btns">
+        <button id="saveStateBtn" disabled>Save state</button>
+        <button id="loadStateBtn" disabled>Load state</button>
+        <button id="exportBtn" disabled>Export .sav</button>
+        <button id="importBtn" disabled>Import .sav</button>
+      </div>
+      <p class="note" style="margin-top:0.6rem">In-game saves are kept automatically in this browser. Save states are a quick snapshot of everything &mdash; handy before a tough battle.</p>
+    </div>
+    <div class="card">
+      <h2>Display</h2>
+      <select id="paletteSel">
+        <option value="classic">Classic green</option>
+        <option value="pocket">Pocket olive</option>
+        <option value="gray">Grayscale</option>
+        <option value="warm">Warm sunset</option>
+      </select>
+      <p class="note" style="margin-top:0.5rem">Palette applies to original (non-Color) games. Color games use their own colours.</p>
+    </div>
+    <div class="card keys-card">
+      <h2>Controls</h2>
+      <table class="keys">
+        <tr><td>D-pad</td><td><kbd>&#8592;</kbd> <kbd>&#8593;</kbd> <kbd>&#8594;</kbd> <kbd>&#8595;</kbd> or <kbd>WASD</kbd></td></tr>
+        <tr><td>A / B</td><td><kbd>X</kbd> / <kbd>Z</kbd></td></tr>
+        <tr><td>Start</td><td><kbd>Enter</kbd></td></tr>
+        <tr><td>Select</td><td><kbd>Shift</kbd> or <kbd>Backspace</kbd></td></tr>
+        <tr><td>Fast forward</td><td>hold <kbd>Space</kbd></td></tr>
+        <tr><td>Save / load state</td><td><kbd>F5</kbd> / <kbd>F8</kbd></td></tr>
+      </table>
+      <p class="note" style="margin-top:0.5rem">USB and Bluetooth gamepads work too.</p>
+    </div>
+    <p class="note">Runs entirely in your browser &mdash; ROMs never leave your device. Use dumps of cartridges you own.</p>
+  </div>
+</div>
+
+<input type="file" id="romFile" accept=".gb,.gbc,.cgb,.zip,application/octet-stream">
+<input type="file" id="savFile" accept=".sav,.srm,application/octet-stream">
+<input type="file" id="stateFile" accept=".state,.json">
+
+<script src="gb-core.js"></script>
+<script>
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const canvas = $('lcd'), ctx = canvas.getContext('2d');
+  const image = ctx.createImageData(160, 144);
+  const image32 = new Uint32Array(image.data.buffer);
+  let gb = null, paused = false, ffHold = false, ffToggle = false, muted = false;
+  let lastT = 0, acc = 0;
+  let keyMask = 0, touchMask = 0, padMask = 0;
+
+  // ---------------------------------------------------------------- storage (IndexedDB)
+  const DB = (() => {
+    let dbp = null;
+    function open() {
+      if (dbp) return dbp;
+      dbp = new Promise((res, rej) => {
+        try {
+          const r = indexedDB.open('pocket-emu', 1);
+          r.onupgradeneeded = () => r.result.createObjectStore('kv');
+          r.onsuccess = () => res(r.result);
+          r.onerror = () => rej(r.error);
+        } catch (e) { rej(e); }
+      });
+      return dbp;
+    }
+    async function op(mode, fn) {
+      try {
+        const db = await open();
+        return await new Promise((res, rej) => {
+          const tx = db.transaction('kv', mode);
+          const r = fn(tx.objectStore('kv'));
+          tx.oncomplete = () => res(r && r.result);
+          tx.onerror = () => rej(tx.error);
+        });
+      } catch (e) { return undefined; }
+    }
+    return {
+      get: k => op('readonly', s => s.get(k)),
+      set: (k, v) => op('readwrite', s => s.put(v, k)),
+    };
+  })();
+
+  // ---------------------------------------------------------------- UI helpers
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+  function setEnabled(on) {
+    ['pauseBtn', 'ffBtn', 'resetBtn', 'saveStateBtn', 'loadStateBtn', 'exportBtn', 'importBtn'].forEach(id => $(id).disabled = !on);
+  }
+  function download(name, data, type) {
+    const blob = new Blob([data], { type: type || 'application/octet-stream' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  function safeName() { return gb ? gb.cart.title.replace(/[^\w\- ]/g, '').trim().replace(/\s+/g, '_') || 'game' : 'game'; }
+
+  // theme toggle (matches the rest of the site)
+  try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  $('themeBtn').addEventListener('click', e => {
+    e.preventDefault();
+    const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+
+  // ---------------------------------------------------------------- audio
+  const Audio = (() => {
+    let ac = null, node = null;
+    const SIZE = 16384;
+    const bufL = new Float32Array(SIZE), bufR = new Float32Array(SIZE);
+    let w = 0, r = 0, lastL = 0, lastR = 0;
+    function fill() { return (w - r + SIZE) % SIZE; }
+    function push(l, rr) {
+      if (fill() >= SIZE - 1) return; // overflow: drop
+      bufL[w] = l; bufR[w] = rr; w = (w + 1) % SIZE;
+    }
+    function start() {
+      if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try {
+        ac = new AC();
+        node = ac.createScriptProcessor(2048, 0, 2);
+        node.onaudioprocess = e => {
+          const L = e.outputBuffer.getChannelData(0), R = e.outputBuffer.getChannelData(1);
+          const n = L.length;
+          // keep latency bounded: drop if way too far ahead
+          while (fill() > n * 4) r = (r + 1) % SIZE;
+          for (let i = 0; i < n; i++) {
+            if (r !== w) { lastL = bufL[r]; lastR = bufR[r]; r = (r + 1) % SIZE; }
+            else { lastL *= 0.995; lastR *= 0.995; }
+            L[i] = lastL; R[i] = lastR;
+          }
+        };
+        node.connect(ac.destination);
+      } catch (e) { ac = null; }
+    }
+    return { push, start, rate: () => ac ? ac.sampleRate : 44100, ready: () => !!ac, clear: () => { r = w; } };
+  })();
+
+  // ---------------------------------------------------------------- saves
+  let lastSaveCheck = 0;
+  function saveKey() { return 'sav:' + gb.cart.id; }
+  function persistBattery(force) {
+    if (!gb || !gb.cart.hasBattery || !gb.cart.ram.length && !gb.cart.hasRtc) return;
+    if (!force && !gb.cart.ramDirty) return;
+    gb.cart.ramDirty = false;
+    DB.set(saveKey(), gb.cart.exportSave());
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden) persistBattery(true); });
+  window.addEventListener('pagehide', () => persistBattery(true));
+
+  // ---------------------------------------------------------------- loading ROMs
+  async function unzipFirstRom(bytes) {
+    // minimal ZIP reader (stored or deflate) using DecompressionStream
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    let p = 0;
+    while (p + 30 < bytes.length && dv.getUint32(p, true) === 0x04034b50) {
+      const method = dv.getUint16(p + 8, true), csize = dv.getUint32(p + 18, true);
+      const nlen = dv.getUint16(p + 26, true), xlen = dv.getUint16(p + 28, true);
+      const name = new TextDecoder().decode(bytes.subarray(p + 30, p + 30 + nlen));
+      const start = p + 30 + nlen + xlen;
+      const data = bytes.subarray(start, start + csize);
+      if (/\.(gbc?|cgb)$/i.test(name)) {
+        if (method === 0) return data;
+        if (method === 8 && 'DecompressionStream' in window) {
+          const ds = new DecompressionStream('deflate-raw');
+          const out = await new Response(new Blob([data]).stream().pipeThrough(ds)).arrayBuffer();
+          return new Uint8Array(out);
+        }
+        throw new Error('Unsupported zip compression');
+      }
+      p = start + csize;
+    }
+    throw new Error('No .gb/.gbc file found in zip');
+  }
+
+  async function loadRom(bytes, name, remember) {
+    if (bytes[0] === 0x50 && bytes[1] === 0x4b) bytes = await unzipFirstRom(bytes);
+    if (bytes.length < 0x8000) throw new Error('That file is too small to be a ROM.');
+    persistBattery(true);
+    Audio.start();
+    const palette = $('paletteSel').value;
+    const next = new GameBoy(bytes, { palette });
+    next.apu.setSampleRate(Audio.rate());
+    next.apu.sink = Audio.push;
+    const saved = await DB.get('sav:' + next.cart.id);
+    if (saved) next.cart.importSave(new Uint8Array(saved));
+    gb = next;
+    paused = false; acc = 0; lastT = performance.now();
+    $('pauseBtn').textContent = 'Pause';
+    $('drop').classList.add('hide');
+    $('gameTitle').textContent = gb.cart.title + (gb.cgb ? ' · Color' : '');
+    $('led').classList.add('on');
+    setEnabled(true);
+    document.title = gb.cart.title + ' — Pocket Emulator';
+    if (remember) { DB.set('lastRom', bytes); DB.set('lastRomName', name || gb.cart.title); }
+    toast(saved ? 'Loaded save for ' + gb.cart.title : 'Started ' + gb.cart.title);
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    try { await loadRom(new Uint8Array(await file.arrayBuffer()), file.name, true); }
+    catch (e) { toast(e.message || 'Could not load ROM'); }
+  }
+  $('pickBtn').addEventListener('click', () => $('romFile').click());
+  $('loadBtn').addEventListener('click', () => $('romFile').click());
+  $('romFile').addEventListener('change', e => { handleFile(e.target.files[0]); e.target.value = ''; });
+
+  const scr = $('screen'), drop = $('drop');
+  ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  document.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+
+  // offer to resume the last ROM
+  (async () => {
+    const name = await DB.get('lastRomName');
+    if (!name) return;
+    const b = $('resumeBtn');
+    b.textContent = 'Continue ' + name.replace(/\.(gbc?|zip)$/i, '');
+    b.style.display = '';
+    b.addEventListener('click', async () => {
+      const rom = await DB.get('lastRom');
+      if (!rom) { toast('Saved ROM missing — choose it again'); return; }
+      try { await loadRom(new Uint8Array(rom), name, false); } catch (e) { toast(e.message); }
+    });
+  })();
+
+  // ---------------------------------------------------------------- controls panel
+  $('pauseBtn').addEventListener('click', () => togglePause());
+  function togglePause() {
+    if (!gb) return;
+    paused = !paused;
+    $('pauseBtn').textContent = paused ? 'Resume' : 'Pause';
+    $('pauseBtn').classList.toggle('active', paused);
+    $('led').classList.toggle('on', !paused);
+    if (paused) persistBattery(true);
+    lastT = performance.now(); acc = 0;
+  }
+  $('ffBtn').addEventListener('click', () => { ffToggle = !ffToggle; $('ffBtn').classList.toggle('active', ffToggle); });
+  $('muteBtn').addEventListener('click', () => {
+    muted = !muted; Audio.start();
+    $('muteBtn').textContent = muted ? 'Sound off' : 'Sound on';
+    $('muteBtn').classList.toggle('active', muted);
+    if (gb) gb.apu.enabled = !muted;
+  });
+  $('resetBtn').addEventListener('click', async () => {
+    if (!gb) return;
+    persistBattery(true);
+    const rom = gb.cart.rom;
+    try { await loadRom(rom, null, false); } catch (e) { toast(e.message); }
+  });
+  $('paletteSel').addEventListener('change', e => {
+    try { localStorage.setItem('pocket-palette', e.target.value); } catch (x) {}
+    if (gb) gb.ppu.setDmgPalette(e.target.value);
+  });
+  try { const p = localStorage.getItem('pocket-palette'); if (p) $('paletteSel').value = p; } catch (e) {}
+
+  async function saveState() {
+    if (!gb) return;
+    try { await DB.set('state:' + gb.cart.id, gb.saveState()); toast('State saved'); }
+    catch (e) { toast('Could not save state'); }
+  }
+  async function loadState() {
+    if (!gb) return;
+    const s = await DB.get('state:' + gb.cart.id);
+    if (!s) { toast('No save state yet'); return; }
+    try { gb.loadState(s); Audio.clear(); toast('State loaded'); } catch (e) { toast(e.message); }
+  }
+  $('saveStateBtn').addEventListener('click', saveState);
+  $('loadStateBtn').addEventListener('click', loadState);
+  $('exportBtn').addEventListener('click', () => {
+    if (!gb) return;
+    if (!gb.cart.ram.length && !gb.cart.hasRtc) { toast('This game has no save memory'); return; }
+    download(safeName() + '.sav', gb.cart.exportSave());
+  });
+  $('importBtn').addEventListener('click', () => $('savFile').click());
+  $('savFile').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f || !gb) return;
+    if (!confirm('Replace the current in-game save with ' + f.name + '? The game will restart.')) return;
+    const data = new Uint8Array(await f.arrayBuffer());
+    await DB.set(saveKey(), data);
+    const rom = gb.cart.rom; gb = null;
+    try { await loadRom(rom, null, false); } catch (x) { toast(x.message); }
+  });
+
+  // ---------------------------------------------------------------- input
+  const KEYMAP = {
+    ArrowRight: 0, KeyD: 0, ArrowLeft: 1, KeyA: 1, ArrowUp: 2, KeyW: 2, ArrowDown: 3, KeyS: 3,
+    KeyX: 4, KeyK: 4, KeyZ: 5, KeyJ: 5, ShiftLeft: 6, ShiftRight: 6, Backspace: 6, Enter: 7
+  };
+  window.addEventListener('keydown', e => {
+    if (e.target && (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT')) return;
+    if (e.code in KEYMAP) { keyMask |= 1 << KEYMAP[e.code]; e.preventDefault(); }
+    else if (e.code === 'Space') { ffHold = true; e.preventDefault(); }
+    else if (e.code === 'F5') { e.preventDefault(); saveState(); }
+    else if (e.code === 'F8') { e.preventDefault(); loadState(); }
+    else if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
+  });
+  window.addEventListener('keyup', e => {
+    if (e.code in KEYMAP) keyMask &= ~(1 << KEYMAP[e.code]);
+    else if (e.code === 'Space') ffHold = false;
+  });
+  window.addEventListener('blur', () => { keyMask = 0; ffHold = false; });
+
+  // touch: track every pointer and hit-test, so sliding across the d-pad works
+  const keys = Array.from(document.querySelectorAll('.device [data-btn]'));
+  const pointers = new Map();
+  function hit(x, y) {
+    let m = 0;
+    for (const k of keys) {
+      const r = k.getBoundingClientRect();
+      const pad = k.parentElement.classList.contains('dpad') ? 6 : 10;
+      if (x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad) m |= 1 << +k.dataset.btn;
+    }
+    // diagonal on the d-pad centre
+    const mid = document.querySelector('.dpad .mid').getBoundingClientRect();
+    if (x >= mid.left && x <= mid.right && y >= mid.top && y <= mid.bottom) {
+      const cx = (mid.left + mid.right) / 2, cy = (mid.top + mid.bottom) / 2;
+      const dx = x - cx, dy = y - cy;
+      if (Math.abs(dx) > 6) m |= dx > 0 ? 1 : 2;
+      if (Math.abs(dy) > 6) m |= dy > 0 ? 8 : 4;
+    }
+    return m;
+  }
+  function updateTouch() {
+    let m = 0; for (const v of pointers.values()) m |= v;
+    if (m & ~touchMask && navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+    touchMask = m;
+    keys.forEach(k => k.classList.toggle('on', !!(m & (1 << +k.dataset.btn))));
+  }
+  const dev = $('device');
+  dev.addEventListener('pointerdown', e => {
+    if (e.target.closest('.screen')) return;
+    Audio.start();
+    dev.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, hit(e.clientX, e.clientY)); updateTouch(); e.preventDefault();
+  });
+  dev.addEventListener('pointermove', e => { if (pointers.has(e.pointerId)) { pointers.set(e.pointerId, hit(e.clientX, e.clientY)); updateTouch(); } });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => dev.addEventListener(ev, e => { pointers.delete(e.pointerId); updateTouch(); }));
+  dev.addEventListener('contextmenu', e => e.preventDefault());
+
+  function pollGamepad() {
+    padMask = 0;
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    for (const p of pads) {
+      if (!p) continue;
+      const b = i => p.buttons[i] && p.buttons[i].pressed;
+      const ax = p.axes[0] || 0, ay = p.axes[1] || 0;
+      if (b(15) || ax > 0.5) padMask |= 1;
+      if (b(14) || ax < -0.5) padMask |= 2;
+      if (b(12) || ay < -0.5) padMask |= 4;
+      if (b(13) || ay > 0.5) padMask |= 8;
+      if (b(0)) padMask |= 16;          // A (bottom face button)
+      if (b(1) || b(2)) padMask |= 32;  // B
+      if (b(8)) padMask |= 64;          // select
+      if (b(9)) padMask |= 128;         // start
+      if (b(7) || b(5)) padMask |= 256; // fast forward (RT / RB)
+    }
+  }
+
+  // ---------------------------------------------------------------- main loop
+  function draw() {
+    image32.set(gb.ppu.fb);
+    ctx.putImageData(image, 0, 0);
+  }
+  function loop(t) {
+    requestAnimationFrame(loop);
+    if (!gb || paused) { lastT = t; return; }
+    pollGamepad();
+    const ff = ffHold || ffToggle || (padMask & 256);
+    gb.setButtons((keyMask | touchMask | padMask) & 0xff);
+    let dt = t - lastT; lastT = t;
+    if (dt > 250) dt = GameBoy.FRAME_MS; // tab was hidden; don't try to catch up
+    acc += dt;
+    let ran = 0;
+    gb.apu.enabled = !muted && !ff;
+    while (acc >= GameBoy.FRAME_MS && ran < 4) {
+      acc -= GameBoy.FRAME_MS;
+      const n = ff ? 4 : 1;
+      for (let i = 0; i < n; i++) gb.runFrame();
+      ran++;
+    }
+    if (acc > GameBoy.FRAME_MS * 4) acc = 0;
+    if (ran) draw();
+    if (t - lastSaveCheck > 2000) { lastSaveCheck = t; persistBattery(false); }
+  }
+  requestAnimationFrame(loop);
+
+  // blank screen
+  ctx.fillStyle = '#0b0c12'; ctx.fillRect(0, 0, 160, 144);
+})();
+</script>
+</body>
+</html>
