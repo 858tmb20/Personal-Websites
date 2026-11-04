@@ -182,8 +182,8 @@
   </div>
 </div>
 
-<input type="file" id="romFile" accept=".gb,.gbc,.cgb,.zip,application/octet-stream">
-<input type="file" id="savFile" accept=".sav,.srm,.zip,application/octet-stream">
+<input type="file" id="romFile">
+<input type="file" id="savFile">
 <input type="file" id="stateFile" accept=".state,.json">
 
 <script src="gb-core.js"></script>
@@ -356,7 +356,11 @@
 
   async function loadRom(bytes, name, remember) {
     if (bytes[0] === 0x50 && bytes[1] === 0x4b) bytes = await unzipFirstRom(bytes);
+    if (bytes[0] === 0x37 && bytes[1] === 0x7a) throw new Error('That is a .7z file — unzip it first, or use .zip');
+    if (bytes[0] === 0x52 && bytes[1] === 0x61 && bytes[2] === 0x72) throw new Error('That is a .rar file — extract it first');
+    if (bytes.length >= 0xc0 && bytes[0xb2] === 0x96 && bytes[0x04] === 0x24) throw new Error('That is a Game Boy Advance game — only Game Boy / Color games work here');
     if (bytes.length < 0x8000) throw new Error('That file is too small to be a ROM.');
+    if (!(bytes[0x104] === 0xce && bytes[0x105] === 0xed && bytes[0x106] === 0x66)) throw new Error("That file isn't a Game Boy ROM");
     persistBattery(true);
     Audio.start();
     const palette = $('paletteSel').value;
