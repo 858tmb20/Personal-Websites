@@ -891,6 +891,18 @@
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   /* ===== DARK MODE (soft, low-glare: slate grounds, off-white text, muted tints) ===== */
+  .ca-modal { max-width: 560px; max-height: 82vh; display: flex; flex-direction: column; }
+  .ca-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
+  .ca-head h2 { margin-bottom: 0 !important; }
+  .ca-sync { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .ca-search { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); font: inherit; font-size: 0.9rem; margin-bottom: 0.6rem; }
+  .ca-list { overflow-y: auto; margin: 0 -0.4rem; }
+  .ca-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.4rem; border-bottom: 1px solid var(--rule-soft); color: var(--ink); text-decoration: none; border-radius: var(--radius-sm); }
+  .ca-row:hover { background: var(--rule-soft); }
+  .ca-title { flex: 1; min-width: 0; font-size: 0.92rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ca-date { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .ca-new { font-size: 0.65rem; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 0.1rem 0.4rem; border-radius: 99px; }
+  .ca-empty { padding: 1.25rem 0.4rem; color: var(--muted); font-size: 0.875rem; }
   :root[data-theme="dark"] {
     color-scheme: dark;
     --bg: #171C27;
@@ -1069,6 +1081,7 @@
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openTodo();"><span class="tnl-ico" data-ic="check" style="--ic:#15803D;"></span><span class="tnl-text">To-Do &amp; Notes<span class="tnl-sub">Quick checklist</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openScratch();"><span class="tnl-ico" data-ic="pen" style="--ic:#BE185D;"></span><span class="tnl-text">Scratch Pad<span class="tnl-sub">Type anything, it autosaves</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openMedical();"><span class="tnl-ico" data-ic="heart" style="--ic:#BE123C;"></span><span class="tnl-text">Medical Info<span class="tnl-sub">Meds, conditions &amp; contacts</span></span></a>
+            <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openArtifacts();"><span class="tnl-ico" data-ic="grid" style="--ic:#C2410C;"></span><span class="tnl-text">Claude Artifacts<span class="tnl-sub">All your Claude pages</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openIdeas();"><span class="tnl-ico" data-ic="bulb" style="--ic:#B45309;"></span><span class="tnl-text">Idea Tracker<span class="tnl-sub">Catch shower thoughts</span></span></a>
             <a class="topnav-link" onclick="event.preventDefault(); closeTopnav(); openKb();"><span class="tnl-ico" data-ic="doc" style="--ic:#7E22CE;"></span><span class="tnl-text">Docs &amp; Guides<span class="tnl-sub">Docs, links &amp; how-tos</span></span></a>
             <a class="topnav-link" href="cloud-path-checklist.html" target="_blank" onclick="closeTopnav();"><span class="tnl-ico" data-ic="cloud" style="--ic:#0E7490;"></span><span class="tnl-text">Cloud Path Launch<span class="tnl-sub">Business launch checklist</span></span></a>
@@ -1392,6 +1405,19 @@
     </div>
     <div class="count" id="todoCount" style="margin-top:0.85rem;"></div>
     <div id="todoList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- CLAUDE ARTIFACTS MODAL -->
+<div class="modal-overlay" id="caOverlay" onclick="if(event.target===this)closeArtifacts()">
+  <div class="modal ca-modal">
+    <div class="ca-head"><h2>Claude Artifacts</h2><span class="ca-sync" id="caSync"></span></div>
+    <input class="ca-search" id="caSearch" type="search" placeholder="Search your artifacts..." oninput="renderArtifacts()" />
+    <div class="ca-list" id="caList"><div class="ca-empty">Loading...</div></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="window.open('https://claude.ai/code/artifacts','_blank','noopener')">Open in Claude</button>
+      <button class="btn-cancel" onclick="closeArtifacts()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -1963,6 +1989,13 @@
     var quickLinks =
       '<div class="quicklinks-card">' +
         '<div class="quicklinks-head">Quick links</div>' +
+        '<a class="quicklink-btn" href="#" onclick="event.preventDefault(); openArtifacts();">' +
+          '<span class="quicklink-ico" style="background:#C2410C;">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H10V10H4V4ZM14 4H20V10H14V4ZM4 14H10V20H4V14ZM14 14H20V20H14V14Z" fill="white"/></svg>' +
+          '</span>' +
+          '<span><div class="quicklink-label">Claude Artifacts</div><div class="quicklink-sub">All your Claude pages</div></span>' +
+          '<span class="quicklink-arrow">' + icon('arrow') + '</span>' +
+        '</a>' +
         '<a class="quicklink-btn" href="https://mail.google.com" target="_blank" rel="noopener">' +
           '<span class="quicklink-ico" style="background:#EA4335;">' +
             '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="white"/></svg>' +
@@ -3061,6 +3094,35 @@
       .catch(function() { showToast('Could not save'); });
   }
   // Medical Info moved to a private Claude Artifact.
+  // Claude Artifacts: list synced into Supabase table claude_artifacts by a daily Claude task.
+  var caData = null;
+  function openArtifacts() {
+    document.getElementById('caOverlay').classList.add('open');
+    document.getElementById('caSearch').value = '';
+    if (caData) { renderArtifacts(); return; }
+    fetch(SB_URL + '/rest/v1/claude_artifacts?select=title,url,updated_at,synced_at&order=updated_at.desc.nullslast,title.asc', { headers: H })
+      .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(rows) { caData = rows; renderArtifacts(); })
+      .catch(function() { document.getElementById('caList').innerHTML = '<div class="ca-empty">Couldn\'t load the list. Use "Open in Claude" to see them there.</div>'; });
+  }
+  function closeArtifacts() { document.getElementById('caOverlay').classList.remove('open'); }
+  function caFmt(d) { if (!d) return ''; var x = new Date(d + (d.length === 10 ? 'T12:00:00' : '')); return x.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+  function renderArtifacts() {
+    var q = document.getElementById('caSearch').value.trim().toLowerCase();
+    var rows = (caData || []).filter(function(a) { return !q || a.title.toLowerCase().indexOf(q) !== -1; });
+    var weekAgo = Date.now() - 7 * 864e5;
+    document.getElementById('caList').innerHTML = rows.length ? rows.map(function(a) {
+      var fresh = a.updated_at && new Date(a.updated_at + 'T12:00:00').getTime() > weekAgo;
+      return '<a class="ca-row" href="' + esc(a.url) + '" target="_blank" rel="noopener">' +
+        '<span class="ca-title">' + esc(a.title) + '</span>' +
+        (fresh ? '<span class="ca-new">Updated</span>' : '') +
+        '<span class="ca-date">' + esc(caFmt(a.updated_at)) + '</span></a>';
+    }).join('') : '<div class="ca-empty">' + (caData && caData.length ? 'No matches.' : 'No artifacts synced yet.') + '</div>';
+    var last = (caData || []).reduce(function(m, a) { return a.synced_at > m ? a.synced_at : m; }, '');
+    document.getElementById('caSync').textContent = (caData ? caData.length + ' artifacts' : '') + (last ? ' \u00b7 synced ' + caFmt(last.slice(0, 10)) : '');
+  }
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeArtifacts(); });
+
   function openMedical() { window.open('https://claude.ai/artifact/P7CUiwnLWCNaFLmEMAfMzb', '_blank', 'noopener'); }
 
   // ===== DEPLOYMENT TRACKER =====
