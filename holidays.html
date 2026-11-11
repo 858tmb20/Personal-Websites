@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Home for the Holidays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap">
+<style>
+:root{
+  --bg:#f7f3ec; --card:#ffffff; --fg:#1a1f1d; --muted:#545f5a; --line:#e3ddd2; --soft:#efe9df;
+  --pine:#1d5c46; --pine-2:#2f7a5f; --pine-soft:#e2efe8; --berry:#b3263a; --berry-soft:#fbe6e8; --gold:#b7791f; --on-berry:#ffffff;
+  --display:"Fraunces",Georgia,serif; --body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+  --shadow:0 1px 2px rgba(30,40,35,.06),0 4px 16px rgba(30,40,35,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111715; --card:#19211e; --fg:#eef3f0; --muted:#a6b3ad; --line:#2b3632; --soft:#202a27;
+  --pine:#7fd1ad; --pine-2:#5fb892; --pine-soft:#1c3129; --berry:#ff8f9b; --berry-soft:#3b1e23; --gold:#e6b45e; --on-berry:#2a0d12;
+  --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --card:#19211e; --fg:#eef3f0; --muted:#a6b3ad; --line:#2b3632; --soft:#202a27;
+  --pine:#7fd1ad; --pine-2:#5fb892; --pine-soft:#1c3129; --berry:#ff8f9b; --berry-soft:#3b1e23; --gold:#e6b45e; --on-berry:#2a0d12;
+  --shadow:none; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:32px max(16px,env(safe-area-inset-right)) 72px max(16px,env(safe-area-inset-left));display:grid;gap:20px}
+header{display:grid;gap:10px;padding:4px 2px 8px}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--berry);margin:0}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,8vw,50px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.lede{margin:0;color:var(--muted);font-size:18px;max-width:52ch}
+.cta{display:inline-flex;align-items:center;gap:8px;justify-self:start;margin-top:6px;text-decoration:none}
+h2{font-family:var(--display);font-weight:600;font-size:24px;line-height:1.2;margin:0}
+.sub{margin:4px 0 0;color:var(--muted);font-size:15px}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);min-width:0}
+.sec-head{margin-bottom:16px}
+
+/* Highlight */
+.best{background:var(--pine);border-color:transparent;color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .best{background:var(--pine-soft);color:var(--fg)}}
+:root[data-theme="dark"] .best{background:var(--pine-soft);color:var(--fg)}
+.best .label{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin:0}
+.best .big{font-family:var(--display);font-size:clamp(26px,6vw,34px);font-weight:700;line-height:1.15;margin:6px 0 4px}
+.best .small{margin:0;font-size:16px;opacity:.9}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:15px;font-weight:700}
+.stats span{opacity:.92}
+
+/* Timeline */
+.tl{display:grid;gap:6px;min-width:0}
+.tl-row{display:grid;grid-template-columns:minmax(78px,26%) 1fr;align-items:center;gap:10px;min-width:0}
+.tl-days{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:2px;min-width:0}
+.tl-head .tl-days span{font-size:11px;font-weight:700;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;line-height:1.15}
+.tl-head .tl-days span.x{color:var(--berry)}
+.tl-head .tl-days span b{display:block;font-weight:600;font-size:10px;opacity:.8}
+.cell{height:26px;border-radius:4px;background:var(--soft)}
+.cell.x{background:var(--berry-soft)}
+.cell.on{background:var(--pine-2)}
+.cell.on.x{background:var(--berry)}
+.cell.on.s{border-top-left-radius:9px;border-bottom-left-radius:9px}
+.cell.on.e{border-top-right-radius:9px;border-bottom-right-radius:9px}
+.who{display:flex;flex-direction:column;min-width:0;background:none;border:0;padding:0;text-align:left;color:var(--fg);font:inherit;cursor:pointer}
+.who strong{font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who small{font-size:12px;color:var(--muted);font-weight:600}
+.who:hover strong{text-decoration:underline;text-underline-offset:3px}
+.tl-foot{border-top:1px solid var(--line);padding-top:8px;margin-top:4px}
+.tl-foot .lbl{font-size:13px;font-weight:800;color:var(--muted)}
+.cnt{font-size:12px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);border-radius:4px;padding:3px 0}
+.cnt.max{background:var(--pine-soft);color:var(--pine)}
+@media (max-width:560px){
+  .tl{gap:12px}
+  .tl-row{grid-template-columns:1fr;gap:4px}
+  .tl-row>span:first-child:empty{display:none}
+  .who{flex-direction:row;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .who strong{white-space:normal}
+  .who small{font-size:13px}
+  .cell{height:22px}
+  .tl-foot .lbl{font-size:12px}
+}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:13px;color:var(--muted);font-weight:600}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+
+/* Ideas */
+.ideas{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:600px){.ideas{grid-template-columns:1fr}}
+.ideas h3{font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--berry);margin:0 0 10px}
+.ideas ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ideas li{background:var(--soft);border-radius:12px;padding:10px 14px;overflow-wrap:anywhere}
+.ideas li .by{display:block;font-size:13px;color:var(--muted);font-weight:700;margin-top:2px}
+.empty{color:var(--muted);font-size:15px;margin:0}
+
+/* Form */
+.form{display:grid;gap:18px}
+label,.flabel{display:block;font-weight:800;font-size:15px;margin-bottom:6px}
+.hint{font-weight:600;color:var(--muted);font-size:13px}
+input[type=text],input[type=date],textarea{width:100%;font:inherit;font-size:17px;color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:50px}
+textarea{min-height:88px;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--pine-2);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;font-size:15px;font-weight:700;margin:0;background:var(--bg)}
+.chip:has(input:checked){border-color:var(--berry);background:var(--berry-soft)}
+.chip input{accent-color:var(--berry);width:18px;height:18px;margin:0}
+.btn{font:inherit;font-size:17px;font-weight:800;border:0;border-radius:12px;padding:14px 22px;background:var(--berry);color:var(--on-berry);cursor:pointer}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.alt{background:var(--card);color:var(--fg);border:1.5px solid var(--line)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.status{font-size:15px;font-weight:700;color:var(--pine);min-height:1.5em;margin:0}
+.status.err{color:var(--berry)}
+.editing{background:var(--berry-soft);color:var(--fg);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:700;display:none}
+.editing.show{display:block}
+footer{text-align:center;color:var(--muted);font-size:13px}
+</style></head><body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Christmas 2026</p>
+    <h1>Home for the Holidays</h1>
+    <p class="lede">Mom &amp; Dad are planning so we can all be home at the same time. Add the days you'll be here and anything you'd like to eat or do.</p>
+    <a class="btn cta" href="#plans">Add my plans</a>
+  </header>
+
+  <section class="best" id="best" aria-live="polite">
+    <p class="label">Best time together</p>
+    <p class="big">Loading…</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Who's home when</h2><p class="sub">Tap a name to edit those plans.</p></div>
+    <div id="cal"><p class="empty">Loading the family's plans…</p></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Ideas</h2><p class="sub">Everything people want to eat and do.</p></div>
+    <div class="ideas" id="ideas"><p class="empty">No ideas yet.</p></div>
+  </section>
+
+  <section id="plans">
+    <div class="sec-head"><h2>Your plans</h2><p class="sub">Use the same name each time so you update your own plans.</p></div>
+    <form class="form" id="form" autocomplete="off">
+      <div class="editing" id="editing"></div>
+      <div>
+        <label for="name">Your name</label>
+        <input type="text" id="name" required maxlength="40" placeholder="e.g. Ty &amp; Brad">
+      </div>
+      <div class="row">
+        <div><label for="arrive">Arriving</label><input type="date" id="arrive" value="2026-12-22" min="2026-12-01" max="2027-01-15"></div>
+        <div><label for="leave">Leaving</label><input type="date" id="leave" value="2026-12-27" min="2026-12-01" max="2027-01-15"></div>
+      </div>
+      <div>
+        <span class="flabel">Big days I'll be home</span>
+        <div class="checks">
+          <label class="chip" for="eve"><input type="checkbox" id="eve" checked> Christmas Eve</label>
+          <label class="chip" for="day"><input type="checkbox" id="day" checked> Christmas Day</label>
+          <label class="chip" for="nye"><input type="checkbox" id="nye"> New Year's Eve</label>
+        </div>
+      </div>
+      <div><label for="eat">Places to eat <span class="hint">· one per line</span></label><textarea id="eat" maxlength="500" placeholder="Restaurants, takeout, a dish you want Mom to make…"></textarea></div>
+      <div><label for="go">Places to go &amp; things to do <span class="hint">· one per line</span></label><textarea id="go" maxlength="500" placeholder="Lights tour, a movie, a walk somewhere…"></textarea></div>
+      <div><label for="notes">Anything else</label><textarea id="notes" maxlength="500" placeholder="e.g. With the in-laws Christmas Eve, here Christmas Day"></textarea></div>
+      <div class="actions">
+        <button class="btn" type="submit" id="save">Save my plans</button>
+        <button class="btn alt" type="button" id="clear">Start over</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </form>
+  </section>
+  <footer>Updates automatically every 20 seconds.</footer>
+</div>
+<script>
+const SB_URL='https://fnpgduicigxxlvpduugb.supabase.co/rest/v1/holiday_plans';
+const SB_KEY='sb_publishable_6Zyfob5Qb3OiLlQHy7ndQA_0A_9x--Q';
+const H={apikey:SB_KEY,'Content-Type':'application/json'};
+const $=id=>document.getElementById(id);
+const START=new Date(2026,11,18),END=new Date(2027,0,2);
+const XMAS=['2026-12-24','2026-12-25'];
+let entries=[],editingId=null;
+
+const slug=s=>s.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'someone';
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const parse=d=>{if(!d)return null;const[y,m,dd]=d.split('-').map(Number);return new Date(y,m-1,dd)};
+const fmt=d=>d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+const fmtLong=d=>d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+function esc(s){const e=document.createElement('span');e.textContent=s==null?'':String(s);return e.innerHTML}
+const lines=v=>v.split(/\n|;/).map(x=>x.trim()).filter(Boolean).slice(0,20);
+function norm(r){const d=[...(r.days||[])].sort();return{...r,days:d,set:new Set(d),arrive:d[0]||'',leave:d[d.length-1]||''}}
+const DAYS=(()=>{const a=[];for(let d=new Date(START);d<=END;d.setDate(d.getDate()+1))a.push(new Date(d));return a})();
+
+// Contiguous runs of a sorted ISO day list -> "Dec 20 – 28"
+function ranges(days){
+  const out=[];let s=null,p=null;
+  for(const k of days){const d=parse(k);if(p&&(d-p)===864e5){p=d;continue}if(s)out.push([s,p]);s=d;p=d}
+  if(s)out.push([s,p]);
+  return out.map(([a,b])=>+a===+b?fmt(a):a.getMonth()===b.getMonth()?`${fmt(a)} – ${b.getDate()}`:`${fmt(a)} – ${fmt(b)}`).join(', ');
+}
+
+function renderBest(){
+  const el=$('best');const n=entries.length;
+  if(!n){el.innerHTML='<p class="label">Best time together</p><p class="big">Waiting on the first plans</p><p class="small">Once people add their days, the best overlap shows up here.</p>';return}
+  const counts=DAYS.map(d=>entries.filter(e=>e.set.has(iso(d))).length);
+  const max=Math.max(...counts);
+  const top=DAYS.filter((d,i)=>counts[i]===max).map(iso);
+  const who=max===n?(n===1?'1 person is':`All ${n} are`):`${max} of ${n} are`;
+  const xmasAll=XMAS.every(k=>entries.filter(e=>e.set.has(k)).length===n);
+  el.innerHTML=`<p class="label">Best time together</p>
+    <p class="big">${esc(ranges(top))}</p>
+    <p class="small">${who} home on ${top.length===1?'that day':'those days'}.</p>
+    <div class="stats"><span>${n} ${n===1?'plan':'plans'} in</span><span>${xmasAll?'Everyone home for Christmas ✓':'Not everyone home for Christmas yet'}</span></div>`;
+}
+
+function renderCal(){
+  if(!entries.length){$('cal').innerHTML='<p class="empty">Nobody has added dates yet. Add yours below.</p>';return}
+  const n=DAYS.length;
+  const head=DAYS.map((d,i)=>{const x=XMAS.includes(iso(d));const showMon=i===0||d.getDate()===1;return `<span class="${x?'x':''}"><b>${showMon?d.toLocaleDateString(undefined,{month:'short'}):d.toLocaleDateString(undefined,{weekday:'narrow'})}</b>${d.getDate()}</span>`}).join('');
+  let h=`<div class="tl" style="--n:${n}"><div class="tl-row tl-head"><span></span><div class="tl-days">${head}</div></div>`;
+  for(const e of entries){
+    const cells=DAYS.map((d,i)=>{const k=iso(d),on=e.set.has(k);if(!on)return `<span class="cell${XMAS.includes(k)?' x':''}"></span>`;
+      const prev=i>0&&e.set.has(iso(DAYS[i-1])),next=i<n-1&&e.set.has(iso(DAYS[i+1]));
+      return `<span class="cell on${XMAS.includes(k)?' x':''}${prev?'':' s'}${next?'':' e'}" title="${esc(e.name)} · ${fmtLong(d)}"></span>`}).join('');
+    const span=e.days.length?ranges(e.days):'Dates TBD';
+    h+=`<div class="tl-row"><button class="who" type="button" data-edit="${esc(e.id)}" aria-label="Edit ${esc(e.name)}'s plans"><strong>${esc(e.name)}</strong><small>${esc(span)}</small></button><div class="tl-days" aria-label="${esc(e.name)}: ${esc(span)}">${cells}</div></div>`;
+  }
+  const counts=DAYS.map(d=>entries.filter(e=>e.set.has(iso(d))).length),max=Math.max(...counts);
+  h+=`<div class="tl-row tl-foot"><span class="lbl">How many home</span><div class="tl-days">${counts.map(c=>`<span class="cnt${c===max&&c>0?' max':''}">${c||''}</span>`).join('')}</div></div></div>`;
+  h+=`<div class="legend"><span><i style="background:var(--pine-2)"></i>Home</span><span><i style="background:var(--berry)"></i>Home for Christmas</span><span><i style="background:var(--pine-soft);border:1px solid var(--pine)"></i>Most people home</span></div>`;
+  $('cal').innerHTML=h;
+}
+
+function renderIdeas(){
+  const col=(title,key)=>{const m=new Map();
+    for(const e of entries)for(const t of (key==='other'?(e.other?[e.other]:[]):(e[key]||[]))){const k=t.trim().toLowerCase();if(!m.has(k))m.set(k,{t:t.trim(),by:[]});const it=m.get(k);if(!it.by.includes(e.name))it.by.push(e.name)}
+    const items=[...m.values()].map(i=>({t:i.t,by:i.by.join(', ')}));
+    return `<div><h3>${title}</h3>${items.length?`<ul>${items.map(i=>`<li>${esc(i.t)}<span class="by">${esc(i.by)}</span></li>`).join('')}</ul>`:'<p class="empty">Nothing yet.</p>'}</div>`};
+  const notes=entries.some(e=>e.other);
+  $('ideas').innerHTML=col('Places to eat','eat')+col('Things to do','go')+(notes?`<div style="grid-column:1/-1">${col('Notes','other').slice(5,-6)}</div>`:'');
+}
+
+function render(){renderBest();renderCal();renderIdeas()}
+
+async function load(){
+  try{const r=await fetch(SB_URL+'?select=*&order=updated_at.asc',{headers:H});if(!r.ok)throw 0;
+    entries=(await r.json()).map(norm).sort((a,b)=>(a.arrive||'9').localeCompare(b.arrive||'9')||a.name.localeCompare(b.name));render()}
+  catch{if(!entries.length){$('cal').innerHTML='<p class="empty">Couldn\'t load plans right now. Reload to try again.</p>';$('best').innerHTML='<p class="label">Best time together</p><p class="big">Couldn\'t load</p>'}}
+}
+
+function fill(e){
+  $('name').value=e?e.name:'';$('arrive').value=e?e.arrive:'2026-12-22';$('leave').value=e?e.leave:'2026-12-27';
+  $('eve').checked=e?e.set.has('2026-12-24'):true;$('day').checked=e?e.set.has('2026-12-25'):true;$('nye').checked=e?e.set.has('2026-12-31'):false;
+  $('eat').value=e?(e.eat||[]).join('\n'):'';$('go').value=e?(e.go||[]).join('\n'):'';$('notes').value=e?e.other||'':'';
+  editingId=e?e.id:null;const b=$('editing');b.textContent=e?`Editing ${e.name}'s plans`:'';b.classList.toggle('show',!!e);$('status').textContent='';
+}
+$('cal').addEventListener('click',ev=>{const b=ev.target.closest('[data-edit]');if(!b)return;const e=entries.find(x=>x.id===b.dataset.edit);if(!e)return;fill(e);$('plans').scrollIntoView({behavior:'smooth'});});
+$('clear').addEventListener('click',()=>fill(null));
+
+$('form').addEventListener('submit',async ev=>{
+  ev.preventDefault();const st=$('status');st.classList.remove('err');
+  const name=$('name').value.trim();if(!name){st.textContent='Add your name first.';st.classList.add('err');return}
+  const id=slug(name);const existing=entries.find(x=>x.id===id);
+  if(existing&&editingId!==id&&!confirm(`There are already plans saved for "${existing.name}". Replace them with these?`))return;
+  const a=parse($('arrive').value),l=parse($('leave').value);
+  if(a&&l&&l<a){st.textContent='Your leaving date is before your arriving date.';st.classList.add('err');return}
+  const set=new Set();if(a&&l){for(let d=new Date(a);d<=l&&set.size<28;d.setDate(d.getDate()+1))set.add(iso(d))}
+  if($('eve').checked)set.add('2026-12-24');if($('day').checked)set.add('2026-12-25');if($('nye').checked)set.add('2026-12-31');
+  const row={id,name,days:[...set].sort().slice(0,31),eat:lines($('eat').value),go:lines($('go').value),other:$('notes').value.trim().slice(0,500),updated_at:new Date().toISOString()};
+  $('save').disabled=true;st.textContent='Saving…';
+  try{const r=await fetch(SB_URL+'?on_conflict=id',{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(row)});if(!r.ok)throw 0;
+    await load();fill(entries.find(x=>x.id===id)||null);st.textContent=`Saved. Thanks, ${name}!`}
+  catch{st.textContent='Couldn\'t save. Check your connection and try again.';st.classList.add('err')}
+  finally{$('save').disabled=false}
+});
+load();setInterval(()=>{if(!document.hidden)load()},20000);
+</script>
+</body></html>
