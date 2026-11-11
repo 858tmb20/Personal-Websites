@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home for the Holidays – Family Plan</title>
+<meta name="description" content="Christmas 2026 — tap the days you'll be home so we can all be together.">
+<meta property="og:title" content="🎄 Home for the Holidays">
+<meta property="og:description" content="Tap the days you'll be home and add places to go or eat.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f3ec; --card:#fffdf9; --ink:#2b2622; --muted:#7a6f66; --line:#e7dfd3;
+    --red:#b23a3a; --red-soft:#f6e3e1; --green:#2f6b4f; --green-soft:#e2efe7; --gold:#c9962b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:28px 16px 64px}
+  header{text-align:center;margin-bottom:22px}
+  header .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:600}
+  h1{font-family:Fraunces,Georgia,serif;font-size:34px;line-height:1.1;margin:6px 0 8px}
+  header p{color:var(--muted);margin:0 auto;max-width:480px}
+  h2{font-family:Fraunces,Georgia,serif;font-size:21px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:0 1px 2px rgba(60,40,20,.04)}
+  label.f{display:block;font-weight:600;font-size:13.5px;margin:16px 0 6px}
+  label.f span{font-weight:400;color:var(--muted)}
+  input[type=text],textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  textarea{min-height:64px;resize:vertical}
+  input:focus,textarea:focus{outline:2px solid var(--green);outline-offset:-1px;border-color:transparent}
+  .days{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  @media(min-width:560px){.days{grid-template-columns:repeat(8,1fr)}}
+  .day{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 2px;text-align:center;cursor:pointer;user-select:none;font:inherit;color:var(--ink)}
+  .day .dw{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .day .dn{font-weight:600;font-size:15px}
+  .day.xmas{border-color:#e4c7c4}
+  .day.on{background:var(--green);border-color:var(--green);color:#fff}
+  .day.on .dw{color:#d6eadf}
+  .quick{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .link{background:none;border:none;color:var(--green);font:inherit;font-size:13px;cursor:pointer;padding:0;text-decoration:underline}
+  .btn{margin-top:18px;width:100%;background:var(--red);color:#fff;border:none;border-radius:12px;padding:13px;font:600 15px Inter,sans-serif;cursor:pointer}
+  .btn:disabled{opacity:.5;cursor:default}
+  .msg{font-size:13.5px;margin-top:10px;text-align:center;min-height:20px}
+  .msg.ok{color:var(--green)} .msg.err{color:var(--red)}
+  .best{display:flex;flex-direction:column;gap:8px}
+  .bestrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+  .bestrow.all{background:var(--green-soft);border-color:#bcd8c7}
+  .bestrow .date{font-weight:600;min-width:92px}
+  .bar{flex:1;height:8px;background:#efe8dd;border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--green)}
+  .bestrow .n{font-size:13px;color:var(--muted);min-width:44px;text-align:right}
+  .who{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .gridwrap{overflow-x:auto;margin:0 -4px}
+  table{border-collapse:separate;border-spacing:3px;font-size:12.5px}
+  th{font-weight:600;color:var(--muted);padding:2px}
+  th.nm{text-align:left;color:var(--ink);white-space:nowrap;padding-right:8px;position:sticky;left:0;background:var(--card)}
+  td{width:26px;height:26px;border-radius:6px;background:#f1ebe2}
+  td.y{background:var(--green)}
+  .ideas{display:grid;gap:14px}
+  @media(min-width:560px){.ideas{grid-template-columns:1fr 1fr}}
+  .ideas h3{font-size:14px;margin:0 0 8px}
+  .ideas ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .ideas li{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+  .ideas li small{display:block;color:var(--muted);font-size:12px}
+  .notes li{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px;list-style:none;margin-bottom:7px}
+  .notes ul{padding:0;margin:0}
+  .empty{color:var(--muted);font-size:14px;font-style:italic}
+  .people{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .chip{font-size:12.5px;background:var(--red-soft);color:var(--red);border-radius:999px;padding:3px 10px;cursor:pointer;border:none;font-family:inherit}
+  .banner{background:#fff4dc;border:1px solid #edd9a8;color:#6b5114;border-radius:12px;padding:10px 12px;font-size:13.5px;margin-bottom:16px;display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">🎄 Christmas 2026</div>
+    <h1>Home for the Holidays</h1>
+    <p>Add your name, tap the days you'll be home, and toss in places you'd like to go or eat. Everyone sees everyone's answers so we can all be together at the same time.</p>
+  </header>
+
+  <div class="banner" id="banner"></div>
+
+  <section class="card">
+    <h2>Your plans</h2>
+    <p class="sub">Already filled it out? Type the same name (or tap it below) to edit.</p>
+    <div class="people" id="peopleChips"></div>
+
+    <label class="f" for="name">Your name</label>
+    <input type="text" id="name" maxlength="40" placeholder="e.g. Trent" autocomplete="given-name">
+
+    <label class="f">Days you'll be home <span>(tap to select)</span></label>
+    <div class="days" id="days"></div>
+    <div class="quick">
+      <button class="link" type="button" id="allDays">Select all</button>
+      <button class="link" type="button" id="noDays">Clear</button>
+    </div>
+
+    <label class="f" for="other">Other commitments <span>(optional)</span></label>
+    <textarea id="other" maxlength="500" placeholder="e.g. With Fab's family Christmas Eve, here Christmas Day"></textarea>
+
+    <label class="f" for="eat">Places you'd like to eat <span>(one per line)</span></label>
+    <textarea id="eat" maxlength="800" placeholder="e.g. Jack Stack&#10;Q39"></textarea>
+
+    <label class="f" for="go">Places to go / things to do <span>(one per line)</span></label>
+    <textarea id="go" maxlength="800" placeholder="e.g. Plaza lights&#10;Movie night"></textarea>
+
+    <button class="btn" id="save">Save my plans</button>
+    <div class="msg" id="msg"></div>
+  </section>
+
+  <section class="card">
+    <h2>Best days to all be together</h2>
+    <p class="sub" id="bestSub">Days ranked by how many people are home.</p>
+    <div class="best" id="best"><div class="empty">Loading…</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Who's home when</h2>
+    <p class="sub">Green = home that day.</p>
+    <div class="gridwrap" id="grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>Ideas</h2>
+    <p class="sub">Everyone's suggestions, combined.</p>
+    <div class="ideas">
+      <div><h3>🍽️ Places to eat</h3><ul id="eatList"></ul></div>
+      <div><h3>🎁 Places to go / things to do</h3><ul id="goList"></ul></div>
+    </div>
+  </section>
+
+  <section class="card notes">
+    <h2>Other commitments</h2>
+    <p class="sub">Heads-up on where people need to be.</p>
+    <ul id="otherList"></ul>
+  </section>
+</div>
+
+<script>
+(() => {
+  // Shared storage: Supabase table public.holiday_plans (anon can read/insert/update, not delete).
+  const SB_URL = "https://fnpgduicigxxlvpduugb.supabase.co";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZucGdkdWljaWd4eGx2cGR1dWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMTQyMTgsImV4cCI6MjA5MzY5MDIxOH0.PBZYiC6Ljrot6zIz460yPawPK-AlV59AEcFNIjHwfNc";
+  const TABLE = SB_URL + "/rest/v1/holiday_plans";
+  const H = { apikey: SB_KEY, Authorization: "Bearer " + SB_KEY, "Content-Type": "application/json" };
+
+  // Dec 19, 2026 – Jan 3, 2027
+  const DAYS = [];
+  for (let i = 0; i < 16; i++) {
+    const d = new Date(2026, 11, 19 + i);
+    DAYS.push({
+      key: d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"),
+      dw: d.toLocaleDateString("en-US",{weekday:"short"}),
+      dn: d.getDate(),
+      label: d.toLocaleDateString("en-US",{weekday:"short", month:"short", day:"numeric"}),
+      short: (d.getMonth()+1) + "/" + d.getDate(),
+      xmas: d.getMonth()===11 && (d.getDate()===24 || d.getDate()===25)
+    });
+  }
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const slug = n => n.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,60);
+  const lines = s => s.split(/\n|,/).map(x => x.trim().slice(0,80)).filter(Boolean).slice(0,20);
+
+  let selected = new Set();
+  let entries = [];
+
+  // ---- day picker
+  const daysEl = $("days");
+  DAYS.forEach(d => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "day" + (d.xmas ? " xmas" : "");
+    b.dataset.key = d.key;
+    b.innerHTML = `<div class="dw">${d.dw}</div><div class="dn">${d.xmas ? (d.dn===25?"🎄":"✨") : ""}${d.dn}</div>`;
+    b.onclick = () => { selected.has(d.key) ? selected.delete(d.key) : selected.add(d.key); paintDays(); };
+    daysEl.appendChild(b);
+  });
+  function paintDays(){ daysEl.querySelectorAll(".day").forEach(b => b.classList.toggle("on", selected.has(b.dataset.key))); }
+  $("allDays").onclick = () => { DAYS.forEach(d => selected.add(d.key)); paintDays(); };
+  $("noDays").onclick = () => { selected.clear(); paintDays(); };
+
+  // ---- load own entry when name matches
+  function fillFrom(e){
+    $("name").value = e.name || "";
+    selected = new Set(e.days || []);
+    $("other").value = e.other || "";
+    $("eat").value = (e.eat || []).join("\n");
+    $("go").value = (e.go || []).join("\n");
+    paintDays();
+  }
+  $("name").addEventListener("change", () => {
+    const s = slug($("name").value);
+    const e = entries.find(x => x.id === s);
+    if (e) { fillFrom(e); setMsg("Loaded your saved plans — edit and save again.", "ok"); }
+  });
+
+  function setMsg(t, cls){ const m = $("msg"); m.textContent = t; m.className = "msg " + (cls||""); }
+  function banner(t){ const b = $("banner"); b.textContent = t; b.style.display = t ? "block" : "none"; }
+
+  // ---- data
+  async function load(){
+    try {
+      const r = await fetch(TABLE + "?select=*&order=name.asc", { headers: H, cache: "no-store" });
+      if (!r.ok) throw new Error(r.status);
+      entries = await r.json();
+      banner("");
+      render();
+    } catch (e) {
+      banner("Couldn't load the family's plans right now — check your connection.");
+      if (!entries.length) $("best").innerHTML = `<div class="empty">Plans couldn't load.</div>`;
+    }
+  }
+
+  // ---- save
+  $("save").onclick = async () => {
+    const name = $("name").value.trim();
+    if (!name) { setMsg("Please add your name first.", "err"); $("name").focus(); return; }
+    if (!selected.size) { setMsg("Tap at least one day you'll be home.", "err"); return; }
+    const id = slug(name);
+    if (!id) { setMsg("Please use letters or numbers in your name.", "err"); return; }
+    const body = {
+      id,
+      name: name.slice(0,40),
+      days: DAYS.map(d => d.key).filter(k => selected.has(k)),
+      other: $("other").value.trim().slice(0,500),
+      eat: lines($("eat").value),
+      go: lines($("go").value),
+      updated_at: new Date().toISOString()
+    };
+    $("save").disabled = true; setMsg("Saving…");
+    try {
+      const r = await fetch(TABLE + "?on_conflict=id", {
+        method: "POST",
+        headers: { ...H, Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(body)
+      });
+      if (!r.ok) throw new Error(r.status);
+      setMsg("Saved! Thanks, " + body.name + " 🎉", "ok");
+      await load();
+    } catch (e) {
+      setMsg("Couldn't save — please tap Save again in a moment.", "err");
+    } finally { $("save").disabled = false; }
+  };
+
+  // ---- render shared data
+  function render(){
+    const n = entries.length;
+    $("peopleChips").innerHTML = entries.map(e => `<button class="chip" data-id="${esc(e.id)}">${esc(e.name)}</button>`).join("");
+    $("peopleChips").querySelectorAll(".chip").forEach(c => c.onclick = () => {
+      const e = entries.find(x => x.id === c.dataset.id); if (e) { fillFrom(e); setMsg("Editing " + e.name + "'s plans.", "ok"); }
+    });
+
+    if (!n) {
+      $("best").innerHTML = `<div class="empty">No one has added their plans yet — be the first!</div>`;
+      $("bestSub").textContent = "Days ranked by how many people are home.";
+    } else {
+      const rows = DAYS.map(d => ({ d, who: entries.filter(e => (e.days||[]).includes(d.key)).map(e => e.name) }))
+        .filter(r => r.who.length)
+        .sort((a,b) => b.who.length - a.who.length || a.d.key.localeCompare(b.d.key))
+        .slice(0, 6);
+      const allCount = DAYS.filter(d => entries.every(e => (e.days||[]).includes(d.key))).length;
+      $("bestSub").textContent = `${n} ${n===1?"person has":"people have"} responded` + (allCount ? ` · ${allCount} day${allCount===1?"":"s"} everyone's home` : "");
+      $("best").innerHTML = rows.length ? rows.map(r => `
+        <div class="bestrow ${r.who.length===n?"all":""}">
+          <div><div class="date">${r.d.label}${r.who.length===n?" ⭐":""}</div><div class="who">${r.who.map(esc).join(", ")}</div></div>
+          <div class="bar"><i style="width:${Math.round(r.who.length/n*100)}%"></i></div>
+          <div class="n">${r.who.length}/${n}</div>
+        </div>`).join("") : `<div class="empty">No days picked yet.</div>`;
+    }
+
+    if (!n) { $("grid").innerHTML = `<div class="empty">Nothing yet.</div>`; }
+    else {
+      let h = `<table><tr><th class="nm"></th>${DAYS.map(d => `<th>${d.short}</th>`).join("")}</tr>`;
+      entries.forEach(e => {
+        const set = new Set(e.days||[]);
+        h += `<tr><th class="nm">${esc(e.name)}</th>${DAYS.map(d => `<td class="${set.has(d.key)?"y":""}" title="${esc(e.name)} – ${d.label}"></td>`).join("")}</tr>`;
+      });
+      $("grid").innerHTML = h + "</table>";
+    }
+
+    const ideaList = (field) => {
+      const map = new Map();
+      entries.forEach(e => (e[field]||[]).forEach(p => {
+        const k = String(p).toLowerCase();
+        if (!map.has(k)) map.set(k, { text: p, by: [] });
+        map.get(k).by.push(e.name);
+      }));
+      const arr = [...map.values()].sort((a,b) => b.by.length - a.by.length);
+      return arr.length ? arr.map(i => `<li>${esc(i.text)}<small>${i.by.length>1?"👍 ":""}${i.by.map(esc).join(", ")}</small></li>`).join("")
+                        : `<li class="empty" style="background:none;border:none;padding:0">No ideas yet.</li>`;
+    };
+    $("eatList").innerHTML = ideaList("eat");
+    $("goList").innerHTML = ideaList("go");
+
+    const others = entries.filter(e => e.other);
+    $("otherList").innerHTML = others.length ? others.map(e => `<li><b>${esc(e.name)}:</b> ${esc(e.other)}</li>`).join("")
+                                             : `<li class="empty" style="background:none;border:none;padding:0">None noted.</li>`;
+  }
+
+  // ---- connect: load now, then refresh every 15s while the tab is visible
+  render();
+  load();
+  setInterval(() => { if (!document.hidden) load(); }, 15000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+})();
+</script>
+</body>
+</html>
