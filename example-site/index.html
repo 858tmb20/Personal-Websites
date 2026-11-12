@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<!--
+  EXAMPLE SITE — "Ember & Rye", a made-up neighborhood bakery.
+  Read this file top to bottom. Comments marked "LESSON" explain *why*
+  something is done, not just what it is.
+
+  Files in this folder:
+    index.html   → the content and structure (this file)
+    styles.css   → how it looks
+    script.js    → how it behaves
+    favicon.svg  → the little icon in the browser tab
+-->
+<html lang="en">
+<head>
+  <!-- LESSON: These first two lines belong on every page.
+       charset = handle emoji/accents correctly.
+       viewport = without it, phones render the page zoomed-out like a desktop. -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- LESSON: SEO + sharing. <title> shows in the tab and in Google results.
+       "description" is the grey text under the Google result.
+       og:* tags control the preview card when someone pastes your link
+       into iMessage, Slack, LinkedIn, etc. -->
+  <title>Ember &amp; Rye — Neighborhood Bakery</title>
+  <meta name="description" content="Small-batch sourdough, pastries and coffee. Baked every morning on Linden Street.">
+  <meta property="og:title" content="Ember & Rye — Neighborhood Bakery">
+  <meta property="og:description" content="Small-batch sourdough, pastries and coffee.">
+  <meta property="og:type" content="website">
+
+  <!-- LESSON: Tell the browser we support both color schemes, so form controls
+       and scrollbars match dark mode too. -->
+  <meta name="color-scheme" content="light dark">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+  <!-- LESSON: Fonts. "preconnect" opens the connection early so text appears faster. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- LESSON: Styles live in their own file. Every page of the site can share it,
+       and the browser caches it, so page 2 loads faster than page 1. -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- LESSON: "defer" = download the script now, but run it after the HTML is
+       parsed. That means the script can safely find elements on the page,
+       and it doesn't block the page from appearing. -->
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <!-- LESSON: Accessibility. Keyboard and screen-reader users press Tab first;
+       this lets them jump straight past the nav. It's invisible until focused. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ HEADER / NAV ============
+       LESSON: Use "semantic" tags (header, nav, main, section, footer)
+       instead of a pile of <div>s. They mean something to screen readers
+       and search engines, and they make your own code easier to scan. -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <img src="favicon.svg" alt="" width="28" height="28">
+        <span>Ember &amp; Rye</span>
+      </a>
+
+      <!-- LESSON: On phones the menu collapses behind this button.
+           aria-expanded tells screen readers whether it's open;
+           script.js keeps it updated. -->
+      <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">
+        <span class="sr-only">Menu</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+
+      <nav id="site-nav" class="site-nav">
+        <ul>
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#visit">Visit</a></li>
+          <li><a href="#order" class="btn btn-small">Pre-order</a></li>
+        </ul>
+        <!-- Dark-mode switch. Its logic is in script.js. -->
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg>
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ HERO ============
+         The big first thing people see. One headline, one sentence, one or two buttons.
+         Resist the urge to say everything here. -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <p class="eyebrow">Linden Street · Since 2019</p>
+          <h1>Bread worth waking up for.</h1>
+          <p class="lede">Slow-fermented sourdough, buttery pastries and good coffee, baked in small batches every morning.</p>
+          <div class="hero-actions">
+            <a href="#order" class="btn">Pre-order for pickup</a>
+            <a href="#menu" class="btn btn-ghost">See today's menu</a>
+          </div>
+        </div>
+        <!-- LESSON: Decorative art drawn in CSS/SVG means no image file to load.
+             aria-hidden hides it from screen readers since it carries no meaning. -->
+        <div class="hero-art" aria-hidden="true">
+          <div class="loaf"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MENU ============
+         LESSON: The cards are NOT written here by hand. script.js builds them
+         from a data list. Change the list → the page updates. This is the same
+         idea your Supabase-backed pages use, just with local data. -->
+    <section id="menu" class="section">
+      <div class="container">
+        <header class="section-head">
+          <h2>Today's menu</h2>
+          <p>Filter by what you're in the mood for.</p>
+        </header>
+
+        <!-- Filter buttons. data-filter is a custom attribute script.js reads. -->
+        <div class="filters" role="group" aria-label="Filter menu">
+          <button class="chip is-active" data-filter="all">All</button>
+          <button class="chip" data-filter="bread">Bread</button>
+          <button class="chip" data-filter="pastry">Pastry</button>
+          <button class="chip" data-filter="drink">Drinks</button>
+        </div>
+
+        <!-- Empty on purpose — script.js fills it in. -->
+        <ul class="menu-grid" id="menu-grid"></ul>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section id="about" class="section section-alt">
+      <div class="container about">
+        <div>
+          <h2>Small batches, long ferments.</h2>
+          <p>Every loaf starts the afternoon before with a 20-hour cold rise. It's slower, but it's where the flavor comes from, and it makes the bread easier to digest.</p>
+          <p>We source flour from two mills within 150 miles and change the pastry case with the seasons.</p>
+        </div>
+        <!-- LESSON: <dl> (description list) is the right tag for label/value pairs. -->
+        <dl class="stats">
+          <div><dt>Hours of fermentation</dt><dd>20</dd></div>
+          <div><dt>Loaves baked each morning</dt><dd>140</dd></div>
+          <div><dt>Ingredients in our sourdough</dt><dd>3</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============ VISIT ============ -->
+    <section id="visit" class="section">
+      <div class="container visit">
+        <div>
+          <h2>Visit us</h2>
+          <!-- LESSON: <address> for contact info; tel: and mailto: links open the phone/email app. -->
+          <address>
+            418 Linden Street<br>
+            Portland, OR 97214<br>
+            <a href="tel:+15035550142">(503) 555-0142</a>
+          </address>
+          <!-- Open/closed badge is calculated live by script.js. -->
+          <p class="open-status" id="open-status">Checking hours…</p>
+        </div>
+        <table class="hours">
+          <caption class="sr-only">Opening hours</caption>
+          <tbody>
+            <tr><th scope="row">Mon</th><td>Closed</td></tr>
+            <tr><th scope="row">Tue – Fri</th><td>7:00 – 15:00</td></tr>
+            <tr><th scope="row">Sat – Sun</th><td>8:00 – 14:00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ ORDER FORM ============
+         LESSON: Every input has a <label> linked by for/id. Clicking the label
+         focuses the input, and screen readers announce it. "required", "type=email"
+         and "min" give you free validation from the browser. script.js adds
+         friendlier messages on top. -->
+    <section id="order" class="section section-alt">
+      <div class="container narrow">
+        <header class="section-head">
+          <h2>Pre-order for pickup</h2>
+          <p>Order by 6 pm and we'll hold it for you tomorrow.</p>
+        </header>
+
+        <form class="order-form" id="order-form" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
+            <p class="error" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+            <p class="error" aria-live="polite"></p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="item">Item</label>
+              <!-- Options get filled from the same menu data by script.js. -->
+              <select id="item" name="item" required>
+                <option value="">Choose…</option>
+              </select>
+              <p class="error" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="qty">Quantity</label>
+              <input id="qty" name="qty" type="number" min="1" max="12" value="1" required>
+              <p class="error" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <p class="total">Total: <strong id="order-total">$0.00</strong></p>
+          <button type="submit" class="btn btn-block">Place pre-order</button>
+          <!-- role="status" makes screen readers read the success message aloud. -->
+          <p class="form-success" id="form-success" role="status" hidden></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <!-- The year is filled in by script.js so it never goes stale. -->
+      <p>© <span id="year"></span> Ember &amp; Rye. A made-up bakery for learning purposes.</p>
+      <a href="#main">Back to top ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
